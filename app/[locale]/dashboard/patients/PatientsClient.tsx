@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import { useAppContext } from "@/components/AppContext";
 
 interface Props {
   initialPatients: Patient[];
@@ -54,10 +55,31 @@ const FACTURE_STATUS_STYLE: Record<string, string> = {
   annulee:    "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
 };
 
+const DOSSIER_TYPE_STYLE: Record<string, string> = {
+  examen:  "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+  soin:    "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  bilan:   "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
+  urgence: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  autre:   "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+};
+
+const FACTURE_STATUSES = ["en_attente", "en_cours", "payee", "annulee"] as const;
+
+const FACTURE_STATUS_LABEL: Record<string, string> = {
+  en_attente: "En attente",
+  en_cours:   "En cours",
+  payee:      "Payée",
+  annulee:    "Annulée",
+};
+
 export default function PatientsClient({ initialPatients, userId }: Props) {
   const t = useTranslations("patients");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1];
+  const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -88,6 +110,7 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
   const [selectedFacture, setSelectedFacture] = useState<HistoryFacture | null>(null);
   const [selectedFactureItems, setSelectedFactureItems] = useState<FactureItem[]>([]);
   const [selectedFactureItemsLoading, setSelectedFactureItemsLoading] = useState(false);
+  const [historyDeleteConfirm, setHistoryDeleteConfirm] = useState<{ type: "dossier" | "facture"; id: string } | null>(null);
 
   const filtered = useMemo(() =>
     patients.filter((c) =>
@@ -148,6 +171,51 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
       .order("id");
     setSelectedFactureItems((data ?? []) as FactureItem[]);
     setSelectedFactureItemsLoading(false);
+  }
+
+  async function handleHistoryDossierDelete() {
+    if (!historyDeleteConfirm || !selectedDossier) return;
+    await supabase.from("dossiers").delete().eq("id", historyDeleteConfirm.id);
+    setHistoryDossiers((ds) => ds.filter((d) => d.id !== historyDeleteConfirm.id));
+    setHistoryDeleteConfirm(null);
+    setSelectedDossier(null);
+  }
+
+  async function handleHistoryFactureDelete() {
+    if (!historyDeleteConfirm || !selectedFacture) return;
+    await supabase.from("factures").delete().eq("id", historyDeleteConfirm.id);
+    setHistoryFactures((fs) => fs.filter((f) => f.id !== historyDeleteConfirm.id));
+    setHistoryDeleteConfirm(null);
+    setSelectedFacture(null);
+  }
+
+  async function handleHistoryFactureStatusChange(newStatus: string) {
+    if (!selectedFacture) return;
+    await supabase.from("factures").update({ status: newStatus }).eq("id", selectedFacture.id);
+    const updated = { ...selectedFacture, status: newStatus };
+    setSelectedFacture(updated);
+    setHistoryFactures((fs) => fs.map((f) => (f.id === updated.id ? updated : f)));
+  }
+
+  async function exportHistoryFacturePdf() {
+    if (!selectedFacture) return;
+    const { exportFacturePdf } = await import("@/utils/pdf-export");
+    exportFacturePdf({
+      factureId:     selectedFacture.id,
+      patientName:   historyPatient ? `${historyPatient.first_name} ${historyPatient.last_name}` : "—",
+      patientPhone:  historyPatient?.phone ?? null,
+      patientAddress: null,
+      createdAt:     selectedFacture.created_at,
+      statusLabel:   FACTURE_STATUS_LABEL[selectedFacture.status] ?? selectedFacture.status,
+      items:         selectedFactureItems.map((i) => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price })),
+      totalPrice:    selectedFacture.total_price,
+      depositPaid:   selectedFacture.deposit_paid,
+      notes:         selectedFacture.notes,
+      shopName,
+      shopAddress,
+      shopPhone,
+      logoUrl,
+    });
   }
 
   function field(key: keyof typeof form) {
@@ -453,9 +521,16 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
           <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl"
             onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <div>
-                <h2 className="font-semibold text-zinc-900 dark:text-white">{selectedDossier.type}</h2>
-                <p className="text-xs text-zinc-400 mt-0.5">{fmtDate(selectedDossier.exam_date)}</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-lg">🦷</div>
+                <div>
+                  <h2 className="font-semibold text-zinc-900 dark:text-white">
+                    {historyPatient ? `${historyPatient.first_name} ${historyPatient.last_name}` : ""}
+                  </h2>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${DOSSIER_TYPE_STYLE[selectedDossier.type] ?? DOSSIER_TYPE_STYLE.autre}`}>
+                    {selectedDossier.type}
+                  </span>
+                </div>
               </div>
               <button onClick={() => setSelectedDossier(null)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
@@ -465,6 +540,20 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
               <DR label="Prochain contrôle" value={fmtDate(selectedDossier.next_exam_date)} />
               <DR label="Traité par" value={selectedDossier.treated_by ? `Dr. ${selectedDossier.treated_by}` : null} />
               <DR label="Notes cliniques" value={selectedDossier.dental_notes} />
+            </div>
+            <div className="flex items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
+              <button
+                onClick={() => setHistoryDeleteConfirm({ type: "dossier", id: selectedDossier.id })}
+                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
+                Supprimer
+              </button>
+              <div className="ms-auto">
+                <button
+                  onClick={() => { setSelectedDossier(null); router.push(`/${locale}/dashboard/dossiers?detail=${selectedDossier.id}`); }}
+                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
+                  ✏️ Modifier
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -477,51 +566,105 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
           <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-h-[90vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
-              <div>
-                <h2 className="font-semibold text-zinc-900 dark:text-white">Facture — {fmtDate(selectedFacture.created_at)}</h2>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block ${FACTURE_STATUS_STYLE[selectedFacture.status] ?? "bg-zinc-100 text-zinc-600"}`}>
-                  {selectedFacture.status}
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-lg">🧾</div>
+                <div>
+                  <h2 className="font-semibold text-zinc-900 dark:text-white">
+                    {historyPatient ? `${historyPatient.first_name} ${historyPatient.last_name}` : ""}
+                  </h2>
+                  <p className="text-xs text-zinc-400">{fmtDate(selectedFacture.created_at)}</p>
+                </div>
               </div>
               <button onClick={() => setSelectedFacture(null)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-              {selectedFacture.notes && (
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">{selectedFacture.notes}</p>
-              )}
-              {selectedFactureItemsLoading ? (
-                <div className="flex justify-center py-8">
-                  <svg className="w-6 h-6 animate-spin text-teal-500" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                </div>
-              ) : selectedFactureItems.length > 0 ? (
-                <div className="space-y-2">
-                  {selectedFactureItems.map((item) => (
-                    <div key={item.id}
-                      className="flex items-center justify-between rounded-lg bg-zinc-50 dark:bg-zinc-800/50 px-4 py-2.5 text-sm">
-                      <div>
-                        <p className="font-medium text-zinc-900 dark:text-white">{item.description}</p>
-                        <p className="text-xs text-zinc-400">×{item.quantity} · {item.unit_price.toFixed(2)} MAD</p>
-                      </div>
-                      <p className="font-semibold text-zinc-900 dark:text-white shrink-0">
-                        {(item.quantity * item.unit_price).toFixed(2)} MAD
-                      </p>
-                    </div>
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
+              {/* Inline status change */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 w-24 shrink-0">Statut</span>
+                <select
+                  value={selectedFacture.status}
+                  onChange={(e) => handleHistoryFactureStatusChange(e.target.value)}
+                  className={`flex-1 px-2 py-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 ${FACTURE_STATUS_STYLE[selectedFacture.status] ?? ""}`}>
+                  {FACTURE_STATUSES.map((s) => (
+                    <option key={s} value={s}>{FACTURE_STATUS_LABEL[s]}</option>
                   ))}
-                </div>
-              ) : null}
-              <div className="border-t border-zinc-100 dark:border-zinc-800 pt-3 space-y-1">
-                <DR label="Total" value={`${selectedFacture.total_price.toFixed(2)} MAD`} />
-                {selectedFacture.deposit_paid > 0 && (
-                  <DR label="Acompte versé" value={`${selectedFacture.deposit_paid.toFixed(2)} MAD`} />
-                )}
-                {selectedFacture.deposit_paid > 0 && (
-                  <DR label="Reste à payer" value={`${(selectedFacture.total_price - selectedFacture.deposit_paid).toFixed(2)} MAD`} />
+                </select>
+              </div>
+              <DR label="Total" value={`${selectedFacture.total_price.toFixed(2)} MAD`} />
+              <DR label="Acompte versé" value={`${selectedFacture.deposit_paid.toFixed(2)} MAD`} />
+              <DR label="Reste à payer" value={`${(selectedFacture.total_price - selectedFacture.deposit_paid).toFixed(2)} MAD`} />
+              <DR label="Notes" value={selectedFacture.notes} />
+              {/* Items */}
+              <div className="pt-2">
+                <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">Lignes de facture</p>
+                {selectedFactureItemsLoading ? (
+                  <div className="flex justify-center py-6">
+                    <svg className="w-6 h-6 animate-spin text-teal-500" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                  </div>
+                ) : selectedFactureItems.length === 0 ? (
+                  <p className="text-sm text-zinc-400 text-center py-4">Aucune ligne</p>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedFactureItems.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between rounded-lg border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{item.description}</p>
+                          <p className="text-xs text-zinc-400">Qté: {item.quantity}</p>
+                        </div>
+                        <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ms-3 shrink-0">
+                          {(item.quantity * item.unit_price).toFixed(2)} MAD
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 shrink-0">
+              <button
+                onClick={() => setHistoryDeleteConfirm({ type: "facture", id: selectedFacture.id })}
+                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
+                Supprimer
+              </button>
+              <div className="ms-auto flex items-center gap-2">
+                <button
+                  onClick={exportHistoryFacturePdf}
+                  className="px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors">
+                  🖨️ PDF
+                </button>
+                <button
+                  onClick={() => { setSelectedFacture(null); router.push(`/${locale}/dashboard/factures?detail=${selectedFacture.id}`); }}
+                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
+                  ✏️ Modifier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History delete confirmation */}
+      {historyDeleteConfirm && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Confirmer la suppression</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+              Cette action est irréversible.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setHistoryDeleteConfirm(null)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                Annuler
+              </button>
+              <button
+                onClick={historyDeleteConfirm.type === "dossier" ? handleHistoryDossierDelete : handleHistoryFactureDelete}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">
+                Supprimer
+              </button>
             </div>
           </div>
         </div>
