@@ -35,6 +35,13 @@ type HistoryFacture = {
   notes: string | null;
 };
 
+type FactureItem = {
+  id: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+};
+
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -75,6 +82,12 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyDossiers, setHistoryDossiers] = useState<HistoryDossier[]>([]);
   const [historyFactures, setHistoryFactures] = useState<HistoryFacture[]>([]);
+
+  // Detail modals from history
+  const [selectedDossier, setSelectedDossier] = useState<HistoryDossier | null>(null);
+  const [selectedFacture, setSelectedFacture] = useState<HistoryFacture | null>(null);
+  const [selectedFactureItems, setSelectedFactureItems] = useState<FactureItem[]>([]);
+  const [selectedFactureItemsLoading, setSelectedFactureItemsLoading] = useState(false);
 
   const filtered = useMemo(() =>
     patients.filter((c) =>
@@ -122,6 +135,19 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
     setHistoryDossiers((dossiers ?? []) as HistoryDossier[]);
     setHistoryFactures((factures ?? []) as HistoryFacture[]);
     setHistoryLoading(false);
+  }
+
+  async function openFactureDetail(f: HistoryFacture) {
+    setSelectedFacture(f);
+    setSelectedFactureItemsLoading(true);
+    setSelectedFactureItems([]);
+    const { data } = await supabase
+      .from("facture_items")
+      .select("id, description, quantity, unit_price")
+      .eq("facture_id", f.id)
+      .order("id");
+    setSelectedFactureItems((data ?? []) as FactureItem[]);
+    setSelectedFactureItemsLoading(false);
   }
 
   function field(key: keyof typeof form) {
@@ -354,7 +380,8 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
                       <div className="space-y-3">
                         {historyDossiers.map((d) => (
                           <div key={d.id}
-                            className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4">
+                            onClick={() => setSelectedDossier(d)}
+                            className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm transition-all">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm font-medium text-zinc-900 dark:text-white">
                                 {d.type}
@@ -390,7 +417,8 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
                       <div className="space-y-2">
                         {historyFactures.map((f) => (
                           <div key={f.id}
-                            className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3">
+                            onClick={() => openFactureDetail(f)}
+                            className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm transition-all">
                             <div>
                               <p className="text-sm font-medium text-zinc-900 dark:text-white">{fmtDate(f.created_at)}</p>
                               {f.notes && <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">{f.notes}</p>}
@@ -416,6 +444,87 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
             </div>
           </div>
         </>
+      )}
+
+      {/* Dossier detail modal (from history) */}
+      {selectedDossier && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setSelectedDossier(null)}>
+          <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div>
+                <h2 className="font-semibold text-zinc-900 dark:text-white">{selectedDossier.type}</h2>
+                <p className="text-xs text-zinc-400 mt-0.5">{fmtDate(selectedDossier.exam_date)}</p>
+              </div>
+              <button onClick={() => setSelectedDossier(null)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
+            </div>
+            <div className="px-6 py-5 space-y-1">
+              <DR label="Date d'examen" value={fmtDate(selectedDossier.exam_date)} />
+              <DR label="Prochain contrôle" value={fmtDate(selectedDossier.next_exam_date)} />
+              <DR label="Traité par" value={selectedDossier.treated_by ? `Dr. ${selectedDossier.treated_by}` : null} />
+              <DR label="Notes cliniques" value={selectedDossier.dental_notes} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Facture detail modal (from history) */}
+      {selectedFacture && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setSelectedFacture(null)}>
+          <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+              <div>
+                <h2 className="font-semibold text-zinc-900 dark:text-white">Facture — {fmtDate(selectedFacture.created_at)}</h2>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block ${FACTURE_STATUS_STYLE[selectedFacture.status] ?? "bg-zinc-100 text-zinc-600"}`}>
+                  {selectedFacture.status}
+                </span>
+              </div>
+              <button onClick={() => setSelectedFacture(null)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+              {selectedFacture.notes && (
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">{selectedFacture.notes}</p>
+              )}
+              {selectedFactureItemsLoading ? (
+                <div className="flex justify-center py-8">
+                  <svg className="w-6 h-6 animate-spin text-teal-500" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                </div>
+              ) : selectedFactureItems.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedFactureItems.map((item) => (
+                    <div key={item.id}
+                      className="flex items-center justify-between rounded-lg bg-zinc-50 dark:bg-zinc-800/50 px-4 py-2.5 text-sm">
+                      <div>
+                        <p className="font-medium text-zinc-900 dark:text-white">{item.description}</p>
+                        <p className="text-xs text-zinc-400">×{item.quantity} · {item.unit_price.toFixed(2)} MAD</p>
+                      </div>
+                      <p className="font-semibold text-zinc-900 dark:text-white shrink-0">
+                        {(item.quantity * item.unit_price).toFixed(2)} MAD
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              <div className="border-t border-zinc-100 dark:border-zinc-800 pt-3 space-y-1">
+                <DR label="Total" value={`${selectedFacture.total_price.toFixed(2)} MAD`} />
+                {selectedFacture.deposit_paid > 0 && (
+                  <DR label="Acompte versé" value={`${selectedFacture.deposit_paid.toFixed(2)} MAD`} />
+                )}
+                {selectedFacture.deposit_paid > 0 && (
+                  <DR label="Reste à payer" value={`${(selectedFacture.total_price - selectedFacture.deposit_paid).toFixed(2)} MAD`} />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Add / Edit modal */}
