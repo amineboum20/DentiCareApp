@@ -1,0 +1,309 @@
+{
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How it works",
+    "signIn": "Sign in",
+    "getStarted": "Get started free"
+  },
+  "hero": {
+    "badge": "For dental practices",
+    "title": "Everything your dental practice needs,",
+    "titleHighlight": "in one place.",
+    "subtitle": "Manage patients, dental records, treatments and invoices effortlessly. Say goodbye to paper and spreadsheets — DentiCare keeps your practice organized.",
+    "cta": "Get started free",
+    "ctaSecondary": "See all features →",
+    "noCreditCard": "No credit card · Free to start"
+  },
+  "stats": {
+    "totalPatients": "Total patients",
+    "facturesMonth": "Invoices this month",
+    "appointmentsToday": "Appointments today",
+    "pendingPayments": "Pending payments",
+    "thisMonth": "this month",
+    "vsLastMonth": "vs last month",
+    "overdue": "overdue",
+    "days": "> 7 days"
+  },
+  "features": {
+    "sectionTitle": "Everything you need to run your practice",
+    "sectionSubtitle": "Built for the daily reality of a dental practice. Click a feature to see a preview.",
+    "patients": { "title": "Patient management", "desc": "Store complete patient profiles with contact info, date of birth and full care history." },
+    "dossiers": { "title": "Dental records", "desc": "Record exams, treatments, clinical notes and next check-up date. Never lose a file again." },
+    "traitements": { "title": "Treatment catalog", "desc": "Manage your catalog of dental procedures with category, price and duration. Add them in one click to invoices." },
+    "factures": { "title": "Invoicing", "desc": "Create invoices, track payments and generate professional PDFs with one click." },
+    "appointments": { "title": "Appointments", "desc": "Schedule and manage consultations and treatments. Reduce no-shows with WhatsApp reminders." },
+    "reports": { "title": "Dashboard & reports", "desc": "See your practice performance at a glance — revenue, top treatments and patient retention." },
+    "search": { "title": "Quick search", "desc": "Instantly find any patient, treatment or appointment." },
+    "print": { "title": "Print & export", "desc": "Print invoices, quotes and patient cards in one click." },
+    "security": { "title": "Secure & private", "desc": "Patient data is encrypted and stored securely. GDPR compliant by design." },
+    "seePreview": "See preview →",
+    "preview": "Preview",
+    "previewNote": "This is a preview with sample data.",
+    "getStartedFree": "Get started free →"
+  },
+  "howItWorks": {
+    "title": "Up and running in minutes",
+    "subtitle": "No IT team needed. No complex setup.",
+    "step1Title": "Create your account",
+    "step1Desc": "Sign up free in under a minute. No credit card required.",
+    "step2Title": "Add your data",
+    "step2Desc": "Import existing patients or start fresh. Add your treatment catalog.",
+    "step3Title": "Start managing",
+    "step3Desc": "Create your first invoice, book an appointment — you're ready."
+  },
+  "testimonial": {
+    "quote": "Since using DentiCare, we spend half the time on admin and twice as much time with our patients.",
+    "author": "Dr. Karim B.",
+    "role": "Dentist, Casablanca"
+  },
+  "cta": {
+    "title": "Ready to modernize your practice?",
+    "subtitle": "Join dentists who manage their practice smarter with DentiCare.",
+    "button": "Get started free"
+  },
+  "footer": { "rights": "© 2025 DentiCare. All rights reserved." },
+  "signIn": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to your DentiCare account",
+    "noAccount": "No account?",
+    "signUpFree": "Sign up free",
+    "email": "Email address",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "button": "Sign in",
+    "loading": "Signing in…",
+    "orContinueWith": "or",
+    "google": "Continue with Google",
+    "dontHaveAccount": "Don't have an account?",
+    "signUpLink": "Sign up free"
+  },
+  "signUp": {
+    "title": "Create your account",
+    "subtitle": "Free to start — no credit card",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "shopName": "Practice name",
+    "email": "Email address",
+    "password": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "confirmPassword": "Confirm password",
+    "button": "Create account",
+    "loading": "Creating account…",
+    "google": "Continue with Google",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "checkEmail": "Check your email",
+    "checkEmailDesc": "We sent a confirmation link to {email}. Click it to activate your account, then sign in.",
+    "goToSignIn": "Go to sign in"
+  },
+  "dashboard": {
+    "greeting": "Hello{name} 👋",
+    "subtitle": "Here's what's happening at {shop} today.",
+    "stats": {
+      "totalPatients": "Total patients",
+      "facturesMonth": "Invoices this month",
+      "appointmentsToday": "Appointments today",
+      "pendingPayments": "Pending payments",
+      "addFirstPatient": "Add your first patient",
+      "noFactures": "No invoices",
+      "noAppointments": "No appointments",
+      "allPaid": "All up to date"
+    },
+    "quickActions": "Quick actions",
+    "newPatient": "New patient",
+    "newFacture": "New invoice",
+    "bookAppointment": "Book appointment",
+    "newDossier": "New record",
+    "recentActivity": "Recent activity",
+    "shopReady": "Your practice is ready",
+    "shopReadyDesc": "Start by adding your first patient.",
+    "nav": {
+      "dashboard": "Dashboard",
+      "patients": "Patients",
+      "dossiers": "Records",
+      "traitements": "Treatments",
+      "factures": "Invoices",
+      "appointments": "Appointments",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "signOut": "Sign out"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "searchPlaceholder": "Search by patient or title…",
+    "newAppointment": "New appointment",
+    "noAppointments": "No appointments",
+    "noAppointmentsDesc": "Schedule your first appointment.",
+    "noResults": "No results",
+    "noResultsDesc": "No appointment matches \"{query}\".",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "allStatuses": "All",
+    "statuses": { "planifie": "Scheduled", "termine": "Completed", "annule": "Cancelled", "absent": "No-show" },
+    "types": { "consultation": "Consultation", "nettoyage": "Cleaning", "soin": "Treatment", "chirurgie": "Surgery", "controle": "Check-up", "orthodontie": "Orthodontics", "autre": "Other" },
+    "form": {
+      "addTitle": "New appointment", "editTitle": "Edit appointment",
+      "title": "Title", "titlePlaceholder": "e.g. Scaling",
+      "patient": "Patient", "noPatient": "No patient",
+      "type": "Type", "date": "Date", "time": "Time", "duration": "Duration",
+      "status": "Status", "notes": "Notes",
+      "save": "Save", "saving": "Saving…", "cancel": "Cancel",
+      "requiredError": "Title and date are required."
+    },
+    "deleteConfirm": {
+      "title": "Delete appointment",
+      "message": "Delete appointment \"{title}\"?",
+      "confirm": "Delete", "cancel": "Cancel"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "totalPatients": "Total patients",
+    "revenueMonth": "Revenue this month",
+    "facturesMonth": "Invoices this month",
+    "appointmentsToday": "Appointments today",
+    "thisMonth": "this month",
+    "vsLastMonth": "vs last month",
+    "firstMonth": "first month",
+    "pending": "pending",
+    "paid": "paid",
+    "topItems": "Top treatments",
+    "noData": "No data yet.",
+    "revenueSummary": "Revenue summary",
+    "lastMonth": "Last month",
+    "pendingAmount": "Outstanding balance",
+    "pendingAmountDesc": "Total minus deposits paid",
+    "revenueChart": "Revenue (last 6 months)",
+    "factureStatus": "Invoice breakdown"
+  },
+  "traitements": {
+    "title": "Treatments",
+    "searchPlaceholder": "Search by name or category…",
+    "newTraitement": "New treatment",
+    "noTraitements": "No treatments yet",
+    "noTraitementsDesc": "Add your dental procedures and services.",
+    "noResults": "No results",
+    "noResultsDesc": "No treatment matches \"{query}\".",
+    "allCategories": "All",
+    "categories": {
+      "nettoyage": "Cleaning",
+      "obturation": "Filling",
+      "extraction": "Extraction",
+      "couronne": "Crown",
+      "implant": "Implant",
+      "orthodontie": "Orthodontics",
+      "blanchiment": "Whitening",
+      "prothese": "Prosthesis",
+      "autre": "Other"
+    },
+    "columns": { "traitement": "Treatment", "category": "Category", "price": "Price", "duration": "Duration" },
+    "form": {
+      "addTitle": "New treatment", "editTitle": "Edit treatment",
+      "name": "Name", "namePlaceholder": "e.g. Scaling",
+      "category": "Category", "price": "Price (MAD)", "duration": "Duration (minutes)",
+      "description": "Description", "notes": "Notes",
+      "save": "Save", "saving": "Saving…", "cancel": "Cancel",
+      "requiredError": "Name and price are required."
+    },
+    "deleteConfirm": {
+      "title": "Delete treatment",
+      "message": "Delete \"{name}\"? This cannot be undone.",
+      "confirm": "Delete", "cancel": "Cancel"
+    }
+  },
+  "factures": {
+    "title": "Invoices",
+    "searchPlaceholder": "Search by patient…",
+    "newFacture": "New invoice",
+    "noFactures": "No invoices yet",
+    "noFacturesDesc": "Create your first invoice.",
+    "noResults": "No results",
+    "noResultsDesc": "No invoice matches \"{query}\".",
+    "allStatuses": "All",
+    "statuses": { "en_attente": "Pending", "en_cours": "In progress", "payee": "Paid", "annulee": "Cancelled" },
+    "columns": { "patient": "Patient", "date": "Date", "status": "Status", "total": "Total", "deposit": "Deposit" },
+    "form": {
+      "addTitle": "New invoice", "editTitle": "Edit invoice",
+      "patient": "Patient", "selectPatient": "Select a patient…",
+      "status": "Status", "items": "Items",
+      "addItem": "Add item",
+      "traitement": "Treatment (optional)", "customItem": "Custom item",
+      "description": "Description", "descriptionPlaceholder": "e.g. Full scaling",
+      "qty": "Qty", "unitPrice": "Unit price",
+      "total": "Total", "deposit": "Deposit", "notes": "Notes",
+      "save": "Save", "saving": "Saving…", "cancel": "Cancel",
+      "patientRequired": "Please select a patient.",
+      "itemRequired": "Add at least one item."
+    },
+    "deleteConfirm": {
+      "title": "Delete invoice",
+      "message": "Delete invoice for {name} on {date}?",
+      "confirm": "Delete", "cancel": "Cancel"
+    }
+  },
+  "dossiers": {
+    "title": "Dental records",
+    "searchPlaceholder": "Search by patient or dentist…",
+    "newDossier": "New record",
+    "noDossiers": "No records yet",
+    "noDossiersDesc": "Add the first record for a patient.",
+    "noResults": "No results",
+    "noResultsDesc": "No record matches \"{query}\".",
+    "columns": { "patient": "Patient", "date": "Exam date", "type": "Type", "dentist": "Dentist" },
+    "types": { "examen": "Exam", "soin": "Treatment", "bilan": "Assessment", "urgence": "Emergency", "autre": "Other" },
+    "form": {
+      "addTitle": "New record", "editTitle": "Edit record",
+      "patient": "Patient", "selectPatient": "Select a patient…",
+      "type": "Visit type", "examDate": "Exam date", "nextExamDate": "Next check-up",
+      "treatedBy": "Dentist", "treatedByPlaceholder": "Dr. Name",
+      "dentalNotes": "Clinical notes", "dentalNotesPlaceholder": "Observations, treatments, recommendations…",
+      "document": "Document (optional)",
+      "dropOrClick": "Drag and drop a PDF or image, or click to browse",
+      "tapToChoose": "Tap to choose a file",
+      "fileHint": "PDF, JPG, PNG · max 10 MB",
+      "browseFile": "Browse",
+      "removeDocument": "Remove",
+      "fileTooLarge": "File exceeds the 10 MB limit.",
+      "save": "Save", "saving": "Saving…", "cancel": "Cancel",
+      "requiredError": "Patient and exam date are required."
+    },
+    "deleteConfirm": {
+      "title": "Delete record",
+      "message": "Delete record for {name} on {date}?",
+      "confirm": "Delete", "cancel": "Cancel"
+    }
+  },
+  "patients": {
+    "title": "Patients",
+    "searchPlaceholder": "Search by name, phone or email…",
+    "newPatient": "New patient",
+    "noPatients": "No patients yet",
+    "noPatientsDesc": "Add your first patient to get started.",
+    "noResults": "No results",
+    "noResultsDesc": "No patient matches \"{query}\".",
+    "columns": { "name": "Name", "phone": "Phone", "email": "Email", "dob": "Date of birth", "added": "Added" },
+    "history": {
+      "subtitle": "Records and invoices",
+      "dossiers": "Dental records",
+      "factures": "Invoices",
+      "noDossiers": "No records found.",
+      "noFactures": "No invoices found."
+    },
+    "form": {
+      "addTitle": "New patient", "editTitle": "Edit patient",
+      "firstName": "First name", "lastName": "Last name",
+      "email": "Email", "phone": "Phone",
+      "dob": "Date of birth", "address": "Address", "notes": "Notes",
+      "save": "Save", "saving": "Saving…", "cancel": "Cancel",
+      "requiredError": "First name and last name are required."
+    },
+    "deleteConfirm": {
+      "title": "Delete patient",
+      "message": "Are you sure you want to delete {name}? This cannot be undone.",
+      "confirm": "Delete", "cancel": "Cancel"
+    }
+  }
+}

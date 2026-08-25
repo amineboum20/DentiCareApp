@@ -1,0 +1,870 @@
+<title>OptiApp Docs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+  /* ── Tokens ─────────────────────────────────────────────────── */
+  :root {
+    --bg:         #F6F7FB;
+    --bg-sidebar: #ECEEF6;
+    --bg-card:    #FFFFFF;
+    --bg-code:    #EEF0F8;
+    --border:     #D8DCF0;
+    --text:       #111328;
+    --text-muted: #5C6080;
+    --text-faint: #9499BB;
+    --accent:     #4361EE;
+    --accent-dim: #EEF1FD;
+    --green:      #1A9E6F;
+    --green-dim:  #E6F6F0;
+    --amber:      #B45309;
+    --amber-dim:  #FEF3C7;
+    --red:        #C42B2B;
+    --red-dim:    #FEE2E2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:         #0B0D14;
+      --bg-sidebar: #0F1120;
+      --bg-card:    #141728;
+      --bg-code:    #1A1D30;
+      --border:     #252844;
+      --text:       #DDE0F5;
+      --text-muted: #7880AA;
+      --text-faint: #454A6A;
+      --accent:     #748FFC;
+      --accent-dim: #1B2045;
+      --green:      #34C995;
+      --green-dim:  #0D2A20;
+      --amber:      #F59E0B;
+      --amber-dim:  #2A1F0A;
+      --red:        #F87171;
+      --red-dim:    #2A0F0F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:         #0B0D14;
+    --bg-sidebar: #0F1120;
+    --bg-card:    #141728;
+    --bg-code:    #1A1D30;
+    --border:     #252844;
+    --text:       #DDE0F5;
+    --text-muted: #7880AA;
+    --text-faint: #454A6A;
+    --accent:     #748FFC;
+    --accent-dim: #1B2045;
+    --green:      #34C995;
+    --green-dim:  #0D2A20;
+    --amber:      #F59E0B;
+    --amber-dim:  #2A1F0A;
+    --red:        #F87171;
+    --red-dim:    #2A0F0F;
+  }
+
+  /* ── Reset & base ───────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ────────────────────────────────────────────────── */
+  nav {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 32px 0 40px;
+    display: flex;
+    flex-direction: column;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text);
+    padding: 0 24px 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 12px 24px 6px;
+  }
+  nav a {
+    display: block;
+    padding: 6px 24px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+    border-left: 2px solid transparent;
+  }
+  nav a:hover { color: var(--text); background: var(--accent-dim); }
+  nav a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); }
+
+  /* ── Main content ────────────────────────────────────────────── */
+  main {
+    flex: 1;
+    min-width: 0;
+    padding: 56px 64px 96px;
+    max-width: 860px;
+  }
+
+  /* ── Typography ─────────────────────────────────────────────── */
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    text-wrap: balance;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.15;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+    margin: 52px 0 16px;
+    padding-top: 52px;
+    border-top: 1px solid var(--border);
+    text-wrap: balance;
+  }
+  h2:first-of-type { border-top: none; padding-top: 0; margin-top: 36px; }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    margin: 28px 0 10px;
+    text-wrap: balance;
+  }
+  p { color: var(--text-muted); margin-bottom: 14px; max-width: 68ch; }
+  p strong { color: var(--text); font-weight: 500; }
+
+  /* ── Lead / subtitle ────────────────────────────────────────── */
+  .lead {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 0;
+    max-width: 58ch;
+    line-height: 1.65;
+  }
+  .meta {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0 0;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .chip.green { background: var(--green-dim); color: var(--green); }
+  .chip.amber { background: var(--amber-dim); color: var(--amber); }
+
+  /* ── Code ───────────────────────────────────────────────────── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--bg-code);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    margin: 14px 0 20px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+  pre .kw  { color: var(--accent); }
+  pre .str { color: var(--green); }
+  pre .cm  { color: var(--text-faint); font-style: italic; }
+  pre .ty  { color: var(--amber); }
+
+  /* ── Tables ─────────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 14px 0 24px; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 10px 16px;
+    text-align: left;
+    background: var(--bg-code);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text-muted);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--accent-dim); }
+  td code { white-space: normal; }
+  td.col-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); white-space: nowrap; }
+  td.col-type { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--amber); white-space: nowrap; }
+
+  /* ── Cards ──────────────────────────────────────────────────── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p { margin-bottom: 0; font-size: 13.5px; }
+
+  /* ── Grid ───────────────────────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── Stack list ─────────────────────────────────────────────── */
+  .stack-list { display: flex; flex-direction: column; gap: 2px; margin: 14px 0; }
+  .stack-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .stack-row:last-child { border-bottom: none; }
+  .stack-name { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--accent); min-width: 160px; flex-shrink: 0; }
+  .stack-desc { color: var(--text-muted); }
+  .stack-ver  { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-faint); margin-left: auto; flex-shrink: 0; }
+
+  /* ── Section anchors ─────────────────────────────────────────── */
+  section { padding-top: 0; }
+  section h2 a { color: inherit; text-decoration: none; }
+
+  /* ── Flow arrow ─────────────────────────────────────────────── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 14px 0 20px;
+    font-size: 13px;
+  }
+  .flow-step {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    color: var(--text);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .flow-arrow { color: var(--text-faint); font-size: 16px; }
+
+  /* ── Note box ───────────────────────────────────────────────── */
+  .note {
+    background: var(--accent-dim);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 13.5px;
+    color: var(--text-muted);
+  }
+  .note strong { color: var(--accent); }
+  .note.warn {
+    background: var(--amber-dim);
+    border-left-color: var(--amber);
+  }
+  .note.warn strong { color: var(--amber); }
+
+  /* ── Page section header ─────────────────────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  ul { padding-left: 20px; color: var(--text-muted); margin-bottom: 14px; }
+  ul li { margin-bottom: 4px; }
+</style>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div class="nav-logo">👓 <span>Opti</span>App Docs</div>
+
+  <div class="nav-group-label">Getting started</div>
+  <a href="#overview">Overview</a>
+  <a href="#stack">Tech stack</a>
+  <a href="#structure">Project structure</a>
+
+  <div class="nav-group-label">Backend</div>
+  <a href="#database">Database schema</a>
+  <a href="#rls">Row-level security</a>
+  <a href="#auth">Authentication</a>
+
+  <div class="nav-group-label">Frontend</div>
+  <a href="#i18n">Internationalisation</a>
+  <a href="#layout">Layout & routing</a>
+  <a href="#pages">Pages</a>
+
+  <div class="nav-group-label">Infrastructure</div>
+  <a href="#deployment">Deployment</a>
+  <a href="#email">Email</a>
+  <a href="#supabase-api">Supabase API</a>
+
+  <div class="nav-group-label">Reference</div>
+  <a href="#mobile">Mobile responsiveness</a>
+  <a href="#decisions">Key decisions</a>
+  <a href="#env">Environment variables</a>
+</nav>
+
+<!-- Main -->
+<main>
+
+  <!-- ── Overview ─────────────────────────────────────────── -->
+  <section id="overview">
+    <h1>Technical Documentation</h1>
+    <p class="lead">OptiApp is a multi-tenant SaaS application for independent opticians. Each optician manages their own clients, prescriptions, inventory, orders, and appointments — all isolated via Supabase Row Level Security.</p>
+    <div class="meta">
+      <span class="chip">Next.js 15</span>
+      <span class="chip">Supabase</span>
+      <span class="chip">Vercel</span>
+      <span class="chip green">Live</span>
+      <span class="chip amber">Auto-confirm ON</span>
+    </div>
+
+    <h3>What was built</h3>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">👤 Client management</div><p>Full CRUD — search, add, edit, delete with confirmation. Ordered by recency.</p></div>
+      <div class="card"><div class="card-title">📋 Prescriptions</div><p>OD/OS optical values — sphere, cylinder, axis, addition, PD per eye. Linked to clients.</p></div>
+      <div class="card"><div class="card-title">🕶️ Products</div><p>5 categories (frame, lens, contact_lens, accessory, other). Stock alerts at ≤ 3.</p></div>
+      <div class="card"><div class="card-title">📦 Orders</div><p>Order items with optional product link or custom text. Inline status updates. Live total.</p></div>
+      <div class="card"><div class="card-title">📅 Appointments</div><p>Grouped by day (Today / Tomorrow / date). Card-based with status colour bar.</p></div>
+      <div class="card"><div class="card-title">📊 Reports</div><p>KPI cards + top items bar chart + low-stock alerts + revenue summary. All server-side.</p></div>
+    </div>
+  </section>
+
+  <!-- ── Stack ─────────────────────────────────────────────── -->
+  <section id="stack">
+    <h2>Tech stack</h2>
+    <div class="stack-list">
+      <div class="stack-row"><span class="stack-name">Next.js</span><span class="stack-desc">App Router, server + client components, server actions</span><span class="stack-ver">15</span></div>
+      <div class="stack-row"><span class="stack-name">React</span><span class="stack-desc">UI library, used via Next.js</span><span class="stack-ver">19</span></div>
+      <div class="stack-row"><span class="stack-name">TypeScript</span><span class="stack-desc">Strict mode throughout</span><span class="stack-ver">5</span></div>
+      <div class="stack-row"><span class="stack-name">Tailwind CSS</span><span class="stack-desc">Utility-first styling; logical properties for RTL</span><span class="stack-ver">3</span></div>
+      <div class="stack-row"><span class="stack-name">Supabase</span><span class="stack-desc">PostgreSQL database + Auth + RLS policies</span><span class="stack-ver">—</span></div>
+      <div class="stack-row"><span class="stack-name">@supabase/ssr</span><span class="stack-desc">Server-side Supabase client (cookie-based sessions)</span><span class="stack-ver">0.5</span></div>
+      <div class="stack-row"><span class="stack-name">next-intl</span><span class="stack-desc">i18n routing, translations, RTL locale (AR)</span><span class="stack-ver">3</span></div>
+      <div class="stack-row"><span class="stack-name">Resend</span><span class="stack-desc">Transactional email via SMTP relay</span><span class="stack-ver">—</span></div>
+      <div class="stack-row"><span class="stack-name">Vercel</span><span class="stack-desc">Hosting; auto-deploys on push to <code>main</code></span><span class="stack-ver">—</span></div>
+    </div>
+  </section>
+
+  <!-- ── Structure ─────────────────────────────────────────── -->
+  <section id="structure">
+    <h2>Project structure</h2>
+    <pre>
+optic/
+├── app/
+│   └── [locale]/
+│       ├── layout.tsx              <span class="cm">← root layout; next-intl provider</span>
+│       ├── page.tsx                <span class="cm">← landing page</span>
+│       ├── signin/page.tsx
+│       ├── signup/page.tsx
+│       └── dashboard/
+│           ├── layout.tsx          <span class="cm">← auth guard + Sidebar</span>
+│           ├── page.tsx            <span class="cm">← dashboard home (real KPIs)</span>
+│           ├── Sidebar.tsx         <span class="cm">← client component</span>
+│           ├── clients/
+│           ├── prescriptions/
+│           ├── products/
+│           ├── orders/
+│           ├── appointments/
+│           └── reports/
+├── components/
+│   └── LanguageSwitcher.tsx
+├── i18n/
+│   ├── navigation.ts               <span class="cm">← typed Link + usePathname</span>
+│   ├── request.ts
+│   └── routing.ts
+├── messages/
+│   ├── fr.json
+│   ├── en.json
+│   └── ar.json
+├── types/
+│   └── database.ts                 <span class="cm">← TypeScript interfaces for all tables</span>
+├── utils/
+│   └── supabase/
+│       ├── client.ts               <span class="cm">← browser client</span>
+│       ├── server.ts               <span class="cm">← server client (cookies)</span>
+│       └── middleware.ts
+├── supabase/
+│   └── schema.sql
+├── middleware.ts                   <span class="cm">← next-intl locale detection</span>
+└── .env.local                      <span class="cm">← never committed</span></pre>
+
+    <p>Each dashboard page follows the same split: a <strong>server component</strong> (<code>page.tsx</code>) that fetches data from Supabase, then a <strong>client component</strong> (<code>XxxClient.tsx</code>) that handles all UI interaction — search, modals, optimistic updates.</p>
+  </section>
+
+  <!-- ── Database ───────────────────────────────────────────── -->
+  <section id="database">
+    <h2>Database schema</h2>
+    <p>Six tables in the <code>public</code> schema on Supabase (PostgreSQL). Every table has a <code>user_id uuid</code> column referencing <code>auth.users</code> — the RLS anchor. No application-level FK constraints exist (Supabase removes them by default).</p>
+
+    <h3>clients</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">id</td><td class="col-type">uuid</td><td>PK, default <code>gen_random_uuid()</code></td></tr>
+          <tr><td class="col-name">user_id</td><td class="col-type">uuid</td><td>References <code>auth.users</code> — RLS anchor</td></tr>
+          <tr><td class="col-name">first_name</td><td class="col-type">text</td><td>Required</td></tr>
+          <tr><td class="col-name">last_name</td><td class="col-type">text</td><td>Required</td></tr>
+          <tr><td class="col-name">email</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">phone</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">date_of_birth</td><td class="col-type">date</td><td>Optional</td></tr>
+          <tr><td class="col-name">address</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">notes</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">timestamptz</td><td>Default <code>now()</code></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">timestamptz</td><td>Updated via trigger</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>prescriptions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">id</td><td class="col-type">uuid</td><td>PK</td></tr>
+          <tr><td class="col-name">user_id</td><td class="col-type">uuid</td><td>RLS anchor</td></tr>
+          <tr><td class="col-name">client_id</td><td class="col-type">uuid</td><td>References <code>clients.id</code></td></tr>
+          <tr><td class="col-name">prescribed_by</td><td class="col-type">text</td><td>Doctor name</td></tr>
+          <tr><td class="col-name">prescribed_date</td><td class="col-type">date</td><td>Required</td></tr>
+          <tr><td class="col-name">expiry_date</td><td class="col-type">date</td><td>Optional</td></tr>
+          <tr><td class="col-name">od_sphere / os_sphere</td><td class="col-type">numeric</td><td>Right / Left eye sphere (e.g. <code>-1.75</code>)</td></tr>
+          <tr><td class="col-name">od_cylinder / os_cylinder</td><td class="col-type">numeric</td><td>Cylinder — negative convention</td></tr>
+          <tr><td class="col-name">od_axis / os_axis</td><td class="col-type">integer</td><td>1–180</td></tr>
+          <tr><td class="col-name">od_addition / os_addition</td><td class="col-type">numeric</td><td>For progressives / presbyopia</td></tr>
+          <tr><td class="col-name">pd_right / pd_left</td><td class="col-type">numeric</td><td>Pupillary distance per eye</td></tr>
+          <tr><td class="col-name">notes</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">timestamptz</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>products</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">id</td><td class="col-type">uuid</td><td>PK</td></tr>
+          <tr><td class="col-name">user_id</td><td class="col-type">uuid</td><td>RLS anchor</td></tr>
+          <tr><td class="col-name">category</td><td class="col-type">enum</td><td><code>frame | lens | contact_lens | accessory | other</code></td></tr>
+          <tr><td class="col-name">brand</td><td class="col-type">text</td><td></td></tr>
+          <tr><td class="col-name">model</td><td class="col-type">text</td><td></td></tr>
+          <tr><td class="col-name">color / material / sku</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">price</td><td class="col-type">numeric</td><td>Selling price</td></tr>
+          <tr><td class="col-name">cost_price</td><td class="col-type">numeric</td><td>Purchase cost</td></tr>
+          <tr><td class="col-name">stock_quantity</td><td class="col-type">integer</td><td>Default 0; low-stock alert ≤ 3</td></tr>
+          <tr><td class="col-name">description / notes</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">created_at / updated_at</td><td class="col-type">timestamptz</td><td>Trigger on update</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>orders</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">id</td><td class="col-type">uuid</td><td>PK</td></tr>
+          <tr><td class="col-name">user_id</td><td class="col-type">uuid</td><td>RLS anchor</td></tr>
+          <tr><td class="col-name">client_id</td><td class="col-type">uuid</td><td>References <code>clients.id</code></td></tr>
+          <tr><td class="col-name">status</td><td class="col-type">enum</td><td><code>pending | in_progress | ready | delivered | cancelled</code></td></tr>
+          <tr><td class="col-name">total_price</td><td class="col-type">numeric</td><td>Sum of order items</td></tr>
+          <tr><td class="col-name">deposit_paid</td><td class="col-type">numeric</td><td>Default 0</td></tr>
+          <tr><td class="col-name">notes</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">ordered_at</td><td class="col-type">timestamptz</td><td>Business date of order</td></tr>
+          <tr><td class="col-name">created_at / updated_at</td><td class="col-type">timestamptz</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>order_items</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">id</td><td class="col-type">uuid</td><td>PK</td></tr>
+          <tr><td class="col-name">order_id</td><td class="col-type">uuid</td><td>References <code>orders.id</code></td></tr>
+          <tr><td class="col-name">product_id</td><td class="col-type">uuid</td><td>Optional — null for custom text items</td></tr>
+          <tr><td class="col-name">description</td><td class="col-type">text</td><td>Auto-filled from product or custom</td></tr>
+          <tr><td class="col-name">quantity</td><td class="col-type">integer</td><td>Default 1</td></tr>
+          <tr><td class="col-name">unit_price</td><td class="col-type">numeric</td><td>Auto-filled from product or custom</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>appointments</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">id</td><td class="col-type">uuid</td><td>PK</td></tr>
+          <tr><td class="col-name">user_id</td><td class="col-type">uuid</td><td>RLS anchor</td></tr>
+          <tr><td class="col-name">client_id</td><td class="col-type">uuid</td><td>Optional (e.g. supplier deliveries)</td></tr>
+          <tr><td class="col-name">title</td><td class="col-type">text</td><td>Required</td></tr>
+          <tr><td class="col-name">type</td><td class="col-type">enum</td><td><code>consultation | fitting | pickup | followup | other</code></td></tr>
+          <tr><td class="col-name">status</td><td class="col-type">enum</td><td><code>scheduled | completed | cancelled | no_show</code></td></tr>
+          <tr><td class="col-name">scheduled_at</td><td class="col-type">timestamptz</td><td>Full datetime</td></tr>
+          <tr><td class="col-name">duration_minutes</td><td class="col-type">integer</td><td>Default 30</td></tr>
+          <tr><td class="col-name">notes</td><td class="col-type">text</td><td>Optional</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">timestamptz</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── RLS ───────────────────────────────────────────────── -->
+  <section id="rls">
+    <h2>Row-level security</h2>
+    <p>All tables have RLS enabled. Every policy checks <code>user_id = auth.uid()</code>, so each optician sees only their own data — enforced at the database level, not in application code.</p>
+    <pre>
+<span class="cm">-- Pattern applied to clients, prescriptions, products, orders, appointments</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"Users own their rows"</span> <span class="kw">ON</span> clients
+  <span class="kw">FOR ALL USING</span> (user_id = auth.uid())
+  <span class="kw">WITH CHECK</span> (user_id = auth.uid());</pre>
+
+    <p><code>order_items</code> has no <code>user_id</code> column, so its policy uses a subquery:</p>
+    <pre>
+<span class="kw">CREATE POLICY</span> <span class="str">"Users own their order items"</span> <span class="kw">ON</span> order_items
+  <span class="kw">FOR ALL USING</span> (
+    <span class="kw">EXISTS</span> (<span class="kw">SELECT</span> 1 <span class="kw">FROM</span> orders
+              <span class="kw">WHERE</span> orders.id = order_items.order_id
+              <span class="kw">AND</span>   orders.user_id = auth.uid())
+  );</pre>
+  </section>
+
+  <!-- ── Auth ──────────────────────────────────────────────── -->
+  <section id="auth">
+    <h2>Authentication</h2>
+    <p>Supabase Auth with email + password. Sessions are stored in HTTP-only cookies managed by <code>@supabase/ssr</code>, making them available in both Server Components and middleware.</p>
+
+    <h3>Sign-up flow</h3>
+    <div class="flow">
+      <div class="flow-step">User fills form</div><div class="flow-arrow">→</div>
+      <div class="flow-step"><code>supabase.auth.signUp()</code></div><div class="flow-arrow">→</div>
+      <div class="flow-step">Session active immediately</div><div class="flow-arrow">→</div>
+      <div class="flow-step">Redirect to <code>/dashboard</code></div>
+    </div>
+    <div class="note warn"><strong>Note:</strong> <code>mailer_autoconfirm</code> is currently <strong>ON</strong> in Supabase — no email confirmation required. This was enabled because Resend's free plan only delivers to verified addresses. Re-enable confirmation once a custom sending domain is added.</div>
+
+    <h3>Session check in layout</h3>
+    <p>The dashboard layout (<code>app/[locale]/dashboard/layout.tsx</code>) is a server component that calls <code>supabase.auth.getUser()</code>. If no session exists, it redirects to <code>/signin</code>. This single guard protects all nested routes.</p>
+    <pre>
+<span class="kw">export default async function</span> DashboardLayout({ children }) {
+  <span class="kw">const</span> supabase = <span class="kw">await</span> createClient();
+  <span class="kw">const</span> { data: { user } } = <span class="kw">await</span> supabase.auth.getUser();
+  <span class="kw">if</span> (!user) redirect(<span class="str">"/signin"</span>);
+  <span class="cm">// render Sidebar + children</span>
+}</pre>
+
+    <h3>User metadata</h3>
+    <p>First name, last name, and shop name are stored in <code>user.user_metadata</code> at sign-up time via <code>options.data</code>. They're retrieved in the dashboard layout and passed to the Sidebar.</p>
+  </section>
+
+  <!-- ── i18n ──────────────────────────────────────────────── -->
+  <section id="i18n">
+    <h2>Internationalisation</h2>
+    <p>Three locales: <strong>French</strong> (default), <strong>English</strong>, and <strong>Arabic</strong> (RTL). Routing is handled by next-intl — all pages live under <code>app/[locale]/</code>.</p>
+
+    <h3>RTL support</h3>
+    <p>Tailwind <strong>logical properties</strong> are used throughout instead of directional ones — <code>ms-*</code> instead of <code>ml-*</code>, <code>ps-*</code> instead of <code>pl-*</code>, <code>start-0</code> instead of <code>left-0</code>. This means the layout automatically mirrors for Arabic without any extra CSS.</p>
+
+    <h3>Sidebar active state</h3>
+    <p>The Sidebar imports <code>Link</code> and <code>usePathname</code> from <code>@/i18n/navigation</code> — next-intl's wrappers that strip the locale prefix. This avoids a hydration mismatch where the server rendered <code>/fr/dashboard/clients</code> but the client saw <code>/dashboard/clients</code>.</p>
+
+    <h3>Translation files</h3>
+    <p>All UI strings live in <code>messages/fr.json</code>, <code>en.json</code>, and <code>ar.json</code>. Sections: <code>nav</code>, <code>dashboard</code>, <code>clients</code>, <code>prescriptions</code>, <code>products</code>, <code>orders</code>, <code>appointments</code>, <code>reports</code>, <code>signIn</code>, <code>signUp</code>.</p>
+  </section>
+
+  <!-- ── Layout & routing ──────────────────────────────────── -->
+  <section id="layout">
+    <h2>Layout &amp; routing</h2>
+
+    <h3>Component split pattern</h3>
+    <p>Every dashboard page is split into two files:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>File</th><th>Type</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">page.tsx</td><td>Server component</td><td>Fetches data via the server Supabase client, passes as props</td></tr>
+          <tr><td class="col-name">XxxClient.tsx</td><td>Client component</td><td>Search, modals, forms, optimistic state, browser Supabase client</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>This pattern keeps data fetching on the server (no loading spinners, no API routes needed) while keeping interactivity in the client where required.</p>
+
+    <h3>Sidebar navigation</h3>
+    <p>The sidebar is a client component (needs <code>usePathname</code>). It's rendered once in <code>dashboard/layout.tsx</code> and persists across all dashboard page navigations. Active state logic:</p>
+    <pre>
+<span class="cm">// Dashboard home: exact match only</span>
+<span class="kw">const</span> active = item.href === <span class="str">"/dashboard"</span>
+  ? pathname === <span class="str">"/dashboard"</span>
+  : pathname === item.href || pathname.startsWith(item.href + <span class="str">"/"</span>);</pre>
+  </section>
+
+  <!-- ── Pages ─────────────────────────────────────────────── -->
+  <section id="pages">
+    <h2>Pages</h2>
+
+    <div class="card">
+      <div class="card-title">📊 Dashboard home <code style="font-size:11px;margin-left:4px">/dashboard</code></div>
+      <p>Server component. Fetches 6 queries in parallel via <code>Promise.all</code>: total clients, orders this month, frames in stock, pending pickups, 5 recent orders (with client join), and 5 upcoming appointments. Shows KPI cards, recent orders table with status chips, and upcoming appointment list.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 Clients <code style="font-size:11px;margin-left:4px">/dashboard/clients</code></div>
+      <p>Table with search (name/email/phone). Add/edit modal with required first + last name. Delete confirmation. Optimistic local state — no full page reload on mutations.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Prescriptions <code style="font-size:11px;margin-left:4px">/dashboard/prescriptions</code></div>
+      <p>Two-column OD/OS form (right eye / left eye). Values displayed with explicit +/− sign via <code>formatSign()</code>. Client dropdown populated server-side.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🕶️ Products <code style="font-size:11px;margin-left:4px">/dashboard/products</code></div>
+      <p>Category filter tabs. Stock badge: red for 0, amber for ≤ 3, green otherwise. Form includes selling price, cost price, and SKU.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 Orders <code style="font-size:11px;margin-left:4px">/dashboard/orders</code></div>
+      <p>Inline status <code>&lt;select&gt;</code> per row — status updates without opening the modal. Order items: product dropdown auto-fills description + price; free-text items also supported. On edit, items are fetched async, then on save: old items are deleted and reinserted.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 Appointments <code style="font-size:11px;margin-left:4px">/dashboard/appointments</code></div>
+      <p>Calendar-style view grouped by day header (Today / Tomorrow / formatted date). Each card has a left colour bar by status, type icon, client name, and inline status dropdown.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Reports <code style="font-size:11px;margin-left:4px">/dashboard/reports</code></div>
+      <p>Pure server component. 4 KPI cards, top-5 items bar chart (aggregated from <code>order_items</code>), low-stock list, revenue summary (this month / last month / outstanding balance = total − deposits).</p>
+    </div>
+  </section>
+
+  <!-- ── Deployment ─────────────────────────────────────────── -->
+  <section id="deployment">
+    <h2>Deployment</h2>
+    <p>Hosted on Vercel, connected to the <code>amineboum20/OptiApp</code> GitHub repository. Every push to <code>main</code> triggers an automatic production deployment.</p>
+
+    <h3>Live URL</h3>
+    <p><code>https://opti-app-pi.vercel.app</code></p>
+
+    <div class="note warn"><strong>Important:</strong> <code>.env.local</code> is never committed. Environment variables must be added manually in the Vercel project settings (Settings → Environment Variables), not at the team level.</div>
+  </section>
+
+  <!-- ── Email ─────────────────────────────────────────────── -->
+  <section id="email">
+    <h2>Email</h2>
+    <p>Supabase is configured to send transactional emails (signup confirmation, password reset) via Resend's SMTP relay.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>SMTP host</td><td><code>smtp.resend.com</code></td></tr>
+          <tr><td>SMTP port</td><td><code>"465"</code> (must be sent as a string to Supabase Management API)</td></tr>
+          <tr><td>SMTP user</td><td><code>resend</code></td></tr>
+          <tr><td>SMTP password</td><td>Resend API key</td></tr>
+          <tr><td>From address</td><td><code>noreply@optiapp.fr</code> (placeholder)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note warn"><strong>Limitation:</strong> Resend's free plan only delivers to the account owner's verified email. Email confirmation is currently disabled (<code>mailer_autoconfirm: true</code>). A custom sending domain must be verified in Resend to send to arbitrary addresses.</div>
+  </section>
+
+  <!-- ── Supabase API ──────────────────────────────────────── -->
+  <section id="supabase-api">
+    <h2>Supabase Management API</h2>
+    <p>Several configuration steps were performed via the Supabase Management API using a personal access token — bypassing the dashboard UI for reproducibility.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Action</th><th>Endpoint</th></tr></thead>
+        <tbody>
+          <tr><td>Create schema tables</td><td><code>POST /v1/projects/{ref}/database/query</code></td></tr>
+          <tr><td>Configure SMTP (Resend)</td><td><code>PATCH /v1/projects/{ref}/config/auth</code></td></tr>
+          <tr><td>Set <code>site_url</code> + callback URLs</td><td><code>PATCH /v1/projects/{ref}/config/auth</code></td></tr>
+          <tr><td>Enable auto-confirm</td><td><code>PATCH /v1/projects/{ref}/config/auth</code></td></tr>
+          <tr><td>Seed dummy data (10 clients, 12 products, 8 orders…)</td><td><code>POST /v1/projects/{ref}/database/query</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note"><strong>Tooling note:</strong> PowerShell 5.1's <code>ConvertTo-Json</code> corrupts multiline strings. All Management API calls were made via <code>node -e</code> or inline Node.js scripts using <code>https.request()</code> with <code>JSON.stringify()</code>.</div>
+  </section>
+
+  <!-- ── Mobile responsiveness ────────────────────────────── -->
+  <section id="mobile">
+    <h2>Mobile responsiveness</h2>
+    <p>All pages are responsive across mobile, tablet, and desktop. The key pattern: Tailwind's logical properties (<code>ms-*</code>, <code>ps-*</code>, <code>start-*</code>) are used everywhere for automatic RTL support.</p>
+
+    <h3>Dashboard sidebar</h3>
+    <p>On mobile the sidebar is hidden by default. A fixed top bar (<code>h-14</code>, <code>z-20</code>) renders the logo and a hamburger button. Tapping it slides in the sidebar panel (<code>translate-x-0</code>) with a dark overlay; tapping outside or navigating closes it.</p>
+    <pre>
+<span class="cm">/* layout.tsx */</span>
+&lt;div <span class="kw">className</span>=<span class="str">"sm:ms-56 min-h-screen pt-14 sm:pt-0"</span>&gt;{children}&lt;/div&gt;
+
+<span class="cm">/* Sidebar.tsx — panel */</span>
+&lt;div <span class="kw">className</span>=<span class="str">`fixed inset-y-0 start-0 z-40 w-64 sm:w-56 ...
+  ${open ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`</span>&gt;</pre>
+
+    <h3>Landing page nav</h3>
+    <p>The hamburger dropdown lives <strong>inside</strong> the <code>&lt;nav&gt;</code> element — which is <code>sticky top-0</code> — so the dropdown remains visible wherever you are on the page when it opens.</p>
+
+    <h3>Grid breakpoints</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Element</th><th>Mobile</th><th>Desktop</th></tr></thead>
+        <tbody>
+          <tr><td>KPI stat cards</td><td><code>grid-cols-2</code></td><td><code>lg:grid-cols-4</code></td></tr>
+          <tr><td>Quick action buttons</td><td><code>grid-cols-2</code></td><td><code>lg:grid-cols-4</code></td></tr>
+          <tr><td>Dashboard bottom panels</td><td><code>grid-cols-1</code></td><td><code>lg:grid-cols-2</code></td></tr>
+          <tr><td>Reports bottom panels</td><td><code>grid-cols-1</code></td><td><code>lg:grid-cols-2</code></td></tr>
+          <tr><td>Revenue summary</td><td><code>grid-cols-1</code></td><td><code>sm:grid-cols-3</code></td></tr>
+          <tr><td>Hero mock dashboard</td><td><code>grid-cols-2</code></td><td><code>sm:grid-cols-4</code></td></tr>
+          <tr><td>Features grid (landing)</td><td><code>grid-cols-1</code></td><td><code>lg:grid-cols-3</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Padding</h3>
+    <p>All dashboard pages use <code>p-4 sm:p-8</code> — 16 px on mobile, 32 px on desktop. Tables are wrapped in <code>overflow-x: auto</code> containers so they scroll horizontally on narrow screens without breaking the page layout.</p>
+  </section>
+
+  <!-- ── Decisions ─────────────────────────────────────────── -->
+  <section id="decisions">
+    <h2>Key decisions &amp; fixes</h2>
+
+    <div class="card">
+      <div class="card-title">🔒 Hydration mismatch — Sidebar active state</div>
+      <p>The server rendered <code>/fr/dashboard/clients</code> (with locale) but <code>usePathname()</code> from Next.js returned <code>/dashboard/clients</code> (no locale). Fixed by switching to <code>Link</code> and <code>usePathname</code> from <code>@/i18n/navigation</code>, which strips the locale from both sides.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ Signup freezing — missing Vercel env vars</div>
+      <p>The deployed app had no <code>NEXT_PUBLIC_SUPABASE_URL</code> or <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> because <code>.env.local</code> is gitignored. The Supabase client threw silently and the signUp call never resolved. Fixed by adding both variables in Vercel project settings.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✉️ Signup freezing — Resend SMTP timeout</div>
+      <p>When a user signed up with any non-verified email, Resend's SMTP rejected the delivery, causing Supabase's signUp to block until SMTP timeout. Fixed by enabling <code>mailer_autoconfirm: true</code>. The signup flow now redirects to <code>/dashboard</code> when a session is returned immediately (<code>data.session !== null</code>).</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 order_items RLS — no user_id column</div>
+      <p>order_items can't have a <code>user_id = auth.uid()</code> policy directly. Instead the policy uses an <code>EXISTS</code> subquery into <code>orders</code>, which does have <code>user_id</code>.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌐 RTL — Tailwind logical properties</div>
+      <p>All spacing uses logical properties (<code>ms-</code>, <code>me-</code>, <code>ps-</code>, <code>pe-</code>, <code>start-</code>, <code>end-</code>) so the layout flips automatically when the Arabic locale sets <code>dir="rtl"</code> on the <code>html</code> element — no separate RTL stylesheet needed.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗄️ Dummy data — user_id reassignment</div>
+      <p>Seed data was initially inserted for the first test account (<code>yobepek170@kolsea.com</code>). When a new account was created, all rows were reassigned by running an <code>UPDATE … SET user_id = NEW_UID WHERE user_id = OLD_UID</code> across all five tables via the Management API.</p>
+    </div>
+  </section>
+
+  <!-- ── Env vars ───────────────────────────────────────────── -->
+  <section id="env">
+    <h2>Environment variables</h2>
+    <p>Required in both <code>.env.local</code> (local dev) and Vercel project settings (production).</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Where</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">NEXT_PUBLIC_SUPABASE_URL</td><td>Vercel + local</td><td>Project URL from Supabase dashboard → Settings → API</td></tr>
+          <tr><td class="col-name">NEXT_PUBLIC_SUPABASE_ANON_KEY</td><td>Vercel + local</td><td>Public anon key — safe to expose in client bundle</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note"><strong>NEXT_PUBLIC_ prefix</strong> means the value is baked into the client-side JavaScript bundle at build time by Next.js. If missing at build time, the variable is <code>undefined</code> in the browser and the Supabase client throws silently.</div>
+
+    <p>The Supabase service role key and Resend API key are <strong>not</strong> needed at runtime — they were used only for one-off Management API calls during setup and should never be exposed to the browser.</p>
+  </section>
+
+</main>
+
+<script>
+  // Highlight active sidebar link on scroll
+  const links = document.querySelectorAll('nav a');
+  const sections = document.querySelectorAll('section[id]');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>

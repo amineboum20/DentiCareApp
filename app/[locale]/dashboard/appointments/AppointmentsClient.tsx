@@ -1,0 +1,618 @@
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { createClient } from "@/utils/supabase/client";
+import type { AppointmentWithPatient, Patient, AppointmentType, AppointmentStatus } from "@/types/database";
+import { DR } from "@/components/DetailRow";
+
+interface Props {
+  initialAppointments: AppointmentWithPatient[];
+  patients: Pick<Patient, "id" | "first_name" | "last_name">[];
+  userId: string;
+}
+
+const TYPES: AppointmentType[] = ["consultation", "nettoyage", "soin", "chirurgie", "controle", "orthodontie", "autre"];
+const STATUSES: AppointmentStatus[] = ["planifie", "termine", "annule", "absent"];
+
+const TYPE_EMOJI: Record<string, string> = {
+  consultation: "🩺",
+  nettoyage: "🪥",
+  soin: "🦷",
+  chirurgie: "⚕️",
+  controle: "✅",
+  orthodontie: "😁",
+  autre: "📅",
+};
+
+const STATUS_STYLE: Record<string, string> = {
+  planifie: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+  termine:  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  annule:   "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+  absent:   "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+};
+
+const emptyForm = {
+  patient_id: "",
+  title: "",
+  scheduled_at: "",
+  duration_minutes: "30",
+  type: "consultation" as AppointmentType,
+  status: "planifie" as AppointmentStatus,
+  notes: "",
+};
+
+function fmtDateTime(iso: string | null) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function patientName(appt: AppointmentWithPatient) {
+  if (!appt.patients) return "—";
+  return `${appt.patients.first_name} ${appt.patients.last_name}`;
+}
+
+export default function AppointmentsClient({ initialAppointments, patients, userId }: Props) {
+  const t = useTranslations("appointments");
+  const supabase = createClient();
+  const searchParams = useSearchParams();
+
+  const [appointments, setAppointments] = useState<AppointmentWithPatient[]>(initialAppointments);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">("all");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<AppointmentWithPatient | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AppointmentWithPatient | null>(null);
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [detail, setDetail] = useState<AppointmentWithPatient | null>(null);
+
+  useEffect(() => {
+    const id = searchParams.get("detail");
+    if (!id) return;
+    const found = appointments.find((a) => a.id === id);
+    if (found) setDetail(found);
+  }, [searchParams]);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return appointments.filter((a) => {
+      const name = patientName(a).toLowerCase();
+      const matchSearch = name.includes(q) || a.title.toLowerCase().includes(q);
+      const matchStatus = statusFilter === "all" || a.status === statusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [appointments, search, statusFilter]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, AppointmentWithPatient[]>();
+    filtered.forEach((a) => {
+      const day = a.scheduled_at.slice(0, 10);
+      if (!map.has(day)) map.set(day, []);
+      map.get(day)!.push(a);
+    });
+    return Array.from(map.entries()).sort(([a], [b]) => b.localeCompare(a));
+  }, [filtered]);
+
+  function setField(key: keyof typeof emptyForm, value: string) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function openAdd() {
+    setEditing(null);
+    const now = new Date();
+    // Format for datetime-local: YYYY-MM-DDTHH:MM
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+    setForm({ ...emptyForm, scheduled_at: local });
+    setError("");
+    setModalOpen(true);
+  }
+
+  function openEdit(a: AppointmentWithPatient) {
+    setEditing(a);
+    const dt = new Date(a.scheduled_at);
+    const local = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+    setForm({
+      patient_id: a.patient_id ?? "",
+      title: a.title,
+      scheduled_at: local,
+      duration_minutes: a.duration_minutes != null ? String(a.duration_minutes) : "",
+      type: a.type,
+      status: a.status,
+      notes: a.notes ?? "",
+    });
+    setError("");
+    setModalOpen(true);
+  }
+
+  async function handleSave() {
+    if (!form.title.trim() || !form.scheduled_at) {
+      setError(t("form.requiredError"));
+      return;
+    }
+    setSaving(true);
+    setError("");
+
+    const patient = patients.find((p) => p.id === form.patient_id);
+    const patientSnap = patient
+      ? { first_name: patient.first_name, last_name: patient.last_name }
+      : null;
+
+    const payload = {
+      patient_id: form.patient_id || null,
+      title: form.title.trim(),
+      scheduled_at: new Date(form.scheduled_at).toISOString(),
+      duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
+      type: form.type,
+      status: form.status,
+      notes: form.notes.trim() || null,
+    };
+
+    if (editing) {
+      const { data, error: err } = await supabase
+        .from("appointments")
+        .update(payload)
+        .eq("id", editing.id)
+        .select()
+        .single();
+      if (err) { setError(err.message); setSaving(false); return; }
+      setAppointments((as) =>
+        as.map((a) =>
+          a.id === data.id ? { ...data, patients: patientSnap } as AppointmentWithPatient : a
+        )
+      );
+    } else {
+      const { data, error: err } = await supabase
+        .from("appointments")
+        .insert({ ...payload, user_id: userId })
+        .select()
+        .single();
+      if (err) { setError(err.message); setSaving(false); return; }
+      setAppointments((as) =>
+        [...as, { ...data, patients: patientSnap } as AppointmentWithPatient].sort(
+          (a, b) => b.scheduled_at.localeCompare(a.scheduled_at)
+        )
+      );
+    }
+
+    setSaving(false);
+    setModalOpen(false);
+  }
+
+  async function handleStatusChange(appt: AppointmentWithPatient, status: AppointmentStatus) {
+    const { data } = await supabase
+      .from("appointments")
+      .update({ status })
+      .eq("id", appt.id)
+      .select()
+      .single();
+    if (data) {
+      setAppointments((as) =>
+        as.map((a) =>
+          a.id === data.id ? { ...data, patients: appt.patients } as AppointmentWithPatient : a
+        )
+      );
+      if (detail?.id === appt.id) {
+        setDetail({ ...data, patients: appt.patients } as AppointmentWithPatient);
+      }
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    await supabase.from("appointments").delete().eq("id", deleteTarget.id);
+    setAppointments((as) => as.filter((a) => a.id !== deleteTarget.id));
+    setDeleteTarget(null);
+  }
+
+  function formatTime(iso: string) {
+    return new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function formatDayHeader(iso: string) {
+    const d = new Date(iso + "T00:00:00");
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    if (iso === today) return t("today");
+    if (iso === tomorrow) return t("tomorrow");
+    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+  }
+
+  const inputCls =
+    "w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
+
+  const statusBarColor: Record<string, string> = {
+    planifie: "bg-teal-400",
+    termine:  "bg-emerald-400",
+    annule:   "bg-red-400",
+    absent:   "bg-amber-400",
+  };
+
+  return (
+    <>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
+        <button
+          onClick={openAdd}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
+        >
+          + {t("newAppointment")}
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+        <div className="relative flex-1">
+          <span className="absolute inset-y-0 start-3 flex items-center text-zinc-400 text-sm">🔍</span>
+          <input
+            type="text"
+            placeholder={t("searchPlaceholder")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full ps-9 pe-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          />
+        </div>
+        <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg overflow-x-auto">
+          {(["all", ...STATUSES] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                statusFilter === s
+                  ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+              }`}
+            >
+              {s === "all" ? t("allStatuses") : t(`statuses.${s}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Calendar-style list */}
+      {grouped.length === 0 ? (
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center py-20 text-center">
+          <span className="text-4xl mb-3">{search ? "🔍" : "📅"}</span>
+          <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            {search || statusFilter !== "all" ? t("noResults") : t("noAppointments")}
+          </p>
+          <p className="text-xs text-zinc-400 mt-1">
+            {search || statusFilter !== "all"
+              ? t("noResultsDesc", { query: search })
+              : t("noAppointmentsDesc")}
+          </p>
+          {!search && statusFilter === "all" && (
+            <button
+              onClick={openAdd}
+              className="mt-4 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium"
+            >
+              + {t("newAppointment")}
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {grouped.map(([day, appts]) => (
+            <div key={day}>
+              <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2 capitalize">
+                {formatDayHeader(day)}
+              </h2>
+              <div className="space-y-2">
+                {appts.map((a) => (
+                  <div
+                    key={a.id}
+                    onClick={() => setDetail(a)}
+                    className="flex items-center gap-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
+                  >
+                    {/* Time */}
+                    <div className="w-14 text-center shrink-0">
+                      <p className="text-sm font-semibold text-zinc-900 dark:text-white">
+                        {formatTime(a.scheduled_at)}
+                      </p>
+                      {a.duration_minutes != null && (
+                        <p className="text-xs text-zinc-400">{a.duration_minutes} min</p>
+                      )}
+                    </div>
+                    {/* Color bar */}
+                    <div
+                      className={`w-1 self-stretch rounded-full shrink-0 ${statusBarColor[a.status] ?? "bg-zinc-300"}`}
+                    />
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{TYPE_EMOJI[a.type] ?? "📅"}</span>
+                        <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
+                          {a.title}
+                        </p>
+                      </div>
+                      {a.patients && (
+                        <p className="text-xs text-zinc-400 mt-0.5">
+                          {a.patients.first_name} {a.patients.last_name}
+                        </p>
+                      )}
+                    </div>
+                    {/* Status badge */}
+                    <select
+                      value={a.status}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => handleStatusChange(a, e.target.value as AppointmentStatus)}
+                      className={`text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 ${STATUS_STYLE[a.status] ?? ""}`}
+                    >
+                      {STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {t(`statuses.${s}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Detail panel */}
+      {detail && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setDetail(null)}
+        >
+          <div
+            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{TYPE_EMOJI[detail.type] ?? "📅"}</span>
+                <div>
+                  <h2 className="font-semibold text-zinc-900 dark:text-white">{detail.title}</h2>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLE[detail.status] ?? ""}`}>
+                    {t(`statuses.${detail.status}`)}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setDetail(null)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-1">
+              <DR label="Patient" value={patientName(detail)} />
+              <DR label="Type" value={`${TYPE_EMOJI[detail.type] ?? ""} ${t(`types.${detail.type}`)}`} />
+              <DR label="Date et heure" value={fmtDateTime(detail.scheduled_at)} />
+              {detail.duration_minutes != null && (
+                <DR label="Durée" value={`${detail.duration_minutes} min`} />
+              )}
+              <DR label="Statut" value={t(`statuses.${detail.status}`)} />
+              <DR label="Notes" value={detail.notes} />
+            </div>
+            <div className="flex items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
+              {/* Status change */}
+              <select
+                value={detail.status}
+                onChange={(e) => handleStatusChange(detail, e.target.value as AppointmentStatus)}
+                className="text-xs font-medium px-2.5 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {t(`statuses.${s}`)}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => { setDeleteTarget(detail); setDetail(null); }}
+                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
+              >
+                Supprimer
+              </button>
+              <div className="ms-auto">
+                <button
+                  onClick={() => { openEdit(detail); setDetail(null); }}
+                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
+                >
+                  ✏️ Modifier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+              <h2 className="font-semibold text-zinc-900 dark:text-white">
+                {editing ? t("form.editTitle") : t("form.addTitle")}
+              </h2>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="text-zinc-400 hover:text-zinc-600 text-xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+              {/* Title */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                  {t("form.title")} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={form.title}
+                  onChange={(e) => setField("title", e.target.value)}
+                  placeholder={t("form.titlePlaceholder")}
+                  className={inputCls}
+                />
+              </div>
+              {/* Patient + Type */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                    {t("form.patient")}
+                  </label>
+                  <select
+                    value={form.patient_id}
+                    onChange={(e) => setField("patient_id", e.target.value)}
+                    className={inputCls}
+                  >
+                    <option value="">{t("form.noPatient")}</option>
+                    {patients.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.first_name} {p.last_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                    {t("form.type")}
+                  </label>
+                  <select
+                    value={form.type}
+                    onChange={(e) => setField("type", e.target.value)}
+                    className={inputCls}
+                  >
+                    {TYPES.map((tp) => (
+                      <option key={tp} value={tp}>
+                        {TYPE_EMOJI[tp]} {t(`types.${tp}`)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {/* Date/time + Duration */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                    {t("form.scheduledAt")} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={form.scheduled_at}
+                    onChange={(e) => setField("scheduled_at", e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                    {t("form.duration")}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="30"
+                    value={form.duration_minutes}
+                    onChange={(e) => setField("duration_minutes", e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+              {/* Status */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                  {t("form.status")}
+                </label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setField("status", e.target.value)}
+                  className={inputCls}
+                >
+                  {STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {t(`statuses.${s}`)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {/* Notes */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                  {t("form.notes")}
+                </label>
+                <textarea
+                  value={form.notes}
+                  onChange={(e) => setField("notes", e.target.value)}
+                  rows={2}
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
+              {error && <p className="text-xs text-red-500">{error}</p>}
+            </div>
+            <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
+              {editing && (
+                <button
+                  type="button"
+                  onClick={() => { setDeleteTarget(editing); setModalOpen(false); }}
+                  className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
+                >
+                  Supprimer
+                </button>
+              )}
+              <div className="ms-auto flex items-center gap-3">
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  {t("form.cancel")}
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors"
+                >
+                  {saving ? t("form.saving") : t("form.save")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirm */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">
+              {t("deleteConfirm.title")}
+            </h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+              {t("deleteConfirm.message", { title: deleteTarget.title })}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                {t("deleteConfirm.cancel")}
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+              >
+                {t("deleteConfirm.confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

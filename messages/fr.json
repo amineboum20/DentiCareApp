@@ -1,0 +1,401 @@
+{
+  "nav": {
+    "features": "Fonctionnalités",
+    "howItWorks": "Comment ça marche",
+    "signIn": "Se connecter",
+    "getStarted": "Commencer gratuitement"
+  },
+  "hero": {
+    "badge": "Pour les cabinets dentaires",
+    "title": "Tout ce dont votre cabinet dentaire a besoin,",
+    "titleHighlight": "en un seul endroit.",
+    "subtitle": "Gérez vos patients, dossiers dentaires, traitements et factures facilement. Fini les papiers et les tableaux — DentiCare garde votre cabinet organisé et vos patients souriant.",
+    "cta": "Commencer gratuitement",
+    "ctaSecondary": "Voir toutes les fonctionnalités →",
+    "noCreditCard": "Sans carte bancaire · Gratuit pour démarrer"
+  },
+  "stats": {
+    "totalPatients": "Total patients",
+    "facturesMonth": "Factures ce mois",
+    "appointmentsToday": "RDV aujourd'hui",
+    "pendingPayments": "Paiements en attente",
+    "thisMonth": "ce mois",
+    "vsLastMonth": "vs mois dernier",
+    "overdue": "en retard",
+    "days": "> 7 jours"
+  },
+  "features": {
+    "sectionTitle": "Tout ce qu'il vous faut pour gérer votre cabinet",
+    "sectionSubtitle": "Conçu pour la réalité quotidienne d'un cabinet dentaire. Cliquez sur une fonctionnalité pour voir un aperçu.",
+    "patients": {
+      "title": "Gestion des patients",
+      "desc": "Stockez des dossiers patients complets avec coordonnées, date de naissance et historique des soins — tout à portée de main."
+    },
+    "dossiers": {
+      "title": "Dossiers dentaires",
+      "desc": "Enregistrez les examens, soins prodigués, notes cliniques et la date du prochain contrôle. Ne perdez plus jamais un dossier."
+    },
+    "traitements": {
+      "title": "Catalogue de traitements",
+      "desc": "Gérez votre catalogue de soins avec catégorie, prix et durée. Ajoutez-les en un clic dans vos factures."
+    },
+    "factures": {
+      "title": "Facturation",
+      "desc": "Créez des factures, suivez les paiements et générez des PDF professionnels en un clic."
+    },
+    "appointments": {
+      "title": "Rendez-vous",
+      "desc": "Planifiez et gérez les consultations et soins. Réduisez les absences grâce aux rappels WhatsApp."
+    },
+    "reports": {
+      "title": "Tableau de bord & rapports",
+      "desc": "Visualisez les performances de votre cabinet — chiffre d'affaires, traitements les plus réalisés et fidélisation."
+    },
+    "search": {
+      "title": "Recherche rapide",
+      "desc": "Trouvez instantanément n'importe quel patient, traitement ou rendez-vous."
+    },
+    "print": {
+      "title": "Impression & export",
+      "desc": "Imprimez des factures, devis et fiches patient en un clic. Exportez vos données à tout moment."
+    },
+    "security": {
+      "title": "Sécurisé & privé",
+      "desc": "Les données de vos patients sont chiffrées et stockées en toute sécurité. Conforme au RGPD."
+    },
+    "seePreview": "Voir l'aperçu →",
+    "preview": "Aperçu",
+    "previewNote": "Ceci est un aperçu avec des données d'exemple.",
+    "getStartedFree": "Commencer gratuitement →"
+  },
+  "howItWorks": {
+    "title": "Opérationnel en quelques minutes",
+    "subtitle": "Pas besoin de service informatique. Pas de configuration compliquée.",
+    "step1Title": "Créez votre compte",
+    "step1Desc": "Inscrivez-vous gratuitement en moins d'une minute. Sans carte bancaire.",
+    "step2Title": "Ajoutez vos données",
+    "step2Desc": "Importez vos patients existants ou partez de zéro. Ajoutez votre catalogue de traitements.",
+    "step3Title": "Commencez à gérer",
+    "step3Desc": "Créez votre première facture, réservez un rendez-vous — vous êtes prêt."
+  },
+  "testimonial": {
+    "quote": "Depuis qu'on utilise DentiCare, on passe deux fois moins de temps sur l'administratif et deux fois plus avec nos patients.",
+    "author": "Dr. Karim B.",
+    "role": "Chirurgien-dentiste, Casablanca"
+  },
+  "cta": {
+    "title": "Prêt à moderniser votre cabinet ?",
+    "subtitle": "Rejoignez les dentistes qui gèrent leur cabinet plus intelligemment avec DentiCare.",
+    "button": "Commencer gratuitement"
+  },
+  "footer": {
+    "rights": "© 2025 DentiCare. Tous droits réservés."
+  },
+  "signIn": {
+    "title": "Bon retour",
+    "subtitle": "Connectez-vous à votre compte DentiCare",
+    "noAccount": "Pas de compte ?",
+    "signUpFree": "S'inscrire gratuitement",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "button": "Se connecter",
+    "loading": "Connexion en cours…",
+    "orContinueWith": "ou",
+    "google": "Continuer avec Google",
+    "dontHaveAccount": "Vous n'avez pas de compte ?",
+    "signUpLink": "S'inscrire gratuitement"
+  },
+  "signUp": {
+    "title": "Créez votre compte",
+    "subtitle": "Gratuit pour démarrer — sans carte bancaire",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "signInLink": "Se connecter",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "shopName": "Nom du cabinet",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Au moins 8 caractères",
+    "confirmPassword": "Confirmer le mot de passe",
+    "button": "Créer le compte",
+    "loading": "Création du compte…",
+    "google": "Continuer avec Google",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "passwordTooShort": "Le mot de passe doit comporter au moins 8 caractères.",
+    "checkEmail": "Vérifiez votre e-mail",
+    "checkEmailDesc": "Nous avons envoyé un lien de confirmation à {email}. Cliquez dessus pour activer votre compte, puis connectez-vous.",
+    "goToSignIn": "Aller à la connexion"
+  },
+  "dashboard": {
+    "greeting": "Bonjour{name} 👋",
+    "subtitle": "Voici ce qui se passe chez {shop} aujourd'hui.",
+    "stats": {
+      "totalPatients": "Total patients",
+      "facturesMonth": "Factures ce mois",
+      "appointmentsToday": "RDV aujourd'hui",
+      "pendingPayments": "Paiements en attente",
+      "addFirstPatient": "Ajoutez votre premier patient",
+      "noFactures": "Aucune facture",
+      "noAppointments": "Aucun RDV",
+      "allPaid": "Tout est à jour"
+    },
+    "quickActions": "Actions rapides",
+    "newPatient": "Nouveau patient",
+    "newFacture": "Nouvelle facture",
+    "bookAppointment": "Prendre RDV",
+    "newDossier": "Nouveau dossier",
+    "recentActivity": "Activité récente",
+    "shopReady": "Votre cabinet est prêt",
+    "shopReadyDesc": "Commencez par ajouter votre premier patient.",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "patients": "Patients",
+      "dossiers": "Dossiers",
+      "traitements": "Traitements",
+      "factures": "Factures",
+      "appointments": "Rendez-vous",
+      "reports": "Rapports",
+      "settings": "Paramètres"
+    },
+    "signOut": "Se déconnecter"
+  },
+  "appointments": {
+    "title": "Rendez-vous",
+    "searchPlaceholder": "Rechercher par patient ou titre…",
+    "newAppointment": "Nouveau RDV",
+    "noAppointments": "Aucun rendez-vous",
+    "noAppointmentsDesc": "Planifiez votre premier rendez-vous.",
+    "noResults": "Aucun résultat",
+    "noResultsDesc": "Aucun RDV ne correspond à \"{query}\".",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "allStatuses": "Tous",
+    "statuses": { "planifie": "Planifié", "termine": "Terminé", "annule": "Annulé", "absent": "Absent" },
+    "types": { "consultation": "Consultation", "nettoyage": "Nettoyage", "soin": "Soin", "chirurgie": "Chirurgie", "controle": "Contrôle", "orthodontie": "Orthodontie", "autre": "Autre" },
+    "form": {
+      "addTitle": "Nouveau rendez-vous",
+      "editTitle": "Modifier le rendez-vous",
+      "title": "Titre",
+      "titlePlaceholder": "Ex. Détartrage",
+      "patient": "Patient",
+      "noPatient": "Sans patient",
+      "type": "Type",
+      "date": "Date",
+      "time": "Heure",
+      "duration": "Durée",
+      "status": "Statut",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "requiredError": "Le titre et la date sont obligatoires."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer le rendez-vous",
+      "message": "Supprimer le rendez-vous \"{title}\" ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "reports": {
+    "title": "Rapports",
+    "totalPatients": "Total patients",
+    "revenueMonth": "CA ce mois",
+    "facturesMonth": "Factures ce mois",
+    "appointmentsToday": "RDV aujourd'hui",
+    "thisMonth": "ce mois",
+    "vsLastMonth": "vs mois dernier",
+    "firstMonth": "premier mois",
+    "pending": "en attente",
+    "paid": "payées",
+    "topItems": "Traitements les plus réalisés",
+    "noData": "Pas encore de données.",
+    "revenueSummary": "Résumé du chiffre d'affaires",
+    "lastMonth": "Mois dernier",
+    "pendingAmount": "Reste à percevoir",
+    "pendingAmountDesc": "Total - acomptes versés",
+    "revenueChart": "Chiffre d'affaires (6 derniers mois)",
+    "factureStatus": "Répartition des factures"
+  },
+  "traitements": {
+    "title": "Traitements",
+    "searchPlaceholder": "Rechercher par nom ou catégorie…",
+    "newTraitement": "Nouveau traitement",
+    "noTraitements": "Aucun traitement pour l'instant",
+    "noTraitementsDesc": "Ajoutez vos soins et actes dentaires.",
+    "noResults": "Aucun résultat",
+    "noResultsDesc": "Aucun traitement ne correspond à \"{query}\".",
+    "allCategories": "Tous",
+    "categories": {
+      "nettoyage": "Nettoyage",
+      "obturation": "Obturation",
+      "extraction": "Extraction",
+      "couronne": "Couronne",
+      "implant": "Implant",
+      "orthodontie": "Orthodontie",
+      "blanchiment": "Blanchiment",
+      "prothese": "Prothèse",
+      "autre": "Autre"
+    },
+    "columns": { "traitement": "Traitement", "category": "Catégorie", "price": "Prix", "duration": "Durée" },
+    "form": {
+      "addTitle": "Nouveau traitement",
+      "editTitle": "Modifier le traitement",
+      "name": "Nom",
+      "namePlaceholder": "Ex. Détartrage",
+      "category": "Catégorie",
+      "price": "Prix (MAD)",
+      "duration": "Durée (minutes)",
+      "description": "Description",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "requiredError": "Le nom et le prix sont obligatoires."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer le traitement",
+      "message": "Supprimer \"{name}\" ? Cette action est irréversible.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "factures": {
+    "title": "Factures",
+    "searchPlaceholder": "Rechercher par patient…",
+    "newFacture": "Nouvelle facture",
+    "noFactures": "Aucune facture pour l'instant",
+    "noFacturesDesc": "Créez votre première facture.",
+    "noResults": "Aucun résultat",
+    "noResultsDesc": "Aucune facture ne correspond à \"{query}\".",
+    "allStatuses": "Toutes",
+    "statuses": { "en_attente": "En attente", "en_cours": "En cours", "payee": "Payée", "annulee": "Annulée" },
+    "columns": { "patient": "Patient", "date": "Date", "status": "Statut", "total": "Total", "deposit": "Acompte" },
+    "form": {
+      "addTitle": "Nouvelle facture",
+      "editTitle": "Modifier la facture",
+      "patient": "Patient",
+      "selectPatient": "Choisir un patient…",
+      "status": "Statut",
+      "items": "Actes",
+      "addItem": "Ajouter un acte",
+      "traitement": "Traitement (optionnel)",
+      "customItem": "Acte personnalisé",
+      "description": "Description",
+      "descriptionPlaceholder": "Ex. Détartrage complet",
+      "qty": "Qté",
+      "unitPrice": "Prix unit.",
+      "total": "Total",
+      "deposit": "Acompte",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "patientRequired": "Veuillez sélectionner un patient.",
+      "itemRequired": "Ajoutez au moins un acte."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer la facture",
+      "message": "Supprimer la facture de {name} du {date} ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "dossiers": {
+    "title": "Dossiers dentaires",
+    "searchPlaceholder": "Rechercher par patient ou dentiste…",
+    "newDossier": "Nouveau dossier",
+    "noDossiers": "Aucun dossier pour l'instant",
+    "noDossiersDesc": "Ajoutez le premier dossier d'un patient.",
+    "noResults": "Aucun résultat",
+    "noResultsDesc": "Aucun dossier ne correspond à \"{query}\".",
+    "columns": {
+      "patient": "Patient",
+      "date": "Date d'examen",
+      "type": "Type",
+      "dentist": "Dentiste"
+    },
+    "types": {
+      "examen": "Examen",
+      "soin": "Soin",
+      "bilan": "Bilan",
+      "urgence": "Urgence",
+      "autre": "Autre"
+    },
+    "form": {
+      "addTitle": "Nouveau dossier",
+      "editTitle": "Modifier le dossier",
+      "patient": "Patient",
+      "selectPatient": "Choisir un patient…",
+      "type": "Type de visite",
+      "examDate": "Date d'examen",
+      "nextExamDate": "Prochain contrôle",
+      "treatedBy": "Dentiste",
+      "treatedByPlaceholder": "Dr. Nom",
+      "dentalNotes": "Notes cliniques",
+      "dentalNotesPlaceholder": "Observations, soins réalisés, recommandations…",
+      "document": "Document (optionnel)",
+      "dropOrClick": "Glissez-déposez un PDF ou une image, ou cliquez pour parcourir",
+      "tapToChoose": "Appuyez pour choisir un fichier",
+      "fileHint": "PDF, JPG, PNG · max 10 Mo",
+      "browseFile": "Parcourir",
+      "removeDocument": "Supprimer",
+      "fileTooLarge": "Le fichier dépasse la limite de 10 Mo.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "requiredError": "Le patient et la date d'examen sont obligatoires."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer le dossier",
+      "message": "Supprimer le dossier de {name} du {date} ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "patients": {
+    "title": "Patients",
+    "searchPlaceholder": "Rechercher par nom, téléphone ou e-mail…",
+    "newPatient": "Nouveau patient",
+    "noPatients": "Aucun patient pour l'instant",
+    "noPatientsDesc": "Ajoutez votre premier patient pour commencer.",
+    "noResults": "Aucun résultat",
+    "noResultsDesc": "Aucun patient ne correspond à \"{query}\".",
+    "columns": {
+      "name": "Nom",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "dob": "Date de naissance",
+      "added": "Ajouté le"
+    },
+    "history": {
+      "subtitle": "Dossiers et factures",
+      "dossiers": "Dossiers dentaires",
+      "factures": "Factures",
+      "noDossiers": "Aucun dossier enregistré.",
+      "noFactures": "Aucune facture enregistrée."
+    },
+    "form": {
+      "addTitle": "Nouveau patient",
+      "editTitle": "Modifier le patient",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "dob": "Date de naissance",
+      "address": "Adresse",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "requiredError": "Le prénom et le nom sont obligatoires."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer le patient",
+      "message": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  }
+}

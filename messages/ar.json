@@ -1,0 +1,309 @@
+{
+  "nav": {
+    "features": "الميزات",
+    "howItWorks": "كيف يعمل",
+    "signIn": "تسجيل الدخول",
+    "getStarted": "ابدأ مجاناً"
+  },
+  "hero": {
+    "badge": "لعيادات الأسنان",
+    "title": "كل ما تحتاجه عيادتك،",
+    "titleHighlight": "في مكان واحد.",
+    "subtitle": "أدِر مرضاك، الملفات الطبية، العلاجات والفواتير بسهولة. وداعاً للأوراق والجداول — DentiCare يبقي عيادتك منظمة.",
+    "cta": "ابدأ مجاناً",
+    "ctaSecondary": "عرض جميع الميزات →",
+    "noCreditCard": "بدون بطاقة بنكية · مجاني للبدء"
+  },
+  "stats": {
+    "totalPatients": "إجمالي المرضى",
+    "facturesMonth": "الفواتير هذا الشهر",
+    "appointmentsToday": "مواعيد اليوم",
+    "pendingPayments": "مدفوعات معلقة",
+    "thisMonth": "هذا الشهر",
+    "vsLastMonth": "مقارنة بالشهر الماضي",
+    "overdue": "متأخرة",
+    "days": "> 7 أيام"
+  },
+  "features": {
+    "sectionTitle": "كل ما تحتاجه لإدارة عيادتك",
+    "sectionSubtitle": "مصمم لواقع عيادة الأسنان اليومي.",
+    "patients": { "title": "إدارة المرضى", "desc": "احفظ ملفات المرضى الكاملة مع بيانات الاتصال وتاريخ الرعاية." },
+    "dossiers": { "title": "الملفات الطبية", "desc": "سجّل الفحوصات والعلاجات والملاحظات السريرية وتاريخ المراجعة القادمة." },
+    "traitements": { "title": "كتالوج العلاجات", "desc": "أدِر قائمة الإجراءات السنية مع الفئة والسعر والمدة." },
+    "factures": { "title": "الفواتير", "desc": "أنشئ الفواتير وتتبع المدفوعات واستخرج PDF احترافية بنقرة واحدة." },
+    "appointments": { "title": "المواعيد", "desc": "جدوِل وأدِر الاستشارات والعلاجات. قلّل الغيابات بتذكيرات واتساب." },
+    "reports": { "title": "لوحة القيادة والتقارير", "desc": "شاهد أداء عيادتك دفعة واحدة." },
+    "search": { "title": "بحث سريع", "desc": "ابحث فوراً عن أي مريض أو علاج أو موعد." },
+    "print": { "title": "الطباعة والتصدير", "desc": "اطبع الفواتير وبطاقات المريض بنقرة واحدة." },
+    "security": { "title": "آمن وخاص", "desc": "بيانات مرضاك مشفرة ومحمية. متوافق مع GDPR." },
+    "seePreview": "معاينة →",
+    "preview": "معاينة",
+    "previewNote": "هذه معاينة ببيانات تجريبية.",
+    "getStartedFree": "ابدأ مجاناً →"
+  },
+  "howItWorks": {
+    "title": "جاهز في دقائق",
+    "subtitle": "لا حاجة لتقنيين. لا إعداد معقد.",
+    "step1Title": "أنشئ حسابك",
+    "step1Desc": "سجّل مجاناً في أقل من دقيقة. بدون بطاقة.",
+    "step2Title": "أضف بياناتك",
+    "step2Desc": "استورد مرضاك الحاليين أو ابدأ من الصفر.",
+    "step3Title": "ابدأ الإدارة",
+    "step3Desc": "أنشئ أول فاتورة وحدد موعداً — أنت جاهز."
+  },
+  "testimonial": {
+    "quote": "منذ استخدام DentiCare، نقضي نصف الوقت في الإدارة وضعف الوقت مع مرضانا.",
+    "author": "د. كريم ب.",
+    "role": "طبيب أسنان، الدار البيضاء"
+  },
+  "cta": {
+    "title": "هل أنت مستعد لتحديث عيادتك؟",
+    "subtitle": "انضم إلى أطباء الأسنان الذين يديرون عياداتهم بذكاء مع DentiCare.",
+    "button": "ابدأ مجاناً"
+  },
+  "footer": { "rights": "© 2025 DentiCare. جميع الحقوق محفوظة." },
+  "signIn": {
+    "title": "أهلاً بعودتك",
+    "subtitle": "سجّل دخولك إلى حساب DentiCare",
+    "noAccount": "ليس لديك حساب؟",
+    "signUpFree": "سجّل مجاناً",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "button": "تسجيل الدخول",
+    "loading": "جارٍ التسجيل…",
+    "orContinueWith": "أو",
+    "google": "المتابعة مع Google",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "signUpLink": "سجّل مجاناً"
+  },
+  "signUp": {
+    "title": "أنشئ حسابك",
+    "subtitle": "مجاني للبدء — بدون بطاقة",
+    "alreadyHaveAccount": "لديك حساب؟",
+    "signInLink": "تسجيل الدخول",
+    "firstName": "الاسم الأول",
+    "lastName": "اللقب",
+    "shopName": "اسم العيادة",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "passwordPlaceholder": "8 أحرف على الأقل",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "button": "إنشاء الحساب",
+    "loading": "جارٍ الإنشاء…",
+    "google": "المتابعة مع Google",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+    "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+    "checkEmail": "تحقق من بريدك",
+    "checkEmailDesc": "أرسلنا رابط تأكيد إلى {email}. انقر عليه لتفعيل حسابك.",
+    "goToSignIn": "الذهاب إلى تسجيل الدخول"
+  },
+  "dashboard": {
+    "greeting": "مرحباً{name} 👋",
+    "subtitle": "إليك ما يجري في {shop} اليوم.",
+    "stats": {
+      "totalPatients": "إجمالي المرضى",
+      "facturesMonth": "فواتير هذا الشهر",
+      "appointmentsToday": "مواعيد اليوم",
+      "pendingPayments": "مدفوعات معلقة",
+      "addFirstPatient": "أضف أول مريض",
+      "noFactures": "لا فواتير",
+      "noAppointments": "لا مواعيد",
+      "allPaid": "كل شيء على ما يرام"
+    },
+    "quickActions": "إجراءات سريعة",
+    "newPatient": "مريض جديد",
+    "newFacture": "فاتورة جديدة",
+    "bookAppointment": "حجز موعد",
+    "newDossier": "ملف جديد",
+    "recentActivity": "النشاط الأخير",
+    "shopReady": "عيادتك جاهزة",
+    "shopReadyDesc": "ابدأ بإضافة أول مريض.",
+    "nav": {
+      "dashboard": "لوحة القيادة",
+      "patients": "المرضى",
+      "dossiers": "الملفات",
+      "traitements": "العلاجات",
+      "factures": "الفواتير",
+      "appointments": "المواعيد",
+      "reports": "التقارير",
+      "settings": "الإعدادات"
+    },
+    "signOut": "تسجيل الخروج"
+  },
+  "appointments": {
+    "title": "المواعيد",
+    "searchPlaceholder": "بحث بالمريض أو العنوان…",
+    "newAppointment": "موعد جديد",
+    "noAppointments": "لا مواعيد",
+    "noAppointmentsDesc": "حدد أول موعد.",
+    "noResults": "لا نتائج",
+    "noResultsDesc": "لا يوجد موعد يطابق \"{query}\".",
+    "today": "اليوم",
+    "tomorrow": "غداً",
+    "allStatuses": "الكل",
+    "statuses": { "planifie": "مجدول", "termine": "منتهي", "annule": "ملغى", "absent": "غائب" },
+    "types": { "consultation": "استشارة", "nettoyage": "تنظيف", "soin": "علاج", "chirurgie": "جراحة", "controle": "مراجعة", "orthodontie": "تقويم", "autre": "أخرى" },
+    "form": {
+      "addTitle": "موعد جديد", "editTitle": "تعديل الموعد",
+      "title": "العنوان", "titlePlaceholder": "مثال: تنظيف",
+      "patient": "المريض", "noPatient": "بدون مريض",
+      "type": "النوع", "date": "التاريخ", "time": "الوقت", "duration": "المدة",
+      "status": "الحالة", "notes": "ملاحظات",
+      "save": "حفظ", "saving": "جارٍ الحفظ…", "cancel": "إلغاء",
+      "requiredError": "العنوان والتاريخ إلزاميان."
+    },
+    "deleteConfirm": {
+      "title": "حذف الموعد",
+      "message": "حذف الموعد \"{title}\"؟",
+      "confirm": "حذف", "cancel": "إلغاء"
+    }
+  },
+  "reports": {
+    "title": "التقارير",
+    "totalPatients": "إجمالي المرضى",
+    "revenueMonth": "الإيراد هذا الشهر",
+    "facturesMonth": "فواتير هذا الشهر",
+    "appointmentsToday": "مواعيد اليوم",
+    "thisMonth": "هذا الشهر",
+    "vsLastMonth": "مقارنة بالشهر الماضي",
+    "firstMonth": "أول شهر",
+    "pending": "معلقة",
+    "paid": "مدفوعة",
+    "topItems": "أكثر العلاجات",
+    "noData": "لا بيانات بعد.",
+    "revenueSummary": "ملخص الإيراد",
+    "lastMonth": "الشهر الماضي",
+    "pendingAmount": "المبلغ المستحق",
+    "pendingAmountDesc": "الإجمالي ناقص الدفعات",
+    "revenueChart": "الإيراد (6 أشهر الأخيرة)",
+    "factureStatus": "توزيع الفواتير"
+  },
+  "traitements": {
+    "title": "العلاجات",
+    "searchPlaceholder": "بحث بالاسم أو الفئة…",
+    "newTraitement": "علاج جديد",
+    "noTraitements": "لا علاجات بعد",
+    "noTraitementsDesc": "أضف إجراءاتك السنية.",
+    "noResults": "لا نتائج",
+    "noResultsDesc": "لا يوجد علاج يطابق \"{query}\".",
+    "allCategories": "الكل",
+    "categories": {
+      "nettoyage": "تنظيف",
+      "obturation": "حشو",
+      "extraction": "خلع",
+      "couronne": "تاج",
+      "implant": "زراعة",
+      "orthodontie": "تقويم",
+      "blanchiment": "تبييض",
+      "prothese": "طقم",
+      "autre": "أخرى"
+    },
+    "columns": { "traitement": "العلاج", "category": "الفئة", "price": "السعر", "duration": "المدة" },
+    "form": {
+      "addTitle": "علاج جديد", "editTitle": "تعديل العلاج",
+      "name": "الاسم", "namePlaceholder": "مثال: تنظيف",
+      "category": "الفئة", "price": "السعر (MAD)", "duration": "المدة (دقائق)",
+      "description": "وصف", "notes": "ملاحظات",
+      "save": "حفظ", "saving": "جارٍ الحفظ…", "cancel": "إلغاء",
+      "requiredError": "الاسم والسعر إلزاميان."
+    },
+    "deleteConfirm": {
+      "title": "حذف العلاج",
+      "message": "حذف \"{name}\"؟ هذا الإجراء لا يمكن التراجع عنه.",
+      "confirm": "حذف", "cancel": "إلغاء"
+    }
+  },
+  "factures": {
+    "title": "الفواتير",
+    "searchPlaceholder": "بحث بالمريض…",
+    "newFacture": "فاتورة جديدة",
+    "noFactures": "لا فواتير بعد",
+    "noFacturesDesc": "أنشئ أول فاتورة.",
+    "noResults": "لا نتائج",
+    "noResultsDesc": "لا توجد فاتورة تطابق \"{query}\".",
+    "allStatuses": "الكل",
+    "statuses": { "en_attente": "في الانتظار", "en_cours": "قيد المعالجة", "payee": "مدفوعة", "annulee": "ملغاة" },
+    "columns": { "patient": "المريض", "date": "التاريخ", "status": "الحالة", "total": "الإجمالي", "deposit": "الدفعة" },
+    "form": {
+      "addTitle": "فاتورة جديدة", "editTitle": "تعديل الفاتورة",
+      "patient": "المريض", "selectPatient": "اختر مريضاً…",
+      "status": "الحالة", "items": "العناصر",
+      "addItem": "إضافة عنصر",
+      "traitement": "العلاج (اختياري)", "customItem": "عنصر مخصص",
+      "description": "الوصف", "descriptionPlaceholder": "مثال: تنظيف كامل",
+      "qty": "الكمية", "unitPrice": "سعر الوحدة",
+      "total": "الإجمالي", "deposit": "الدفعة", "notes": "ملاحظات",
+      "save": "حفظ", "saving": "جارٍ الحفظ…", "cancel": "إلغاء",
+      "patientRequired": "يرجى اختيار مريض.",
+      "itemRequired": "أضف عنصراً واحداً على الأقل."
+    },
+    "deleteConfirm": {
+      "title": "حذف الفاتورة",
+      "message": "حذف فاتورة {name} بتاريخ {date}؟",
+      "confirm": "حذف", "cancel": "إلغاء"
+    }
+  },
+  "dossiers": {
+    "title": "الملفات الطبية",
+    "searchPlaceholder": "بحث بالمريض أو الطبيب…",
+    "newDossier": "ملف جديد",
+    "noDossiers": "لا ملفات بعد",
+    "noDossiersDesc": "أضف أول ملف لمريض.",
+    "noResults": "لا نتائج",
+    "noResultsDesc": "لا يوجد ملف يطابق \"{query}\".",
+    "columns": { "patient": "المريض", "date": "تاريخ الفحص", "type": "النوع", "dentist": "الطبيب" },
+    "types": { "examen": "فحص", "soin": "علاج", "bilan": "تقييم", "urgence": "طارئ", "autre": "أخرى" },
+    "form": {
+      "addTitle": "ملف جديد", "editTitle": "تعديل الملف",
+      "patient": "المريض", "selectPatient": "اختر مريضاً…",
+      "type": "نوع الزيارة", "examDate": "تاريخ الفحص", "nextExamDate": "المراجعة القادمة",
+      "treatedBy": "الطبيب", "treatedByPlaceholder": "د. الاسم",
+      "dentalNotes": "ملاحظات سريرية", "dentalNotesPlaceholder": "ملاحظات، علاجات، توصيات…",
+      "document": "مستند (اختياري)",
+      "dropOrClick": "اسحب وأفلت ملف PDF أو صورة",
+      "tapToChoose": "اضغط لاختيار ملف",
+      "fileHint": "PDF، JPG، PNG · 10 ميغابايت كحد أقصى",
+      "browseFile": "تصفح",
+      "removeDocument": "إزالة",
+      "fileTooLarge": "الملف يتجاوز 10 ميغابايت.",
+      "save": "حفظ", "saving": "جارٍ الحفظ…", "cancel": "إلغاء",
+      "requiredError": "المريض وتاريخ الفحص إلزاميان."
+    },
+    "deleteConfirm": {
+      "title": "حذف الملف",
+      "message": "حذف ملف {name} بتاريخ {date}؟",
+      "confirm": "حذف", "cancel": "إلغاء"
+    }
+  },
+  "patients": {
+    "title": "المرضى",
+    "searchPlaceholder": "بحث بالاسم أو الهاتف أو البريد…",
+    "newPatient": "مريض جديد",
+    "noPatients": "لا مرضى بعد",
+    "noPatientsDesc": "أضف أول مريض للبدء.",
+    "noResults": "لا نتائج",
+    "noResultsDesc": "لا يوجد مريض يطابق \"{query}\".",
+    "columns": { "name": "الاسم", "phone": "الهاتف", "email": "البريد", "dob": "تاريخ الميلاد", "added": "تاريخ الإضافة" },
+    "history": {
+      "subtitle": "الملفات والفواتير",
+      "dossiers": "الملفات الطبية",
+      "factures": "الفواتير",
+      "noDossiers": "لا ملفات.",
+      "noFactures": "لا فواتير."
+    },
+    "form": {
+      "addTitle": "مريض جديد", "editTitle": "تعديل المريض",
+      "firstName": "الاسم الأول", "lastName": "اللقب",
+      "email": "البريد", "phone": "الهاتف",
+      "dob": "تاريخ الميلاد", "address": "العنوان", "notes": "ملاحظات",
+      "save": "حفظ", "saving": "جارٍ الحفظ…", "cancel": "إلغاء",
+      "requiredError": "الاسم الأول واللقب إلزاميان."
+    },
+    "deleteConfirm": {
+      "title": "حذف المريض",
+      "message": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع.",
+      "confirm": "حذف", "cancel": "إلغاء"
+    }
+  }
+}
