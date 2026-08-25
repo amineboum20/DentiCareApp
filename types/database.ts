@@ -59,6 +59,7 @@ export interface Facture {
   user_id: string
   patient_id: string
   dossier_id: string | null
+  appointment_id: string | null
   status: FactureStatus
   total_price: number
   deposit_paid: number
@@ -99,4 +100,13 @@ export interface AppointmentWithPatient extends Appointment {
 
 export interface DossierWithPatient extends Dossier {
   patients: Pick<Patient, 'first_name' | 'last_name'>
+}
+
+export interface TreatmentAttribute {
+  id: string
+  user_id: string
+  attr_type: 'category' | 'option'
+  name: string
+  sort_order: number
+  created_at: string
 }

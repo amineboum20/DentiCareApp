@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
@@ -32,6 +32,12 @@ export default function SettingsClient({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+
+  const [treatCatalogTab, setTreatCatalogTab] = useState<'category' | 'option'>('category');
+  const [treatAttributes, setTreatAttributes] = useState<{ id: string; attr_type: string; name: string; sort_order: number }[]>([]);
+  const [treatAttrLoading, setTreatAttrLoading] = useState(false);
+  const [newTreatAttrName, setNewTreatAttrName] = useState("");
+  const [treatAttrSaving, setTreatAttrSaving] = useState(false);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -97,6 +103,59 @@ export default function SettingsClient({
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
     router.refresh();
+  }
+
+  useEffect(() => {
+    setTreatAttrLoading(true);
+    supabase.from("treatment_attributes").select("*").eq("user_id", userId)
+      .order("sort_order").order("name")
+      .then(async ({ data }) => {
+        if (!data || data.length === 0) {
+          const defaults = [
+            { attr_type: "category", name: "Nettoyage & détartrage", sort_order: 0 },
+            { attr_type: "category", name: "Obturation (carie)", sort_order: 1 },
+            { attr_type: "category", name: "Extraction", sort_order: 2 },
+            { attr_type: "category", name: "Couronne", sort_order: 3 },
+            { attr_type: "category", name: "Implant", sort_order: 4 },
+            { attr_type: "category", name: "Orthodontie", sort_order: 5 },
+            { attr_type: "category", name: "Blanchiment", sort_order: 6 },
+            { attr_type: "category", name: "Prothèse dentaire", sort_order: 7 },
+            { attr_type: "category", name: "Urgence", sort_order: 8 },
+            { attr_type: "option", name: "Anesthésie locale", sort_order: 0 },
+            { attr_type: "option", name: "Anesthésie générale", sort_order: 1 },
+            { attr_type: "option", name: "Sous microscope", sort_order: 2 },
+            { attr_type: "option", name: "Radiographie", sort_order: 3 },
+            { attr_type: "option", name: "Empreinte numérique", sort_order: 4 },
+            { attr_type: "option", name: "Scanner 3D", sort_order: 5 },
+            { attr_type: "option", name: "Sutures", sort_order: 6 },
+            { attr_type: "option", name: "Prescription médicaments", sort_order: 7 },
+          ];
+          const { data: seeded } = await supabase.from("treatment_attributes")
+            .insert(defaults.map(d => ({ ...d, user_id: userId })))
+            .select();
+          setTreatAttributes((seeded ?? []) as typeof treatAttributes);
+        } else {
+          setTreatAttributes(data as typeof treatAttributes);
+        }
+        setTreatAttrLoading(false);
+      });
+  }, [userId]);
+
+  async function addTreatAttribute() {
+    if (!newTreatAttrName.trim()) return;
+    setTreatAttrSaving(true);
+    const { data } = await supabase.from("treatment_attributes").insert({
+      user_id: userId, attr_type: treatCatalogTab, name: newTreatAttrName.trim(),
+      sort_order: treatAttributes.filter(a => a.attr_type === treatCatalogTab).length,
+    }).select().single();
+    if (data) setTreatAttributes(prev => [...prev, data as typeof treatAttributes[0]]);
+    setNewTreatAttrName("");
+    setTreatAttrSaving(false);
+  }
+
+  async function deleteTreatAttribute(id: string) {
+    await supabase.from("treatment_attributes").delete().eq("id", id);
+    setTreatAttributes(prev => prev.filter(a => a.id !== id));
   }
 
   const inputCls =
@@ -207,6 +266,51 @@ export default function SettingsClient({
             ✓ Enregistré
           </span>
         )}
+      </div>
+
+      {/* Catalogue des soins */}
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Catalogue des soins</h2>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+          <div className="flex gap-1 mb-6">
+            {(["category", "option"] as const).map(tab => (
+              <button key={tab} onClick={() => { setTreatCatalogTab(tab); setNewTreatAttrName(""); }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  treatCatalogTab === tab ? "bg-teal-600 text-white" : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                }`}>
+                {tab === "category" ? "Catégories" : "Options"}
+              </button>
+            ))}
+          </div>
+          {treatAttrLoading ? (
+            <div className="text-center py-8 text-zinc-400 text-sm">Chargement…</div>
+          ) : (
+            <div className="space-y-1 mb-4 max-h-64 overflow-y-auto">
+              {treatAttributes.filter(a => a.attr_type === treatCatalogTab).map(attr => (
+                <div key={attr.id} className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 group">
+                  <span className="text-sm text-zinc-800 dark:text-zinc-200">{attr.name}</span>
+                  <button onClick={() => deleteTreatAttribute(attr.id)}
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-opacity text-xs px-2 py-0.5 rounded">
+                    Suppr.
+                  </button>
+                </div>
+              ))}
+              {treatAttributes.filter(a => a.attr_type === treatCatalogTab).length === 0 && (
+                <p className="text-zinc-400 text-sm py-4 text-center">Aucun élément</p>
+              )}
+            </div>
+          )}
+          <div className="flex gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+            <input value={newTreatAttrName} onChange={e => setNewTreatAttrName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && addTreatAttribute()}
+              placeholder={`Nouvelle ${treatCatalogTab === "category" ? "catégorie" : "option"}…`}
+              className="flex-1 px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <button onClick={addTreatAttribute} disabled={treatAttrSaving || !newTreatAttrName.trim()}
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors">
+              Ajouter
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

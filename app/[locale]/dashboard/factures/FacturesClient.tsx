@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { FactureWithPatient, FactureStatus, FactureItem } from "@/types/database";
@@ -19,6 +19,7 @@ const emptyForm = {
   total_price: "",
   deposit_paid: "0",
   notes: "",
+  appointment_id: "",
 };
 
 const STATUS_STYLE: Record<string, string> = {
@@ -46,6 +47,9 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
   const t = useTranslations("factures");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1];
   const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
 
   const [factures, setFactures] = useState<FactureWithPatient[]>(initialFactures);
@@ -59,6 +63,12 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
   const [detail, setDetail] = useState<FactureWithPatient | null>(null);
   const [items, setItems] = useState<FactureItem[]>([]);
   const [itemsLoading, setItemsLoading] = useState(false);
+  const [patientAppointments, setPatientAppointments] = useState<{id: string; title: string; scheduled_at: string}[]>([]);
+  const [newApptMode, setNewApptMode] = useState(false);
+  const [newApptTitle, setNewApptTitle] = useState("");
+  const [newApptDate, setNewApptDate] = useState("");
+  const [newApptTime, setNewApptTime] = useState("");
+  const [detailAppointment, setDetailAppointment] = useState<{id: string; title: string; scheduled_at: string} | null>(null);
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -66,6 +76,24 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
     const found = factures.find((f) => f.id === id);
     if (found) openDetail(found);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!detail?.appointment_id) { setDetailAppointment(null); return; }
+    supabase.from("appointments").select("id, title, scheduled_at").eq("id", detail.appointment_id).single()
+      .then(({ data }) => setDetailAppointment(data as {id: string; title: string; scheduled_at: string} | null));
+  }, [detail?.id]);
+
+  useEffect(() => {
+    if (!form.patient_id || !modalOpen) { setPatientAppointments([]); return; }
+    const now = new Date().toISOString();
+    supabase.from("appointments")
+      .select("id, title, scheduled_at")
+      .eq("patient_id", form.patient_id)
+      .eq("status", "planifie")
+      .gte("scheduled_at", now)
+      .order("scheduled_at", { ascending: true })
+      .then(({ data }) => setPatientAppointments((data ?? []) as {id: string; title: string; scheduled_at: string}[]));
+  }, [form.patient_id, modalOpen]);
 
   async function openDetail(f: FactureWithPatient) {
     setDetail(f);
@@ -116,6 +144,7 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
       total_price: String(f.total_price),
       deposit_paid: String(f.deposit_paid),
       notes: f.notes ?? "",
+      appointment_id: f.appointment_id ?? "",
     });
     setError("");
     setModalOpen(true);
@@ -137,12 +166,27 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
     setSaving(true);
     setError("");
 
+    let appointmentId = form.appointment_id || null;
+    if (newApptMode && newApptDate && newApptTime) {
+      const { data: apptData } = await supabase.from("appointments").insert({
+        user_id: userId,
+        patient_id: form.patient_id || null,
+        title: newApptTitle.trim() || "Soins dentaires",
+        type: "soin",
+        status: "planifie",
+        scheduled_at: `${newApptDate}T${newApptTime}:00`,
+        notes: null,
+      }).select().single();
+      if (apptData) appointmentId = apptData.id;
+    }
+
     const payload = {
       patient_id: form.patient_id.trim(),
       status: form.status,
       total_price: parseFloat(form.total_price),
       deposit_paid: parseFloat(form.deposit_paid) || 0,
       notes: form.notes.trim() || null,
+      appointment_id: appointmentId,
     };
 
     if (editingFacture) {
@@ -329,6 +373,23 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
               <DR label={t("columns.remaining")} value={`${(detail.total_price - detail.deposit_paid).toFixed(2)} MAD`} />
               <DR label={t("form.notes")} value={detail.notes} />
 
+              {detailAppointment && (
+                <div className="flex items-center justify-between rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/30 px-3 py-2 mt-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">📅</span>
+                    <div>
+                      <p className="text-xs font-medium text-teal-700 dark:text-teal-300">RDV lié</p>
+                      <p className="text-[11px] text-teal-600 dark:text-teal-400">{new Date(detailAppointment.scheduled_at).toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/appointments`); }}
+                    className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-medium">
+                    Voir →
+                  </button>
+                </div>
+              )}
+
               {/* Items list */}
               <div className="pt-2">
                 <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">Lignes de facture</p>
@@ -440,6 +501,46 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
                   {t("form.notes")}
                 </label>
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">📅 RDV lié (optionnel)</label>
+                {!newApptMode ? (
+                  <div className="flex gap-1">
+                    <select value={form.appointment_id} onChange={(e) => setForm((f) => ({ ...f, appointment_id: e.target.value }))}
+                      className={`flex-1 ${inputCls}`}>
+                      <option value="">— Aucun —</option>
+                      {patientAppointments.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {new Date(a.scheduled_at).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} — {a.title}
+                        </option>
+                      ))}
+                    </select>
+                    <button type="button"
+                      onClick={() => { setNewApptMode(true); setNewApptTitle("Soins dentaires"); }}
+                      disabled={!form.patient_id}
+                      title="Créer un RDV"
+                      className="px-2.5 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 hover:bg-teal-100 text-sm font-bold transition-colors disabled:opacity-40 shrink-0">
+                      +
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2 p-3 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/10">
+                    <input value={newApptTitle} onChange={(e) => setNewApptTitle(e.target.value)}
+                      placeholder="Titre du RDV"
+                      className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="date" value={newApptDate} onChange={(e) => setNewApptDate(e.target.value)}
+                        className="px-2.5 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500" />
+                      <input type="time" value={newApptTime} onChange={(e) => setNewApptTime(e.target.value)}
+                        className="px-2.5 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500" />
+                    </div>
+                    <button type="button" onClick={() => { setNewApptMode(false); setNewApptDate(""); setNewApptTime(""); }}
+                      className="text-[11px] text-zinc-400 hover:text-zinc-600 transition-colors">
+                      ✕ Annuler
+                    </button>
+                  </div>
+                )}
               </div>
 
               {error && <p className="text-xs text-red-500">{error}</p>}

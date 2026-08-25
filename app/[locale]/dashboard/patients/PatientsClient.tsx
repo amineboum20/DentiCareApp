@@ -43,9 +43,20 @@ type FactureItem = {
   unit_price: number;
 };
 
+type DetailSnapshot = {
+  lastDossier: { id: string; exam_date: string; type: string } | null;
+  nextAppointment: { id: string; title: string; scheduled_at: string } | null;
+  activeFactures: { id: string; status: string; total_price: number; deposit_paid: number }[];
+};
+
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
+}
+
+function fmtDateTime(iso: string | null) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 const FACTURE_STATUS_STYLE: Record<string, string> = {
@@ -95,7 +106,7 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
     const id = searchParams.get("detail");
     if (!id) return;
     const found = patients.find((c) => c.id === id);
-    if (found) setDetail(found);
+    if (found) openDetail(found);
   }, [searchParams]);
 
   // History panel
@@ -111,6 +122,8 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
   const [selectedFactureItems, setSelectedFactureItems] = useState<FactureItem[]>([]);
   const [selectedFactureItemsLoading, setSelectedFactureItemsLoading] = useState(false);
   const [historyDeleteConfirm, setHistoryDeleteConfirm] = useState<{ type: "dossier" | "facture"; id: string } | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailSnapshot, setDetailSnapshot] = useState<DetailSnapshot | null>(null);
 
   const filtered = useMemo(() =>
     patients.filter((c) =>
@@ -216,6 +229,37 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
       shopPhone,
       logoUrl,
     });
+  }
+
+  async function openDetail(c: Patient) {
+    setDetail(c);
+    setDetailLoading(true);
+    setDetailSnapshot(null);
+    const now = new Date().toISOString();
+    const [{ data: dossier }, { data: appt }, { data: factures }] = await Promise.all([
+      supabase.from("dossiers")
+        .select("id, exam_date, type")
+        .eq("patient_id", c.id)
+        .order("exam_date", { ascending: false })
+        .limit(1),
+      supabase.from("appointments")
+        .select("id, title, scheduled_at")
+        .eq("patient_id", c.id)
+        .eq("status", "planifie")
+        .gte("scheduled_at", now)
+        .order("scheduled_at", { ascending: true })
+        .limit(1),
+      supabase.from("factures")
+        .select("id, status, total_price, deposit_paid")
+        .eq("patient_id", c.id)
+        .in("status", ["en_attente", "en_cours"]),
+    ]);
+    setDetailSnapshot({
+      lastDossier: dossier?.[0] ?? null,
+      nextAppointment: appt?.[0] ?? null,
+      activeFactures: (factures ?? []) as { id: string; status: string; total_price: number; deposit_paid: number }[],
+    });
+    setDetailLoading(false);
   }
 
   function field(key: keyof typeof form) {
@@ -331,7 +375,7 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
             <tbody>
               {filtered.map((c) => (
                 <tr key={c.id}
-                  onClick={() => setDetail(c)}
+                  onClick={() => openDetail(c)}
                   className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer">
                   <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
                     {c.first_name} {c.last_name}
@@ -372,19 +416,130 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
               <DR label="Adresse" value={detail.address} />
               <DR label="Notes" value={detail.notes} />
             </div>
+            {/* Vue rapide */}
+            <div className="px-6 pt-4 pb-3 border-t border-zinc-100 dark:border-zinc-800">
+              <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-2.5">Vue rapide</p>
+              {detailLoading ? (
+                <div className="flex justify-center py-3">
+                  <svg className="w-5 h-5 animate-spin text-teal-500" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between rounded-lg bg-zinc-50 dark:bg-zinc-800/60 px-3 py-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm shrink-0">🗂️</span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Dernier dossier</p>
+                        <p className="text-[11px] text-zinc-400">
+                          {detailSnapshot?.lastDossier
+                            ? `${fmtDate(detailSnapshot.lastDossier.exam_date)} · ${detailSnapshot.lastDossier.type}`
+                            : "Aucun"}
+                        </p>
+                      </div>
+                    </div>
+                    {detailSnapshot?.lastDossier && (
+                      <button
+                        onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/dossiers?detail=${detailSnapshot.lastDossier!.id}`); }}
+                        className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-medium shrink-0 ms-2">
+                        Voir →
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg bg-zinc-50 dark:bg-zinc-800/60 px-3 py-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm shrink-0">📅</span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Prochain RDV</p>
+                        <p className="text-[11px] text-zinc-400">
+                          {detailSnapshot?.nextAppointment
+                            ? fmtDateTime(detailSnapshot.nextAppointment.scheduled_at)
+                            : "Aucun planifié"}
+                        </p>
+                      </div>
+                    </div>
+                    {detailSnapshot?.nextAppointment && (
+                      <button
+                        onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/appointments`); }}
+                        className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-medium shrink-0 ms-2">
+                        Voir →
+                      </button>
+                    )}
+                  </div>
+                  {detailSnapshot && detailSnapshot.activeFactures.length > 0 && (
+                    <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 px-3 py-2">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">🧾</span>
+                          <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+                            {detailSnapshot.activeFactures.length} facture{detailSnapshot.activeFactures.length > 1 ? "s" : ""} non soldée{detailSnapshot.activeFactures.length > 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/factures`); }}
+                          className="text-[11px] text-amber-700 dark:text-amber-400 hover:underline font-medium">
+                          Voir →
+                        </button>
+                      </div>
+                      {detailSnapshot.activeFactures.map((f) => (
+                        <div key={f.id} className="flex items-center justify-between">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${FACTURE_STATUS_STYLE[f.status]}`}>
+                            {FACTURE_STATUS_LABEL[f.status]}
+                          </span>
+                          <span className="text-[11px] text-amber-700 dark:text-amber-400 font-mono">
+                            {(f.total_price - f.deposit_paid).toFixed(2)} MAD dû
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            {/* Quick actions */}
+            <div className="px-6 pb-3">
+              <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-2">Actions rapides</p>
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/factures`); }}
+                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+                  <span className="text-lg">🧾</span>
+                  <span className="text-[11px] font-medium leading-tight">Facture</span>
+                </button>
+                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/dossiers`); }}
+                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+                  <span className="text-lg">🗂️</span>
+                  <span className="text-[11px] font-medium leading-tight">Dossier</span>
+                </button>
+                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/appointments`); }}
+                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+                  <span className="text-lg">📅</span>
+                  <span className="text-[11px] font-medium leading-tight">RDV</span>
+                </button>
+              </div>
+              {detail.phone && (
+                <div className="grid grid-cols-2 gap-2">
+                  <a href={`tel:${detail.phone.replace(/\D/g, "")}`}
+                    className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
+                    <span className="text-lg">📞</span>
+                    <span className="text-[11px] font-medium leading-tight">Appeler</span>
+                  </a>
+                  <a href={`https://wa.me/${detail.phone.replace(/\D/g, "")}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors text-emerald-600 dark:text-emerald-400">
+                    <span className="text-lg">💬</span>
+                    <span className="text-[11px] font-medium leading-tight">WhatsApp</span>
+                  </a>
+                </div>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <button onClick={() => { setDeleteTarget(detail); setDetail(null); }}
                 className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
                 Supprimer
               </button>
               <div className="ms-auto flex flex-wrap items-center gap-2">
-                {detail.phone && (
-                  <a href={`https://wa.me/${detail.phone.replace(/\D/g, "")}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 text-sm font-medium transition-colors">
-                    💬 WhatsApp
-                  </a>
-                )}
                 <button onClick={() => { openHistory(detail); setDetail(null); }}
                   className="px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 hover:bg-violet-100 text-sm font-medium transition-colors">
                   📋 Historique
