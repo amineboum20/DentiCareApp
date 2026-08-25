@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { FactureWithPatient, FactureStatus, FactureItem } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import { useAppContext } from "@/components/AppContext";
 
 interface Props {
   initialFactures: FactureWithPatient[];
@@ -29,6 +30,13 @@ const STATUS_STYLE: Record<string, string> = {
 
 const STATUSES: FactureStatus[] = ["en_attente", "en_cours", "payee", "annulee"];
 
+const STATUS_LABEL: Record<string, string> = {
+  en_attente: "En attente",
+  en_cours:   "En cours",
+  payee:      "Payée",
+  annulee:    "Annulée",
+};
+
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -38,6 +46,7 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
   const t = useTranslations("factures");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
 
   const [factures, setFactures] = useState<FactureWithPatient[]>(initialFactures);
   const [search, setSearch] = useState("");
@@ -168,7 +177,22 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
 
   async function exportFacturePdf(facture: FactureWithPatient) {
     const { exportFacturePdf: exportFn } = await import("@/utils/pdf-export");
-    exportFn(facture);
+    exportFn({
+      factureId:     facture.id,
+      patientName:   facture.patients ? `${facture.patients.first_name} ${facture.patients.last_name}` : "—",
+      patientPhone:  facture.patients?.phone ?? null,
+      patientAddress: null,
+      createdAt:     facture.created_at,
+      statusLabel:   STATUS_LABEL[facture.status] ?? facture.status,
+      items:         items.map((i) => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price })),
+      totalPrice:    facture.total_price,
+      depositPaid:   facture.deposit_paid,
+      notes:         facture.notes,
+      shopName,
+      shopAddress,
+      shopPhone,
+      logoUrl,
+    });
   }
 
   const inputCls = "w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
