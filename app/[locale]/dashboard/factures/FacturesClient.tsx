@@ -78,6 +78,15 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
   }, [searchParams]);
 
   useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    const patientId = searchParams.get("patient_id") ?? "";
+    setEditingFacture(null);
+    setForm({ ...emptyForm, patient_id: patientId });
+    setError("");
+    setModalOpen(true);
+  }, [searchParams]);
+
+  useEffect(() => {
     if (!detail?.appointment_id) { setDetailAppointment(null); return; }
     supabase.from("appointments").select("id, title, scheduled_at").eq("id", detail.appointment_id).single()
       .then(({ data }) => setDetailAppointment(data as {id: string; title: string; scheduled_at: string} | null));

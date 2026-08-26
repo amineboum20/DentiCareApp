@@ -101,6 +101,11 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
   const [error, setError] = useState("");
 
   const [detail, setDetail] = useState<Patient | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+  }, []);
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -362,6 +367,7 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
             )}
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-100 dark:border-zinc-800">
@@ -388,6 +394,7 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 
@@ -502,35 +509,45 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
             <div className="px-6 pb-3">
               <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-2">Actions rapides</p>
               <div className="grid grid-cols-3 gap-2 mb-2">
-                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/factures`); }}
+                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/factures?new=1&patient_id=${detail.id}`); }}
                   className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
                   <span className="text-lg">🧾</span>
                   <span className="text-[11px] font-medium leading-tight">Facture</span>
                 </button>
-                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/dossiers`); }}
+                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/dossiers?new=1&patient_id=${detail.id}`); }}
                   className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
                   <span className="text-lg">🗂️</span>
                   <span className="text-[11px] font-medium leading-tight">Dossier</span>
                 </button>
-                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/appointments`); }}
+                <button onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/appointments?new=1&patient_id=${detail.id}`); }}
                   className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
                   <span className="text-lg">📅</span>
                   <span className="text-[11px] font-medium leading-tight">RDV</span>
                 </button>
               </div>
-              {detail.phone && (
-                <div className="grid grid-cols-2 gap-2">
-                  <a href={`tel:${detail.phone.replace(/\D/g, "")}`}
-                    className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
-                    <span className="text-lg">📞</span>
-                    <span className="text-[11px] font-medium leading-tight">Appeler</span>
-                  </a>
-                  <a href={`https://wa.me/${detail.phone.replace(/\D/g, "")}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors text-emerald-600 dark:text-emerald-400">
-                    <span className="text-lg">💬</span>
-                    <span className="text-[11px] font-medium leading-tight">WhatsApp</span>
-                  </a>
+              {(detail.phone || (!isMobile && detail.email)) && (
+                <div className={`grid gap-2 ${detail.phone && (!isMobile ? detail.email : true) ? "grid-cols-2" : "grid-cols-1"}`}>
+                  {isMobile && detail.phone ? (
+                    <a href={`tel:${detail.phone.replace(/\D/g, "")}`}
+                      className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
+                      <span className="text-lg">📞</span>
+                      <span className="text-[11px] font-medium leading-tight">Appeler</span>
+                    </a>
+                  ) : !isMobile && detail.email ? (
+                    <a href={`mailto:${detail.email}`}
+                      className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
+                      <span className="text-lg">✉️</span>
+                      <span className="text-[11px] font-medium leading-tight">Envoyer un Email</span>
+                    </a>
+                  ) : null}
+                  {detail.phone && (
+                    <a href={`https://wa.me/${detail.phone.replace(/\D/g, "")}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors text-emerald-600 dark:text-emerald-400">
+                      <span className="text-lg">💬</span>
+                      <span className="text-[11px] font-medium leading-tight">WhatsApp</span>
+                    </a>
+                  )}
                 </div>
               )}
             </div>

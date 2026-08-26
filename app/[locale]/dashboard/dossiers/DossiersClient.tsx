@@ -56,6 +56,15 @@ export default function DossiersClient({ initialDossiers, userId }: Props) {
     if (found) setDetail(found);
   }, [searchParams]);
 
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    const patientId = searchParams.get("patient_id") ?? "";
+    setEditingDossier(null);
+    setForm({ ...emptyForm, patient_id: patientId });
+    setError("");
+    setModalOpen(true);
+  }, [searchParams]);
+
   const filtered = useMemo(() =>
     dossiers.filter((d) => {
       const name = `${d.patients.first_name} ${d.patients.last_name}`.toLowerCase();

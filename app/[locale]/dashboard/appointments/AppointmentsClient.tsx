@@ -82,6 +82,17 @@ export default function AppointmentsClient({ initialAppointments, patients, user
     if (found) setDetail(found);
   }, [searchParams]);
 
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    const patientId = searchParams.get("patient_id") ?? "";
+    setEditing(null);
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setForm({ ...emptyForm, patient_id: patientId, scheduled_at: local });
+    setError("");
+    setModalOpen(true);
+  }, [searchParams]);
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return appointments.filter((a) => {
