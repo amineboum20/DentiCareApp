@@ -26,6 +26,7 @@ export interface Patient {
   notes: string | null
   created_at: string
   updated_at: string
+  archived_at: string | null
 }
 
 export interface Dossier {
@@ -39,6 +40,7 @@ export interface Dossier {
   dental_notes: string | null
   document_path: string | null
   created_at: string
+  archived_at: string | null
 }
 
 export interface Traitement {
@@ -66,6 +68,7 @@ export interface Facture {
   notes: string | null
   created_at: string
   updated_at: string
+  archived_at: string | null
 }
 
 export interface FactureItem {
@@ -88,6 +91,7 @@ export interface Appointment {
   status: AppointmentStatus
   notes: string | null
   created_at: string
+  archived_at: string | null
 }
 
 export interface FactureWithPatient extends Facture {

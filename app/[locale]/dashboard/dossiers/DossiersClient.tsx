@@ -4,12 +4,13 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { DossierWithPatient, DossierType } from "@/types/database";
+import type { DossierWithPatient, DossierType, Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 
 interface Props {
   initialDossiers: DossierWithPatient[];
   userId: string;
+  patients: Pick<Patient, "id" | "first_name" | "last_name">[];
 }
 
 const emptyForm = {
@@ -34,7 +35,7 @@ function fmtDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-export default function DossiersClient({ initialDossiers, userId }: Props) {
+export default function DossiersClient({ initialDossiers, userId, patients }: Props) {
   const t = useTranslations("dossiers");
   const supabase = createClient();
   const searchParams = useSearchParams();
@@ -311,13 +312,17 @@ export default function DossiersClient({ initialDossiers, userId }: Props) {
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
                   {t("form.patientId")} <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  {...field("patient_id")}
-                  placeholder="UUID du patient"
+                <select
+                  value={form.patient_id}
+                  onChange={(e) => setForm(f => ({ ...f, patient_id: e.target.value }))}
                   className={inputCls}
-                />
-                <p className="text-xs text-zinc-400 mt-1">Entrez l&apos;ID UUID du patient</p>
+                  required
+                >
+                  <option value="">— Sélectionner un patient —</option>
+                  {patients.map((p) => (
+                    <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
+                  ))}
+                </select>
               </div>
 
               <div>

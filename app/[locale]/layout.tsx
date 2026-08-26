@@ -9,8 +9,8 @@ import "../globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
-  title: "OptiApp",
-  description: "Optician management made simple",
+  title: "DentiCare",
+  description: "Logiciel de gestion pour cabinet dentaire",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },

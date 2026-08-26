@@ -11,10 +11,12 @@ export default async function AppointmentsPage() {
     supabase
       .from("appointments")
       .select("*, patients(first_name, last_name)")
+      .is("archived_at", null)
       .order("scheduled_at", { ascending: false }),
     supabase
       .from("patients")
       .select("id, first_name, last_name")
+      .is("archived_at", null)
       .order("last_name", { ascending: true }),
   ]);
 

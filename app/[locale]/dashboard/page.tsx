@@ -119,7 +119,7 @@ export default async function Dashboard() {
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[f.status]}`}>
                         {statusLabel[f.status] ?? f.status}
                       </span>
-                      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{f.total_price.toFixed(0)} MAD</span>
+                      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{(f.total_price ?? 0).toFixed(0)} MAD</span>
                     </div>
                   </div>
                 );

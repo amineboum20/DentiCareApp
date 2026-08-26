@@ -4,13 +4,14 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { FactureWithPatient, FactureStatus, FactureItem } from "@/types/database";
+import type { FactureWithPatient, FactureStatus, FactureItem, Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 
 interface Props {
   initialFactures: FactureWithPatient[];
   userId: string;
+  patients: Pick<Patient, "id" | "first_name" | "last_name">[];
 }
 
 const emptyForm = {
@@ -43,7 +44,7 @@ function fmtDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-export default function FacturesClient({ initialFactures, userId }: Props) {
+export default function FacturesClient({ initialFactures, userId, patients }: Props) {
   const t = useTranslations("factures");
   const supabase = createClient();
   const searchParams = useSearchParams();
@@ -476,7 +477,17 @@ export default function FacturesClient({ initialFactures, userId }: Props) {
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
                   {t("form.patientId")} <span className="text-red-500">*</span>
                 </label>
-                <input type="text" {...field("patient_id")} placeholder="UUID du patient" className={inputCls} />
+                <select
+                  value={form.patient_id}
+                  onChange={(e) => setForm(f => ({ ...f, patient_id: e.target.value }))}
+                  className={inputCls}
+                  required
+                >
+                  <option value="">— Sélectionner un patient —</option>
+                  {patients.map((p) => (
+                    <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
+                  ))}
+                </select>
               </div>
 
               <div>

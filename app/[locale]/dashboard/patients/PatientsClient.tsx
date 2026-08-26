@@ -95,8 +95,10 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [archiveTarget, setArchiveTarget] = useState<Patient | null>(null);
+  const [archivePreview, setArchivePreview] = useState<{ dossiers: number; factures: number; appointments: number } | null>(null);
+  const [archiveLoading, setArchiveLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -316,11 +318,32 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
     setModalOpen(false);
   }
 
-  async function handleDelete() {
-    if (!deleteTarget) return;
-    await supabase.from("patients").delete().eq("id", deleteTarget.id);
-    setPatients((cs) => cs.filter((c) => c.id !== deleteTarget.id));
-    setDeleteTarget(null);
+  async function handleArchiveStart(patient: Patient) {
+    setArchiveLoading(true);
+    const [{ count: dCount }, { count: fCount }, { count: aCount }] = await Promise.all([
+      supabase.from("dossiers").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
+      supabase.from("factures").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
+      supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
+    ]);
+    setArchiveTarget(patient);
+    setArchivePreview({ dossiers: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0 });
+    setArchiveLoading(false);
+  }
+
+  async function handleArchiveConfirm() {
+    if (!archiveTarget) return;
+    setArchiveLoading(true);
+    const now = new Date().toISOString();
+    await Promise.all([
+      supabase.from("patients").update({ archived_at: now }).eq("id", archiveTarget.id),
+      supabase.from("dossiers").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
+      supabase.from("factures").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
+      supabase.from("appointments").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
+    ]);
+    setPatients((prev) => prev.filter((p) => p.id !== archiveTarget.id));
+    setArchiveTarget(null);
+    setArchivePreview(null);
+    setArchiveLoading(false);
   }
 
   const inputCls = "w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
@@ -552,9 +575,11 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
-              <button onClick={() => { setDeleteTarget(detail); setDetail(null); }}
-                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-                Supprimer
+              <button
+                onClick={() => { handleArchiveStart(detail); setDetail(null); }}
+                className="px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors"
+              >
+                Archiver
               </button>
               <div className="ms-auto flex flex-wrap items-center gap-2">
                 <button onClick={() => { openHistory(detail); setDetail(null); }}
@@ -901,9 +926,9 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
 
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               {editingPatient && (
-                <button type="button" onClick={() => { setDeleteTarget(editingPatient); setModalOpen(false); }}
-                  className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-                  Supprimer
+                <button type="button" onClick={() => { handleArchiveStart(editingPatient); setModalOpen(false); }}
+                  className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors">
+                  Archiver
                 </button>
               )}
               <div className="ms-auto flex items-center gap-3">
@@ -921,24 +946,33 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
         </div>
       )}
 
-      {/* Delete confirmation */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      {/* Archive confirmation */}
+      {archiveTarget && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("deleteConfirm.title")}</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-              {t("deleteConfirm.message", {
-                name: `${deleteTarget.first_name} ${deleteTarget.last_name}`,
-              })}
+            <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">Archiver ce patient ?</h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+              {archiveTarget.first_name} {archiveTarget.last_name} et toutes ses données seront masquées :
             </p>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                {t("deleteConfirm.cancel")}
+            {archivePreview && (
+              <ul className="text-sm text-zinc-600 dark:text-zinc-300 mb-5 space-y-1">
+                {archivePreview.dossiers > 0 && <li>• {archivePreview.dossiers} dossier{archivePreview.dossiers > 1 ? "s" : ""}</li>}
+                {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
+                {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
+                {archivePreview.dossiers === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
+                  <li className="text-zinc-400">Aucune donnée liée.</li>
+                )}
+              </ul>
+            )}
+            <p className="text-xs text-zinc-400 mb-5">Les données sont conservées et récupérables depuis les archives.</p>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => { setArchiveTarget(null); setArchivePreview(null); }}
+                className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                Annuler
               </button>
-              <button onClick={handleDelete}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">
-                {t("deleteConfirm.confirm")}
+              <button onClick={handleArchiveConfirm} disabled={archiveLoading}
+                className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium transition-colors">
+                {archiveLoading ? "Archivage…" : "Archiver"}
               </button>
             </div>
           </div>

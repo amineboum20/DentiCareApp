@@ -10,6 +10,7 @@ export default async function PatientsPage() {
   const { data: patients } = await supabase
     .from("patients")
     .select("*")
+    .is("archived_at", null)
     .order("created_at", { ascending: false });
 
   return (
