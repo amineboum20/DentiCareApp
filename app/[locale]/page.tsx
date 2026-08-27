@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const patients = [
@@ -242,6 +242,24 @@ export default function Home() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>("[data-animate]");
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach(e => {
+        if (e.isIntersecting) {
+          const el = e.target as HTMLElement;
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0)";
+          io.unobserve(el);
+        }
+      }),
+      { threshold: 0.1 }
+    );
+    els.forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   const features = [
     { key: "patients",     icon: "🦷", title: t("features.patients.title"),     desc: t("features.patients.desc") },
     { key: "dossiers",     icon: "🗂️", title: t("features.dossiers.title"),    desc: t("features.dossiers.desc") },
@@ -295,23 +313,42 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="flex flex-col items-center text-center px-6 pt-24 pb-20 bg-gradient-to-b from-teal-50/60 to-white dark:from-teal-950/20 dark:to-zinc-950">
-        <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-900 rounded-full px-3 py-1 mb-6">
-          ✦ {t("hero.badge")}
-        </span>
-        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-white max-w-3xl leading-tight">
-          {t("hero.title")}{" "}
-          <span className="text-teal-600 dark:text-teal-400">{t("hero.titleHighlight")}</span>
-        </h1>
-        <p className="mt-6 text-lg text-zinc-500 dark:text-zinc-400 max-w-xl leading-relaxed">{t("hero.subtitle")}</p>
-        <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center">
-          <Link href="/signup" className="px-7 py-3 rounded-full bg-teal-600 text-white font-medium hover:bg-teal-700 transition-colors shadow-md shadow-teal-200 dark:shadow-none">{t("hero.cta")}</Link>
-          <a href="#features" className="px-7 py-3 rounded-full border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">{t("hero.ctaSecondary")}</a>
+      <section
+        className="relative flex flex-col items-center justify-center text-center px-6"
+        style={{
+          minHeight: "calc(100vh - 76px)",
+          backgroundImage: "url('/pexels-shvets-production-8413334.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/70" />
+        <div className="relative z-10 flex flex-col items-center">
+          <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-white/80 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-6">
+            ✦ {t("hero.badge")}
+          </span>
+          <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white max-w-3xl leading-tight">
+            {t("hero.title")}{" "}
+            <span className="text-teal-400">{t("hero.titleHighlight")}</span>
+          </h1>
+          <p className="mt-6 text-lg sm:text-xl text-white/65 max-w-xl leading-relaxed">{t("hero.subtitle")}</p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center">
+            <Link href="/signup" className="px-8 py-3.5 rounded-full bg-teal-600 text-white font-semibold hover:bg-teal-500 transition-colors shadow-xl shadow-teal-900/50">{t("hero.cta")}</Link>
+            <a href="#features" className="px-8 py-3.5 rounded-full border border-white/25 text-white font-medium hover:bg-white/10 backdrop-blur-sm transition-colors">{t("hero.ctaSecondary")}</a>
+          </div>
+          <p className="mt-5 text-sm text-white/40">{t("hero.noCreditCard")}</p>
         </div>
-        <p className="mt-4 text-xs text-zinc-400">{t("hero.noCreditCard")}</p>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+          <div className="w-6 h-10 rounded-full border-2 border-white/25 flex items-start justify-center pt-2">
+            <div className="w-1 h-2 bg-white/50 rounded-full animate-bounce" />
+          </div>
+        </div>
+      </section>
 
-        {/* Mock dashboard */}
-        <div className="mt-16 w-full max-w-4xl rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 shadow-xl overflow-hidden">
+      {/* Mock dashboard */}
+      <section className="py-20 px-6 bg-white dark:bg-zinc-950">
+        <div data-animate style={{ opacity: 0, transform: "translateY(28px)", transition: "opacity 0.7s ease, transform 0.7s ease" }} className="max-w-4xl mx-auto rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 shadow-xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
             <span className="w-3 h-3 rounded-full bg-red-400" /><span className="w-3 h-3 rounded-full bg-yellow-400" /><span className="w-3 h-3 rounded-full bg-green-400" />
             <span className="ml-4 text-xs text-zinc-400">denticare.vercel.app/dashboard</span>
@@ -336,6 +373,85 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Device mockups */}
+      <section className="py-16 px-6 bg-white dark:bg-zinc-950 overflow-hidden">
+        <div data-animate style={{ opacity: 0, transform: "translateY(28px)", transition: "opacity 0.7s ease, transform 0.7s ease" }} className="max-w-5xl mx-auto flex items-end justify-center gap-6">
+          {/* Laptop */}
+          <div className="hidden sm:flex flex-col items-center flex-1 max-w-xs">
+            <div className="w-full rounded-t-lg border-4 border-zinc-800 bg-zinc-900 overflow-hidden" style={{ aspectRatio: "16/10" }}>
+              <div className="flex items-center gap-1 px-2 py-1 bg-zinc-950 border-b border-zinc-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400" /><span className="w-1.5 h-1.5 rounded-full bg-yellow-400" /><span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              </div>
+              <div className="p-2 bg-zinc-900 h-full">
+                <div className="flex gap-1 h-full">
+                  <div className="w-12 bg-zinc-800 rounded flex flex-col gap-1 p-1">
+                    {["🦷","🗂️","💊","🧾","📅","📊"].map(i => <div key={i} className="text-[8px] text-center py-0.5 rounded bg-zinc-700">{i}</div>)}
+                  </div>
+                  <div className="flex-1 flex flex-col gap-1">
+                    <div className="grid grid-cols-2 gap-1">
+                      {[["184","🦷"],["38","🧾"],["9","📅"],["5","⏳"]].map(([v,ic]) => (
+                        <div key={ic} className="rounded bg-zinc-800 p-1.5 text-center">
+                          <div className="text-[10px] text-white font-bold">{v}</div>
+                          <div className="text-[8px] text-zinc-400">{ic}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex-1 rounded bg-zinc-800 p-1.5">
+                      <div className="text-[7px] text-zinc-400 mb-1">Rendez-vous</div>
+                      {["09:00 Amina","10:00 Nouveau","11:30 Youssef"].map(a => (
+                        <div key={a} className="text-[6px] text-teal-400 border-b border-zinc-700 py-0.5">{a}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="w-full h-2 bg-zinc-800 rounded-b-lg" />
+            <div className="w-2/3 h-1.5 bg-zinc-700 rounded-b-full" />
+          </div>
+          {/* Tablet */}
+          <div className="flex flex-col items-center flex-shrink-0 w-40 sm:w-48">
+            <div className="w-full rounded-xl border-4 border-zinc-800 bg-zinc-900 overflow-hidden" style={{ aspectRatio: "3/4" }}>
+              <div className="w-8 h-1 bg-zinc-700 rounded-full mx-auto mt-1.5 mb-1" />
+              <div className="px-2 pb-2">
+                <div className="text-[7px] text-zinc-400 mb-1">Patients</div>
+                {[["Amina Z.","Détartrage","14/07"],["Youssef B.","Obturation","02/06"],["Sara L.","Contrôle","18/08"],["Rachid M.","Extraction","10/08"]].map(([n,t2,d]) => (
+                  <div key={n} className="flex items-center gap-1 py-1 border-b border-zinc-800">
+                    <div className="w-5 h-5 rounded-full bg-teal-700 flex items-center justify-center text-[6px] text-white font-bold">{n[0]}</div>
+                    <div className="flex-1">
+                      <div className="text-[7px] text-white font-medium">{n}</div>
+                      <div className="text-[6px] text-zinc-400">{t2}</div>
+                    </div>
+                    <div className="text-[6px] text-zinc-500">{d}</div>
+                  </div>
+                ))}
+                <div className="mt-2 grid grid-cols-2 gap-1">
+                  <div className="rounded bg-teal-700 text-[6px] text-white text-center py-1">+ Patient</div>
+                  <div className="rounded bg-zinc-800 text-[6px] text-zinc-300 text-center py-1">Nouveau RDV</div>
+                </div>
+              </div>
+            </div>
+            <div className="w-4 h-4 rounded-full border-2 border-zinc-700 mt-1.5" />
+          </div>
+          {/* Phone */}
+          <div className="hidden sm:flex flex-col items-center flex-shrink-0 w-28">
+            <div className="w-full rounded-2xl border-4 border-zinc-800 bg-zinc-900 overflow-hidden" style={{ aspectRatio: "9/19" }}>
+              <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mt-1.5 mb-1" />
+              <div className="px-2 pb-2">
+                <div className="text-[7px] text-zinc-400 mb-1.5">Aujourd'hui</div>
+                {[["09:00","Amina Z.","teal"],["10:00","Nouveau","zinc"],["11:30","Youssef B.","teal"]].map(([time,name,color]) => (
+                  <div key={time} className={`mb-1 p-1.5 rounded-lg bg-${color}-900/40 border border-${color}-800/40`}>
+                    <div className="text-[7px] text-teal-400 font-mono">{time}</div>
+                    <div className="text-[7px] text-white font-medium">{name}</div>
+                  </div>
+                ))}
+                <div className="mt-2 rounded-lg bg-teal-600 text-[7px] text-white text-center py-1.5">+ Nouveau RDV</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" className="max-w-6xl mx-auto w-full px-6 py-24">
         <div className="text-center mb-14">
@@ -343,9 +459,11 @@ export default function Home() {
           <p className="mt-3 text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">{t("features.sectionSubtitle")}</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((f) => (
+          {features.map((f, i) => (
             <button key={f.key} onClick={() => setActiveFeature(f.key)}
-              className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-6 flex flex-col gap-3 hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition-all text-left group cursor-pointer">
+              data-animate
+              style={{ opacity: 0, transform: "translateY(28px)", transition: "opacity 0.6s ease, transform 0.6s ease", transitionDelay: `${i * 70}ms` }}
+              className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-6 flex flex-col gap-3 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(148,163,184,0.2)] transition-[transform,box-shadow] duration-200 text-left group cursor-pointer">
               <span className="text-3xl">{f.icon}</span>
               <h3 className="font-semibold text-zinc-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{f.title}</h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{f.desc}</p>
@@ -366,8 +484,8 @@ export default function Home() {
             { step: "1", title: t("howItWorks.step1Title"), desc: t("howItWorks.step1Desc") },
             { step: "2", title: t("howItWorks.step2Title"), desc: t("howItWorks.step2Desc") },
             { step: "3", title: t("howItWorks.step3Title"), desc: t("howItWorks.step3Desc") },
-          ].map((s) => (
-            <div key={s.step} className="flex flex-col items-center text-center gap-4">
+          ].map((s, i) => (
+            <div key={s.step} data-animate style={{ opacity: 0, transform: "translateY(24px)", transition: "opacity 0.6s ease, transform 0.6s ease", transitionDelay: `${i * 120}ms` }} className="flex flex-col items-center text-center gap-4">
               <div className="w-12 h-12 rounded-full bg-teal-600 text-white font-bold text-lg flex items-center justify-center">{s.step}</div>
               <h3 className="font-semibold text-zinc-900 dark:text-white">{s.title}</h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{s.desc}</p>
@@ -378,7 +496,7 @@ export default function Home() {
 
       {/* Testimonial */}
       <section className="py-20 px-6">
-        <div className="max-w-2xl mx-auto text-center">
+        <div data-animate style={{ opacity: 0, transform: "translateY(24px)", transition: "opacity 0.7s ease, transform 0.7s ease" }} className="max-w-2xl mx-auto text-center">
           <p className="text-2xl font-medium text-zinc-700 dark:text-zinc-300 leading-relaxed italic">"{t("testimonial.quote")}"</p>
           <div className="mt-6 flex flex-col items-center gap-1">
             <span className="font-semibold text-zinc-900 dark:text-white">{t("testimonial.author")}</span>
