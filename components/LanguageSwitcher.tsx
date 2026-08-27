@@ -3,6 +3,7 @@
 import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { useTransition } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 const LANGS = [
   { code: "fr", label: "FR", flag: "🇫🇷" },
@@ -10,7 +11,7 @@ const LANGS = [
   { code: "ar", label: "AR", flag: "🇲🇦" },
 ];
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ saveToAccount = false }: { saveToAccount?: boolean }) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -20,6 +21,9 @@ export default function LanguageSwitcher() {
     startTransition(() => {
       router.replace(pathname, { locale: next });
     });
+    if (saveToAccount) {
+      createClient().auth.updateUser({ data: { locale: next } }).catch(() => {});
+    }
   }
 
   return (

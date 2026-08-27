@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false);
@@ -13,7 +14,9 @@ export default function ThemeToggle() {
     const next = !dark;
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
-    try { localStorage.setItem("theme", next ? "dark" : "light"); } catch {}
+    const value = next ? "dark" : "light";
+    try { localStorage.setItem("theme", value); } catch {}
+    createClient().auth.updateUser({ data: { theme: value } }).catch(() => {});
   }
 
   return (

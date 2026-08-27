@@ -272,7 +272,7 @@ export default function SettingsClient({
       {/* Langue */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
         <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4">Langue</h2>
-        <LanguageSwitcher />
+        <LanguageSwitcher saveToAccount />
       </div>
 
       {/* Catalogue des soins */}

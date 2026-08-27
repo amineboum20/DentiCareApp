@@ -21,6 +21,11 @@ export async function middleware(request: NextRequest) {
   // Dashboard: run intlMiddleware first (sets x-next-intl-locale header), then check auth
   const intlResponse = intlMiddleware(request);
 
+  // If intlMiddleware is redirecting (locale normalization), skip auth — it re-runs on the destination
+  if ([301, 302, 307, 308].includes(intlResponse.status)) {
+    return intlResponse;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

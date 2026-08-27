@@ -1,14 +1,14 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function SignIn() {
   const t = useTranslations("signIn");
-  const router = useRouter();
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,12 +19,20 @@ export default function SignIn() {
     setError("");
     setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      const meta = data.user?.user_metadata ?? {};
+      const savedTheme = meta.theme as string | undefined;
+      if (savedTheme) {
+        try { localStorage.setItem("theme", savedTheme); } catch {}
+        if (savedTheme === "dark") document.documentElement.classList.add("dark");
+        else document.documentElement.classList.remove("dark");
+      }
+      const savedLocale = (meta.locale as string | undefined) ?? locale;
+      window.location.href = `/${savedLocale}/dashboard`;
     }
   }
 

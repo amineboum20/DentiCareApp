@@ -10,7 +10,7 @@ export default function SignOutButton() {
 
   async function handleSignOut() {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     router.push("/");
   }
 
