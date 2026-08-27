@@ -28,6 +28,7 @@ export default function SignIn() {
       const savedTheme = meta.theme as string | undefined;
       if (savedTheme) {
         try { localStorage.setItem("theme", savedTheme); } catch {}
+        document.cookie = `theme=${savedTheme};path=/;max-age=31536000;SameSite=Lax`;
         if (savedTheme === "dark") document.documentElement.classList.add("dark");
         else document.documentElement.classList.remove("dark");
       }

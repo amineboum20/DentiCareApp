@@ -16,6 +16,7 @@ export default function ThemeToggle() {
     document.documentElement.classList.toggle("dark", next);
     const value = next ? "dark" : "light";
     try { localStorage.setItem("theme", value); } catch {}
+    document.cookie = `theme=${value};path=/;max-age=31536000;SameSite=Lax`;
     createClient().auth.updateUser({ data: { theme: value } }).catch(() => {});
   }
 

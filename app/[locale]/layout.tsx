@@ -3,8 +3,8 @@ import { Geist } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { routing } from "@/i18n/routing";
-import { ThemeApplier } from "@/components/ThemeApplier";
 import "../globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
@@ -32,20 +32,23 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const isRtl = locale === "ar";
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value;
+  const isDark = theme === "dark";
 
   return (
     <html
       lang={locale}
       dir={isRtl ? "rtl" : "ltr"}
-      className={`${geist.variable} h-full antialiased`}
+      className={`${geist.variable} h-full antialiased${isDark ? " dark" : ""}`}
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("theme");if(t==="dark"||(t===null&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}` }} />
+        {/* Sets cookie + class on first visit (before server has seen a theme cookie) */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=document.cookie.match(/(?:^|;\\s*)theme=([^;]*)/)?.[1]||localStorage.getItem("theme");if(!t){t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"}if(t==="dark"){document.documentElement.classList.add("dark")}document.cookie="theme="+t+";path=/;max-age=31536000;SameSite=Lax"}catch(e){}` }} />
       </head>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
-          <ThemeApplier />
           {children}
         </NextIntlClientProvider>
       </body>
