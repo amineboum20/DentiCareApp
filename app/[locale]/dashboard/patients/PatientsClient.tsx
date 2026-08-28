@@ -10,7 +10,6 @@ import { useAppContext } from "@/components/AppContext";
 
 interface Props {
   initialPatients: Patient[];
-  userId: string;
 }
 
 const emptyForm = {
@@ -83,14 +82,14 @@ const FACTURE_STATUS_LABEL: Record<string, string> = {
   annulee:    "Annulée",
 };
 
-export default function PatientsClient({ initialPatients, userId }: Props) {
+export default function PatientsClient({ initialPatients }: Props) {
   const t = useTranslations("patients");
   const supabase = createClient();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
-  const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
+  const { shopName, shopAddress, shopPhone, logoUrl, practiceId, currentUserId } = useAppContext();
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -307,7 +306,7 @@ export default function PatientsClient({ initialPatients, userId }: Props) {
     } else {
       const { data, error: err } = await supabase
         .from("patients")
-        .insert({ ...payload, user_id: userId })
+        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId })
         .select()
         .single();
       if (err) { setError(err.message); setSaving(false); return; }

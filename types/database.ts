@@ -13,10 +13,30 @@ export type FactureStatus = 'en_attente' | 'en_cours' | 'payee' | 'annulee'
 export type AppointmentType = 'consultation' | 'nettoyage' | 'soin' | 'chirurgie' | 'controle' | 'orthodontie' | 'autre'
 export type AppointmentStatus = 'planifie' | 'termine' | 'annule' | 'absent'
 export type DossierType = 'examen' | 'soin' | 'bilan' | 'urgence' | 'autre'
+export type MemberRole = 'owner' | 'dentist' | 'assistant'
+
+export interface Practice {
+  id: string
+  name: string
+  address: string | null
+  phone: string | null
+  logo_url: string | null
+  created_at: string
+}
+
+export interface PracticeMember {
+  id: string
+  practice_id: string
+  user_id: string
+  role: MemberRole
+  first_name: string
+  last_name: string
+  created_at: string
+}
 
 export interface Patient {
   id: string
-  user_id: string
+  practice_id: string
   first_name: string
   last_name: string
   email: string | null
@@ -27,11 +47,13 @@ export interface Patient {
   created_at: string
   updated_at: string
   archived_at: string | null
+  created_by: string | null
+  updated_by: string | null
 }
 
 export interface Dossier {
   id: string
-  user_id: string
+  practice_id: string
   patient_id: string
   type: DossierType
   exam_date: string
@@ -41,11 +63,13 @@ export interface Dossier {
   document_path: string | null
   created_at: string
   archived_at: string | null
+  created_by: string | null
+  updated_by: string | null
 }
 
 export interface Traitement {
   id: string
-  user_id: string
+  practice_id: string
   name: string
   category: TreatmentCategory
   price: number
@@ -54,11 +78,13 @@ export interface Traitement {
   notes: string | null
   created_at: string
   updated_at: string
+  created_by: string | null
+  updated_by: string | null
 }
 
 export interface Facture {
   id: string
-  user_id: string
+  practice_id: string
   patient_id: string
   dossier_id: string | null
   appointment_id: string | null
@@ -69,6 +95,8 @@ export interface Facture {
   created_at: string
   updated_at: string
   archived_at: string | null
+  created_by: string | null
+  updated_by: string | null
 }
 
 export interface FactureItem {
@@ -82,7 +110,7 @@ export interface FactureItem {
 
 export interface Appointment {
   id: string
-  user_id: string
+  practice_id: string
   patient_id: string | null
   title: string
   scheduled_at: string
@@ -92,6 +120,18 @@ export interface Appointment {
   notes: string | null
   created_at: string
   archived_at: string | null
+  created_by: string | null
+  updated_by: string | null
+}
+
+export interface TreatmentAttribute {
+  id: string
+  practice_id: string
+  attr_type: 'category' | 'option'
+  name: string
+  sort_order: number
+  created_at: string
+  created_by: string | null
 }
 
 export interface FactureWithPatient extends Facture {
@@ -104,13 +144,4 @@ export interface AppointmentWithPatient extends Appointment {
 
 export interface DossierWithPatient extends Dossier {
   patients: Pick<Patient, 'first_name' | 'last_name'>
-}
-
-export interface TreatmentAttribute {
-  id: string
-  user_id: string
-  attr_type: 'category' | 'option'
-  name: string
-  sort_order: number
-  created_at: string
 }

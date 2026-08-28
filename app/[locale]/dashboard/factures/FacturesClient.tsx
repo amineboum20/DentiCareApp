@@ -10,7 +10,6 @@ import { useAppContext } from "@/components/AppContext";
 
 interface Props {
   initialFactures: FactureWithPatient[];
-  userId: string;
   patients: Pick<Patient, "id" | "first_name" | "last_name">[];
 }
 
@@ -44,14 +43,14 @@ function fmtDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-export default function FacturesClient({ initialFactures, userId, patients }: Props) {
+export default function FacturesClient({ initialFactures, patients }: Props) {
   const t = useTranslations("factures");
   const supabase = createClient();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
-  const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
+  const { shopName, shopAddress, shopPhone, logoUrl, practiceId, currentUserId } = useAppContext();
 
   const [factures, setFactures] = useState<FactureWithPatient[]>(initialFactures);
   const [search, setSearch] = useState("");
@@ -179,7 +178,8 @@ export default function FacturesClient({ initialFactures, userId, patients }: Pr
     let appointmentId = form.appointment_id || null;
     if (newApptMode && newApptDate && newApptTime) {
       const { data: apptData } = await supabase.from("appointments").insert({
-        user_id: userId,
+        practice_id: practiceId,
+        created_by: currentUserId,
         patient_id: form.patient_id || null,
         title: newApptTitle.trim() || "Soins dentaires",
         type: "soin",
@@ -211,7 +211,7 @@ export default function FacturesClient({ initialFactures, userId, patients }: Pr
     } else {
       const { data, error: err } = await supabase
         .from("factures")
-        .insert({ ...payload, user_id: userId })
+        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId })
         .select("*, patients(first_name, last_name, phone)")
         .single();
       if (err) { setError(err.message); setSaving(false); return; }

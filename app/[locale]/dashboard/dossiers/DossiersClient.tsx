@@ -6,10 +6,10 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { DossierWithPatient, DossierType, Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import { useAppContext } from "@/components/AppContext";
 
 interface Props {
   initialDossiers: DossierWithPatient[];
-  userId: string;
   patients: Pick<Patient, "id" | "first_name" | "last_name">[];
 }
 
@@ -35,10 +35,11 @@ function fmtDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-export default function DossiersClient({ initialDossiers, userId, patients }: Props) {
+export default function DossiersClient({ initialDossiers, patients }: Props) {
   const t = useTranslations("dossiers");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const { practiceId, currentUserId } = useAppContext();
 
   const [dossiers, setDossiers] = useState<DossierWithPatient[]>(initialDossiers);
   const [search, setSearch] = useState("");
@@ -132,7 +133,7 @@ export default function DossiersClient({ initialDossiers, userId, patients }: Pr
     } else {
       const { data, error: err } = await supabase
         .from("dossiers")
-        .insert({ ...payload, user_id: userId })
+        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId })
         .select("*, patients(first_name, last_name)")
         .single();
       if (err) { setError(err.message); setSaving(false); return; }

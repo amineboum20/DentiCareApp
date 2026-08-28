@@ -10,17 +10,29 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = session?.user;
   if (!user) redirect("/signin");
 
-  const meta = user.user_metadata ?? {};
-  const firstName   = meta.first_name   ?? "";
-  const shopName    = meta.shop_name    ?? "DentiCare";
-  const shopAddress = meta.shop_address ?? "";
-  const shopPhone   = meta.shop_phone   ?? "";
-  const logoUrl     = meta.logo_url     ?? null;
+  const { data: member } = await supabase
+    .from("practice_members")
+    .select("*, practices(*)")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member) redirect("/signin");
+
+  const practice = (member as any).practices as any;
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <AppProvider shopName={shopName} shopAddress={shopAddress} shopPhone={shopPhone} logoUrl={logoUrl}>
-        <Sidebar firstName={firstName} shopName={shopName} email={user.email ?? ""} />
+      <AppProvider
+        practiceId={member.practice_id}
+        currentUserId={user.id}
+        memberRole={member.role}
+        memberName={member.first_name}
+        shopName={practice?.name ?? "DentiCare"}
+        shopAddress={practice?.address ?? ""}
+        shopPhone={practice?.phone ?? ""}
+        logoUrl={practice?.logo_url ?? null}
+      >
+        <Sidebar firstName={member.first_name} shopName={practice?.name ?? "DentiCare"} email={user.email ?? ""} />
         <div className="sm:ms-56 min-h-screen">
           <div className="hidden sm:flex sticky top-0 z-10 h-14 items-center justify-center px-6 bg-white/80 dark:bg-zinc-950/80 backdrop-blur border-b border-zinc-100 dark:border-zinc-800">
             <GlobalSearch />

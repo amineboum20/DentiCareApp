@@ -1,8 +1,13 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import type { MemberRole } from "@/types/database";
 
 interface AppContextValue {
+  practiceId: string;
+  currentUserId: string;
+  memberRole: MemberRole;
+  memberName: string;
   shopName: string;
   shopAddress: string;
   shopPhone: string;
@@ -10,6 +15,10 @@ interface AppContextValue {
 }
 
 const AppContext = createContext<AppContextValue>({
+  practiceId: "",
+  currentUserId: "",
+  memberRole: "owner",
+  memberName: "",
   shopName: "DentiCare",
   shopAddress: "",
   shopPhone: "",
@@ -20,20 +29,18 @@ export const useShopName = () => useContext(AppContext).shopName;
 export const useAppContext = () => useContext(AppContext);
 
 export function AppProvider({
+  practiceId,
+  currentUserId,
+  memberRole,
+  memberName,
   shopName,
   shopAddress,
   shopPhone,
   logoUrl,
   children,
-}: {
-  shopName: string;
-  shopAddress: string;
-  shopPhone: string;
-  logoUrl: string | null;
-  children: React.ReactNode;
-}) {
+}: AppContextValue & { children: React.ReactNode }) {
   return (
-    <AppContext.Provider value={{ shopName, shopAddress, shopPhone, logoUrl }}>
+    <AppContext.Provider value={{ practiceId, currentUserId, memberRole, memberName, shopName, shopAddress, shopPhone, logoUrl }}>
       {children}
     </AppContext.Provider>
   );

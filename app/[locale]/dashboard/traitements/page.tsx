@@ -5,7 +5,6 @@ import type { Traitement } from "@/types/database";
 
 export default async function TraitementsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
 
   const { data: traitements } = await supabase
     .from("traitements")
@@ -17,7 +16,6 @@ export default async function TraitementsPage() {
       <Suspense>
         <TraitementsClient
           initialTraitements={(traitements ?? []) as Traitement[]}
-          userId={user!.id}
         />
       </Suspense>
     </div>

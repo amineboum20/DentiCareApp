@@ -5,7 +5,6 @@ import type { Patient } from "@/types/database";
 
 export default async function PatientsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
 
   const { data: patients } = await supabase
     .from("patients")
@@ -18,7 +17,6 @@ export default async function PatientsPage() {
       <Suspense>
         <PatientsClient
           initialPatients={(patients ?? []) as Patient[]}
-          userId={user!.id}
         />
       </Suspense>
     </div>

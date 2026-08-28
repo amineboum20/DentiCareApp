@@ -6,11 +6,11 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { AppointmentWithPatient, Patient, AppointmentType, AppointmentStatus } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import { useAppContext } from "@/components/AppContext";
 
 interface Props {
   initialAppointments: AppointmentWithPatient[];
   patients: Pick<Patient, "id" | "first_name" | "last_name">[];
-  userId: string;
 }
 
 const TYPES: AppointmentType[] = ["consultation", "nettoyage", "soin", "chirurgie", "controle", "orthodontie", "autre"];
@@ -59,10 +59,11 @@ function patientName(appt: AppointmentWithPatient) {
   return `${appt.patients.first_name} ${appt.patients.last_name}`;
 }
 
-export default function AppointmentsClient({ initialAppointments, patients, userId }: Props) {
+export default function AppointmentsClient({ initialAppointments, patients }: Props) {
   const t = useTranslations("appointments");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const { practiceId, currentUserId } = useAppContext();
 
   const [appointments, setAppointments] = useState<AppointmentWithPatient[]>(initialAppointments);
   const [search, setSearch] = useState("");
@@ -187,7 +188,7 @@ export default function AppointmentsClient({ initialAppointments, patients, user
     } else {
       const { data, error: err } = await supabase
         .from("appointments")
-        .insert({ ...payload, user_id: userId })
+        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId })
         .select()
         .single();
       if (err) { setError(err.message); setSaving(false); return; }

@@ -1,13 +1,14 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function SignUp() {
   const t = useTranslations("signUp");
+  const locale = useLocale();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [shopName, setShopName] = useState("");
@@ -17,7 +18,6 @@ export default function SignUp() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +33,7 @@ export default function SignUp() {
     });
     if (error) { setError(error.message); setLoading(false); return; }
     if (data.session) {
-      router.push("/dashboard");
+      window.location.href = `/${locale}/dashboard`;
     } else {
       setSuccess(true);
     }

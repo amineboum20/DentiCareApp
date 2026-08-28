@@ -4,10 +4,15 @@ import { Link } from "@/i18n/navigation";
 
 export default async function Dashboard() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   const t = await getTranslations("dashboard");
-  const firstName = user?.user_metadata?.first_name ?? "";
-  const shopName  = user?.user_metadata?.shop_name  ?? "votre cabinet";
+
+  const { data: member } = await supabase
+    .from("practice_members")
+    .select("first_name, practices(name)")
+    .single();
+
+  const firstName = (member as any)?.first_name ?? "";
+  const shopName  = (member as any)?.practices?.name ?? "votre cabinet";
   const now = new Date();
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
