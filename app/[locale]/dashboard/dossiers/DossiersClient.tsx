@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { DossierWithPatient, DossierType, Patient } from "@/types/database";
-import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 
 interface Props {
@@ -39,6 +38,9 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
   const t = useTranslations("dossiers");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1];
   const { practiceId, currentUserId } = useAppContext();
 
   const [dossiers, setDossiers] = useState<DossierWithPatient[]>(initialDossiers);
@@ -49,13 +51,11 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [detail, setDetail] = useState<DossierWithPatient | null>(null);
 
   useEffect(() => {
     const id = searchParams.get("detail");
     if (!id) return;
-    const found = dossiers.find((d) => d.id === id);
-    if (found) setDetail(found);
+    router.push(`/${locale}/dashboard/dossiers/${id}`);
   }, [searchParams]);
 
   useEffect(() => {
@@ -213,7 +213,7 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
                 {filtered.map((d) => (
                   <tr
                     key={d.id}
-                    onClick={() => setDetail(d)}
+                    onClick={() => router.push(`/${locale}/dashboard/dossiers/${d.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
@@ -234,63 +234,6 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
           </div>
         )}
       </div>
-
-      {/* Detail panel */}
-      {detail && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={() => setDetail(null)}
-        >
-          <div
-            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 dark:text-teal-400 text-lg font-bold">
-                  🦷
-                </div>
-                <div>
-                  <h2 className="font-semibold text-zinc-900 dark:text-white">
-                    {detail.patients.first_name} {detail.patients.last_name}
-                  </h2>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${DOSSIER_TYPE_STYLE[detail.type] ?? DOSSIER_TYPE_STYLE.autre}`}>
-                    {detail.type}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setDetail(null)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none"
-              >
-                ×
-              </button>
-            </div>
-            <div className="px-6 py-5 space-y-1">
-              <DR label={t("columns.examDate")} value={fmtDate(detail.exam_date)} />
-              <DR label={t("form.nextExamDate")} value={fmtDate(detail.next_exam_date)} />
-              <DR label={t("columns.treatedBy")} value={detail.treated_by} />
-              <DR label={t("form.dentalNotes")} value={detail.dental_notes} />
-            </div>
-            <div className="flex flex-wrap items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
-              <button
-                onClick={() => { setDeleteTarget(detail); setDetail(null); }}
-                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
-              >
-                Supprimer
-              </button>
-              <div className="ms-auto">
-                <button
-                  onClick={() => { openEdit(detail); setDetail(null); }}
-                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
-                >
-                  ✏️ Modifier
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Add / Edit modal */}
       {modalOpen && (

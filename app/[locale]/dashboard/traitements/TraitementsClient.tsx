@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { Traitement, TreatmentCategory, Supplier } from "@/types/database";
-import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 
 interface Props {
@@ -47,12 +46,14 @@ export default function TraitementsClient({ initialTraitements }: Props) {
   const t = useTranslations("traitements");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1];
   const { practiceId, currentUserId } = useAppContext();
 
   const [traitements, setTraitements] = useState<Traitement[]>(initialTraitements);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
-  const [detailSuppliers, setDetailSuppliers] = useState<Supplier[]>([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTraitement, setEditingTraitement] = useState<Traitement | null>(null);
@@ -60,13 +61,11 @@ export default function TraitementsClient({ initialTraitements }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [detail, setDetail] = useState<Traitement | null>(null);
 
   useEffect(() => {
     const id = searchParams.get("detail");
     if (!id) return;
-    const found = traitements.find((t) => t.id === id);
-    if (found) setDetail(found);
+    router.push(`/${locale}/dashboard/traitements/${id}`);
   }, [searchParams]);
 
   useEffect(() => {
@@ -74,21 +73,6 @@ export default function TraitementsClient({ initialTraitements }: Props) {
     supabase.from("suppliers").select("*").eq("practice_id", practiceId).order("name")
       .then(({ data }) => setSuppliers((data ?? []) as Supplier[]));
   }, [practiceId]);
-
-  useEffect(() => {
-    if (!detail) { setDetailSuppliers([]); return; }
-    supabase.from("treatment_suppliers")
-      .select("supplier_id, suppliers(id, name, phone, email)")
-      .eq("treatment_id", detail.id)
-      .then(({ data }) => {
-        setDetailSuppliers(
-          (data ?? []).map((r: { supplier_id: string; suppliers: { id: string; name: string; phone: string | null; email: string | null } | { id: string; name: string; phone: string | null; email: string | null }[] }) => {
-            const s = Array.isArray(r.suppliers) ? r.suppliers[0] : r.suppliers;
-            return s ? { ...s, practice_id: "", contact_name: null, address: null, notes: null, created_at: "", created_by: null } as Supplier : null;
-          }).filter(Boolean) as Supplier[]
-        );
-      });
-  }, [detail]);
 
   const filtered = useMemo(() =>
     traitements.filter((t) =>
@@ -247,7 +231,7 @@ export default function TraitementsClient({ initialTraitements }: Props) {
                 {filtered.map((tr) => (
                   <tr
                     key={tr.id}
-                    onClick={() => setDetail(tr)}
+                    onClick={() => router.push(`/${locale}/dashboard/traitements/${tr.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{tr.name}</td>
@@ -267,73 +251,6 @@ export default function TraitementsClient({ initialTraitements }: Props) {
           </div>
         )}
       </div>
-
-      {/* Detail panel */}
-      {detail && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={() => setDetail(null)}
-        >
-          <div
-            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 dark:text-teal-400 text-lg font-bold">
-                  💊
-                </div>
-                <div>
-                  <h2 className="font-semibold text-zinc-900 dark:text-white">{detail.name}</h2>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_STYLE[detail.category] ?? CATEGORY_STYLE.autre}`}>
-                    {detail.category}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setDetail(null)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none"
-              >
-                ×
-              </button>
-            </div>
-            <div className="px-6 py-5 space-y-1">
-              <DR label={t("columns.price")} value={`${detail.price.toFixed(2)} MAD`} />
-              <DR label={t("columns.duration")} value={detail.duration_minutes != null ? `${detail.duration_minutes} min` : null} />
-              <DR label={t("form.description")} value={detail.description} />
-              <DR label={t("form.notes")} value={detail.notes} />
-              {detailSuppliers.length > 0 && (
-                <div className="pt-2">
-                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1.5">{t("form.suppliers")}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {detailSuppliers.map(s => (
-                      <span key={s.id} className="px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 text-xs font-medium">
-                        🏭 {s.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
-              <button
-                onClick={() => { setDeleteTarget(detail); setDetail(null); }}
-                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
-              >
-                Supprimer
-              </button>
-              <div className="ms-auto">
-                <button
-                  onClick={() => { openEdit(detail); setDetail(null); }}
-                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
-                >
-                  ✏️ Modifier
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Add / Edit modal */}
       {modalOpen && (

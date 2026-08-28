@@ -4,8 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { FactureWithPatient, FactureStatus, FactureItem, Patient } from "@/types/database";
-import { DR } from "@/components/DetailRow";
+import type { FactureWithPatient, FactureStatus, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 
 interface Props {
@@ -31,13 +30,6 @@ const STATUS_STYLE: Record<string, string> = {
 
 const STATUSES: FactureStatus[] = ["en_attente", "en_cours", "payee", "annulee"];
 
-const STATUS_LABEL: Record<string, string> = {
-  en_attente: "En attente",
-  en_cours:   "En cours",
-  payee:      "Payée",
-  annulee:    "Annulée",
-};
-
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -50,7 +42,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
-  const { shopName, shopAddress, shopPhone, logoUrl, practiceId, currentUserId } = useAppContext();
+  const { practiceId, currentUserId } = useAppContext();
 
   const [factures, setFactures] = useState<FactureWithPatient[]>(initialFactures);
   const [search, setSearch] = useState("");
@@ -60,21 +52,16 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [detail, setDetail] = useState<FactureWithPatient | null>(null);
-  const [items, setItems] = useState<FactureItem[]>([]);
-  const [itemsLoading, setItemsLoading] = useState(false);
   const [patientAppointments, setPatientAppointments] = useState<{id: string; title: string; scheduled_at: string}[]>([]);
   const [newApptMode, setNewApptMode] = useState(false);
   const [newApptTitle, setNewApptTitle] = useState("");
   const [newApptDate, setNewApptDate] = useState("");
   const [newApptTime, setNewApptTime] = useState("");
-  const [detailAppointment, setDetailAppointment] = useState<{id: string; title: string; scheduled_at: string} | null>(null);
 
   useEffect(() => {
     const id = searchParams.get("detail");
     if (!id) return;
-    const found = factures.find((f) => f.id === id);
-    if (found) openDetail(found);
+    router.push(`/${locale}/dashboard/factures/${id}`);
   }, [searchParams]);
 
   useEffect(() => {
@@ -87,12 +74,6 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!detail?.appointment_id) { setDetailAppointment(null); return; }
-    supabase.from("appointments").select("id, title, scheduled_at").eq("id", detail.appointment_id).single()
-      .then(({ data }) => setDetailAppointment(data as {id: string; title: string; scheduled_at: string} | null));
-  }, [detail?.id]);
-
-  useEffect(() => {
     if (!form.patient_id || !modalOpen) { setPatientAppointments([]); return; }
     const now = new Date().toISOString();
     supabase.from("appointments")
@@ -103,32 +84,6 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
       .order("scheduled_at", { ascending: true })
       .then(({ data }) => setPatientAppointments((data ?? []) as {id: string; title: string; scheduled_at: string}[]));
   }, [form.patient_id, modalOpen]);
-
-  async function openDetail(f: FactureWithPatient) {
-    setDetail(f);
-    setItemsLoading(true);
-    setItems([]);
-    const { data } = await supabase
-      .from("facture_items")
-      .select("*")
-      .eq("facture_id", f.id);
-    setItems((data ?? []) as FactureItem[]);
-    setItemsLoading(false);
-  }
-
-  async function handleStatusChange(newStatus: FactureStatus) {
-    if (!detail) return;
-    const { data, error: err } = await supabase
-      .from("factures")
-      .update({ status: newStatus })
-      .eq("id", detail.id)
-      .select("*, patients(first_name, last_name, phone)")
-      .single();
-    if (err) return;
-    const updated = data as FactureWithPatient;
-    setFactures((fs) => fs.map((f) => (f.id === updated.id ? updated : f)));
-    setDetail(updated);
-  }
 
   const filtered = useMemo(() =>
     factures.filter((f) => {
@@ -229,26 +184,6 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
     setDeleteTarget(null);
   }
 
-  async function exportFacturePdf(facture: FactureWithPatient) {
-    const { exportFacturePdf: exportFn } = await import("@/utils/pdf-export");
-    exportFn({
-      factureId:     facture.id,
-      patientName:   facture.patients ? `${facture.patients.first_name} ${facture.patients.last_name}` : "—",
-      patientPhone:  facture.patients?.phone ?? null,
-      patientAddress: null,
-      createdAt:     facture.created_at,
-      statusLabel:   STATUS_LABEL[facture.status] ?? facture.status,
-      items:         items.map((i) => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price })),
-      totalPrice:    facture.total_price,
-      depositPaid:   facture.deposit_paid,
-      notes:         facture.notes,
-      shopName,
-      shopAddress,
-      shopPhone,
-      logoUrl,
-    });
-  }
-
   const inputCls = "w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
 
   return (
@@ -309,7 +244,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                 {filtered.map((f) => (
                   <tr
                     key={f.id}
-                    onClick={() => openDetail(f)}
+                    onClick={() => router.push(`/${locale}/dashboard/factures/${f.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
@@ -332,129 +267,6 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
           </div>
         )}
       </div>
-
-      {/* Detail panel */}
-      {detail && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={() => setDetail(null)}
-        >
-          <div
-            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-h-[90vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 dark:text-teal-400 text-lg font-bold">
-                  🧾
-                </div>
-                <div>
-                  <h2 className="font-semibold text-zinc-900 dark:text-white">
-                    {detail.patients.first_name} {detail.patients.last_name}
-                  </h2>
-                  <p className="text-xs text-zinc-400">{fmtDate(detail.created_at)}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setDetail(null)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
-              {/* Inline status change */}
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 w-24 shrink-0">{t("columns.status")}</span>
-                <select
-                  value={detail.status}
-                  onChange={(e) => handleStatusChange(e.target.value as FactureStatus)}
-                  className={`flex-1 px-2 py-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 ${STATUS_STYLE[detail.status] ?? ""}`}
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>{t(`status.${s}`)}</option>
-                  ))}
-                </select>
-              </div>
-
-              <DR label={t("columns.total")} value={`${detail.total_price.toFixed(2)} MAD`} />
-              <DR label={t("form.deposit")} value={`${detail.deposit_paid.toFixed(2)} MAD`} />
-              <DR label={t("columns.remaining")} value={`${(detail.total_price - detail.deposit_paid).toFixed(2)} MAD`} />
-              <DR label={t("form.notes")} value={detail.notes} />
-
-              {detailAppointment && (
-                <div className="flex items-center justify-between rounded-lg bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/30 px-3 py-2 mt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">📅</span>
-                    <div>
-                      <p className="text-xs font-medium text-teal-700 dark:text-teal-300">RDV lié</p>
-                      <p className="text-[11px] text-teal-600 dark:text-teal-400">{new Date(detailAppointment.scheduled_at).toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => { setDetail(null); router.push(`/${locale}/dashboard/appointments`); }}
-                    className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-medium">
-                    Voir →
-                  </button>
-                </div>
-              )}
-
-              {/* Items list */}
-              <div className="pt-2">
-                <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">Lignes de facture</p>
-                {itemsLoading ? (
-                  <div className="flex items-center justify-center py-6">
-                    <svg className="w-6 h-6 animate-spin text-teal-500" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
-                  </div>
-                ) : items.length === 0 ? (
-                  <p className="text-sm text-zinc-400 text-center py-4">Aucune ligne</p>
-                ) : (
-                  <div className="space-y-2">
-                    {items.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between rounded-lg border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{item.description}</p>
-                          <p className="text-xs text-zinc-400">Qté: {item.quantity}</p>
-                        </div>
-                        <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ms-3 shrink-0">
-                          {(item.quantity * item.unit_price).toFixed(2)} MAD
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 shrink-0">
-              <button
-                onClick={() => { setDeleteTarget(detail); setDetail(null); }}
-                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
-              >
-                Supprimer
-              </button>
-              <div className="ms-auto flex items-center gap-2">
-                <button
-                  onClick={() => exportFacturePdf(detail)}
-                  className="px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors"
-                >
-                  🖨️ PDF
-                </button>
-                <button
-                  onClick={() => { openEdit(detail); setDetail(null); }}
-                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
-                >
-                  ✏️ Modifier
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Add / Edit modal */}
       {modalOpen && (

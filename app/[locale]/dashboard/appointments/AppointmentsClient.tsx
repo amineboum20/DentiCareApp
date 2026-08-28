@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { AppointmentWithPatient, Patient, AppointmentType, AppointmentStatus } from "@/types/database";
-import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 
 interface Props {
@@ -43,17 +42,6 @@ const emptyForm = {
   notes: "",
 };
 
-function fmtDateTime(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 function patientName(appt: AppointmentWithPatient) {
   if (!appt.patients) return "—";
   return `${appt.patients.first_name} ${appt.patients.last_name}`;
@@ -63,6 +51,9 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
   const t = useTranslations("appointments");
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1];
   const { practiceId, currentUserId } = useAppContext();
 
   const [appointments, setAppointments] = useState<AppointmentWithPatient[]>(initialAppointments);
@@ -74,13 +65,11 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [detail, setDetail] = useState<AppointmentWithPatient | null>(null);
 
   useEffect(() => {
     const id = searchParams.get("detail");
     if (!id) return;
-    const found = appointments.find((a) => a.id === id);
-    if (found) setDetail(found);
+    router.push(`/${locale}/dashboard/appointments/${id}`);
   }, [searchParams]);
 
   useEffect(() => {
@@ -121,7 +110,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
   function openAdd() {
     setEditing(null);
     const now = new Date();
-    // Format for datetime-local: YYYY-MM-DDTHH:MM
     const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
       .toISOString()
       .slice(0, 16);
@@ -216,9 +204,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
           a.id === data.id ? { ...data, patients: appt.patients } as AppointmentWithPatient : a
         )
       );
-      if (detail?.id === appt.id) {
-        setDetail({ ...data, patients: appt.patients } as AppointmentWithPatient);
-      }
     }
   }
 
@@ -326,7 +311,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                 {appts.map((a) => (
                   <div
                     key={a.id}
-                    onClick={() => setDetail(a)}
+                    onClick={() => router.push(`/${locale}/dashboard/appointments/${a.id}`)}
                     className="flex items-center gap-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
                   >
                     {/* Time */}
@@ -374,75 +359,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Detail panel */}
-      {detail && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={() => setDetail(null)}
-        >
-          <div
-            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{TYPE_EMOJI[detail.type] ?? "📅"}</span>
-                <div>
-                  <h2 className="font-semibold text-zinc-900 dark:text-white">{detail.title}</h2>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLE[detail.status] ?? ""}`}>
-                    {t(`statuses.${detail.status}`)}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setDetail(null)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none"
-              >
-                ×
-              </button>
-            </div>
-            <div className="px-6 py-5 space-y-1">
-              <DR label="Patient" value={patientName(detail)} />
-              <DR label="Type" value={`${TYPE_EMOJI[detail.type] ?? ""} ${t(`types.${detail.type}`)}`} />
-              <DR label="Date et heure" value={fmtDateTime(detail.scheduled_at)} />
-              {detail.duration_minutes != null && (
-                <DR label="Durée" value={`${detail.duration_minutes} min`} />
-              )}
-              <DR label="Statut" value={t(`statuses.${detail.status}`)} />
-              <DR label="Notes" value={detail.notes} />
-            </div>
-            <div className="flex items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
-              {/* Status change */}
-              <select
-                value={detail.status}
-                onChange={(e) => handleStatusChange(detail, e.target.value as AppointmentStatus)}
-                className="text-xs font-medium px-2.5 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              >
-                {STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {t(`statuses.${s}`)}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={() => { setDeleteTarget(detail); setDetail(null); }}
-                className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
-              >
-                Supprimer
-              </button>
-              <div className="ms-auto">
-                <button
-                  onClick={() => { openEdit(detail); setDetail(null); }}
-                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
-                >
-                  ✏️ Modifier
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 

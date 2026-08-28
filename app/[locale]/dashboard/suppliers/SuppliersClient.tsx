@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useAppContext } from "@/components/AppContext";
 import type { Supplier } from "@/types/database";
@@ -17,11 +18,13 @@ const emptyForm = {
 export default function SuppliersClient({ initialSuppliers }: Props) {
   const t = useTranslations("suppliers");
   const supabase = createClient();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1];
   const { practiceId, currentUserId } = useAppContext();
 
   const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
   const [treatmentCounts, setTreatmentCounts] = useState<Record<string, number>>({});
-  const [supplierTreatments, setSupplierTreatments] = useState<Record<string, { id: string; name: string }[]>>({});
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Supplier | null>(null);
@@ -29,25 +32,19 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [detail, setDetail] = useState<Supplier | null>(null);
 
   useEffect(() => {
     if (suppliers.length === 0) return;
     supabase
       .from("treatment_suppliers")
-      .select("supplier_id, traitements(id, name)")
+      .select("supplier_id")
       .in("supplier_id", suppliers.map(s => s.id))
       .then(({ data }) => {
         const counts: Record<string, number> = {};
-        const treats: Record<string, { id: string; name: string }[]> = {};
-        (data ?? []).forEach((row: { supplier_id: string; traitements: { id: string; name: string } | { id: string; name: string }[] }) => {
-          const tr = Array.isArray(row.traitements) ? row.traitements[0] : row.traitements;
-          if (!tr) return;
+        (data ?? []).forEach((row: { supplier_id: string }) => {
           counts[row.supplier_id] = (counts[row.supplier_id] ?? 0) + 1;
-          treats[row.supplier_id] = [...(treats[row.supplier_id] ?? []), tr];
         });
         setTreatmentCounts(counts);
-        setSupplierTreatments(treats);
       });
   }, [suppliers]);
 
@@ -128,10 +125,12 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
         <div className="grid gap-3">
           {filtered.map(s => {
             const count = treatmentCounts[s.id] ?? 0;
-            const isOpen = detail?.id === s.id;
             return (
               <div key={s.id} className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setDetail(isOpen ? null : s)}>
+                <div
+                  className="flex-1 min-w-0 cursor-pointer"
+                  onClick={() => router.push(`/${locale}/dashboard/suppliers/${s.id}`)}
+                >
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🏭</span>
                     <p className="font-semibold text-zinc-900 dark:text-white truncate">{s.name}</p>
@@ -146,24 +145,6 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
                     {s.phone && <span className="text-xs text-zinc-400">📞 {s.phone}</span>}
                     {s.email && <span className="text-xs text-zinc-400">✉️ {s.email}</span>}
                   </div>
-                  {isOpen && (
-                    <div className="mt-3 ms-7 space-y-2">
-                      {s.address && <p className="text-sm text-zinc-600 dark:text-zinc-300">📍 {s.address}</p>}
-                      {s.notes && <p className="text-sm text-zinc-400 italic">{s.notes}</p>}
-                      {(supplierTreatments[s.id] ?? []).length > 0 && (
-                        <div>
-                          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">{t("treatmentsLinked")} :</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {(supplierTreatments[s.id] ?? []).map(tr => (
-                              <span key={tr.id} className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs">
-                                {tr.name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button onClick={() => openEdit(s)} className="text-xs px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">

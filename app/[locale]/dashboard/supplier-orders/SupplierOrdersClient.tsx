@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { useAppContext } from "@/components/AppContext";
@@ -35,6 +36,10 @@ function fmtDate(iso: string | null) {
 export default function SupplierOrdersClient({ initialOrders, suppliers }: Props) {
   const t = useTranslations("supplierOrders");
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1];
   const { practiceId, currentUserId } = useAppContext();
 
   const [orders, setOrders] = useState<SupplierOrder[]>(initialOrders);
@@ -46,7 +51,12 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [detail, setDetail] = useState<SupplierOrder | null>(null);
+
+  useEffect(() => {
+    const id = searchParams.get("detail");
+    if (!id) return;
+    router.push(`/${locale}/dashboard/supplier-orders/${id}`);
+  }, [searchParams]);
 
   const supplierMap = Object.fromEntries(suppliers.map(s => [s.id, s]));
 
@@ -105,7 +115,7 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
     if (!deleteTarget) return;
     await supabase.from("supplier_orders").delete().eq("id", deleteTarget.id);
     setOrders(prev => prev.filter(o => o.id !== deleteTarget.id));
-    setDeleteTarget(null); setDetail(null);
+    setDeleteTarget(null);
   }
 
   const inputCls = "w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
@@ -169,7 +179,7 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
                 {filtered.map(o => {
                   const sup = supplierMap[o.supplier_id];
                   return (
-                    <tr key={o.id} onClick={() => setDetail(o)}
+                    <tr key={o.id} onClick={() => router.push(`/${locale}/dashboard/supplier-orders/${o.id}`)}
                       className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer">
                       <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{sup?.name ?? "—"}</td>
                       <td className="px-5 py-3.5">
@@ -189,41 +199,6 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
           </div>
         </div>
       )}
-
-      {/* Detail panel */}
-      {detail && (() => {
-        const sup = supplierMap[detail.supplier_id];
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setDetail(null)}>
-            <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-                <div>
-                  <h2 className="font-semibold text-zinc-900 dark:text-white">{sup?.name ?? "Commande"}</h2>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[detail.status]}`}>
-                    {t(`statuses.${detail.status}`)}
-                  </span>
-                </div>
-                <button onClick={() => setDetail(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
-              </div>
-              <div className="px-6 py-5 space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-zinc-500">{t("form.orderedAt")}</span><span className="text-zinc-900 dark:text-white">{fmtDate(detail.ordered_at)}</span></div>
-                {detail.expected_at && <div className="flex justify-between"><span className="text-zinc-500">{t("form.expectedAt")}</span><span className="text-zinc-900 dark:text-white">{fmtDate(detail.expected_at)}</span></div>}
-                {detail.received_at && <div className="flex justify-between"><span className="text-zinc-500">Reçue le</span><span className="text-zinc-900 dark:text-white">{fmtDate(detail.received_at)}</span></div>}
-                {detail.total_cost != null && <div className="flex justify-between"><span className="text-zinc-500">{t("columns.total")}</span><span className="font-semibold text-zinc-900 dark:text-white">{detail.total_cost.toFixed(2)} MAD</span></div>}
-                {detail.notes && <p className="text-zinc-400 italic pt-1">{detail.notes}</p>}
-              </div>
-              <div className="flex flex-wrap gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
-                <button onClick={() => { setDeleteTarget(detail); setDetail(null); }} className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-                  Supprimer
-                </button>
-                <button onClick={() => { openEdit(detail); setDetail(null); }} className="ms-auto px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-                  ✏️ Modifier
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* Modal */}
       {modalOpen && (
