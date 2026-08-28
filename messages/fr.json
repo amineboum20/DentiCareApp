@@ -128,7 +128,9 @@
     "goToSignIn": "Aller à la connexion"
   },
   "dashboard": {
-    "greeting": "Bonjour{name} 👋",
+    "greetingMorning": "Bonjour{name} 👋",
+    "greetingAfternoon": "Bon après-midi{name} 👋",
+    "greetingEvening": "Bonsoir{name} 👋",
     "subtitle": "Voici ce qui se passe chez {shop} aujourd'hui.",
     "stats": {
       "totalPatients": "Total patients",

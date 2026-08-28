@@ -99,7 +99,9 @@
     "goToSignIn": "الذهاب إلى تسجيل الدخول"
   },
   "dashboard": {
-    "greeting": "مرحباً{name} 👋",
+    "greetingMorning": "صباح الخير{name} 👋",
+    "greetingAfternoon": "مرحباً{name} 👋",
+    "greetingEvening": "مساء الخير{name} 👋",
     "subtitle": "إليك ما يجري في {shop} اليوم.",
     "stats": {
       "totalPatients": "إجمالي المرضى",

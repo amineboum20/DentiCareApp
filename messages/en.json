@@ -99,7 +99,9 @@
     "goToSignIn": "Go to sign in"
   },
   "dashboard": {
-    "greeting": "Hello{name} 👋",
+    "greetingMorning": "Good morning{name} 👋",
+    "greetingAfternoon": "Good afternoon{name} 👋",
+    "greetingEvening": "Good evening{name} 👋",
     "subtitle": "Here's what's happening at {shop} today.",
     "stats": {
       "totalPatients": "Total patients",

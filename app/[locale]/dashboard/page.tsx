@@ -60,11 +60,14 @@ export default async function Dashboard() {
     consultation: "🔍", nettoyage: "🪥", soin: "🦷", chirurgie: "⚕️", controle: "✅", orthodontie: "😁", autre: "📅",
   };
 
+  const hour = now.getHours();
+  const greetingKey = hour < 12 ? "greetingMorning" : hour < 18 ? "greetingAfternoon" : "greetingEvening";
+
   return (
     <div className="p-4 sm:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-          {t("greeting", { name: firstName ? `, ${firstName}` : "" })}
+          {t(greetingKey, { name: firstName ? `, ${firstName}` : "" })}
         </h1>
         <p className="text-sm text-zinc-500 mt-1">{t("subtitle", { shop: shopName })}</p>
       </div>
