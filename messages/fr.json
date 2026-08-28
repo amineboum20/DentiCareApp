@@ -156,7 +156,9 @@
       "factures": "Factures",
       "appointments": "Rendez-vous",
       "reports": "Rapports",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "suppliers": "Fournisseurs",
+      "supplierOrders": "Cmd. fournisseurs"
     },
     "signOut": "Se déconnecter"
   },
@@ -252,7 +254,9 @@
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "cancel": "Annuler",
-      "requiredError": "Le nom et le prix sont obligatoires."
+      "requiredError": "Le nom et le prix sont obligatoires.",
+      "suppliers": "Fournisseurs",
+      "noSuppliers": "Aucun fournisseur"
     },
     "deleteConfirm": {
       "title": "Supprimer le traitement",
@@ -394,6 +398,72 @@
     "deleteConfirm": {
       "title": "Supprimer le patient",
       "message": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "suppliers": {
+    "title": "Fournisseurs",
+    "searchPlaceholder": "Rechercher un fournisseur…",
+    "newSupplier": "Nouveau fournisseur",
+    "noSuppliers": "Aucun fournisseur enregistré",
+    "noSuppliersDesc": "Ajoutez votre premier fournisseur.",
+    "noResults": "Aucun résultat",
+    "treatmentsLinked": "Traitements fournis",
+    "form": {
+      "addTitle": "Nouveau fournisseur",
+      "editTitle": "Modifier le fournisseur",
+      "name": "Nom du fournisseur",
+      "contact": "Contact",
+      "phone": "Téléphone",
+      "email": "Email",
+      "address": "Adresse",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "requiredError": "Le nom du fournisseur est obligatoire."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer le fournisseur",
+      "message": "Supprimer {name} définitivement ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "supplierOrders": {
+    "title": "Commandes fournisseurs",
+    "searchPlaceholder": "Rechercher une commande…",
+    "newOrder": "Nouvelle commande",
+    "noOrders": "Aucune commande pour l'instant",
+    "noOrdersDesc": "Passez votre première commande fournisseur.",
+    "noResults": "Aucun résultat",
+    "allStatuses": "Tous",
+    "statuses": {
+      "ordered": "Commandée",
+      "partial": "Partielle",
+      "received": "Reçue",
+      "cancelled": "Annulée"
+    },
+    "columns": { "supplier": "Fournisseur", "status": "Statut", "date": "Date", "total": "Total" },
+    "form": {
+      "addTitle": "Nouvelle commande",
+      "editTitle": "Modifier la commande",
+      "supplier": "Fournisseur",
+      "selectSupplier": "Choisir un fournisseur…",
+      "status": "Statut",
+      "orderedAt": "Date de commande",
+      "expectedAt": "Livraison prévue",
+      "totalCost": "Montant total (MAD)",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "requiredError": "Le fournisseur est obligatoire."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer la commande",
+      "message": "Supprimer cette commande ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
     }

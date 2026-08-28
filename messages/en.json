@@ -127,7 +127,9 @@
       "factures": "Invoices",
       "appointments": "Appointments",
       "reports": "Reports",
-      "settings": "Settings"
+      "settings": "Settings",
+      "suppliers": "Suppliers",
+      "supplierOrders": "Supplier orders"
     },
     "signOut": "Sign out"
   },
@@ -206,7 +208,9 @@
       "category": "Category", "price": "Price (MAD)", "duration": "Duration (minutes)",
       "description": "Description", "notes": "Notes",
       "save": "Save", "saving": "Saving…", "cancel": "Cancel",
-      "requiredError": "Name and price are required."
+      "requiredError": "Name and price are required.",
+      "suppliers": "Suppliers",
+      "noSuppliers": "No suppliers"
     },
     "deleteConfirm": {
       "title": "Delete treatment",
@@ -304,6 +308,72 @@
       "title": "Delete patient",
       "message": "Are you sure you want to delete {name}? This cannot be undone.",
       "confirm": "Delete", "cancel": "Cancel"
+    }
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "searchPlaceholder": "Search for a supplier…",
+    "newSupplier": "New supplier",
+    "noSuppliers": "No suppliers registered",
+    "noSuppliersDesc": "Add your first supplier.",
+    "noResults": "No results",
+    "treatmentsLinked": "Linked treatments",
+    "form": {
+      "addTitle": "New supplier",
+      "editTitle": "Edit supplier",
+      "name": "Supplier name",
+      "contact": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "notes": "Notes",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "requiredError": "Supplier name is required."
+    },
+    "deleteConfirm": {
+      "title": "Delete supplier",
+      "message": "Permanently delete {name}?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "supplierOrders": {
+    "title": "Supplier orders",
+    "searchPlaceholder": "Search for an order…",
+    "newOrder": "New order",
+    "noOrders": "No orders yet",
+    "noOrdersDesc": "Place your first supplier order.",
+    "noResults": "No results",
+    "allStatuses": "All",
+    "statuses": {
+      "ordered": "Ordered",
+      "partial": "Partial",
+      "received": "Received",
+      "cancelled": "Cancelled"
+    },
+    "columns": { "supplier": "Supplier", "status": "Status", "date": "Date", "total": "Total" },
+    "form": {
+      "addTitle": "New order",
+      "editTitle": "Edit order",
+      "supplier": "Supplier",
+      "selectSupplier": "Select a supplier…",
+      "status": "Status",
+      "orderedAt": "Order date",
+      "expectedAt": "Expected delivery",
+      "totalCost": "Total amount (MAD)",
+      "notes": "Notes",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "requiredError": "Supplier is required."
+    },
+    "deleteConfirm": {
+      "title": "Delete order",
+      "message": "Delete this order?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
     }
   }
 }

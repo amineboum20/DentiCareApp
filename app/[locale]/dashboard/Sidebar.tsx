@@ -32,7 +32,9 @@ export default function Sidebar({ firstName, shopName, email }: Props) {
     { icon: "🧾", label: t("nav.factures"),      href: "/dashboard/factures" },
     { icon: "📅", label: t("nav.appointments"),  href: "/dashboard/appointments" },
     { icon: "📈", label: t("nav.reports"),       href: "/dashboard/reports" },
-    { icon: "⚙️", label: t("nav.settings"),      href: "/dashboard/settings" },
+    { icon: "🏭", label: t("nav.suppliers"),       href: "/dashboard/suppliers" },
+    { icon: "📋", label: t("nav.supplierOrders"), href: "/dashboard/supplier-orders" },
+    { icon: "⚙️", label: t("nav.settings"),       href: "/dashboard/settings" },
   ];
 
   const navContent = (

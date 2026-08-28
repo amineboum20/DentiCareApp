@@ -127,7 +127,9 @@
       "factures": "الفواتير",
       "appointments": "المواعيد",
       "reports": "التقارير",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "suppliers": "الموردون",
+      "supplierOrders": "طلبات الموردين"
     },
     "signOut": "تسجيل الخروج"
   },
@@ -206,7 +208,9 @@
       "category": "الفئة", "price": "السعر (MAD)", "duration": "المدة (دقائق)",
       "description": "وصف", "notes": "ملاحظات",
       "save": "حفظ", "saving": "جارٍ الحفظ…", "cancel": "إلغاء",
-      "requiredError": "الاسم والسعر إلزاميان."
+      "requiredError": "الاسم والسعر إلزاميان.",
+      "suppliers": "الموردون",
+      "noSuppliers": "لا موردين"
     },
     "deleteConfirm": {
       "title": "حذف العلاج",
@@ -304,6 +308,72 @@
       "title": "حذف المريض",
       "message": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع.",
       "confirm": "حذف", "cancel": "إلغاء"
+    }
+  },
+  "suppliers": {
+    "title": "الموردون",
+    "searchPlaceholder": "البحث عن مورد…",
+    "newSupplier": "مورد جديد",
+    "noSuppliers": "لا موردين مسجلين",
+    "noSuppliersDesc": "أضف أول مورد.",
+    "noResults": "لا نتائج",
+    "treatmentsLinked": "العلاجات المرتبطة",
+    "form": {
+      "addTitle": "مورد جديد",
+      "editTitle": "تعديل المورد",
+      "name": "اسم المورد",
+      "contact": "جهة الاتصال",
+      "phone": "الهاتف",
+      "email": "البريد",
+      "address": "العنوان",
+      "notes": "ملاحظات",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ…",
+      "cancel": "إلغاء",
+      "requiredError": "اسم المورد إلزامي."
+    },
+    "deleteConfirm": {
+      "title": "حذف المورد",
+      "message": "حذف {name} نهائيًا؟",
+      "confirm": "حذف",
+      "cancel": "إلغاء"
+    }
+  },
+  "supplierOrders": {
+    "title": "طلبات الموردين",
+    "searchPlaceholder": "البحث عن طلب…",
+    "newOrder": "طلب جديد",
+    "noOrders": "لا طلبات بعد",
+    "noOrdersDesc": "أنشئ أول طلب مورد.",
+    "noResults": "لا نتائج",
+    "allStatuses": "الكل",
+    "statuses": {
+      "ordered": "مطلوب",
+      "partial": "جزئي",
+      "received": "مستلم",
+      "cancelled": "ملغى"
+    },
+    "columns": { "supplier": "المورد", "status": "الحالة", "date": "التاريخ", "total": "المجموع" },
+    "form": {
+      "addTitle": "طلب جديد",
+      "editTitle": "تعديل الطلب",
+      "supplier": "المورد",
+      "selectSupplier": "اختر موردًا…",
+      "status": "الحالة",
+      "orderedAt": "تاريخ الطلب",
+      "expectedAt": "تاريخ التسليم المتوقع",
+      "totalCost": "المبلغ الإجمالي (MAD)",
+      "notes": "ملاحظات",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ…",
+      "cancel": "إلغاء",
+      "requiredError": "المورد إلزامي."
+    },
+    "deleteConfirm": {
+      "title": "حذف الطلب",
+      "message": "حذف هذا الطلب؟",
+      "confirm": "حذف",
+      "cancel": "إلغاء"
     }
   }
 }

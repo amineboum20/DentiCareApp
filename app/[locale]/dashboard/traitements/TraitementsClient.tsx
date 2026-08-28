@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { Traitement, TreatmentCategory } from "@/types/database";
+import type { Traitement, TreatmentCategory, Supplier } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 
@@ -50,6 +50,9 @@ export default function TraitementsClient({ initialTraitements }: Props) {
   const { practiceId, currentUserId } = useAppContext();
 
   const [traitements, setTraitements] = useState<Traitement[]>(initialTraitements);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
+  const [detailSuppliers, setDetailSuppliers] = useState<Supplier[]>([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTraitement, setEditingTraitement] = useState<Traitement | null>(null);
@@ -66,6 +69,27 @@ export default function TraitementsClient({ initialTraitements }: Props) {
     if (found) setDetail(found);
   }, [searchParams]);
 
+  useEffect(() => {
+    if (!practiceId) return;
+    supabase.from("suppliers").select("*").eq("practice_id", practiceId).order("name")
+      .then(({ data }) => setSuppliers((data ?? []) as Supplier[]));
+  }, [practiceId]);
+
+  useEffect(() => {
+    if (!detail) { setDetailSuppliers([]); return; }
+    supabase.from("treatment_suppliers")
+      .select("supplier_id, suppliers(id, name, phone, email)")
+      .eq("treatment_id", detail.id)
+      .then(({ data }) => {
+        setDetailSuppliers(
+          (data ?? []).map((r: { supplier_id: string; suppliers: { id: string; name: string; phone: string | null; email: string | null } | { id: string; name: string; phone: string | null; email: string | null }[] }) => {
+            const s = Array.isArray(r.suppliers) ? r.suppliers[0] : r.suppliers;
+            return s ? { ...s, practice_id: "", contact_name: null, address: null, notes: null, created_at: "", created_by: null } as Supplier : null;
+          }).filter(Boolean) as Supplier[]
+        );
+      });
+  }, [detail]);
+
   const filtered = useMemo(() =>
     traitements.filter((t) =>
       t.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -77,6 +101,7 @@ export default function TraitementsClient({ initialTraitements }: Props) {
   function openAdd() {
     setEditingTraitement(null);
     setForm(emptyForm);
+    setSelectedSuppliers([]);
     setError("");
     setModalOpen(true);
   }
@@ -92,6 +117,8 @@ export default function TraitementsClient({ initialTraitements }: Props) {
       notes: t.notes ?? "",
     });
     setError("");
+    supabase.from("treatment_suppliers").select("supplier_id").eq("treatment_id", t.id)
+      .then(({ data }) => setSelectedSuppliers((data ?? []).map((r: { supplier_id: string }) => r.supplier_id)));
     setModalOpen(true);
   }
 
@@ -120,6 +147,8 @@ export default function TraitementsClient({ initialTraitements }: Props) {
       notes: form.notes.trim() || null,
     };
 
+    let savedId: string;
+
     if (editingTraitement) {
       const { data, error: err } = await supabase
         .from("traitements")
@@ -129,6 +158,7 @@ export default function TraitementsClient({ initialTraitements }: Props) {
         .single();
       if (err) { setError(err.message); setSaving(false); return; }
       setTraitements((ts) => ts.map((t) => (t.id === data.id ? (data as Traitement) : t)));
+      savedId = data.id;
     } else {
       const { data, error: err } = await supabase
         .from("traitements")
@@ -137,6 +167,14 @@ export default function TraitementsClient({ initialTraitements }: Props) {
         .single();
       if (err) { setError(err.message); setSaving(false); return; }
       setTraitements((ts) => [data as Traitement, ...ts]);
+      savedId = data.id;
+    }
+
+    await supabase.from("treatment_suppliers").delete().eq("treatment_id", savedId);
+    if (selectedSuppliers.length > 0) {
+      await supabase.from("treatment_suppliers").insert(
+        selectedSuppliers.map(sid => ({ treatment_id: savedId, supplier_id: sid }))
+      );
     }
 
     setSaving(false);
@@ -199,7 +237,7 @@ export default function TraitementsClient({ initialTraitements }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.name")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.traitement")}</th>
                   <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.category")}</th>
                   <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.price")}</th>
                   <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.duration")}</th>
@@ -264,6 +302,18 @@ export default function TraitementsClient({ initialTraitements }: Props) {
               <DR label={t("columns.duration")} value={detail.duration_minutes != null ? `${detail.duration_minutes} min` : null} />
               <DR label={t("form.description")} value={detail.description} />
               <DR label={t("form.notes")} value={detail.notes} />
+              {detailSuppliers.length > 0 && (
+                <div className="pt-2">
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1.5">{t("form.suppliers")}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detailSuppliers.map(s => (
+                      <span key={s.id} className="px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 text-xs font-medium">
+                        🏭 {s.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-2 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <button
@@ -348,6 +398,31 @@ export default function TraitementsClient({ initialTraitements }: Props) {
                 </label>
                 <textarea {...field("notes")} rows={2} className={`${inputCls} resize-none`} />
               </div>
+
+              {suppliers.length > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
+                    {t("form.suppliers")}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {suppliers.map(s => {
+                      const sel = selectedSuppliers.includes(s.id);
+                      return (
+                        <button key={s.id} type="button"
+                          onClick={() => setSelectedSuppliers(prev => sel ? prev.filter(id => id !== s.id) : [...prev, s.id])}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                            sel
+                              ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-700"
+                              : "bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:border-teal-300"
+                          }`}
+                        >
+                          🏭 {s.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {error && <p className="text-xs text-red-500">{error}</p>}
             </div>

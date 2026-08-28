@@ -134,6 +134,53 @@ export interface TreatmentAttribute {
   created_by: string | null
 }
 
+export type SupplierOrderStatus = 'ordered' | 'partial' | 'received' | 'cancelled'
+
+export interface Supplier {
+  id: string
+  practice_id: string
+  name: string
+  contact_name: string | null
+  phone: string | null
+  email: string | null
+  address: string | null
+  notes: string | null
+  created_at: string
+  created_by: string | null
+}
+
+export interface SupplierOrder {
+  id: string
+  practice_id: string
+  supplier_id: string
+  status: SupplierOrderStatus
+  notes: string | null
+  ordered_at: string
+  expected_at: string | null
+  received_at: string | null
+  total_cost: number | null
+  created_at: string
+  created_by: string | null
+  updated_by: string | null
+}
+
+export interface SupplierOrderItem {
+  id: string
+  supplier_order_id: string
+  treatment_id: string | null
+  description: string | null
+  quantity: number
+  unit_cost: number | null
+  created_at: string
+}
+
+export interface TreatmentSupplier {
+  id: string
+  treatment_id: string
+  supplier_id: string
+  created_at: string
+}
+
 export interface FactureWithPatient extends Facture {
   patients: Pick<Patient, 'first_name' | 'last_name' | 'phone'>
 }
