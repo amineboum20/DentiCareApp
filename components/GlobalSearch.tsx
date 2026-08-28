@@ -93,7 +93,7 @@ export default function GlobalSearch() {
             <>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Patients</p>
               {patients.map((p) => (
-                <button key={p.id} onClick={() => go(`/dashboard/patients?detail=${p.id}`)}
+                <button key={p.id} onClick={() => go(`/dashboard/patients/${p.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-start transition-colors">
                   <span className="w-6 h-6 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 dark:text-teal-400 text-xs font-bold shrink-0">
                     {p.first_name[0]?.toUpperCase()}
@@ -111,7 +111,7 @@ export default function GlobalSearch() {
               {patients.length > 0 && <div className="border-t border-zinc-100 dark:border-zinc-800" />}
               <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Traitements</p>
               {traitements.map((tr) => (
-                <button key={tr.id} onClick={() => go(`/dashboard/traitements?detail=${tr.id}`)}
+                <button key={tr.id} onClick={() => go(`/dashboard/traitements/${tr.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-start transition-colors">
                   <span className="text-base">🦷</span>
                   <p className="text-sm text-zinc-900 dark:text-white">{tr.name}</p>
@@ -124,7 +124,7 @@ export default function GlobalSearch() {
               {(patients.length > 0 || traitements.length > 0) && <div className="border-t border-zinc-100 dark:border-zinc-800" />}
               <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Rendez-vous</p>
               {appts.map((a) => (
-                <button key={a.id} onClick={() => go(`/dashboard/appointments?detail=${a.id}`)}
+                <button key={a.id} onClick={() => go(`/dashboard/appointments/${a.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-start transition-colors">
                   <span className="text-base">📅</span>
                   <div>
