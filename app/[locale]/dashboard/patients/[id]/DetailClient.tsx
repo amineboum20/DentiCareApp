@@ -281,7 +281,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start max-w-6xl">
+        <div className="space-y-6">
         {/* Section 1: Contact info */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">Informations</h2>
@@ -355,20 +356,22 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                         {snapshot.activeFactures.length} facture{snapshot.activeFactures.length > 1 ? "s" : ""} non soldée{snapshot.activeFactures.length > 1 ? "s" : ""}
                       </p>
                     </div>
-                    <button
-                      onClick={() => router.push(`/${locale}/dashboard/factures`)}
-                      className="text-[11px] text-amber-700 dark:text-amber-400 hover:underline font-medium">
-                      Voir →
-                    </button>
                   </div>
                   {snapshot.activeFactures.map(f => (
-                    <div key={f.id} className="flex items-center justify-between">
+                    <div key={f.id} className="flex items-center justify-between py-0.5">
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${FACTURE_STATUS_STYLE[f.status]}`}>
                         {FACTURE_STATUS_LABEL[f.status]}
                       </span>
-                      <span className="text-[11px] text-amber-700 dark:text-amber-400 font-mono">
-                        {(f.total_price - f.deposit_paid).toFixed(2)} MAD dû
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-amber-700 dark:text-amber-400 font-mono">
+                          {(f.total_price - f.deposit_paid).toFixed(2)} MAD dû
+                        </span>
+                        <button
+                          onClick={() => router.push(`/${locale}/dashboard/factures/${f.id}`)}
+                          className="text-[11px] text-amber-700 dark:text-amber-400 hover:underline font-medium">
+                          Voir →
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -421,6 +424,23 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
           )}
         </div>
 
+        {/* Bottom action bar */}
+        <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
+          <button onClick={handleArchiveStart} disabled={archiveLoading}
+            className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+            Archiver
+          </button>
+          <div className="ms-auto">
+            <button onClick={openEdit}
+              className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
+              ✏️ Modifier
+            </button>
+          </div>
+        </div>
+        </div>{/* end left column */}
+
+        {/* RIGHT column: full history */}
+        <div className="space-y-6 pb-8">
         {/* Section 3: History */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-5">Historique</h2>
@@ -497,21 +517,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </div>
           )}
         </div>
-
-        {/* Bottom action bar */}
-        <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
-          <button onClick={handleArchiveStart} disabled={archiveLoading}
-            className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-            Archiver
-          </button>
-          <div className="ms-auto">
-            <button onClick={openEdit}
-              className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-              ✏️ Modifier
-            </button>
-          </div>
-        </div>
-      </div>
+        </div>{/* end right column */}
+      </div>{/* end grid */}
 
       {/* Dossier detail sub-modal */}
       {selectedDossier && (

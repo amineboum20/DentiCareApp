@@ -46,6 +46,14 @@ export default function PatientsClient({ initialPatients }: Props) {
     router.push(`/${locale}/dashboard/patients/${id}`);
   }, [searchParams]);
 
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    setEditingPatient(null);
+    setForm(emptyForm);
+    setError("");
+    setModalOpen(true);
+  }, [searchParams]);
+
   const filtered = useMemo(() =>
     patients.filter((c) =>
       `${c.first_name} ${c.last_name} ${c.email ?? ""} ${c.phone ?? ""}`

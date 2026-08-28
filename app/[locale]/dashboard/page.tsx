@@ -84,10 +84,10 @@ export default async function Dashboard() {
         <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">{t("quickActions")}</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { icon: "👤", label: t("newPatient"),      href: "patients" },
-            { icon: "🧾", label: t("newFacture"),      href: "factures" },
-            { icon: "📅", label: t("bookAppointment"), href: "appointments" },
-            { icon: "🗂️", label: t("newDossier"),     href: "dossiers" },
+            { icon: "👤", label: t("newPatient"),      href: "patients?new=1" },
+            { icon: "🧾", label: t("newFacture"),      href: "factures?new=1" },
+            { icon: "📅", label: t("bookAppointment"), href: "appointments?new=1" },
+            { icon: "🗂️", label: t("newDossier"),     href: "dossiers?new=1" },
           ].map((a) => (
             <Link key={a.label} href={`/dashboard/${a.href}`}
               className="flex items-center gap-2 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
