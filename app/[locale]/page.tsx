@@ -320,7 +320,6 @@ export default function Home() {
           backgroundImage: "url('/pexels-shvets-production-8413334.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundAttachment: "fixed",
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/70" />
@@ -373,82 +372,113 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Device mockups */}
-      <section className="py-16 px-6 bg-white dark:bg-zinc-950 overflow-hidden">
-        <div data-animate style={{ opacity: 0, transform: "translateY(28px)", transition: "opacity 0.7s ease, transform 0.7s ease" }} className="max-w-5xl mx-auto flex items-end justify-center gap-6">
-          {/* Laptop */}
-          <div className="hidden sm:flex flex-col items-center flex-1 max-w-xs">
-            <div className="w-full rounded-t-lg border-4 border-zinc-800 bg-zinc-900 overflow-hidden" style={{ aspectRatio: "16/10" }}>
-              <div className="flex items-center gap-1 px-2 py-1 bg-zinc-950 border-b border-zinc-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400" /><span className="w-1.5 h-1.5 rounded-full bg-yellow-400" /><span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+      {/* Device mockups — desktop only */}
+      <section className="hidden lg:block py-20 px-6 bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
+        <div data-animate style={{ opacity: 0, transform: "translateY(40px)", transition: "opacity 0.8s ease, transform 0.8s ease" }} className="max-w-6xl mx-auto flex items-end justify-center gap-12 lg:gap-24">
+
+          {/* Phone — 110×220px */}
+          <div className="hidden md:flex flex-shrink-0 mb-14">
+            <div className="bg-zinc-600 rounded-[2rem] p-[5px] shadow-2xl shadow-black/30" style={{width:110}}>
+              <div className="mx-auto w-9 h-[10px] bg-zinc-950 rounded-full mt-1 mb-1" />
+              <div className="bg-zinc-950 rounded-[1.4rem] overflow-hidden" style={{height:220}}>
+                <div className="p-2">
+                  <p className="text-white text-[9px] font-semibold mb-1.5">Aujourd&apos;hui</p>
+                  {[
+                    {time:"09:00",name:"Amina Z.",type:"Détartrage"},
+                    {time:"10:00",name:"Nouveau",type:"Consultation"},
+                    {time:"11:30",name:"Youssef B.",type:"Obturation"},
+                    {time:"14:00",name:"Sara L.",type:"Contrôle"},
+                    {time:"15:30",name:"Rachid M.",type:"Extraction"},
+                  ].map(a => (
+                    <div key={a.time} className="flex items-center gap-1 py-1 border-b border-zinc-800/80">
+                      <span className="text-teal-400 font-mono text-[7px] w-8 shrink-0">{a.time}</span>
+                      <div>
+                        <p className="text-white text-[8px] font-medium leading-tight">{a.name}</p>
+                        <p className="text-zinc-500 text-[7px]">{a.type}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="p-2 bg-zinc-900 h-full">
-                <div className="flex gap-1 h-full">
-                  <div className="w-12 bg-zinc-800 rounded flex flex-col gap-1 p-1">
-                    {["🦷","🗂️","💊","🧾","📅","📊"].map(i => <div key={i} className="text-[8px] text-center py-0.5 rounded bg-zinc-700">{i}</div>)}
+              <div className="mx-auto w-8 h-1 bg-zinc-500 rounded-full mt-1.5" />
+            </div>
+          </div>
+
+          {/* Laptop — center, largest */}
+          <div className="flex-1 min-w-0 max-w-[600px]">
+            <div className="bg-zinc-600 rounded-t-xl p-[7px] shadow-2xl shadow-black/40">
+              <div className="bg-zinc-950 rounded-lg overflow-hidden" style={{aspectRatio:"16/10"}}>
+                <div className="h-7 bg-zinc-900 border-b border-zinc-800 flex items-center px-3 gap-1.5 shrink-0">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                  <div className="ml-2 flex-1 bg-zinc-800 rounded text-[10px] text-zinc-400 px-2 py-0.5 text-center max-w-[180px] mx-auto truncate">denticare.vercel.app/dashboard</div>
+                </div>
+                <div className="flex" style={{height:"calc(100% - 28px)"}}>
+                  <div className="w-12 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-3 gap-3 shrink-0">
+                    <span className="text-base">🦷</span>
+                    {["👤","🗂️","💊","🧾","📅","📊"].map((icon,i) => (
+                      <div key={i} className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs ${i===0?"bg-teal-600":""}`}>{icon}</div>
+                    ))}
                   </div>
-                  <div className="flex-1 flex flex-col gap-1">
-                    <div className="grid grid-cols-2 gap-1">
-                      {[["184","🦷"],["38","🧾"],["9","📅"],["5","⏳"]].map(([v,ic]) => (
-                        <div key={ic} className="rounded bg-zinc-800 p-1.5 text-center">
-                          <div className="text-[10px] text-white font-bold">{v}</div>
-                          <div className="text-[8px] text-zinc-400">{ic}</div>
+                  <div className="flex-1 p-3 overflow-hidden">
+                    <p className="text-white text-xs font-semibold mb-2">Dashboard</p>
+                    <div className="grid grid-cols-4 gap-1.5 mb-3">
+                      {[{l:"Patients",v:"184",c:"text-teal-400"},{l:"Factures",v:"38",c:"text-green-400"},{l:"RDV",v:"9",c:"text-purple-400"},{l:"Attente",v:"5",c:"text-amber-400"}].map(s=>(
+                        <div key={s.l} className="bg-zinc-800 rounded-lg p-2">
+                          <p className={`text-[8px] ${s.c} mb-0.5`}>{s.l}</p>
+                          <p className="text-white text-sm font-bold">{s.v}</p>
                         </div>
                       ))}
                     </div>
-                    <div className="flex-1 rounded bg-zinc-800 p-1.5">
-                      <div className="text-[7px] text-zinc-400 mb-1">Rendez-vous</div>
-                      {["09:00 Amina","10:00 Nouveau","11:30 Youssef"].map(a => (
-                        <div key={a} className="text-[6px] text-teal-400 border-b border-zinc-700 py-0.5">{a}</div>
-                      ))}
+                    <div className="bg-zinc-800 rounded-lg p-2.5">
+                      <p className="text-zinc-400 text-[9px] mb-2">CA mensuel</p>
+                      <div className="flex items-end gap-1" style={{height:52}}>
+                        {[38,52,45,61,58,73,65].map((h,i)=>(
+                          <div key={i} className="flex-1 bg-teal-600 rounded-t opacity-80" style={{height:`${(h/73)*100}%`}} />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="w-full h-2 bg-zinc-800 rounded-b-lg" />
-            <div className="w-2/3 h-1.5 bg-zinc-700 rounded-b-full" />
+            <div className="mx-auto bg-zinc-500 h-[6px] rounded-b-sm" style={{width:"102%"}} />
+            <div className="mx-auto bg-zinc-500 h-[10px] rounded-b-lg" style={{width:"55%"}} />
           </div>
-          {/* Tablet */}
-          <div className="flex flex-col items-center flex-shrink-0 w-40 sm:w-48">
-            <div className="w-full rounded-xl border-4 border-zinc-800 bg-zinc-900 overflow-hidden" style={{ aspectRatio: "3/4" }}>
-              <div className="w-8 h-1 bg-zinc-700 rounded-full mx-auto mt-1.5 mb-1" />
-              <div className="px-2 pb-2">
-                <div className="text-[7px] text-zinc-400 mb-1">Patients</div>
-                {[["Amina Z.","Détartrage","14/07"],["Youssef B.","Obturation","02/06"],["Sara L.","Contrôle","18/08"],["Rachid M.","Extraction","10/08"]].map(([n,t2,d]) => (
-                  <div key={n} className="flex items-center gap-1 py-1 border-b border-zinc-800">
-                    <div className="w-5 h-5 rounded-full bg-teal-700 flex items-center justify-center text-[6px] text-white font-bold">{n[0]}</div>
-                    <div className="flex-1">
-                      <div className="text-[7px] text-white font-medium">{n}</div>
-                      <div className="text-[6px] text-zinc-400">{t2}</div>
-                    </div>
-                    <div className="text-[6px] text-zinc-500">{d}</div>
+
+          {/* Tablet — 290×400px */}
+          <div className="hidden lg:flex flex-shrink-0 mb-6">
+            <div className="bg-zinc-600 rounded-[2rem] p-[6px] shadow-2xl shadow-black/30" style={{width:290}}>
+              <div className="w-3 h-3 bg-zinc-500 rounded-full mx-auto my-2" />
+              <div className="bg-zinc-950 rounded-2xl overflow-hidden" style={{height:400}}>
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-white text-xs font-semibold">Patients</p>
+                    <div className="bg-teal-600 text-white text-[9px] px-2 py-1 rounded-md">+ Nouveau</div>
                   </div>
-                ))}
-                <div className="mt-2 grid grid-cols-2 gap-1">
-                  <div className="rounded bg-teal-700 text-[6px] text-white text-center py-1">+ Patient</div>
-                  <div className="rounded bg-zinc-800 text-[6px] text-zinc-300 text-center py-1">Nouveau RDV</div>
+                  {[
+                    {name:"Amina Ziani",date:"14/07/2025"},
+                    {name:"Youssef Benali",date:"02/06/2025"},
+                    {name:"Sara Lahlou",date:"18/08/2025"},
+                    {name:"Rachid Moumen",date:"10/08/2025"},
+                    {name:"Fatima Chraibi",date:"01/08/2025"},
+                    {name:"Karim Bensalem",date:"22/07/2025"},
+                  ].map(c=>(
+                    <div key={c.name} className="flex items-center gap-2.5 py-2 border-b border-zinc-800">
+                      <div className="w-7 h-7 rounded-full bg-teal-900 flex items-center justify-center text-[10px] text-teal-300 shrink-0">{c.name[0]}</div>
+                      <div>
+                        <p className="text-white text-[11px] font-medium leading-tight">{c.name}</p>
+                        <p className="text-zinc-500 text-[9px]">{c.date}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-            <div className="w-4 h-4 rounded-full border-2 border-zinc-700 mt-1.5" />
-          </div>
-          {/* Phone */}
-          <div className="hidden sm:flex flex-col items-center flex-shrink-0 w-28">
-            <div className="w-full rounded-2xl border-4 border-zinc-800 bg-zinc-900 overflow-hidden" style={{ aspectRatio: "9/19" }}>
-              <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mt-1.5 mb-1" />
-              <div className="px-2 pb-2">
-                <div className="text-[7px] text-zinc-400 mb-1.5">Aujourd'hui</div>
-                {[["09:00","Amina Z.","teal"],["10:00","Nouveau","zinc"],["11:30","Youssef B.","teal"]].map(([time,name,color]) => (
-                  <div key={time} className={`mb-1 p-1.5 rounded-lg bg-${color}-900/40 border border-${color}-800/40`}>
-                    <div className="text-[7px] text-teal-400 font-mono">{time}</div>
-                    <div className="text-[7px] text-white font-medium">{name}</div>
-                  </div>
-                ))}
-                <div className="mt-2 rounded-lg bg-teal-600 text-[7px] text-white text-center py-1.5">+ Nouveau RDV</div>
-              </div>
+              <div className="mx-auto w-12 h-1.5 bg-zinc-500 rounded-full mt-2.5" />
             </div>
           </div>
+
         </div>
       </section>
 
@@ -474,30 +504,33 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section id="how" className="bg-zinc-50 dark:bg-zinc-900 py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center mb-14">
-          <h2 className="text-3xl font-bold text-zinc-900 dark:text-white">{t("howItWorks.title")}</h2>
-          <p className="mt-3 text-zinc-500 dark:text-zinc-400">{t("howItWorks.subtitle")}</p>
-        </div>
-        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
-          {[
-            { step: "1", title: t("howItWorks.step1Title"), desc: t("howItWorks.step1Desc") },
-            { step: "2", title: t("howItWorks.step2Title"), desc: t("howItWorks.step2Desc") },
-            { step: "3", title: t("howItWorks.step3Title"), desc: t("howItWorks.step3Desc") },
-          ].map((s, i) => (
-            <div key={s.step} data-animate style={{ opacity: 0, transform: "translateY(24px)", transition: "opacity 0.6s ease, transform 0.6s ease", transitionDelay: `${i * 120}ms` }} className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-teal-600 text-white font-bold text-lg flex items-center justify-center">{s.step}</div>
-              <h3 className="font-semibold text-zinc-900 dark:text-white">{s.title}</h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{s.desc}</p>
-            </div>
-          ))}
+      <section id="how" className="relative py-24 px-6" style={{ backgroundImage: "url(/pexels-gustavo-fring-5621864.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}>
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="relative z-10">
+          <div className="max-w-4xl mx-auto text-center mb-14">
+            <h2 className="text-3xl font-bold text-white">{t("howItWorks.title")}</h2>
+            <p className="mt-3 text-white/70">{t("howItWorks.subtitle")}</p>
+          </div>
+          <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {[
+              { step: "1", title: t("howItWorks.step1Title"), desc: t("howItWorks.step1Desc") },
+              { step: "2", title: t("howItWorks.step2Title"), desc: t("howItWorks.step2Desc") },
+              { step: "3", title: t("howItWorks.step3Title"), desc: t("howItWorks.step3Desc") },
+            ].map((s, i) => (
+              <div key={s.step} data-animate style={{ opacity: 0, transform: "translateY(24px)", transition: "opacity 0.6s ease, transform 0.6s ease", transitionDelay: `${i * 120}ms` }} className="flex flex-col items-center text-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-teal-600 text-white font-bold text-lg flex items-center justify-center">{s.step}</div>
+                <h3 className="font-semibold text-white">{s.title}</h3>
+                <p className="text-sm text-white/65 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Testimonial */}
       <section className="py-20 px-6">
         <div data-animate style={{ opacity: 0, transform: "translateY(24px)", transition: "opacity 0.7s ease, transform 0.7s ease" }} className="max-w-2xl mx-auto text-center">
-          <p className="text-2xl font-medium text-zinc-700 dark:text-zinc-300 leading-relaxed italic">"{t("testimonial.quote")}"</p>
+          <p className="text-xl sm:text-2xl font-medium text-zinc-700 dark:text-zinc-300 leading-relaxed italic">"{t("testimonial.quote")}"</p>
           <div className="mt-6 flex flex-col items-center gap-1">
             <span className="font-semibold text-zinc-900 dark:text-white">{t("testimonial.author")}</span>
             <span className="text-sm text-zinc-400">{t("testimonial.role")}</span>
@@ -507,7 +540,7 @@ export default function Home() {
 
       {/* CTA */}
       <section className="bg-teal-600 py-20 px-6 text-center">
-        <h2 className="text-3xl font-bold text-white">{t("cta.title")}</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-white">{t("cta.title")}</h2>
         <p className="mt-3 text-teal-100 max-w-md mx-auto">{t("cta.subtitle")}</p>
         <Link href="/signup" className="mt-8 inline-block px-8 py-3 rounded-full bg-white text-teal-600 font-semibold hover:bg-teal-50 transition-colors shadow-lg">{t("cta.button")}</Link>
       </section>
@@ -515,7 +548,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-zinc-100 dark:border-zinc-800 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
         <div className="flex items-center gap-2"><span>🦷</span><span className="font-medium text-zinc-500">DentiCare</span></div>
-        <div className="flex gap-5">
+        <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
           <a href="#features" className="hover:text-zinc-600 transition-colors">{t("nav.features")}</a>
           <a href="#how" className="hover:text-zinc-600 transition-colors">{t("nav.howItWorks")}</a>
           <Link href="/signin" className="hover:text-zinc-600 transition-colors">{t("nav.signIn")}</Link>
