@@ -76,11 +76,7 @@ export default function Sidebar({ firstName, shopName, email }: Props) {
 
   return (
     <>
-      <div className="sm:hidden fixed top-0 inset-x-0 z-20 h-14 flex items-center justify-between px-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🦷</span>
-          <span className="font-bold text-zinc-900 dark:text-white">DentiCare</span>
-        </div>
+      <div className="sm:hidden fixed top-0 inset-x-0 z-20 h-14 flex items-center px-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">
         <button
           onClick={() => setOpen(true)}
           aria-label="Open menu"
@@ -89,6 +85,11 @@ export default function Sidebar({ firstName, shopName, email }: Props) {
             <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
           </svg>
         </button>
+        <div className="flex-1 flex items-center justify-center gap-2">
+          <span className="text-xl">🦷</span>
+          <span className="font-bold text-zinc-900 dark:text-white">{shopName}</span>
+        </div>
+        <div className="w-9" />
       </div>
 
       {open && (
@@ -100,7 +101,7 @@ export default function Sidebar({ firstName, shopName, email }: Props) {
       )}
 
       <div className={`fixed inset-y-0 start-0 z-40 w-64 sm:w-56 bg-white dark:bg-zinc-900 border-e border-zinc-100 dark:border-zinc-800 flex flex-col transition-transform duration-200 ease-in-out
-        ${open ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`}>
+        ${open ? "translate-x-0" : "max-sm:ltr:-translate-x-full max-sm:rtl:translate-x-full"}`}>
 
         <div className="hidden sm:flex items-center gap-2 px-5 py-5 border-b border-zinc-100 dark:border-zinc-800">
           <span className="text-xl">🦷</span>
