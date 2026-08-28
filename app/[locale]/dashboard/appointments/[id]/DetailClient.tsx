@@ -13,24 +13,24 @@ interface Props {
   locale: string;
 }
 
-type AppointmentStatus = "planifie" | "confirme" | "annule" | "complete";
+type AppointmentStatus = "planifie" | "termine" | "annule" | "absent";
 type AppointmentType = "premiere_visite" | "controle" | "soin" | "urgence" | "autre";
 
 const STATUS_STYLE: Record<string, string> = {
   planifie: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-  confirme: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+  termine:  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
   annule:   "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-  complete: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  absent:   "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
 const STATUS_LABEL: Record<string, string> = {
   planifie: "Planifié",
-  confirme: "Confirmé",
+  termine:  "Terminé",
   annule:   "Annulé",
-  complete: "Complété",
+  absent:   "Absent",
 };
 
-const STATUSES: AppointmentStatus[] = ["planifie", "confirme", "annule", "complete"];
+const STATUSES: AppointmentStatus[] = ["planifie", "termine", "annule", "absent"];
 
 const TYPES: AppointmentType[] = ["premiere_visite", "controle", "soin", "urgence", "autre"];
 
@@ -80,7 +80,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       ? new Date(appointment.scheduled_at).toISOString().slice(0, 16)
       : "";
     setForm({
-      patient_id: appointment.patient_id,
+      patient_id: appointment.patient_id ?? "",
       title: appointment.title,
       type: appointment.type as AppointmentType,
       status: appointment.status as AppointmentStatus,

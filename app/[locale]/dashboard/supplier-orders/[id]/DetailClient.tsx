@@ -13,23 +13,23 @@ interface Props {
   locale: string;
 }
 
-type SupplierOrderStatus = "en_attente" | "commande" | "recu" | "annule";
+type SupplierOrderStatus = "ordered" | "partial" | "received" | "cancelled";
 
 const STATUS_STYLE: Record<string, string> = {
-  en_attente: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-  commande:   "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
-  recu:       "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-  annule:     "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+  ordered:   "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  partial:   "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+  received:  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  cancelled: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  en_attente: "En attente",
-  commande:   "Commandé",
-  recu:       "Reçu",
-  annule:     "Annulé",
+  ordered:   "Commandé",
+  partial:   "Partiel",
+  received:  "Reçu",
+  cancelled: "Annulé",
 };
 
-const STATUSES: SupplierOrderStatus[] = ["en_attente", "commande", "recu", "annule"];
+const STATUSES: SupplierOrderStatus[] = ["ordered", "partial", "received", "cancelled"];
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
@@ -37,7 +37,7 @@ function fmtDate(iso: string | null) {
 }
 
 const emptyForm = {
-  supplier_id: "", status: "en_attente" as SupplierOrderStatus,
+  supplier_id: "", status: "ordered" as SupplierOrderStatus,
   ordered_at: "", expected_at: "", received_at: "",
   total_cost: "", notes: "",
 };
