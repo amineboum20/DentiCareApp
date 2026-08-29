@@ -32,12 +32,6 @@ export default function SignUp() {
     });
     if (signUpError) { setError(signUpError.message); setLoading(false); return; }
 
-    await fetch("/api/notify-signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, shopName: cabinetName }),
-    });
-
     setSent(true);
   }
 
@@ -63,8 +57,8 @@ export default function SignUp() {
             {sent ? (
               <div className="text-center">
                 <span className="text-5xl">📬</span>
-                <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">{t("sentTitle")}</h1>
-                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{t("sentDesc", { email })}</p>
+                <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">{t("checkEmail")}</h1>
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{t("checkEmailDesc", { email })}</p>
               </div>
             ) : (
               <>

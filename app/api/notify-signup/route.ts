@@ -10,26 +10,60 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Find the practice for this user
+  // Find the auth user
   const { data: { users } } = await supabase.auth.admin.listUsers();
   const user = users.find(u => u.email === email);
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const { data: member } = await supabase
+  // Get or create the practice + member
+  let practiceId: string;
+
+  const { data: existingMember } = await supabase
     .from("practice_members")
     .select("practice_id")
     .eq("user_id", user.id)
     .single();
 
-  if (!member) return NextResponse.json({ error: "Practice not found" }, { status: 404 });
+  if (existingMember) {
+    practiceId = existingMember.practice_id;
+  } else {
+    const { data: practice, error: practiceError } = await supabase
+      .from("practices")
+      .insert({ name: shopName, is_approved: false })
+      .select("id")
+      .single();
 
-  const practiceId = member.practice_id;
+    if (practiceError || !practice) {
+      console.error("practice insert error:", practiceError);
+      return NextResponse.json({ error: "Failed to create practice", details: practiceError }, { status: 500 });
+    }
+
+    practiceId = practice.id;
+
+    const firstName = (user.user_metadata?.first_name ?? "") as string;
+    const lastName = (user.user_metadata?.last_name ?? "") as string;
+
+    const { error: memberError } = await supabase.from("practice_members").insert({
+      user_id: user.id,
+      practice_id: practiceId,
+      role: "owner",
+      first_name: firstName,
+      last_name: lastName,
+    });
+
+    if (memberError) {
+      console.error("member insert error:", memberError);
+      return NextResponse.json({ error: "Failed to create member", details: memberError }, { status: 500 });
+    }
+  }
+
+  // Send notification email
   const secret = process.env.APPROVAL_SECRET!;
   const token = createHmac("sha256", secret).update(practiceId).digest("hex");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://denticareapp.com";
   const approveUrl = `${appUrl}/api/approve?practice_id=${practiceId}&token=${token}`;
 
-  await fetch("https://api.resend.com/emails", {
+  const emailRes = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -48,7 +82,7 @@ export async function POST(request: Request) {
           <p><strong>Email :</strong> ${email}</p>
           <p style="margin-top:24px;">
             <a href="${approveUrl}"
-               style="background:#0D9488;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;">
+               style="background:#0d9488;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;">
               ✅ Approuver ce cabinet
             </a>
           </p>
@@ -57,6 +91,12 @@ export async function POST(request: Request) {
       `,
     }),
   });
+
+  if (!emailRes.ok) {
+    const emailError = await emailRes.text();
+    console.error("Resend error:", emailError);
+    return NextResponse.json({ error: "Failed to send email", details: emailError }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

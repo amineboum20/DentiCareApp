@@ -10,6 +10,18 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // After email confirmation (not password reset), trigger the approval notification
+      if (!next.includes("reset-password")) {
+        const { data: { user } } = await supabase.auth.getUser();
+        const shopName = user?.user_metadata?.shop_name as string | undefined;
+        if (user && shopName) {
+          await fetch(`${origin}/api/notify-signup`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user.email, shopName }),
+          }).catch(console.error);
+        }
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
