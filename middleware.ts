@@ -8,7 +8,7 @@ const intlMiddleware = createMiddleware(routing);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/track/")) {
+  if (pathname.startsWith("/track/") || pathname === '/docs' || pathname === '/tests' || pathname === '/infra') {
     return NextResponse.next({ request });
   }
 

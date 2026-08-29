@@ -1,0 +1,1104 @@
+<title>DentiCare Workspace</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Inter:wght@300;400;500;600&amp;display=swap">
+
+<script id="state" type="application/json">{"results":{}}</script>
+
+<style>
+:root {
+  --bg: #EAECF2; --surface: #FFFFFF; --surface-alt: #F3F5FA;
+  --border: #D4D9E8; --text: #0F1623; --muted: #5B6478; --faint: #8891A6;
+  --accent: #0D9488; --accent-soft: #F0FDFA;
+  --yasmine: #7C3AED; --yasmine-soft: #F5F3FF;
+  --pass: #15803D; --pass-soft: #F0FDF4; --pass-border: #BBF7D0;
+  --fail: #B91C1C; --fail-soft: #FEF2F2; --fail-border: #FECACA;
+  --skip: #92400E; --skip-soft: #FFFBEB; --skip-border: #FDE68A;
+  --mono: 'IBM Plex Mono', monospace; --sans: 'Inter', system-ui, sans-serif;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1018; --surface: #161A26; --surface-alt: #1D2233;
+    --border: #262D42; --text: #E4E8F2; --muted: #8A93AA; --faint: #555F78;
+    --accent: #2DD4BF; --accent-soft: #042f2e;
+    --yasmine: #A78BFA; --yasmine-soft: #1E1440;
+    --pass: #22C55E; --pass-soft: #052011; --pass-border: #14532D;
+    --fail: #F87171; --fail-soft: #200A0A; --fail-border: #7F1D1D;
+    --skip: #FCD34D; --skip-soft: #201600; --skip-border: #78350F;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1018; --surface: #161A26; --surface-alt: #1D2233;
+  --border: #262D42; --text: #E4E8F2; --muted: #8A93AA; --faint: #555F78;
+  --accent: #2DD4BF; --accent-soft: #042f2e;
+  --yasmine: #A78BFA; --yasmine-soft: #1E1440;
+  --pass: #22C55E; --pass-soft: #052011; --pass-border: #14532D;
+  --fail: #F87171; --fail-soft: #200A0A; --fail-border: #7F1D1D;
+  --skip: #FCD34D; --skip-soft: #201600; --skip-border: #78350F;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: stretch; gap: 0;
+}
+.topbar-brand {
+  font-family: var(--mono); font-weight: 600; font-size: 14px;
+  color: var(--accent); padding: 14px 20px 14px 0;
+  border-right: 1px solid var(--border); margin-right: 8px;
+  white-space: nowrap; display: flex; align-items: center;
+}
+.topbar-tabs { display: flex; gap: 0; flex: 1; }
+.tab-btn {
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  padding: 14px 18px; cursor: pointer; border: none; background: none;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s; white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.topbar-right {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0 8px 16px;
+  border-left: 1px solid var(--border); margin-left: auto;
+}
+.identity-badge {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  padding: 4px 12px; border-radius: 99px; cursor: pointer;
+  transition: opacity .15s;
+}
+.identity-badge:hover { opacity: .8; }
+.identity-badge.amine { background: var(--accent-soft); color: var(--accent); }
+.identity-badge.yasmine { background: var(--yasmine-soft); color: var(--yasmine); }
+.identity-badge.none { background: var(--surface-alt); color: var(--muted); }
+.sync-indicator {
+  font-family: var(--mono); font-size: 10px; color: var(--faint);
+  padding: 3px 8px; border-radius: 4px;
+}
+.sync-indicator.syncing { color: var(--accent); }
+.sync-indicator.error { color: var(--fail); }
+
+/* ── TAB PANELS ── */
+.panel { display: none; }
+.panel.active { display: flex; }
+
+/* ═══════════════════════════════ TESTS TAB ═══════════════════════════════ */
+#panel-tests { flex-direction: row; min-height: calc(100vh - 49px); }
+.sidebar {
+  width: 210px; flex-shrink: 0;
+  position: sticky; top: 49px; height: calc(100vh - 49px);
+  overflow-y: auto; border-right: 1px solid var(--border);
+  background: var(--surface); padding: 16px 0;
+}
+.sidebar-hdr {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--faint);
+  padding: 0 14px 8px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px; cursor: pointer;
+  border-left: 2px solid transparent; color: var(--muted); font-size: 13px;
+  transition: background .1s, border-color .1s; text-decoration: none;
+}
+.nav-item:hover { background: var(--surface-alt); }
+.nav-item.active { border-left-color: var(--accent); color: var(--text); background: var(--accent-soft); }
+.nav-icon { font-size: 13px; width: 16px; text-align: center; }
+.nav-label { flex: 1; font-weight: 500; font-size: 12.5px; }
+.nav-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--border); font-family: var(--mono);
+  font-size: 9px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); flex-shrink: 0;
+}
+.nav-dot.done { background: var(--pass); color: #fff; }
+.nav-dot.partial { background: var(--accent); color: #fff; }
+.nav-dot.has-fail { background: var(--fail); color: #fff; }
+
+.tests-main { flex: 1; padding: 28px 36px 80px; max-width: 760px; }
+.tests-topbar {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.progress-wrap { flex: 1; min-width: 100px; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width .3s; }
+.stat-pills { display: flex; gap: 8px; }
+.pill {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 99px; display: flex; align-items: center; gap: 4px;
+}
+.pill.total { background: var(--surface-alt); color: var(--muted); }
+.pill.pass { background: var(--pass-soft); color: var(--pass); border: 1px solid var(--pass-border); }
+.pill.fail { background: var(--fail-soft); color: var(--fail); border: 1px solid var(--fail-border); }
+.pill.skip { background: var(--skip-soft); color: var(--skip); border: 1px solid var(--skip-border); }
+.btn-reset {
+  font-family: var(--mono); font-size: 11px; padding: 4px 12px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface-alt); color: var(--muted); cursor: pointer;
+}
+.btn-reset:hover { border-color: var(--fail); color: var(--fail); }
+
+.module-section { margin-bottom: 44px; scroll-margin-top: 70px; }
+.module-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.module-icon { font-size: 18px; }
+.module-title { font-family: var(--mono); font-size: 14px; font-weight: 600; flex: 1; }
+.module-count { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+
+/* ── TEST CARD ── */
+.test-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 10px; overflow: hidden;
+  transition: border-color .15s;
+}
+.test-card.state-pass { border-color: var(--pass-border); }
+.test-card.state-fail { border-color: var(--fail-border); }
+.test-card.state-skip { border-color: var(--skip-border); }
+.test-hdr {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px 0; cursor: pointer; user-select: none;
+}
+.test-id {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  color: var(--accent); background: var(--accent-soft);
+  padding: 2px 7px; border-radius: 4px; white-space: nowrap;
+  flex-shrink: 0; margin-top: 1px;
+}
+.test-card.state-pass .test-id { background: var(--pass-soft); color: var(--pass); }
+.test-card.state-fail .test-id { background: var(--fail-soft); color: var(--fail); }
+.test-card.state-skip .test-id { background: var(--skip-soft); color: var(--skip); }
+.test-title { font-weight: 600; font-size: 13.5px; flex: 1; }
+.test-chevron { font-size: 11px; color: var(--faint); transition: transform .2s; margin-top: 2px; }
+.test-card.open .test-chevron { transform: rotate(90deg); }
+.test-body { display: none; padding: 10px 14px 0; }
+.test-card.open .test-body { display: block; }
+.test-steps {
+  border-left: 2px solid var(--border); padding-left: 12px;
+  margin-bottom: 10px; color: var(--muted); font-size: 13px;
+}
+.test-steps li { margin-bottom: 3px; }
+.test-expected {
+  font-family: var(--mono); font-size: 11px;
+  background: var(--surface-alt); color: var(--muted);
+  padding: 6px 10px; border-radius: 6px; margin-bottom: 10px;
+}
+.test-actions { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+.btn-verdict {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  padding: 5px 14px; border-radius: 6px; border: 1px solid;
+  cursor: pointer; transition: opacity .15s; background: none;
+}
+.btn-verdict.pass { color: var(--pass); border-color: var(--pass-border); }
+.btn-verdict.pass:hover, .test-card.state-pass .btn-verdict.pass { background: var(--pass-soft); }
+.btn-verdict.fail { color: var(--fail); border-color: var(--fail-border); }
+.btn-verdict.fail:hover, .test-card.state-fail .btn-verdict.fail { background: var(--fail-soft); }
+.btn-verdict.skip { color: var(--skip); border-color: var(--skip-border); }
+.btn-verdict.skip:hover, .test-card.state-skip .btn-verdict.skip { background: var(--skip-soft); }
+.test-note-wrap { display: flex; gap: 6px; align-items: center; flex: 1; min-width: 160px; }
+.test-note {
+  flex: 1; font-size: 12px; font-family: var(--mono);
+  padding: 4px 8px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface-alt);
+  color: var(--text); outline: none;
+}
+.test-note:focus { border-color: var(--accent); }
+.btn-save {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; border: 1px solid var(--accent);
+  background: var(--accent); color: #fff; cursor: pointer;
+}
+.test-result-by {
+  font-family: var(--mono); font-size: 10px; color: var(--faint);
+  padding: 0 14px 10px; display: none;
+}
+.test-card.state-pass .test-result-by,
+.test-card.state-fail .test-result-by,
+.test-card.state-skip .test-result-by { display: block; }
+.by-amine { color: var(--accent); }
+.by-yasmine { color: var(--yasmine); }
+
+/* ═══════════════════════════════ DOCS TAB ═══════════════════════════════ */
+#panel-docs { flex-direction: row; min-height: calc(100vh - 49px); }
+.docs-nav {
+  width: 220px; flex-shrink: 0; padding: 20px 0;
+  position: sticky; top: 49px; height: calc(100vh - 49px);
+  overflow-y: auto; border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.docs-nav-brand {
+  font-family: var(--mono); font-size: 13px; font-weight: 600;
+  color: var(--text); padding: 0 16px 16px;
+  border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+.docs-nav a {
+  display: block; padding: 6px 16px; font-size: 13px;
+  color: var(--muted); text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color .15s, background .15s;
+}
+.docs-nav a:hover { color: var(--text); background: var(--surface-alt); }
+.docs-nav a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+.docs-nav-group { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding: 12px 16px 4px; }
+.docs-main { flex: 1; padding: 40px 56px 80px; max-width: 820px; }
+.docs-main h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -.4px; }
+.docs-main .lead { color: var(--muted); font-size: 15px; margin-bottom: 24px; }
+.docs-main h2 { font-size: 18px; font-weight: 700; margin: 40px 0 14px; padding-top: 40px; border-top: 1px solid var(--border); }
+.docs-main h2:first-of-type { border-top: none; padding-top: 0; margin-top: 24px; }
+.docs-main h3 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; }
+.docs-main p { color: var(--muted); margin-bottom: 12px; max-width: 66ch; }
+.docs-main p strong { color: var(--text); }
+.docs-main ul, .docs-main ol { color: var(--muted); padding-left: 20px; margin-bottom: 12px; }
+.docs-main li { margin-bottom: 4px; }
+.chip { font-family: var(--mono); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+.chip.blue { background: var(--accent-soft); color: var(--accent); }
+.chip.green { background: var(--pass-soft); color: var(--pass); }
+.chip.amber { background: var(--skip-soft); color: var(--skip); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+code {
+  font-family: var(--mono); font-size: 12px;
+  background: var(--surface-alt); padding: 1px 5px; border-radius: 3px;
+  color: var(--accent);
+}
+.table-wrap { overflow-x: auto; margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); padding: 8px 12px; text-align: left; background: var(--surface-alt); }
+td { padding: 8px 12px; border-top: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td strong { color: var(--text); }
+.info-box {
+  background: var(--accent-soft); border: 1px solid var(--accent);
+  border-left-width: 4px; border-radius: 6px;
+  padding: 12px 16px; margin-bottom: 16px; color: var(--accent);
+  font-size: 13px;
+}
+.warn-box {
+  background: var(--skip-soft); border: 1px solid var(--skip-border);
+  border-left-width: 4px; border-radius: 6px;
+  padding: 12px 16px; margin-bottom: 16px; color: var(--skip);
+  font-size: 13px;
+}
+.schema-field { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.schema-type { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-left: 6px; }
+
+/* ═══════════════════════════════ INFRA TAB ═══════════════════════════════ */
+#panel-infra { flex-direction: column; padding: 40px 48px 80px; max-width: 960px; margin: 0 auto; width: 100%; }
+.infra-title { font-size: 26px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 6px; }
+.infra-lead { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+.infra-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.infra-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; transition: border-color .15s;
+}
+.infra-card:hover { border-color: var(--accent); }
+.infra-card-icon { font-size: 28px; margin-bottom: 10px; }
+.infra-card-name { font-family: var(--mono); font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.infra-card-role { color: var(--muted); font-size: 12.5px; margin-bottom: 8px; }
+.infra-card-cost { font-family: var(--mono); font-size: 11px; color: var(--pass); background: var(--pass-soft); padding: 2px 8px; border-radius: 4px; display: inline-block; }
+.infra-h2 { font-size: 17px; font-weight: 700; margin: 8px 0 16px; padding-top: 32px; border-top: 1px solid var(--border); }
+.infra-h2:first-of-type { border-top: none; padding-top: 0; }
+.infra-h3 { font-size: 13.5px; font-weight: 600; margin: 20px 0 8px; }
+.infra-p { color: var(--muted); font-size: 13.5px; margin-bottom: 10px; max-width: 70ch; }
+.tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.tier-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+}
+.tier-card.featured { border-color: var(--accent); background: var(--accent-soft); }
+.tier-name { font-family: var(--mono); font-weight: 600; font-size: 12px; margin-bottom: 6px; }
+.tier-price { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.tier-price span { font-size: 13px; font-weight: 400; color: var(--muted); }
+.tier-features { list-style: none; padding: 0; color: var(--muted); font-size: 12.5px; }
+.tier-features li { padding: 3px 0; border-top: 1px solid var(--border); }
+.tier-features li::before { content: "✓ "; color: var(--pass); }
+.flow-steps { counter-reset: step; list-style: none; padding: 0; }
+.flow-step {
+  counter-increment: step; display: flex; align-items: flex-start;
+  gap: 14px; padding: 14px 0; border-top: 1px solid var(--border);
+  font-size: 13.5px; color: var(--muted);
+}
+.flow-step::before {
+  content: counter(step); font-family: var(--mono); font-size: 11px;
+  font-weight: 700; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; margin-top: 1px;
+}
+.flow-step strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+/* ── IDENTITY MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; backdrop-filter: blur(4px);
+}
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 36px 32px; width: 340px;
+  text-align: center;
+}
+.modal-title { font-family: var(--mono); font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+.modal-btns { display: flex; gap: 12px; justify-content: center; }
+.modal-btn {
+  flex: 1; padding: 14px; border-radius: 10px; border: none;
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: opacity .15s;
+}
+.modal-btn:hover { opacity: .85; }
+.modal-btn.amine { background: var(--accent); color: #fff; }
+.modal-btn.yasmine { background: var(--yasmine); color: #fff; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 18px;
+  font-family: var(--mono); font-size: 12px; color: var(--text);
+  box-shadow: 0 4px 20px rgba(0,0,0,.15); z-index: 300;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity .25s, transform .25s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-brand">⬡ DentiCare</div>
+  <div class="topbar-tabs">
+    <button class="tab-btn active" data-tab="tests">Tests</button>
+    <button class="tab-btn" data-tab="docs">Documentation</button>
+    <button class="tab-btn" data-tab="infra">Infrastructure</button>
+  </div>
+  <div class="topbar-right">
+    <span class="sync-indicator" id="sync-status"></span>
+    <div class="identity-badge none" id="identity-badge" onclick="resetIdentity()">...</div>
+  </div>
+</div>
+
+<!-- ═══════ PANEL: TESTS ═══════ -->
+<div class="panel active" id="panel-tests">
+  <nav class="sidebar">
+    <div class="sidebar-hdr">Modules</div>
+    <div id="sidebar-nav"></div>
+  </nav>
+  <div class="tests-main">
+    <div class="tests-topbar">
+      <div class="progress-wrap"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="stat-pills">
+        <span class="pill total" id="stat-total">44</span>
+        <span class="pill pass" id="stat-pass">0 ✓</span>
+        <span class="pill fail" id="stat-fail">0 ✗</span>
+        <span class="pill skip" id="stat-skip">0 ◌</span>
+      </div>
+      <button class="btn-reset" onclick="confirmReset()">Réinitialiser</button>
+    </div>
+    <div id="tests-content"></div>
+  </div>
+</div>
+
+<!-- ═══════ PANEL: DOCS ═══════ -->
+<div class="panel" id="panel-docs">
+  <nav class="docs-nav">
+    <div class="docs-nav-brand">📘 Docs DentiCare</div>
+    <div class="docs-nav-group">Vue d'ensemble</div>
+    <a href="#intro">Introduction</a>
+    <a href="#stack">Stack technique</a>
+    <div class="docs-nav-group">Base de données</div>
+    <a href="#schema">Schéma</a>
+    <a href="#rls">RLS &amp; Sécurité</a>
+    <div class="docs-nav-group">Application</div>
+    <a href="#auth">Authentification</a>
+    <a href="#i18n">Internationalisation</a>
+    <a href="#components">Composants</a>
+    <div class="docs-nav-group">Fonctionnalités</div>
+    <a href="#patients">Patients</a>
+    <a href="#dossiers">Dossiers dentaires</a>
+    <a href="#actes">Actes dentaires</a>
+    <a href="#appointments">Rendez-vous</a>
+    <a href="#factures">Factures</a>
+    <a href="#reports">Rapports</a>
+    <a href="#archive">Archivage</a>
+  </nav>
+  <div class="docs-main">
+    <h1>Documentation DentiCare</h1>
+    <p class="lead">Guide technique complet pour les développeurs. Décrit l'architecture, le schéma de base de données, les flux d'authentification et les fonctionnalités clés.</p>
+    <div class="chips">
+      <span class="chip blue">Next.js 15</span>
+      <span class="chip blue">Supabase</span>
+      <span class="chip blue">TypeScript</span>
+      <span class="chip green">App Router</span>
+      <span class="chip green">RLS activé</span>
+      <span class="chip amber">next-intl v4</span>
+    </div>
+
+    <h2 id="intro">Introduction</h2>
+    <p>DentiCare est une application de gestion pour les cabinets dentaires. Elle couvre la gestion des patients, dossiers dentaires, actes, rendez-vous, factures et rapports. Chaque utilisateur (dentiste) voit uniquement ses propres données, isolées par Row Level Security côté Supabase.</p>
+
+    <h2 id="stack">Stack technique</h2>
+    <div class="table-wrap">
+      <table>
+        <tbody><tr><th>Couche</th><th>Technologie</th><th>Usage</th></tr>
+        <tr><td><strong>Frontend</strong></td><td>Next.js 15 App Router</td><td>SSR, routing, composants serveur</td></tr>
+        <tr><td><strong>Auth &amp; DB</strong></td><td>Supabase (PostgreSQL)</td><td>Auth JWT, RLS, requêtes temps réel</td></tr>
+        <tr><td><strong>Styles</strong></td><td>Tailwind CSS 4</td><td>Utility-first, dark mode</td></tr>
+        <tr><td><strong>i18n</strong></td><td>next-intl v4</td><td>Routing <code>/fr</code>/<code>/ar</code>, namespaces</td></tr>
+        <tr><td><strong>Déploiement</strong></td><td>Vercel</td><td>Edge, CI/CD auto sur push</td></tr>
+        <tr><td><strong>Types</strong></td><td>TypeScript strict</td><td>Interfaces DB dans <code>types/database.ts</code></td></tr>
+      </tbody></table>
+    </div>
+
+    <h2 id="schema">Schéma de base de données</h2>
+    <p>Toutes les tables possèdent <code>user_id uuid references auth.users</code> pour l'isolation RLS. <code>archived_at timestamptz</code> vaut <code>NULL</code> si actif, une date si archivé.</p>
+
+    <h3>patients</h3>
+    <div class="table-wrap"><table>
+      <tbody><tr><th>Colonne</th><th>Type</th><th>Description</th></tr>
+      <tr><td><span class="schema-field">id</span></td><td><span class="schema-type">uuid PK</span></td><td>Identifiant patient</td></tr>
+      <tr><td><span class="schema-field">user_id</span></td><td><span class="schema-type">uuid</span></td><td>Dentiste propriétaire</td></tr>
+      <tr><td><span class="schema-field">first_name, last_name</span></td><td><span class="schema-type">text</span></td><td>Nom complet</td></tr>
+      <tr><td><span class="schema-field">email, phone</span></td><td><span class="schema-type">text</span></td><td>Contact</td></tr>
+      <tr><td><span class="schema-field">date_of_birth</span></td><td><span class="schema-type">date</span></td><td>Date de naissance</td></tr>
+      <tr><td><span class="schema-field">archived_at</span></td><td><span class="schema-type">timestamptz</span></td><td>NULL = actif</td></tr>
+    </tbody></table></div>
+
+    <h3>dossiers_dentaires</h3>
+    <div class="table-wrap"><table>
+      <tbody><tr><th>Colonne</th><th>Type</th><th>Description</th></tr>
+      <tr><td><span class="schema-field">id</span></td><td><span class="schema-type">uuid PK</span></td><td></td></tr>
+      <tr><td><span class="schema-field">patient_id</span></td><td><span class="schema-type">uuid FK</span></td><td>→ patients</td></tr>
+      <tr><td><span class="schema-field">notes</span></td><td><span class="schema-type">text</span></td><td>Observations cliniques</td></tr>
+      <tr><td><span class="schema-field">allergies</span></td><td><span class="schema-type">text[]</span></td><td>Liste des allergies connues</td></tr>
+      <tr><td><span class="schema-field">created_at</span></td><td><span class="schema-type">timestamptz</span></td><td>Date de création du dossier</td></tr>
+    </tbody></table></div>
+
+    <h3>actes</h3>
+    <div class="table-wrap"><table>
+      <tbody><tr><th>Colonne</th><th>Type</th><th>Description</th></tr>
+      <tr><td><span class="schema-field">id</span></td><td><span class="schema-type">uuid PK</span></td><td></td></tr>
+      <tr><td><span class="schema-field">dossier_id</span></td><td><span class="schema-type">uuid FK</span></td><td>→ dossiers_dentaires</td></tr>
+      <tr><td><span class="schema-field">type</span></td><td><span class="schema-type">text</span></td><td>detartrage / couronne / extraction / carie / autre</td></tr>
+      <tr><td><span class="schema-field">dent</span></td><td><span class="schema-type">integer</span></td><td>Numéro de dent (notation ISO)</td></tr>
+      <tr><td><span class="schema-field">cout</span></td><td><span class="schema-type">numeric</span></td><td>Coût de l'acte</td></tr>
+      <tr><td><span class="schema-field">date_acte</span></td><td><span class="schema-type">date</span></td><td>Date de réalisation</td></tr>
+    </tbody></table></div>
+
+    <h3>appointments</h3>
+    <div class="table-wrap"><table>
+      <tbody><tr><th>Colonne</th><th>Type</th><th>Description</th></tr>
+      <tr><td><span class="schema-field">id</span></td><td><span class="schema-type">uuid PK</span></td><td></td></tr>
+      <tr><td><span class="schema-field">patient_id</span></td><td><span class="schema-type">uuid FK</span></td><td>→ patients</td></tr>
+      <tr><td><span class="schema-field">scheduled_at</span></td><td><span class="schema-type">timestamptz</span></td><td>Date + heure du RDV</td></tr>
+      <tr><td><span class="schema-field">type</span></td><td><span class="schema-type">text</span></td><td>consultation / soin / controle / urgence</td></tr>
+      <tr><td><span class="schema-field">status</span></td><td><span class="schema-type">text</span></td><td>scheduled / completed / cancelled</td></tr>
+    </tbody></table></div>
+
+    <h3>factures</h3>
+    <div class="table-wrap"><table>
+      <tbody><tr><th>Colonne</th><th>Type</th><th>Description</th></tr>
+      <tr><td><span class="schema-field">id</span></td><td><span class="schema-type">uuid PK</span></td><td></td></tr>
+      <tr><td><span class="schema-field">patient_id</span></td><td><span class="schema-type">uuid FK</span></td><td>→ patients</td></tr>
+      <tr><td><span class="schema-field">montant_total</span></td><td><span class="schema-type">numeric</span></td><td>Montant total TTC</td></tr>
+      <tr><td><span class="schema-field">montant_paye</span></td><td><span class="schema-type">numeric</span></td><td>Montant déjà réglé</td></tr>
+      <tr><td><span class="schema-field">statut</span></td><td><span class="schema-type">text</span></td><td>en_attente / partiel / regle / annule</td></tr>
+      <tr><td><span class="schema-field">date_facture</span></td><td><span class="schema-type">date</span></td><td>Date d'émission</td></tr>
+    </tbody></table></div>
+
+    <h2 id="rls">RLS &amp; Sécurité</h2>
+    <p>Row Level Security est activé sur toutes les tables. Chaque politique vérifie <code>auth.uid() = user_id</code>. Cela garantit qu'un dentiste ne voit jamais les données d'un autre, même en cas de bug applicatif.</p>
+    <div class="info-box">Les requêtes Supabase côté serveur (<code>createClient()</code> dans les Server Components) héritent du JWT de l'utilisateur connecté. Les routes API protégées redirigent vers <code>/signin</code> si non authentifié.</div>
+
+    <h2 id="auth">Authentification</h2>
+    <p>DentiCare utilise <strong>Supabase Auth</strong> avec email + mot de passe. Le flux complet :</p>
+    <ol>
+      <li>L'utilisateur soumet le formulaire <code>/signin</code></li>
+      <li>Supabase valide les credentials et retourne un JWT</li>
+      <li>Le cookie de session est stocké côté serveur (SSR-safe)</li>
+      <li>Chaque Server Component appelle <code>createClient()</code> — le JWT est inclus automatiquement</li>
+      <li>RLS filtre les données selon <code>auth.uid()</code></li>
+    </ol>
+    <p>Les pages du dashboard sont protégées par un middleware qui vérifie la session et redirige vers <code>/[locale]/signin</code> si absente.</p>
+
+    <h2 id="i18n">Internationalisation</h2>
+    <p>Le routing utilise next-intl v4 avec un segment dynamique <code>[locale]</code>. Les locales supportées sont <code>fr</code> (défaut) et <code>ar</code>. Les fichiers de traduction se trouvent dans <code>messages/fr.json</code> et <code>messages/ar.json</code>.</p>
+    <div class="warn-box">⚠️ Les chemins contenant <code>[locale]</code> nécessitent <code>-LiteralPath</code> en PowerShell pour éviter que les crochets soient interprétés comme des wildcards.</div>
+    <p>Le hook <code>useTranslations('namespace')</code> dans les Client Components et <code>getTranslations('namespace')</code> dans les Server Components donnent accès aux traductions.</p>
+
+    <h2 id="components">Pattern composants</h2>
+    <p>Chaque page suit le même pattern : un <strong>Server Component</strong> (<code>page.tsx</code>) qui fetch les données Supabase côté serveur, et un <strong>Client Component</strong> (<code>XxxClient.tsx</code>) qui reçoit les données en props et gère l'UI interactive (formulaires, modals, état local).</p>
+    <p>Ce pattern évite les waterfalls côté client et permet aux pages d'être SSR-first. Les modals s'ouvrent via le paramètre <code>?new=1</code> dans l'URL.</p>
+
+    <h2 id="patients">Gestion des patients</h2>
+    <p>La liste des patients affiche uniquement les patients actifs (<code>.is("archived_at", null)</code>). On peut créer, éditer ou archiver un patient. La fiche patient utilise une disposition deux colonnes : informations personnelles à gauche, historique dossiers et factures à droite. <em>Commit 89121ec — 2026-08-28.</em></p>
+
+    <h2 id="dossiers">Dossiers dentaires</h2>
+    <p>Chaque patient possède un dossier dentaire unique regroupant ses antécédents, allergies et l'historique de tous ses actes. Le dossier est créé automatiquement à l'ajout du patient.</p>
+
+    <h2 id="actes">Actes dentaires</h2>
+    <p>Un acte est lié à un dossier et référence le numéro de dent (notation ISO 3950). Types disponibles : détartrage, couronne, extraction, carie, autre. Le coût de l'acte alimente automatiquement la facture associée.</p>
+
+    <h2 id="appointments">Rendez-vous</h2>
+    <p>Le champ <code>scheduled_at</code> est un <code>timestamptz</code> (UTC). L'affichage et la saisie convertissent en heure locale. Types disponibles : consultation, soin, contrôle, urgence.</p>
+
+    <h2 id="factures">Factures</h2>
+    <p>Chaque facture dispose d'un lien <strong>Voir</strong> individuel qui navigue vers la page de détail (<code>/dashboard/factures/[id]</code>). Statuts : <strong>en_attente</strong> → <strong>partiel</strong> → <strong>regle</strong>. Le statut <strong>annule</strong> est possible à tout moment. <em>Commit 89121ec — 2026-08-28.</em></p>
+
+    <h2 id="reports">Rapports</h2>
+    <p>La page rapports agrège : CA mensuel sur 6 mois, répartition des types d'actes, factures en attente, patients vus ce mois. Tout en inline CSS (pas de librairie de charts) pour éviter les dépendances externes.</p>
+
+    <h2 id="archive">Archivage (soft-delete)</h2>
+    <p>Plutôt que de supprimer définitivement, les enregistrements sont archivés en settant <code>archived_at = now()</code>. Cela préserve l'intégrité des données médicales et financières. Les listes filtrent avec <code>.is("archived_at", null)</code>.</p>
+  </div>
+</div>
+
+<!-- ═══════ PANEL: INFRA ═══════ -->
+<div class="panel" id="panel-infra">
+  <div>
+    <h1 class="infra-title">Infrastructure DentiCare</h1>
+    <p class="infra-lead">Analyse architecture — services, coûts et flux de données.</p>
+
+    <h2 class="infra-h2">Stack de production</h2>
+    <div class="infra-grid">
+      <div class="infra-card">
+        <div class="infra-card-icon">▲</div>
+        <div class="infra-card-name">Vercel</div>
+        <div class="infra-card-role">Hébergement Next.js, CDN Edge, CI/CD automatique sur push GitHub</div>
+        <span class="infra-card-cost">~0–20 $/mois</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">🗄</div>
+        <div class="infra-card-name">Supabase</div>
+        <div class="infra-card-role">PostgreSQL managé, Auth JWT, RLS, Storage, Edge Functions</div>
+        <span class="infra-card-cost">~0–25 $/mois</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">📱</div>
+        <div class="infra-card-name">Twilio (SMS)</div>
+        <div class="infra-card-role">Rappels SMS aux clients pour les rendez-vous</div>
+        <span class="infra-card-cost">~0.0079 $/SMS</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">📧</div>
+        <div class="infra-card-name">Resend</div>
+        <div class="infra-card-role">Emails transactionnels : confirmation, avis de prêt commande</div>
+        <span class="infra-card-cost">~0–10 $/mois</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">🐙</div>
+        <div class="infra-card-name">GitHub</div>
+        <div class="infra-card-role">Source control, déclenche le déploiement Vercel automatiquement</div>
+        <span class="infra-card-cost">Gratuit</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">🌐</div>
+        <div class="infra-card-name">DNS / Domaine</div>
+        <div class="infra-card-role">opticareapp.com · denticareapp.com — domaines de production actifs, configurés sur Vercel</div>
+        <span class="infra-card-cost">Actif ✓</span>
+      </div>
+    </div>
+
+    <h2 class="infra-h2">Estimation des coûts mensuels</h2>
+    <div class="table-wrap">
+      <table>
+        <tbody><tr><th>Service</th><th>Plan</th><th>Coût base</th><th>Variable</th></tr>
+        <tr><td><strong>Vercel</strong></td><td>Hobby (gratuit) / Pro $20</td><td>$0</td><td>+$20 si domaine custom</td></tr>
+        <tr><td><strong>Supabase</strong></td><td>Free tier / Pro $25</td><td>$0</td><td>+$25 au-delà de 500 MB</td></tr>
+        <tr><td><strong>Twilio SMS</strong></td><td>Pay-as-you-go</td><td>$0</td><td>$0.0079/SMS MA</td></tr>
+        <tr><td><strong>Resend</strong></td><td>Free 3 000 emails/mois</td><td>$0</td><td>+$20 au-delà</td></tr>
+        <tr><td><strong>Total base</strong></td><td colspan="2"><strong>~$0–$71/mois</strong></td><td>selon usage</td></tr>
+      </tbody></table>
+    </div>
+
+    <h2 class="infra-h2">Niveaux de déploiement</h2>
+    <div class="tier-grid">
+      <div class="tier-card">
+        <div class="tier-name">STARTER</div>
+        <div class="tier-price">$0 <span>/mois</span></div>
+        <ul class="tier-features">
+          <li>Vercel Hobby</li>
+          <li>Supabase Free</li>
+          <li>Domaine vercel.app</li>
+          <li>500 MB DB, 1 GB storage</li>
+        </ul>
+      </div>
+      <div class="tier-card featured">
+        <div class="tier-name">PRODUCTION ★</div>
+        <div class="tier-price">$45 <span>/mois</span></div>
+        <ul class="tier-features">
+          <li>Vercel Pro ($20)</li>
+          <li>Supabase Pro ($25)</li>
+          <li>Domaine custom</li>
+          <li>8 GB DB, backups quotidiens</li>
+        </ul>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name">SCALE</div>
+        <div class="tier-price">$71+ <span>/mois</span></div>
+        <ul class="tier-features">
+          <li>Vercel Pro + usage</li>
+          <li>Supabase Pro + usage</li>
+          <li>SMS/Email activés</li>
+          <li>Multi-opticiens</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="infra-h2">Flux de déploiement</h2>
+    <ol class="flow-steps">
+      <li><strong>Push GitHub</strong> — le développeur pousse sur <code>main</code></li>
+      <li><strong>Vercel build</strong> — Next.js build automatique, type-check, lint</li>
+      <li><strong>Preview deploy</strong> — chaque PR génère une URL de preview unique</li>
+      <li><strong>Production deploy</strong> — merge sur main → déploiement prod en ~2 min</li>
+      <li><strong>Edge CDN</strong> — le bundle est distribué globalement via le réseau Vercel Edge</li>
+    </ol>
+
+    <h2 class="infra-h2">Notifications (Twilio + Resend)</h2>
+    <p class="infra-p">Les notifications sont déclenchées par des <strong>Supabase Edge Functions</strong> (Deno) ou des <strong>Next.js API Routes</strong>. Elles ne sont pas encore implémentées mais l'architecture le prévoit :</p>
+    <div class="table-wrap">
+      <table>
+        <tbody><tr><th>Événement</th><th>Canal</th><th>Contenu</th></tr>
+        <tr><td>RDV J-1</td><td>SMS (Twilio)</td><td>Rappel heure + adresse</td></tr>
+        <tr><td>Commande prête</td><td>SMS + Email</td><td>"Vos lunettes sont prêtes"</td></tr>
+        <tr><td>Nouvelle ordonnance</td><td>Email</td><td>PDF ordonnance en pièce jointe</td></tr>
+        <tr><td>Compte créé</td><td>Email (Supabase)</td><td>Confirmation + lien vérification</td></tr>
+      </tbody></table>
+    </div>
+
+    <h2 class="infra-h2">Sécurité</h2>
+    <p class="infra-p"><strong>RLS Supabase</strong> : isolation totale par <code>user_id</code> — un opticien ne peut jamais voir les données d'un autre. <strong>JWT</strong> : tokens courts (1h) avec refresh automatique. <strong>Secrets</strong> : variables d'environnement Vercel (<code>.env.local</code> jamais commité). <strong>HTTPS</strong> : forcé partout via Vercel.</p>
+
+    <h2 class="infra-h2">Domaines de production</h2>
+    <p class="infra-p">Les deux applications sont en ligne sous leurs domaines définitifs, déployées sur Vercel.</p>
+    <div class="infra-grid">
+      <div class="infra-card">
+        <div class="infra-card-icon">🦷</div>
+        <div class="infra-card-name">denticareapp.com</div>
+        <div class="infra-card-role">DentiCare — gestion cabinets dentaires. Ce workspace est accessible via <code>/docs</code> · <code>/tests</code> · <code>/infra</code></div>
+        <span class="infra-card-cost">Live ✓</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">👓</div>
+        <div class="infra-card-name">opticareapp.com</div>
+        <div class="infra-card-role">OptiApp — gestion opticiens. Application sœur, même stack technique (Next.js + Supabase).</div>
+        <span class="infra-card-cost">Live ✓</span>
+      </div>
+    </div>
+
+    <h2 class="infra-h2">Application Mobile — Roadmap</h2>
+    <p class="infra-p">OptiApp peut être porté en application mobile native iOS et Android via <strong>Expo (React Native)</strong>. Le code métier (logique Supabase, types TypeScript) est 100% réutilisable — seule la couche UI est à réécrire avec des composants React Native.</p>
+    <div class="infra-grid">
+      <div class="infra-card">
+        <div class="infra-card-icon">📱</div>
+        <div class="infra-card-name">Expo (React Native)</div>
+        <div class="infra-card-role">Framework mobile cross-platform. Même écosystème React/TS que Next.js — le client Supabase est identique.</div>
+        <span class="infra-card-cost">Gratuit (open source)</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">🏗</div>
+        <div class="infra-card-name">EAS Build</div>
+        <div class="infra-card-role">Compilation cloud iOS et Android sans Mac ni Android Studio. Génère les .ipa/.apk prêts à soumettre.</div>
+        <span class="infra-card-cost">~0–99 $/mois</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">🍎</div>
+        <div class="infra-card-name">Apple Developer</div>
+        <div class="infra-card-role">Compte requis pour publier sur l'App Store iOS. Inclut TestFlight pour les bêta-testeurs.</div>
+        <span class="infra-card-cost">99 $/an</span>
+      </div>
+      <div class="infra-card">
+        <div class="infra-card-icon">🤖</div>
+        <div class="infra-card-name">Google Play</div>
+        <div class="infra-card-role">Compte requis pour publier sur le Play Store Android. Frais unique à l'inscription.</div>
+        <span class="infra-card-cost">25 $ unique</span>
+      </div>
+    </div>
+
+    <h3 class="infra-h3">Réutilisation Web → Mobile</h3>
+    <div class="table-wrap">
+      <table>
+        <tbody><tr><th>Couche</th><th>Web (Next.js)</th><th>Mobile (Expo)</th><th>Réutilisation</th></tr>
+        <tr><td><strong>Auth &amp; DB</strong></td><td>@supabase/ssr</td><td>@supabase/supabase-js</td><td>✓ 100% identique</td></tr>
+        <tr><td><strong>Types TS</strong></td><td>types/database.ts</td><td>types/database.ts</td><td>✓ 100% identique</td></tr>
+        <tr><td><strong>Logique métier</strong></td><td>Server Components</td><td>Hooks React Native</td><td>~80% adaptable</td></tr>
+        <tr><td><strong>UI / Layout</strong></td><td>Tailwind CSS + HTML</td><td>StyleSheet + View/Text</td><td>✗ à réécrire</td></tr>
+        <tr><td><strong>i18n</strong></td><td>next-intl</td><td>i18next ou expo-localization</td><td>~50% adaptable</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="infra-h3">Planning estimatif</h3>
+    <ol class="flow-steps">
+      <li><strong>Setup Expo</strong> — <code>npx create-expo-app optiapp-mobile</code>, config Supabase, navigation (Expo Router)</li>
+      <li><strong>Écrans principaux</strong> — Clients, Commandes, Ordonnances, RDV (4–6 semaines)</li>
+      <li><strong>Polish &amp; tests</strong> — Mode hors-ligne, notifications push, dark mode, RTL arabe</li>
+      <li><strong>EAS Build &amp; soumission</strong> — Build cloud, TestFlight, Google Internal Testing, puis stores publics</li>
+    </ol>
+    <div class="info-box">Durée estimée : 3–4 semaines pour un MVP mobile couvrant les écrans principaux, en partant du code web existant.</div>
+  </div>
+</div>
+
+<!-- Identity Modal -->
+<div class="modal-overlay" id="identity-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">Qui êtes-vous ?</div>
+    <div class="modal-sub">Identifiez-vous pour enregistrer vos résultats de tests</div>
+    <div class="modal-btns">
+      <button class="modal-btn amine" onclick="setIdentity('Amine')">Amine</button>
+      <button class="modal-btn yasmine" onclick="setIdentity('Yasmine')">Yasmine</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SYNCHRONOUS TEMPLATE CAPTURE ──
+const SC = '<' + '/script>';
+const PAGE_TEMPLATE = '\n<title>DentiCare Workspace<' + '/title>\n' + document.documentElement.outerHTML.replace(/<!doctype[^>]*>/i,'').replace(/<html[^>]*>/i,'').replace(/<\/html>/i,'');
+
+// ── STATE ──
+let STATE = (() => {
+  try { return JSON.parse(document.getElementById('state').textContent); }
+  catch { return {results:{}}; }
+})();
+
+let identity = null;
+let artifactNs = null;
+let syncing = false;
+
+// ── TEST DATA ──
+const MODULES = [
+  {
+    id: 'auth', icon: '🔐', title: 'Authentification', tests: [
+      { id: 'TC-001', title: 'Connexion avec credentials valides', steps: ['Ouvrir /fr/signin','Saisir un email valide et un mot de passe correct','Cliquer "Se connecter"'], expected: 'Redirection vers /fr/dashboard' },
+      { id: 'TC-002', title: 'Connexion avec mauvais mot de passe', steps: ['Saisir un email valide','Saisir un mot de passe incorrect','Cliquer "Se connecter"'], expected: 'Message d\'erreur affiché, pas de redirection' },
+      { id: 'TC-003', title: 'Déconnexion', steps: ['Être connecté','Cliquer sur le bouton de déconnexion'], expected: 'Redirection vers /fr/signin, session détruite' },
+      { id: 'TC-004', title: 'Accès direct dashboard sans session', steps: ['Sans être connecté, naviguer vers /fr/dashboard'], expected: 'Redirection automatique vers /fr/signin' },
+    ]
+  },
+  {
+    id: 'patients', icon: '🧑‍⚕️', title: 'Patients', tests: [
+      { id: 'TC-005', title: 'Affichage liste patients', steps: ['Naviguer vers /fr/dashboard/patients'], expected: 'Liste des patients actifs (archived_at = null), 2 colonnes' },
+      { id: 'TC-006', title: 'Création patient via ?new=1', steps: ['Cliquer "Nouveau patient" (déclenche ?new=1)','Remplir prénom, nom, email, téléphone, date de naissance','Soumettre'], expected: 'Patient créé, modal fermée, apparaît dans la liste' },
+      { id: 'TC-007', title: 'Fiche patient 2 colonnes', steps: ['Cliquer sur un patient','Observer la mise en page'], expected: 'Infos personnelles à gauche, historique dossiers/factures à droite (commit 89121ec)' },
+      { id: 'TC-008', title: 'Édition patient', steps: ['Ouvrir la fiche d\'un patient','Modifier le téléphone','Sauvegarder'], expected: 'Modification sauvegardée et affichée' },
+      { id: 'TC-009', title: 'Archivage patient', steps: ['Cliquer "Archiver" sur un patient','Confirmer'], expected: 'Patient archivé, disparaît de la liste active' },
+      { id: 'TC-010', title: 'Isolation RLS entre dentistes', steps: ['Se connecter avec compte A','Créer un patient','Se déconnecter, se connecter compte B'], expected: 'Le patient du compte A invisible pour le compte B' },
+    ]
+  },
+  {
+    id: 'dossiers', icon: '🦷', title: 'Dossiers dentaires', tests: [
+      { id: 'TC-011', title: 'Dossier créé automatiquement', steps: ['Créer un nouveau patient','Ouvrir sa fiche'], expected: 'Dossier dentaire déjà présent, sans action manuelle' },
+      { id: 'TC-012', title: 'Ajout de notes cliniques', steps: ['Ouvrir un dossier','Saisir des notes','Sauvegarder'], expected: 'Notes enregistrées et affichées au rechargement' },
+      { id: 'TC-013', title: 'Ajout d\'allergies', steps: ['Ouvrir un dossier','Ajouter "pénicilline" aux allergies','Sauvegarder'], expected: 'Allergie listée dans le dossier' },
+      { id: 'TC-014', title: 'Historique des actes dans le dossier', steps: ['Avoir des actes liés au dossier','Ouvrir le dossier'], expected: 'Liste des actes avec date, type, dent et coût' },
+    ]
+  },
+  {
+    id: 'actes', icon: '🔧', title: 'Actes dentaires', tests: [
+      { id: 'TC-015', title: 'Création acte', steps: ['Ouvrir un dossier','Cliquer "Ajouter un acte"','Choisir type, numéro de dent ISO, date et coût','Sauvegarder'], expected: 'Acte créé et visible dans l\'historique du dossier' },
+      { id: 'TC-016', title: 'Types d\'actes disponibles', steps: ['Ouvrir le sélecteur de type'], expected: '5 types : détartrage, couronne, extraction, carie, autre' },
+      { id: 'TC-017', title: 'Numéro de dent ISO valide', steps: ['Saisir un numéro de dent hors plage ISO (ex : 99)'], expected: 'Validation bloque ou avertit' },
+      { id: 'TC-018', title: 'Coût acte alimentant la facture', steps: ['Ajouter un acte de 150 MAD','Vérifier la facture du patient'], expected: 'Le montant est reflété dans la facture associée' },
+    ]
+  },
+  {
+    id: 'appointments', icon: '📅', title: 'Rendez-vous', tests: [
+      { id: 'TC-019', title: 'Affichage liste RDV', steps: ['Naviguer vers /fr/dashboard/appointments'], expected: 'RDV actifs avec date/heure en heure locale' },
+      { id: 'TC-020', title: 'Création RDV', steps: ['Cliquer "Nouveau RDV"','Sélectionner patient, type, date et heure','Sauvegarder'], expected: 'RDV créé et visible dans la liste' },
+      { id: 'TC-021', title: 'Types de RDV disponibles', steps: ['Ouvrir le sélecteur de type'], expected: '4 types : consultation, soin, contrôle, urgence' },
+      { id: 'TC-022', title: 'Annulation RDV', steps: ['Passer un RDV en statut "cancelled"'], expected: 'RDV visible avec statut Annulé, ne compte plus dans les stats' },
+      { id: 'TC-023', title: 'RDV du jour dans les rapports', steps: ['Créer un RDV pour aujourd\'hui au statut "scheduled"','Aller dans les rapports'], expected: 'Le compteur "RDV aujourd\'hui" est incrémenté' },
+    ]
+  },
+  {
+    id: 'factures', icon: '🧾', title: 'Factures', tests: [
+      { id: 'TC-024', title: 'Affichage liste factures', steps: ['Naviguer vers /fr/dashboard/factures'], expected: 'Factures avec montant, statut et lien Voir par facture' },
+      { id: 'TC-025', title: 'Lien Voir par facture', steps: ['Cliquer sur le lien Voir d\'une facture'], expected: 'Navigation vers /fr/dashboard/factures/[id] (commit 89121ec)' },
+      { id: 'TC-026', title: 'Statuts de facture', steps: ['Vérifier les 4 statuts affichés'], expected: 'En attente / Partiel / Réglé / Annulé' },
+      { id: 'TC-027', title: 'Paiement partiel', steps: ['Saisir montant_paye < montant_total','Sauvegarder'], expected: 'Statut passe à "partiel", solde restant affiché' },
+      { id: 'TC-028', title: 'Facture réglée', steps: ['Saisir montant_paye = montant_total'], expected: 'Statut passe automatiquement à "regle"' },
+    ]
+  },
+  {
+    id: 'reports', icon: '📊', title: 'Rapports', tests: [
+      { id: 'TC-029', title: 'KPIs affichés', steps: ['Naviguer vers /fr/dashboard/reports'], expected: '4 KPIs : total patients, CA du mois, actes du mois, RDV aujourd\'hui' },
+      { id: 'TC-030', title: 'Graphe CA 6 mois', steps: ['Vérifier le graphe barres mensuel'], expected: 'Barres proportionnelles au CA, labels de mois en français' },
+      { id: 'TC-031', title: 'Répartition types d\'actes', steps: ['Avoir des actes de types variés','Vérifier la section répartition'], expected: 'Proportions par type d\'acte affichées' },
+      { id: 'TC-032', title: 'Factures en attente', steps: ['Avoir des factures au statut en_attente ou partiel'], expected: 'Liste ou compteur des factures impayées visible' },
+    ]
+  },
+  {
+    id: 'navigation', icon: '🧭', title: 'Navigation & UX', tests: [
+      { id: 'TC-033', title: 'Menu de navigation fonctionnel', steps: ['Depuis le dashboard, cliquer sur chaque entrée du menu latéral'], expected: 'Navigation vers la bonne page sans erreur 404' },
+      { id: 'TC-034', title: 'Modal ?new=1 ouvre formulaire', steps: ['Cliquer "Nouveau patient"'], expected: 'URL contient ?new=1, modal de création s\'ouvre' },
+      { id: 'TC-035', title: 'Fermeture modal sans navigation', steps: ['Ouvrir une modal','Cliquer en dehors ou sur Annuler'], expected: 'Modal fermée, URL revenue sans ?new=1, aucune donnée créée' },
+      { id: 'TC-036', title: 'Formulaire réinitialisé après soumission', steps: ['Créer un patient','Rouvrir le formulaire de création'], expected: 'Formulaire vide (pas de données du précédent)' },
+    ]
+  },
+  {
+    id: 'i18n', icon: '🌍', title: 'Internationalisation', tests: [
+      { id: 'TC-037', title: 'Basculement fr → ar', steps: ['Naviguer vers /ar/dashboard'], expected: 'Interface en arabe, direction RTL' },
+      { id: 'TC-038', title: 'Labels en français', steps: ['Naviguer vers /fr/dashboard/patients'], expected: 'Tous les labels en français (pas de clés i18n affichées)' },
+      { id: 'TC-039', title: 'Formatage dates en français', steps: ['Vérifier les dates dans les RDV et rapports'], expected: 'Format JJ/MM/AAAA ou "26 août 2026" selon le contexte' },
+      { id: 'TC-040', title: 'Redirect locale défaut', steps: ['Naviguer vers /dashboard (sans locale)'], expected: 'Redirection vers /fr/dashboard' },
+    ]
+  },
+  {
+    id: 'responsive', icon: '📱', title: 'Responsive & A11y', tests: [
+      { id: 'TC-041', title: 'Vue mobile (375px)', steps: ['Redimensionner la fenêtre à 375px de large','Naviguer dans l\'app'], expected: 'Layout adapté, pas de scroll horizontal, boutons accessibles' },
+      { id: 'TC-042', title: 'Mode sombre', steps: ['Activer le mode sombre du système','Naviguer dans l\'app'], expected: 'Palette dark appliquée, contraste suffisant' },
+      { id: 'TC-043', title: 'Navigation clavier', steps: ['Naviguer dans les formulaires avec Tab/Shift+Tab'], expected: 'Focus visible, interactions clavier fonctionnelles' },
+      { id: 'TC-044', title: 'Contrast ratio texte', steps: ['Vérifier les textes principaux en mode clair et sombre'], expected: 'Ratio ≥ 4.5:1 pour le texte normal (WCAG AA)' },
+    ]
+  }
+];
+
+// ── RENDER TESTS ──
+function renderTests() {
+  const container = document.getElementById('tests-content');
+  const nav = document.getElementById('sidebar-nav');
+  container.innerHTML = '';
+  nav.innerHTML = '';
+
+  MODULES.forEach(mod => {
+    const modResults = mod.tests.map(t => STATE.results[t.id]);
+    const done = modResults.filter(r => r).length;
+    const hasFail = modResults.some(r => r?.result === 'fail');
+    const allDone = done === mod.tests.length && !hasFail && done > 0;
+    const dotClass = hasFail ? 'has-fail' : allDone ? 'done' : done > 0 ? 'partial' : '';
+
+    const navItem = document.createElement('a');
+    navItem.className = 'nav-item';
+    navItem.href = '#mod-' + mod.id;
+    navItem.onclick = e => { e.preventDefault(); document.getElementById('mod-' + mod.id).scrollIntoView({behavior:'smooth'}); };
+    navItem.innerHTML = `<span class="nav-icon">${mod.icon}</span><span class="nav-label">${mod.title}</span><span class="nav-dot ${dotClass}">${done}</span>`;
+    nav.appendChild(navItem);
+
+    const section = document.createElement('div');
+    section.className = 'module-section';
+    section.id = 'mod-' + mod.id;
+    section.innerHTML = `<div class="module-header">
+      <span class="module-icon">${mod.icon}</span>
+      <span class="module-title">${mod.title}</span>
+      <span class="module-count">${done}/${mod.tests.length}</span>
+    </div>`;
+
+    mod.tests.forEach(test => {
+      const res = STATE.results[test.id];
+      const stateClass = res ? 'state-' + res.result : '';
+      const byClass = res?.by === 'Amine' ? 'by-amine' : 'by-yasmine';
+      const card = document.createElement('div');
+      card.className = `test-card ${stateClass}`;
+      card.id = test.id;
+
+      card.innerHTML = `
+        <div class="test-hdr" onclick="toggleCard('${test.id}')">
+          <span class="test-id">${test.id}</span>
+          <span class="test-title">${test.title}</span>
+          <span class="test-chevron">▶</span>
+        </div>
+        <div class="test-body">
+          <ul class="test-steps">${test.steps.map(s => `<li>${s}</li>`).join('')}</ul>
+          <div class="test-expected">✓ Attendu : ${test.expected}</div>
+          <div class="test-actions">
+            <button class="btn-verdict pass" onclick="vote('${test.id}','pass')">✓ Pass</button>
+            <button class="btn-verdict fail" onclick="vote('${test.id}','fail')">✗ Fail</button>
+            <button class="btn-verdict skip" onclick="vote('${test.id}','skip')">◌ Skip</button>
+            <div class="test-note-wrap">
+              <input type="text" class="test-note" id="note-${test.id}" placeholder="Note optionnelle..." value="${res?.note || ''}" onkeydown="if(event.key==='Enter')saveNote('${test.id}')">
+              <button class="btn-save" onclick="saveNote('${test.id}')">→</button>
+            </div>
+          </div>
+        </div>
+        <div class="test-result-by" id="by-${test.id}">${res ? `<span class="${byClass}">${res.by}</span> · ${res.result} · ${formatTs(res.ts)}${res.note ? ' · ' + res.note : ''}` : ''}</div>
+      `;
+      section.appendChild(card);
+    });
+
+    container.appendChild(section);
+  });
+
+  updateStats();
+}
+
+function formatTs(ts) {
+  if (!ts) return '';
+  try {
+    return new Date(ts).toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  } catch { return ''; }
+}
+
+function toggleCard(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function updateStats() {
+  const all = MODULES.flatMap(m => m.tests);
+  const total = all.length;
+  const pass = all.filter(t => STATE.results[t.id]?.result === 'pass').length;
+  const fail = all.filter(t => STATE.results[t.id]?.result === 'fail').length;
+  const skip = all.filter(t => STATE.results[t.id]?.result === 'skip').length;
+  const done = pass + fail + skip;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pass').textContent = pass + ' ✓';
+  document.getElementById('stat-fail').textContent = fail + ' ✗';
+  document.getElementById('stat-skip').textContent = skip + ' ◌';
+  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+}
+
+async function vote(testId, result) {
+  if (!identity) { showIdentityModal(); return; }
+  const note = document.getElementById('note-' + testId)?.value || '';
+  const ts = new Date().toISOString();
+  const newState = { ...STATE, results: { ...STATE.results, [testId]: { result, by: identity, note, ts } } };
+  await publishState(newState);
+}
+
+async function saveNote(testId) {
+  if (!identity) { showIdentityModal(); return; }
+  const existing = STATE.results[testId];
+  if (!existing) return;
+  const note = document.getElementById('note-' + testId)?.value || '';
+  const newState = { ...STATE, results: { ...STATE.results, [testId]: { ...existing, note, by: identity } } };
+  await publishState(newState);
+}
+
+function confirmReset() {
+  if (!identity) { showIdentityModal(); return; }
+  if (!confirm('Réinitialiser tous les résultats de tests ?')) return;
+  publishState({ results: {} });
+}
+
+// ── COLLABORATION ──
+async function publishState(newState) {
+  STATE = newState;
+  renderTests();
+  setSyncStatus('syncing', 'sync...');
+
+  if (!artifactNs) {
+    try { localStorage.setItem('denticare_ws_state', JSON.stringify(newState)); } catch {}
+    setSyncStatus('', 'local');
+    return;
+  }
+
+  const stateJson = JSON.stringify(newState)
+    .replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+  const re = new RegExp('<script id="state" type="application\\/json">[\\s\\S]*?<\\/script>');
+  const newHtml = PAGE_TEMPLATE.replace(re, '<script id="state" type="application/json">' + stateJson + SC);
+
+  try {
+    await artifactNs.publish(newHtml);
+    setSyncStatus('', '✓ sync');
+    showToast('Sauvegardé — toutes les vues se mettent à jour');
+  } catch(e) {
+    if (e?.code === 'conflict') {
+      setSyncStatus('', 'rechargement...');
+    } else {
+      try { localStorage.setItem('denticare_ws_state', JSON.stringify(newState)); } catch {}
+      setSyncStatus('error', '⚠ local');
+    }
+  }
+}
+
+function setSyncStatus(cls, text) {
+  const el = document.getElementById('sync-status');
+  el.className = 'sync-indicator ' + cls;
+  el.textContent = text;
+}
+
+// ── IDENTITY ──
+function showIdentityModal() {
+  document.getElementById('identity-modal').style.display = 'flex';
+}
+
+function setIdentity(name) {
+  identity = name;
+  try { localStorage.setItem('denticare_identity', name); } catch {}
+  document.getElementById('identity-modal').style.display = 'none';
+  const badge = document.getElementById('identity-badge');
+  badge.textContent = name;
+  badge.className = 'identity-badge ' + name.toLowerCase();
+}
+
+function resetIdentity() {
+  try { localStorage.removeItem('denticare_identity'); } catch {}
+  identity = null;
+  document.getElementById('identity-badge').className = 'identity-badge none';
+  document.getElementById('identity-badge').textContent = '...';
+  showIdentityModal();
+}
+
+// ── TABS ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── PATHNAME TAB ROUTING ──
+(function() {
+  const map = { '/docs': 'docs', '/tests': 'tests', '/infra': 'infra' };
+  const tab = map[window.location.pathname];
+  if (tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const btn = document.querySelector('[data-tab="' + tab + '"]');
+    if (btn) btn.classList.add('active');
+    const panel = document.getElementById('panel-' + tab);
+    if (panel) panel.classList.add('active');
+  }
+})();
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+async function init() {
+  // Restore identity
+  try {
+    const saved = localStorage.getItem('denticare_identity');
+    if (saved === 'Amine' || saved === 'Yasmine') setIdentity(saved);
+    else showIdentityModal();
+  } catch { showIdentityModal(); }
+
+  // Restore local fallback state if no artifact
+  try {
+    const local = localStorage.getItem('denticare_ws_state');
+    if (local && Object.keys(STATE.results).length === 0) {
+      const parsed = JSON.parse(local);
+      if (parsed.results) STATE = parsed;
+    }
+  } catch {}
+
+  // Connect artifact capability
+  if (window.claude && window.claude.use) {
+    try {
+      artifactNs = await window.claude.use('artifact');
+    } catch {}
+  }
+
+  if (artifactNs) {
+    setSyncStatus('', 'collaboratif');
+  } else {
+    setSyncStatus('', 'local');
+  }
+
+  renderTests();
+}
+
+init();
+</script></body>
