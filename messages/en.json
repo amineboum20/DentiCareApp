@@ -230,7 +230,7 @@
     "noResultsDesc": "No invoice matches \"{query}\".",
     "allStatuses": "All",
     "statuses": { "en_attente": "Pending", "en_cours": "In progress", "payee": "Paid", "annulee": "Cancelled" },
-    "columns": { "patient": "Patient", "date": "Date", "status": "Status", "total": "Total", "deposit": "Deposit" },
+    "columns": { "patient": "Patient", "date": "Date", "status": "Status", "total": "Total", "deposit": "Deposit", "remaining": "Remaining" },
     "form": {
       "addTitle": "New invoice", "editTitle": "Edit invoice",
       "patient": "Patient", "selectPatient": "Select a patient…",
@@ -258,7 +258,7 @@
     "noDossiersDesc": "Add the first record for a patient.",
     "noResults": "No results",
     "noResultsDesc": "No record matches \"{query}\".",
-    "columns": { "patient": "Patient", "date": "Exam date", "type": "Type", "dentist": "Dentist" },
+    "columns": { "patient": "Patient", "type": "Type", "examDate": "Exam date", "treatedBy": "Treated by" },
     "types": { "examen": "Exam", "soin": "Treatment", "bilan": "Assessment", "urgence": "Emergency", "autre": "Other" },
     "form": {
       "addTitle": "New record", "editTitle": "Edit record",

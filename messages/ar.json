@@ -230,7 +230,7 @@
     "noResultsDesc": "لا توجد فاتورة تطابق \"{query}\".",
     "allStatuses": "الكل",
     "statuses": { "en_attente": "في الانتظار", "en_cours": "قيد المعالجة", "payee": "مدفوعة", "annulee": "ملغاة" },
-    "columns": { "patient": "المريض", "date": "التاريخ", "status": "الحالة", "total": "الإجمالي", "deposit": "الدفعة" },
+    "columns": { "patient": "المريض", "date": "التاريخ", "status": "الحالة", "total": "الإجمالي", "deposit": "الدفعة", "remaining": "المتبقي" },
     "form": {
       "addTitle": "فاتورة جديدة", "editTitle": "تعديل الفاتورة",
       "patient": "المريض", "selectPatient": "اختر مريضاً…",
@@ -258,7 +258,7 @@
     "noDossiersDesc": "أضف أول ملف لمريض.",
     "noResults": "لا نتائج",
     "noResultsDesc": "لا يوجد ملف يطابق \"{query}\".",
-    "columns": { "patient": "المريض", "date": "تاريخ الفحص", "type": "النوع", "dentist": "الطبيب" },
+    "columns": { "patient": "المريض", "type": "النوع", "examDate": "تاريخ الفحص", "treatedBy": "الطبيب المعالج" },
     "types": { "examen": "فحص", "soin": "علاج", "bilan": "تقييم", "urgence": "طارئ", "autre": "أخرى" },
     "form": {
       "addTitle": "ملف جديد", "editTitle": "تعديل الملف",

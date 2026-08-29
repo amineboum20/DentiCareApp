@@ -277,7 +277,7 @@
     "noResultsDesc": "Aucune facture ne correspond à \"{query}\".",
     "allStatuses": "Toutes",
     "statuses": { "en_attente": "En attente", "en_cours": "En cours", "payee": "Payée", "annulee": "Annulée" },
-    "columns": { "patient": "Patient", "date": "Date", "status": "Statut", "total": "Total", "deposit": "Acompte" },
+    "columns": { "patient": "Patient", "date": "Date", "status": "Statut", "total": "Total", "deposit": "Acompte", "remaining": "Reste dû" },
     "form": {
       "addTitle": "Nouvelle facture",
       "editTitle": "Modifier la facture",
@@ -318,9 +318,9 @@
     "noResultsDesc": "Aucun dossier ne correspond à \"{query}\".",
     "columns": {
       "patient": "Patient",
-      "date": "Date d'examen",
       "type": "Type",
-      "dentist": "Dentiste"
+      "examDate": "Date d'examen",
+      "treatedBy": "Traité par"
     },
     "types": {
       "examen": "Examen",
