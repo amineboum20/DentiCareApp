@@ -96,7 +96,9 @@
     "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
     "checkEmail": "تحقق من بريدك",
     "checkEmailDesc": "أرسلنا رابط تأكيد إلى {email}. انقر عليه لتفعيل حسابك.",
-    "goToSignIn": "الذهاب إلى تسجيل الدخول"
+    "goToSignIn": "الذهاب إلى تسجيل الدخول",
+    "inviteTitle": "التسجيل بدعوة فقط",
+    "inviteDesc": "الوصول إلى DentiCare متاح حاليًا عند الطلب فقط. تواصل معنا لإنشاء حساب تجريبي مجاني."
   },
   "dashboard": {
     "greetingMorning": "صباح الخير{name} 👋",

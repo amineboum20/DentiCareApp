@@ -96,7 +96,9 @@
     "passwordTooShort": "Password must be at least 8 characters.",
     "checkEmail": "Check your email",
     "checkEmailDesc": "We sent a confirmation link to {email}. Click it to activate your account, then sign in.",
-    "goToSignIn": "Go to sign in"
+    "goToSignIn": "Go to sign in",
+    "inviteTitle": "By Invitation Only",
+    "inviteDesc": "Access to DentiCare is currently available by request only. Contact us to create your free demo account."
   },
   "dashboard": {
     "greetingMorning": "Good morning{name} 👋",
