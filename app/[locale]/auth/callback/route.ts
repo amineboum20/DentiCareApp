@@ -82,11 +82,11 @@ export async function GET(request: Request) {
   const supabase = await createClient();
 
   if (token_hash && type) {
-    const { error } = await supabase.auth.verifyOtp({ token_hash, type });
-    if (!error) {
-      const { data: { user } } = await supabase.auth.getUser();
-      const shopName = user?.user_metadata?.shop_name as string | undefined;
-      if (user && shopName) {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash, type });
+    if (!error && data.user) {
+      const user = data.user;
+      const shopName = user.user_metadata?.shop_name as string | undefined;
+      if (shopName) {
         await notifyApproval(
           user.id,
           user.email ?? "",

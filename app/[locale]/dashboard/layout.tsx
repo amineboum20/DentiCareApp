@@ -1,24 +1,15 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { getMemberWithPractice } from "@/utils/supabase/queries";
 import { AppProvider } from "@/components/AppContext";
 import Sidebar from "./Sidebar";
 import GlobalSearch from "@/components/GlobalSearch";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user;
-  if (!user) redirect("/signin");
+  const result = await getMemberWithPractice();
+  if (!result) redirect("/signin");
 
-  const { data: member } = await supabase
-    .from("practice_members")
-    .select("*, practices(*)")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!member) redirect("/signin");
-
-  const practice = (member as any).practices as any;
+  const { member, user } = result;
+  const practice = member.practices as any;
 
   if (!practice?.is_approved) {
     return (

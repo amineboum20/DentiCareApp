@@ -1,18 +1,15 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
+import { getMemberWithPractice } from "@/utils/supabase/queries";
 import { Link } from "@/i18n/navigation";
 
 export default async function Dashboard() {
   const supabase = await createClient();
   const t = await getTranslations("dashboard");
 
-  const { data: member } = await supabase
-    .from("practice_members")
-    .select("first_name, practices(name)")
-    .single();
-
-  const firstName = (member as any)?.first_name ?? "";
-  const shopName  = (member as any)?.practices?.name ?? "votre cabinet";
+  const result = await getMemberWithPractice();
+  const firstName = result?.member?.first_name ?? "";
+  const shopName  = (result?.member?.practices as any)?.name ?? "votre cabinet";
   const now = new Date();
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();

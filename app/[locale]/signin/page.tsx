@@ -3,12 +3,14 @@
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function SignIn() {
   const t = useTranslations("signIn");
   const locale = useLocale();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -33,7 +35,8 @@ export default function SignIn() {
         else document.documentElement.classList.remove("dark");
       }
       const savedLocale = (meta.locale as string | undefined) ?? locale;
-      window.location.href = `/${savedLocale}/dashboard`;
+      router.push(`/${savedLocale}/dashboard`);
+      router.refresh();
     }
   }
 
