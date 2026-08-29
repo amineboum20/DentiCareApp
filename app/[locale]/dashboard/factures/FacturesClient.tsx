@@ -28,6 +28,13 @@ const STATUS_STYLE: Record<string, string> = {
   annulee:    "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  en_attente: "En attente",
+  en_cours:   "En cours",
+  payee:      "Payée",
+  annulee:    "Annulée",
+};
+
 const STATUSES: FactureStatus[] = ["en_attente", "en_cours", "payee", "annulee"];
 
 function fmtDate(iso: string | null) {
@@ -253,7 +260,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[f.status] ?? STATUS_STYLE.en_attente}`}>
-                        {t(`status.${f.status}`)}
+                        {STATUS_LABEL[f.status] ?? f.status}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{f.total_price.toFixed(2)} MAD</td>

@@ -227,31 +227,33 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start max-w-6xl">
+        {/* LEFT column: contact + vue rapide */}
         <div className="space-y-6">
         {/* Section 1: Contact info */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">Informations</h2>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
+          <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-3">Informations</p>
           <div className="space-y-1">
             <DR label={t("columns.phone")} value={patient.phone} />
             <DR label={t("columns.email")} value={patient.email} />
             <DR label={t("columns.dob")} value={fmtDate(patient.date_of_birth)} />
             <DR label="Adresse" value={patient.address} />
             <DR label="Notes" value={patient.notes} />
+            <DR label={t("columns.added")} value={fmtDate(patient.created_at)} />
           </div>
         </div>
 
-        {/* Section 2: Vue rapide + Quick actions */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">Vue rapide</h2>
+        {/* Section 2: Vue rapide */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
+          <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-2.5">Vue rapide</p>
           {snapshotLoading ? (
-            <div className="flex justify-center py-4">
+            <div className="flex justify-center py-3">
               <svg className="w-5 h-5 animate-spin text-teal-500" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
             </div>
           ) : (
-            <div className="space-y-2 mb-5">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between rounded-lg bg-zinc-50 dark:bg-zinc-800/60 px-3 py-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-sm shrink-0">🗂️</span>
@@ -286,24 +288,22 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                 </div>
                 {snapshot?.nextAppointment && (
                   <button
-                    onClick={() => router.push(`/${locale}/dashboard/appointments`)}
+                    onClick={() => router.push(`/${locale}/dashboard/appointments/${snapshot.nextAppointment!.id}`)}
                     className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-medium shrink-0 ms-2">
                     Voir →
                   </button>
                 )}
               </div>
               {snapshot && snapshot.activeFactures.length > 0 && (
-                <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 px-3 py-2">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">🧾</span>
-                      <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
-                        {snapshot.activeFactures.length} facture{snapshot.activeFactures.length > 1 ? "s" : ""} non soldée{snapshot.activeFactures.length > 1 ? "s" : ""}
-                      </p>
-                    </div>
+                <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 px-3 py-2 space-y-1.5">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-sm">🧾</span>
+                    <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+                      {snapshot.activeFactures.length} facture{snapshot.activeFactures.length > 1 ? "s" : ""} non soldée{snapshot.activeFactures.length > 1 ? "s" : ""}
+                    </p>
                   </div>
                   {snapshot.activeFactures.map(f => (
-                    <div key={f.id} className="flex items-center justify-between py-0.5">
+                    <div key={f.id} className="flex items-center justify-between">
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${FACTURE_STATUS_STYLE[f.status]}`}>
                         {FACTURE_STATUS_LABEL[f.status]}
                       </span>
@@ -323,8 +323,14 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
               )}
             </div>
           )}
+        </div>
+        </div>{/* end left column */}
 
-          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Actions rapides</h2>
+        {/* RIGHT column: actions rapides + history */}
+        <div className="space-y-6 pb-8">
+        {/* Section 3: Actions rapides + action bar */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
+          <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-3">Actions rapides</p>
           <div className="grid grid-cols-3 gap-2 mb-2">
             <button onClick={() => router.push(`/${locale}/dashboard/factures?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
@@ -343,7 +349,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </button>
           </div>
           {(patient.phone || (!isMobile && patient.email)) && (
-            <div className={`grid gap-2 ${patient.phone && (!isMobile ? patient.email : true) ? "grid-cols-2" : "grid-cols-1"}`}>
+            <div className={`grid gap-2 mb-2 ${patient.phone && (!isMobile ? patient.email : true) ? "grid-cols-2" : "grid-cols-1"}`}>
               {isMobile && patient.phone ? (
                 <a href={`tel:${patient.phone.replace(/\D/g, "")}`}
                   className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
@@ -367,32 +373,26 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
               )}
             </div>
           )}
-        </div>
-
-        {/* Bottom action bar */}
-        <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
-          {patient.archived_at ? (
-            <button onClick={handleUnarchive} disabled={archiveLoading}
-              className="px-4 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-              {archiveLoading ? "Chargement…" : "Désarchiver"}
-            </button>
-          ) : (
-            <button onClick={handleArchiveStart} disabled={archiveLoading}
-              className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-              Archiver
-            </button>
-          )}
-          <div className="ms-auto">
-            <button onClick={openEdit}
-              className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-              ✏️ Modifier
-            </button>
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+            {patient.archived_at ? (
+              <button onClick={handleUnarchive} disabled={archiveLoading}
+                className="px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+                {archiveLoading ? "Chargement…" : "Désarchiver"}
+              </button>
+            ) : (
+              <button onClick={handleArchiveStart} disabled={archiveLoading}
+                className="px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+                {archiveLoading ? "Chargement…" : "Archiver"}
+              </button>
+            )}
+            <div className="ms-auto">
+              <button onClick={openEdit}
+                className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
+                ✏️ Modifier
+              </button>
+            </div>
           </div>
         </div>
-        </div>{/* end left column */}
-
-        {/* RIGHT column: full history */}
-        <div className="space-y-6 pb-8">
         {/* Section 3: History */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-5">Historique</h2>
@@ -454,7 +454,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                         </div>
                         <div className="flex items-center gap-3">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${FACTURE_STATUS_STYLE[f.status] ?? "bg-zinc-100 text-zinc-600"}`}>
-                            {f.status}
+                            {FACTURE_STATUS_LABEL[f.status] ?? f.status}
                           </span>
                           <div className="text-right">
                             <p className="text-sm font-semibold text-zinc-900 dark:text-white">{f.total_price.toFixed(2)} MAD</p>

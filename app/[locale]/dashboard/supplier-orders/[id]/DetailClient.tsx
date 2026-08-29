@@ -150,26 +150,7 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
             <DR label="Notes" value={order.notes} />
           </div>
 
-          {/* Inline status change */}
-          <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-            <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">Changer le statut</label>
-            <div className="flex flex-wrap gap-2">
-              {STATUSES.map(s => (
-                <button key={s}
-                  onClick={async () => {
-                    await supabase.from("supplier_orders").update({ status: s }).eq("id", order.id);
-                    setOrder(o => ({ ...o, status: s }));
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                    order.status === s
-                      ? `${STATUS_STYLE[s]} border-transparent ring-2 ring-offset-1 ring-teal-400`
-                      : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-600"
-                  }`}>
-                  {STATUS_LABEL[s]}
-                </button>
-              ))}
-            </div>
-          </div>
+
         </div>
 
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
