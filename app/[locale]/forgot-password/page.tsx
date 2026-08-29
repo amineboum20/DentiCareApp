@@ -1,0 +1,89 @@
+"use client";
+
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+
+export default function ForgotPassword() {
+  const t = useTranslations("forgotPassword");
+  const locale = useLocale();
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/${locale}/auth/callback?next=/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      setSent(true);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
+      <nav className="flex items-center justify-between px-8 py-5">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="text-2xl">🦷</span>
+          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">DentiCare</span>
+        </Link>
+        <LanguageSwitcher />
+      </nav>
+
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-8">
+            {sent ? (
+              <div className="text-center">
+                <span className="text-5xl">📬</span>
+                <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">{t("sentTitle")}</h1>
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{t("sentDesc", { email })}</p>
+                <Link href="/signin" className="mt-6 inline-block text-sm text-teal-600 hover:underline">{t("backToSignIn")}</Link>
+              </div>
+            ) : (
+              <>
+                <div className="text-center mb-8">
+                  <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{t("subtitle")}</p>
+                </div>
+
+                {error && (
+                  <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                    {error}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="email" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("email")}</label>
+                    <input id="email" type="email" autoComplete="email" placeholder="you@example.com"
+                      value={email} onChange={(e) => setEmail(e.target.value)} required
+                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                  </div>
+
+                  <button type="submit" disabled={loading}
+                    className="w-full py-2.5 rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                    {loading ? t("loading") : t("button")}
+                  </button>
+                </form>
+
+                <p className="mt-6 text-center text-sm text-zinc-500">
+                  <Link href="/signin" className="text-teal-600 hover:underline">{t("backToSignIn")}</Link>
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

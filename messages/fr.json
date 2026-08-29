@@ -106,6 +106,27 @@
     "dontHaveAccount": "Vous n'avez pas de compte ?",
     "signUpLink": "S'inscrire gratuitement"
   },
+  "forgotPassword": {
+    "title": "Mot de passe oublié ?",
+    "subtitle": "Entrez votre adresse e-mail et nous vous enverrons un lien de réinitialisation.",
+    "email": "Adresse e-mail",
+    "button": "Envoyer le lien",
+    "loading": "Envoi en cours…",
+    "backToSignIn": "Retour à la connexion",
+    "sentTitle": "E-mail envoyé !",
+    "sentDesc": "Un lien de réinitialisation a été envoyé à {email}. Vérifiez votre boîte de réception.",
+    "inviteOnly": "Inscription sur invitation uniquement"
+  },
+  "resetPassword": {
+    "title": "Nouveau mot de passe",
+    "subtitle": "Choisissez un nouveau mot de passe pour votre compte.",
+    "password": "Nouveau mot de passe",
+    "confirm": "Confirmer le mot de passe",
+    "button": "Réinitialiser le mot de passe",
+    "loading": "Réinitialisation en cours…",
+    "mismatch": "Les mots de passe ne correspondent pas.",
+    "tooShort": "Le mot de passe doit contenir au moins 6 caractères."
+  },
   "signUp": {
     "title": "Créez votre compte",
     "subtitle": "Gratuit pour démarrer — sans carte bancaire",

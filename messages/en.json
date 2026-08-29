@@ -77,6 +77,27 @@
     "dontHaveAccount": "Don't have an account?",
     "signUpLink": "Sign up free"
   },
+  "forgotPassword": {
+    "title": "Forgot your password?",
+    "subtitle": "Enter your email address and we'll send you a reset link.",
+    "email": "Email address",
+    "button": "Send reset link",
+    "loading": "Sending…",
+    "backToSignIn": "Back to sign in",
+    "sentTitle": "Email sent!",
+    "sentDesc": "A reset link has been sent to {email}. Check your inbox.",
+    "inviteOnly": "Invite-only sign up"
+  },
+  "resetPassword": {
+    "title": "Set new password",
+    "subtitle": "Choose a new password for your account.",
+    "password": "New password",
+    "confirm": "Confirm password",
+    "button": "Reset password",
+    "loading": "Resetting…",
+    "mismatch": "Passwords do not match.",
+    "tooShort": "Password must be at least 6 characters."
+  },
   "signUp": {
     "title": "Create your account",
     "subtitle": "Free to start — no credit card",
