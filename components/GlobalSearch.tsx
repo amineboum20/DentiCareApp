@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-type PatientR = { id: string; first_name: string; last_name: string; phone: string | null };
+type PatientR = { id: string; first_name: string; last_name: string; phone: string | null; archived_at: string | null };
 type TraitementR = { id: string; name: string; category: string };
 type ApptR   = { id: string; title: string; scheduled_at: string };
 
@@ -45,7 +45,7 @@ export default function GlobalSearch() {
     const timer = setTimeout(async () => {
       setOpen(true);
       const [p, tr, a] = await Promise.all([
-        supabase.from("patients").select("id, first_name, last_name, phone")
+        supabase.from("patients").select("id, first_name, last_name, phone, archived_at")
           .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%`).limit(5),
         supabase.from("traitements").select("id, name, category")
           .ilike("name", `%${q}%`).limit(3),
@@ -98,8 +98,13 @@ export default function GlobalSearch() {
                   <span className="w-6 h-6 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 dark:text-teal-400 text-xs font-bold shrink-0">
                     {p.first_name[0]?.toUpperCase()}
                   </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-white">{p.first_name} {p.last_name}</p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white">{p.first_name} {p.last_name}</p>
+                      {p.archived_at && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 shrink-0">Archivé</span>
+                      )}
+                    </div>
                     {p.phone && <p className="text-xs text-zinc-400 truncate">{p.phone}</p>}
                   </div>
                 </button>

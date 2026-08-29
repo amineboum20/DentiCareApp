@@ -181,6 +181,18 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
     router.push(`/${locale}/dashboard/patients`);
   }
 
+  async function handleUnarchive() {
+    setArchiveLoading(true);
+    await Promise.all([
+      supabase.from("patients").update({ archived_at: null }).eq("id", patient.id),
+      supabase.from("dossiers").update({ archived_at: null }).eq("patient_id", patient.id),
+      supabase.from("factures").update({ archived_at: null }).eq("patient_id", patient.id),
+      supabase.from("appointments").update({ archived_at: null }).eq("patient_id", patient.id),
+    ]);
+    setPatient((p) => ({ ...p, archived_at: null }));
+    setArchiveLoading(false);
+  }
+
   const inputCls = "w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
 
   return (
@@ -201,7 +213,14 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             {patient.first_name[0]?.toUpperCase()}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{patient.first_name} {patient.last_name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{patient.first_name} {patient.last_name}</h1>
+              {patient.archived_at && (
+                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  Archivé
+                </span>
+              )}
+            </div>
             <p className="text-sm text-zinc-400">Ajouté le {fmtDate(patient.created_at)}</p>
           </div>
         </div>
@@ -352,10 +371,17 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
         {/* Bottom action bar */}
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
-          <button onClick={handleArchiveStart} disabled={archiveLoading}
-            className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-            Archiver
-          </button>
+          {patient.archived_at ? (
+            <button onClick={handleUnarchive} disabled={archiveLoading}
+              className="px-4 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+              {archiveLoading ? "Chargement…" : "Désarchiver"}
+            </button>
+          ) : (
+            <button onClick={handleArchiveStart} disabled={archiveLoading}
+              className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+              Archiver
+            </button>
+          )}
           <div className="ms-auto">
             <button onClick={openEdit}
               className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
