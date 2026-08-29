@@ -4,23 +4,24 @@ import PatientDetailClient from "./DetailClient";
 import type { Patient } from "@/types/database";
 
 interface Props {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }
 
 export default async function PatientDetailPage({ params }: Props) {
+  const { locale, id } = await params;
   const supabase = await createClient();
 
   const { data: patient } = await supabase
     .from("patients")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!patient) notFound();
 
   return (
     <div className="p-4 sm:p-8">
-      <PatientDetailClient patient={patient as Patient} locale={params.locale} />
+      <PatientDetailClient patient={patient as Patient} locale={locale} />
     </div>
   );
 }

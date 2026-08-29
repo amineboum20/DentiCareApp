@@ -4,17 +4,17 @@ import SupplierOrderDetailClient from "./DetailClient";
 import type { SupplierOrder, Supplier } from "@/types/database";
 
 interface Props {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }
 
 export default async function SupplierOrderDetailPage({ params }: Props) {
+  const { locale, id } = await params;
   const supabase = await createClient();
 
-  // Get the order and then the practice's suppliers
   const { data: order } = await supabase
     .from("supplier_orders")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!order) notFound();
@@ -30,7 +30,7 @@ export default async function SupplierOrderDetailPage({ params }: Props) {
       <SupplierOrderDetailClient
         order={order as SupplierOrder}
         suppliers={(suppliers ?? []) as Supplier[]}
-        locale={params.locale}
+        locale={locale}
       />
     </div>
   );

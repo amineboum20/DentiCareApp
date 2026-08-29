@@ -4,23 +4,24 @@ import SupplierDetailClient from "./DetailClient";
 import type { Supplier } from "@/types/database";
 
 interface Props {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }
 
 export default async function SupplierDetailPage({ params }: Props) {
+  const { locale, id } = await params;
   const supabase = await createClient();
 
   const { data: supplier } = await supabase
     .from("suppliers")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!supplier) notFound();
 
   return (
     <div className="p-4 sm:p-8">
-      <SupplierDetailClient supplier={supplier as Supplier} locale={params.locale} />
+      <SupplierDetailClient supplier={supplier as Supplier} locale={locale} />
     </div>
   );
 }

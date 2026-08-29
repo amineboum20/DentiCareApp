@@ -4,17 +4,18 @@ import AppointmentDetailClient from "./DetailClient";
 import type { AppointmentWithPatient, Patient } from "@/types/database";
 
 interface Props {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }
 
 export default async function AppointmentDetailPage({ params }: Props) {
+  const { locale, id } = await params;
   const supabase = await createClient();
 
   const [{ data: appointment }, { data: patients }] = await Promise.all([
     supabase
       .from("appointments")
       .select("*, patients(first_name, last_name)")
-      .eq("id", params.id)
+      .eq("id", id)
       .single(),
     supabase
       .from("patients")
@@ -30,7 +31,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
       <AppointmentDetailClient
         appointment={appointment as AppointmentWithPatient}
         patients={(patients ?? []) as Pick<Patient, "id" | "first_name" | "last_name">[]}
-        locale={params.locale}
+        locale={locale}
       />
     </div>
   );
