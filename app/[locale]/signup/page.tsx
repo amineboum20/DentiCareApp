@@ -37,8 +37,8 @@ export default function SignUp() {
             <div className="mt-8 flex flex-col gap-4 text-left">
               <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Amine Boumazzough</p>
-                <a href="mailto:a.boumazzough@gmail.com" className="flex items-center gap-2 text-sm text-teal-600 hover:underline">
-                  <span>✉️</span> a.boumazzough@gmail.com
+                <a href="mailto:amine@opticareapp.com" className="flex items-center gap-2 text-sm text-teal-600 hover:underline">
+                  <span>✉️</span> amine@opticareapp.com
                 </a>
                 <a href="tel:+33758800085" dir="ltr" className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300 mt-1 hover:underline">
                   <span>📞</span> +33 7 58 80 00 85
@@ -47,8 +47,8 @@ export default function SignUp() {
 
               <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Yasmine Boumazzough</p>
-                <a href="mailto:yasminebmzgh@gmail.com" className="flex items-center gap-2 text-sm text-teal-600 hover:underline">
-                  <span>✉️</span> yasminebmzgh@gmail.com
+                <a href="mailto:yasmine@opticareapp.com" className="flex items-center gap-2 text-sm text-teal-600 hover:underline">
+                  <span>✉️</span> yasmine@opticareapp.com
                 </a>
                 <a href="tel:+33753287982" dir="ltr" className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300 mt-1 hover:underline">
                   <span>📞</span> +33 7 53 28 79 82
