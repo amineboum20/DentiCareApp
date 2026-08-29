@@ -78,7 +78,7 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
       if (err) { setError(err.message); setSaving(false); return; }
       setSuppliers(prev => prev.map(s => s.id === data.id ? data as Supplier : s));
     } else {
-      const { data, error: err } = await supabase.from("suppliers").insert({ ...payload, practice_id: practiceId, created_by: currentUserId }).select().single();
+      const { data, error: err } = await supabase.from("suppliers").insert({ ...payload, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId }).select().single();
       if (err) { setError(err.message); setSaving(false); return; }
       setSuppliers(prev => [data as Supplier, ...prev]);
     }

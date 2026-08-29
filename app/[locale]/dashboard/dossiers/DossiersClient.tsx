@@ -133,7 +133,7 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
     } else {
       const { data, error: err } = await supabase
         .from("dossiers")
-        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId })
+        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
         .select("*, patients(first_name, last_name)")
         .single();
       if (err) { setError(err.message); setSaving(false); return; }

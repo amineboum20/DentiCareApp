@@ -176,7 +176,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     } else {
       const { data, error: err } = await supabase
         .from("appointments")
-        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId })
+        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
         .select()
         .single();
       if (err) { setError(err.message); setSaving(false); return; }

@@ -135,6 +135,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
       const { data: apptData } = await supabase.from("appointments").insert({
         practice_id: practiceId,
         created_by: currentUserId,
+        user_id: currentUserId,
         patient_id: form.patient_id || null,
         title: newApptTitle.trim() || "Soins dentaires",
         type: "soin",
@@ -166,7 +167,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
     } else {
       const { data, error: err } = await supabase
         .from("factures")
-        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId })
+        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
         .select("*, patients(first_name, last_name, phone)")
         .single();
       if (err) { setError(err.message); setSaving(false); return; }
