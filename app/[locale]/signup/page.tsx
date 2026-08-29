@@ -2,10 +2,44 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function SignUp() {
   const t = useTranslations("signUp");
+  const [cabinetName, setCabinetName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    if (password.length < 6) { setError(t("passwordTooShort")); return; }
+    setLoading(true);
+    const supabase = createClient();
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { shop_name: cabinetName, first_name: firstName, last_name: lastName },
+      },
+    });
+    if (signUpError) { setError(signUpError.message); setLoading(false); return; }
+
+    await fetch("/api/notify-signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, shopName: cabinetName }),
+    });
+
+    setSent(true);
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
@@ -25,41 +59,66 @@ export default function SignUp() {
 
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-8 text-center">
-            <span className="text-5xl">🔒</span>
-            <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">
-              {t("inviteTitle")}
-            </h1>
-            <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              {t("inviteDesc")}
-            </p>
-
-            <div className="mt-8 flex flex-col gap-4 text-left">
-              <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Amine Boumazzough</p>
-                <a href="mailto:amine@opticareapp.com" className="flex items-center gap-2 text-sm text-teal-600 hover:underline">
-                  <span>✉️</span> amine@opticareapp.com
-                </a>
-                <a href="tel:+33758800085" dir="ltr" className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300 mt-1 hover:underline">
-                  <span>📞</span> +33 7 58 80 00 85
-                </a>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-8">
+            {sent ? (
+              <div className="text-center">
+                <span className="text-5xl">📬</span>
+                <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">{t("sentTitle")}</h1>
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{t("sentDesc", { email })}</p>
               </div>
+            ) : (
+              <>
+                <div className="text-center mb-8">
+                  <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{t("subtitle")}</p>
+                </div>
 
-              <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Yasmine Boumazzough</p>
-                <a href="mailto:yasmine@opticareapp.com" className="flex items-center gap-2 text-sm text-teal-600 hover:underline">
-                  <span>✉️</span> yasmine@opticareapp.com
-                </a>
-                <a href="tel:+33753287982" dir="ltr" className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300 mt-1 hover:underline">
-                  <span>📞</span> +33 7 53 28 79 82
-                </a>
-              </div>
-            </div>
+                {error && (
+                  <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                    {error}
+                  </div>
+                )}
 
-            <p className="mt-6 text-center text-xs text-zinc-400">
-              {t("alreadyHaveAccount")}{" "}
-              <Link href="/signin" className="text-teal-600 font-medium hover:underline">{t("signInLink")}</Link>
-            </p>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("cabinetName")}</label>
+                    <input type="text" placeholder={t("cabinetNamePlaceholder")} value={cabinetName}
+                      onChange={e => setCabinetName(e.target.value)} required
+                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex flex-col gap-1.5 flex-1">
+                      <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("firstName")}</label>
+                      <input type="text" placeholder="Jean" value={firstName}
+                        onChange={e => setFirstName(e.target.value)} required
+                        className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                    </div>
+                    <div className="flex flex-col gap-1.5 flex-1">
+                      <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("lastName")}</label>
+                      <input type="text" placeholder="Dupont" value={lastName}
+                        onChange={e => setLastName(e.target.value)} required
+                        className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("email")}</label>
+                    <input type="email" placeholder="vous@exemple.com" value={email}
+                      onChange={e => setEmail(e.target.value)} required
+                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("password")}</label>
+                    <input type="password" placeholder="••••••••" value={password}
+                      onChange={e => setPassword(e.target.value)} required
+                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                  </div>
+                  <button type="submit" disabled={loading}
+                    className="w-full py-2.5 rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors mt-1 disabled:opacity-60 disabled:cursor-not-allowed">
+                    {loading ? t("loading") : t("button")}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>

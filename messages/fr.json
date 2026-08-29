@@ -148,7 +148,13 @@
     "checkEmailDesc": "Nous avons envoyé un lien de confirmation à {email}. Cliquez dessus pour activer votre compte, puis connectez-vous.",
     "goToSignIn": "Aller à la connexion",
     "inviteTitle": "Inscription sur invitation",
-    "inviteDesc": "L'accès à DentiCare est actuellement disponible uniquement sur demande. Contactez-nous pour créer votre compte démo gratuit."
+    "inviteDesc": "L'accès à DentiCare est actuellement disponible uniquement sur demande. Contactez-nous pour créer votre compte démo gratuit.",
+    "title": "Créez votre cabinet",
+    "subtitle": "Gratuit pour démarrer — sans carte bancaire",
+    "cabinetName": "Nom du cabinet",
+    "cabinetNamePlaceholder": "Cabinet Dr. Dupont",
+    "sentTitle": "Vérifiez votre e-mail !",
+    "sentDesc": "Un lien de confirmation a été envoyé à {email}. Confirmez votre adresse puis attendez notre approbation avant d'accéder au tableau de bord."
   },
   "dashboard": {
     "greetingMorning": "Bonjour{name} 👋",
