@@ -1,24 +1,35 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import type { Traitement, TreatmentCategory, Supplier } from "@/types/database";
+import type { TreatmentCategory } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 
-interface Props {
-  initialTraitements: Traitement[];
-}
+type ActeLite = { id: string; name: string; price: number; category?: string };
 
-const emptyForm = {
-  name: "",
-  category: "autre" as TreatmentCategory,
-  price: "",
-  duration_minutes: "",
-  description: "",
-  notes: "",
+type PackageLine = {
+  id: string;
+  acte_id: string;
+  quantity: number;
+  sort_order: number;
+  actes: { id: string; name: string; price: number } | null;
 };
+
+type Package = {
+  id: string;
+  name: string;
+  category: TreatmentCategory;
+  description: string | null;
+  notes: string | null;
+  price_override: number | null;
+  traitement_actes: PackageLine[];
+};
+
+interface Props {
+  initialTraitements: Package[];
+  actes: ActeLite[];
+}
 
 const CATEGORY_STYLE: Record<string, string> = {
   nettoyage:   "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
@@ -37,130 +48,141 @@ const CATEGORIES: TreatmentCategory[] = [
   "orthodontie", "blanchiment", "prothese", "autre",
 ];
 
-function fmtDate(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("fr-FR");
+type Line = { acte_id: string; quantity: string };
+
+const emptyForm = {
+  name: "",
+  category: "autre" as TreatmentCategory,
+  description: "",
+  notes: "",
+  price_override: "",
+};
+
+function computedPrice(pkg: Package): number {
+  if (pkg.price_override != null) return pkg.price_override;
+  return pkg.traitement_actes.reduce((s, l) => s + (l.actes?.price ?? 0) * l.quantity, 0);
 }
 
-export default function TraitementsClient({ initialTraitements }: Props) {
-  const t = useTranslations("traitements");
+export default function TraitementsClient({ initialTraitements, actes }: Props) {
   const supabase = createClient();
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const locale = pathname.split('/')[1];
   const { practiceId, currentUserId } = useAppContext();
 
-  const [traitements, setTraitements] = useState<Traitement[]>(initialTraitements);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
+  const [packages, setPackages] = useState<Package[]>(initialTraitements);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingTraitement, setEditingTraitement] = useState<Traitement | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Traitement | null>(null);
+  const [editing, setEditing] = useState<Package | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Package | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [lines, setLines] = useState<Line[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const acteById = useMemo(() => Object.fromEntries(actes.map(a => [a.id, a])), [actes]);
+
   useEffect(() => {
-    const id = searchParams.get("detail");
-    if (!id) return;
-    router.push(`/${locale}/dashboard/traitements/${id}`);
+    if (searchParams.get("new") === "1") openAdd();
   }, [searchParams]);
 
-  useEffect(() => {
-    if (!practiceId) return;
-    supabase.from("suppliers").select("*").eq("practice_id", practiceId).order("name")
-      .then(({ data }) => setSuppliers((data ?? []) as Supplier[]));
-  }, [practiceId]);
-
   const filtered = useMemo(() =>
-    traitements.filter((t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.category.toLowerCase().includes(search.toLowerCase())
+    packages.filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.category.toLowerCase().includes(search.toLowerCase())
     ),
-    [traitements, search]
+    [packages, search]
   );
 
   function openAdd() {
-    setEditingTraitement(null);
+    setEditing(null);
     setForm(emptyForm);
-    setSelectedSuppliers([]);
+    setLines([{ acte_id: actes[0]?.id ?? "", quantity: "1" }]);
     setError("");
     setModalOpen(true);
   }
 
-  function openEdit(t: Traitement) {
-    setEditingTraitement(t);
+  function openEdit(p: Package) {
+    setEditing(p);
     setForm({
-      name: t.name,
-      category: t.category,
-      price: String(t.price),
-      duration_minutes: t.duration_minutes != null ? String(t.duration_minutes) : "",
-      description: t.description ?? "",
-      notes: t.notes ?? "",
+      name: p.name,
+      category: p.category,
+      description: p.description ?? "",
+      notes: p.notes ?? "",
+      price_override: p.price_override != null ? String(p.price_override) : "",
     });
+    const sorted = [...p.traitement_actes].sort((a, b) => a.sort_order - b.sort_order);
+    setLines(sorted.length
+      ? sorted.map(l => ({ acte_id: l.acte_id, quantity: String(l.quantity) }))
+      : [{ acte_id: actes[0]?.id ?? "", quantity: "1" }]);
     setError("");
-    supabase.from("treatment_suppliers").select("supplier_id").eq("treatment_id", t.id)
-      .then(({ data }) => setSelectedSuppliers((data ?? []).map((r: { supplier_id: string }) => r.supplier_id)));
     setModalOpen(true);
   }
 
-  function field(key: keyof typeof emptyForm) {
-    return {
-      value: form[key],
-      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-        setForm((f) => ({ ...f, [key]: e.target.value })),
-    };
-  }
+  const formTotal = useMemo(() => {
+    if (form.price_override) return parseFloat(form.price_override) || 0;
+    return lines.reduce((s, l) => s + (acteById[l.acte_id]?.price ?? 0) * (parseInt(l.quantity) || 0), 0);
+  }, [lines, form.price_override, acteById]);
 
   async function handleSave() {
-    if (!form.name.trim() || !form.price) {
-      setError(t("form.requiredError"));
-      return;
-    }
+    if (!form.name.trim()) { setError("Le nom est obligatoire."); return; }
+    const validLines = lines.filter(l => l.acte_id && (parseInt(l.quantity) || 0) > 0);
+    if (validLines.length === 0) { setError("Ajoutez au moins un acte au paquet."); return; }
     setSaving(true);
     setError("");
 
     const payload = {
       name: form.name.trim(),
       category: form.category,
-      price: parseFloat(form.price),
-      duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes, 10) : null,
       description: form.description.trim() || null,
       notes: form.notes.trim() || null,
+      price_override: form.price_override ? parseFloat(form.price_override) : null,
     };
 
     let savedId: string;
-
-    if (editingTraitement) {
+    if (editing) {
       const { data, error: err } = await supabase
-        .from("traitements")
-        .update(payload)
-        .eq("id", editingTraitement.id)
-        .select()
-        .single();
+        .from("traitements").update({ ...payload, updated_by: currentUserId })
+        .eq("id", editing.id).select().single();
       if (err) { setError(err.message); setSaving(false); return; }
-      setTraitements((ts) => ts.map((t) => (t.id === data.id ? (data as Traitement) : t)));
       savedId = data.id;
     } else {
       const { data, error: err } = await supabase
         .from("traitements")
-        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
-        .select()
-        .single();
+        .insert({ ...payload, practice_id: practiceId, user_id: currentUserId, created_by: currentUserId })
+        .select().single();
       if (err) { setError(err.message); setSaving(false); return; }
-      setTraitements((ts) => [data as Traitement, ...ts]);
       savedId = data.id;
     }
 
-    await supabase.from("treatment_suppliers").delete().eq("treatment_id", savedId);
-    if (selectedSuppliers.length > 0) {
-      await supabase.from("treatment_suppliers").insert(
-        selectedSuppliers.map(sid => ({ treatment_id: savedId, supplier_id: sid }))
-      );
-    }
+    await supabase.from("traitement_actes").delete().eq("traitement_id", savedId);
+    const { error: linesErr } = await supabase.from("traitement_actes").insert(
+      validLines.map((l, i) => ({
+        traitement_id: savedId,
+        acte_id: l.acte_id,
+        quantity: parseInt(l.quantity) || 1,
+        sort_order: i,
+      }))
+    );
+    if (linesErr) { setError(linesErr.message); setSaving(false); return; }
 
+    // Rebuild the package object locally
+    const rebuilt: Package = {
+      id: savedId,
+      name: payload.name,
+      category: payload.category,
+      description: payload.description,
+      notes: payload.notes,
+      price_override: payload.price_override,
+      traitement_actes: validLines.map((l, i) => ({
+        id: `${savedId}-${i}`,
+        acte_id: l.acte_id,
+        quantity: parseInt(l.quantity) || 1,
+        sort_order: i,
+        actes: acteById[l.acte_id]
+          ? { id: l.acte_id, name: acteById[l.acte_id].name, price: acteById[l.acte_id].price }
+          : null,
+      })),
+    };
+    setPackages((ps) => editing ? ps.map(p => p.id === savedId ? rebuilt : p) : [rebuilt, ...ps]);
     setSaving(false);
     setModalOpen(false);
   }
@@ -168,7 +190,7 @@ export default function TraitementsClient({ initialTraitements }: Props) {
   async function handleDelete() {
     if (!deleteTarget) return;
     await supabase.from("traitements").delete().eq("id", deleteTarget.id);
-    setTraitements((ts) => ts.filter((t) => t.id !== deleteTarget.id));
+    setPackages((ps) => ps.filter((p) => p.id !== deleteTarget.id));
     setDeleteTarget(null);
   }
 
@@ -178,12 +200,15 @@ export default function TraitementsClient({ initialTraitements }: Props) {
     <>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Traitements</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Paquets réutilisables regroupant plusieurs actes</p>
+        </div>
         <button
           onClick={openAdd}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
         >
-          + {t("newTraitement")}
+          + Nouveau traitement
         </button>
       </div>
 
@@ -192,7 +217,7 @@ export default function TraitementsClient({ initialTraitements }: Props) {
         <span className="absolute inset-y-0 start-3 flex items-center text-zinc-400 text-sm">🔍</span>
         <input
           type="text"
-          placeholder={t("searchPlaceholder")}
+          placeholder="Rechercher un traitement…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full ps-9 pe-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -203,16 +228,19 @@ export default function TraitementsClient({ initialTraitements }: Props) {
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <span className="text-4xl mb-3">{search ? "🔍" : "💊"}</span>
+            <span className="text-4xl mb-3">{search ? "🔍" : "🦷"}</span>
             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              {search ? t("noResults") : t("noTraitements")}
+              {search ? "Aucun résultat" : "Aucun traitement pour l'instant"}
             </p>
-            {!search && (
+            {!search && actes.length === 0 && (
+              <p className="text-xs text-zinc-400 mt-2">Créez d'abord des actes, puis regroupez-les ici.</p>
+            )}
+            {!search && actes.length > 0 && (
               <button
                 onClick={openAdd}
                 className="mt-4 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium"
               >
-                + {t("newTraitement")}
+                + Nouveau traitement
               </button>
             )}
           </div>
@@ -221,28 +249,31 @@ export default function TraitementsClient({ initialTraitements }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.traitement")}</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.category")}</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.price")}</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("columns.duration")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Traitement</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Catégorie</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Actes</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Prix</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((tr) => (
+                {filtered.map((p) => (
                   <tr
-                    key={tr.id}
-                    onClick={() => router.push(`/${locale}/dashboard/traitements/${tr.id}`)}
+                    key={p.id}
+                    onClick={() => openEdit(p)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
-                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{tr.name}</td>
+                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{p.name}</td>
                     <td className="px-5 py-3.5">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_STYLE[tr.category] ?? CATEGORY_STYLE.autre}`}>
-                        {tr.category}
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_STYLE[p.category] ?? CATEGORY_STYLE.autre}`}>
+                        {p.category}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{tr.price.toFixed(2)} MAD</td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">
-                      {tr.duration_minutes != null ? `${tr.duration_minutes} min` : "—"}
+                      {p.traitement_actes.length} acte{p.traitement_actes.length > 1 ? "s" : ""}
+                    </td>
+                    <td className="px-5 py-3.5 text-zinc-900 dark:text-white font-medium">
+                      {computedPrice(p).toFixed(2)} MAD
+                      {p.price_override != null && <span className="ml-1 text-[10px] text-zinc-400">(forfait)</span>}
                     </td>
                   </tr>
                 ))}
@@ -258,115 +289,92 @@ export default function TraitementsClient({ initialTraitements }: Props) {
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="font-semibold text-zinc-900 dark:text-white">
-                {editingTraitement ? t("form.editTitle") : t("form.addTitle")}
+                {editing ? "Modifier le traitement" : "Nouveau traitement"}
               </h2>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none"
-              >
-                ×
-              </button>
+              <button onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
 
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  {t("form.name")} <span className="text-red-500">*</span>
-                </label>
-                <input type="text" {...field("name")} className={inputCls} />
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Nom <span className="text-red-500">*</span></label>
+                <input type="text" value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} placeholder="Ex. Pose de couronne" />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  {t("form.category")} <span className="text-red-500">*</span>
-                </label>
-                <select {...field("category")} className={inputCls}>
-                  {CATEGORIES.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Catégorie</label>
+                <select value={form.category} onChange={(e) => setForm(f => ({ ...f, category: e.target.value as TreatmentCategory }))} className={inputCls}>
+                  {CATEGORIES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
+              </div>
+
+              {/* Actes composition */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">Actes du paquet <span className="text-red-500">*</span></label>
+                {actes.length === 0 ? (
+                  <p className="text-xs text-zinc-400">Aucun acte disponible. Créez des actes d'abord.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {lines.map((l, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <select
+                          value={l.acte_id}
+                          onChange={(e) => setLines(xs => xs.map((x, j) => j === i ? { ...x, acte_id: e.target.value } : x))}
+                          className={`${inputCls} flex-1`}
+                        >
+                          {actes.map(a => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
+                        </select>
+                        <input
+                          type="number" min="1" value={l.quantity}
+                          onChange={(e) => setLines(xs => xs.map((x, j) => j === i ? { ...x, quantity: e.target.value } : x))}
+                          className="w-16 px-2 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        />
+                        <button type="button" onClick={() => setLines(xs => xs.filter((_, j) => j !== i))}
+                          className="text-zinc-400 hover:text-red-500 px-1.5 text-lg leading-none" aria-label="Retirer">×</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setLines(xs => [...xs, { acte_id: actes[0]?.id ?? "", quantity: "1" }])}
+                      className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium">+ Ajouter un acte</button>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                    {t("form.price")} <span className="text-red-500">*</span>
-                  </label>
-                  <input type="number" min="0" step="0.01" {...field("price")} className={inputCls} />
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Prix forfaitaire (MAD)</label>
+                  <input type="number" min="0" step="0.01" value={form.price_override}
+                    onChange={(e) => setForm(f => ({ ...f, price_override: e.target.value }))}
+                    placeholder="auto" className={inputCls} />
+                  <p className="text-[10px] text-zinc-400 mt-1">Vide = somme des actes</p>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                    {t("form.duration")}
-                  </label>
-                  <input type="number" min="0" step="1" {...field("duration_minutes")} placeholder="minutes" className={inputCls} />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  {t("form.description")}
-                </label>
-                <textarea {...field("description")} rows={2} className={`${inputCls} resize-none`} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  {t("form.notes")}
-                </label>
-                <textarea {...field("notes")} rows={2} className={`${inputCls} resize-none`} />
-              </div>
-
-              {suppliers.length > 0 && (
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
-                    {t("form.suppliers")}
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {suppliers.map(s => {
-                      const sel = selectedSuppliers.includes(s.id);
-                      return (
-                        <button key={s.id} type="button"
-                          onClick={() => setSelectedSuppliers(prev => sel ? prev.filter(id => id !== s.id) : [...prev, s.id])}
-                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                            sel
-                              ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-700"
-                              : "bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:border-teal-300"
-                          }`}
-                        >
-                          🏭 {s.name}
-                        </button>
-                      );
-                    })}
+                <div className="flex flex-col justify-end">
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Total</label>
+                  <div className="px-3 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 text-sm font-semibold">
+                    {formTotal.toFixed(2)} MAD
                   </div>
                 </div>
-              )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Description</label>
+                <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
+              </div>
 
               {error && <p className="text-xs text-red-500">{error}</p>}
             </div>
 
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
-              {editingTraitement && (
-                <button
-                  type="button"
-                  onClick={() => { setDeleteTarget(editingTraitement); setModalOpen(false); }}
-                  className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
-                >
+              {editing && (
+                <button type="button" onClick={() => { setDeleteTarget(editing); setModalOpen(false); }}
+                  className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
                   Supprimer
                 </button>
               )}
               <div className="ms-auto flex items-center gap-3">
-                <button
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  {t("form.cancel")}
+                <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                  Annuler
                 </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors"
-                >
-                  {saving ? t("form.saving") : t("form.save")}
+                <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
+                  {saving ? "Enregistrement…" : "Enregistrer"}
                 </button>
               </div>
             </div>
@@ -378,22 +386,14 @@ export default function TraitementsClient({ initialTraitements }: Props) {
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("deleteConfirm.title")}</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-              {t("deleteConfirm.message")}
-            </p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer ce traitement ?</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Le paquet sera supprimé. Les actes du catalogue ne sont pas affectés.</p>
             <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              >
-                {t("deleteConfirm.cancel")}
+              <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                Annuler
               </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
-              >
-                {t("deleteConfirm.confirm")}
+              <button onClick={handleDelete} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">
+                Supprimer
               </button>
             </div>
           </div>

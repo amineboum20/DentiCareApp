@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { Supplier, Traitement } from "@/types/database";
+import type { Supplier, Acte } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 
 interface Props {
@@ -22,7 +22,7 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
   const router = useRouter();
 
   const [supplier, setSupplier] = useState<Supplier>(initialSupplier);
-  const [treatments, setTreatments] = useState<Traitement[]>([]);
+  const [treatments, setTreatments] = useState<Acte[]>([]);
   const [treatmentsLoading, setTreatmentsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -34,10 +34,10 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
   useEffect(() => {
     supabase
       .from("treatment_suppliers")
-      .select("treatment_id, traitements(*)")
+      .select("treatment_id, actes(*)")
       .eq("supplier_id", supplier.id)
       .then(({ data }) => {
-        const linked = (data ?? []).map((r: any) => r.traitements as Traitement).filter(Boolean);
+        const linked = (data ?? []).map((r: any) => r.actes as Acte).filter(Boolean);
         setTreatments(linked);
         setTreatmentsLoading(false);
       });
@@ -142,7 +142,7 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
         {/* Linked treatments */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">
-            Traitements liés
+            Actes liés
             {!treatmentsLoading && (
               <span className="ml-2 text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{treatments.length}</span>
             )}
@@ -155,12 +155,12 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
               </svg>
             </div>
           ) : treatments.length === 0 ? (
-            <p className="text-sm text-zinc-400 py-4 text-center">Aucun traitement lié</p>
+            <p className="text-sm text-zinc-400 py-4 text-center">Aucun acte lié</p>
           ) : (
             <div className="space-y-2">
               {treatments.map(tr => (
                 <button key={tr.id}
-                  onClick={() => router.push(`/${locale}/dashboard/traitements/${tr.id}`)}
+                  onClick={() => router.push(`/${locale}/dashboard/actes/${tr.id}`)}
                   className="w-full flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3 hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm transition-all text-left">
                   <div>
                     <p className="text-sm font-medium text-zinc-900 dark:text-white">{tr.name}</p>

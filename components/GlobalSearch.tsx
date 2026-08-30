@@ -47,7 +47,7 @@ export default function GlobalSearch() {
       const [p, tr, a] = await Promise.all([
         supabase.from("patients").select("id, first_name, last_name, phone, archived_at")
           .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%`).limit(5),
-        supabase.from("traitements").select("id, name, category")
+        supabase.from("actes").select("id, name, category")
           .ilike("name", `%${q}%`).limit(3),
         supabase.from("appointments").select("id, title, scheduled_at")
           .ilike("title", `%${q}%`).limit(3),
@@ -114,9 +114,9 @@ export default function GlobalSearch() {
           {traitements.length > 0 && (
             <>
               {patients.length > 0 && <div className="border-t border-zinc-100 dark:border-zinc-800" />}
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Traitements</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Actes</p>
               {traitements.map((tr) => (
-                <button key={tr.id} onClick={() => go(`/dashboard/traitements/${tr.id}`)}
+                <button key={tr.id} onClick={() => go(`/dashboard/actes/${tr.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-start transition-colors">
                   <span className="text-base">🦷</span>
                   <p className="text-sm text-zinc-900 dark:text-white">{tr.name}</p>

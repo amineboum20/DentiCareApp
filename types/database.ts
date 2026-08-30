@@ -83,7 +83,8 @@ export interface Acompte {
   created_by: string | null
 }
 
-export interface Traitement {
+// Acte = atomic billable procedure (radio, détartrage, extraction…). Was "Traitement".
+export interface Acte {
   id: string
   practice_id: string
   name: string
@@ -96,6 +97,32 @@ export interface Traitement {
   updated_at: string
   created_by: string | null
   updated_by: string | null
+}
+
+// Traitement = reusable package grouping several actes (a "plan type").
+export interface Traitement {
+  id: string
+  practice_id: string
+  user_id: string
+  name: string
+  category: TreatmentCategory
+  description: string | null
+  notes: string | null
+  price_override: number | null   // null => price = sum of composing actes
+  archived_at: string | null
+  created_at: string
+  updated_at: string
+  created_by: string | null
+  updated_by: string | null
+}
+
+// Composition line of a Traitement package.
+export interface TraitementActe {
+  id: string
+  traitement_id: string
+  acte_id: string
+  quantity: number
+  sort_order: number
 }
 
 export interface Facture {
@@ -120,7 +147,7 @@ export interface Facture {
 export interface FactureItem {
   id: string
   facture_id: string
-  traitement_id: string | null
+  acte_id: string | null
   description: string
   quantity: number
   unit_price: number

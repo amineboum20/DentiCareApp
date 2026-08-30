@@ -27,7 +27,9 @@ type Doc = {
 type Acompte = {
   id: string; montant: number; date_paiement: string; moyen: AcompteMoyen; note: string | null;
 };
-type LineItem = { description: string; quantity: string; unit_price: string };
+type LineItem = { description: string; quantity: string; unit_price: string; acte_id?: string | null };
+type ActeLite = { id: string; name: string; price: number };
+type PackageLite = { id: string; name: string; price_override: number | null; lines: { quantity: number; name: string; price: number; acte_id: string }[] };
 
 const STATUT_STYLE: Record<string, string> = {
   ouvert:  "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
@@ -62,7 +64,8 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [visites, setVisites] = useState<Visite[]>([]);
   const [docs, setDocs] = useState<Doc[]>([]);
   const [acomptes, setAcomptes] = useState<Acompte[]>([]);
-  const [traitements, setTraitements] = useState<{ id: string; name: string; price: number }[]>([]);
+  const [actes, setActes] = useState<ActeLite[]>([]);
+  const [packages, setPackages] = useState<PackageLite[]>([]);
   const [loading, setLoading] = useState(true);
 
   // modals
@@ -82,12 +85,20 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       supabase.from("consultations").select("id, motif, exam_date, teeth, treated_by, clinical_notes").eq("dossier_id", dossier.id).order("exam_date", { ascending: false }),
       supabase.from("factures").select("id, type, status, total_price, created_at, notes").eq("dossier_id", dossier.id).order("created_at", { ascending: false }),
       supabase.from("acomptes").select("id, montant, date_paiement, moyen, note").eq("dossier_id", dossier.id).order("date_paiement", { ascending: false }),
-      supabase.from("traitements").select("id, name, price").order("name", { ascending: true }),
-    ]).then(([v, d, a, tr]) => {
+      supabase.from("actes").select("id, name, price").order("name", { ascending: true }),
+      supabase.from("traitements").select("id, name, price_override, traitement_actes(quantity, acte_id, actes(name, price))").order("name", { ascending: true }),
+    ]).then(([v, d, a, ac, tr]) => {
       setVisites((v.data ?? []) as Visite[]);
       setDocs((d.data ?? []) as Doc[]);
       setAcomptes((a.data ?? []) as Acompte[]);
-      setTraitements((tr.data ?? []) as { id: string; name: string; price: number }[]);
+      setActes((ac.data ?? []) as ActeLite[]);
+      setPackages(((tr.data ?? []) as any[]).map((p) => ({
+        id: p.id, name: p.name, price_override: p.price_override,
+        lines: (p.traitement_actes ?? []).map((l: any) => ({
+          quantity: l.quantity, acte_id: l.acte_id,
+          name: l.actes?.name ?? "Acte", price: l.actes?.price ?? 0,
+        })),
+      })));
       setLoading(false);
     });
   }, [dossier.id]);
@@ -152,16 +163,29 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     setItems([{ description: "", quantity: "1", unit_price: "" }]);
     setErr(""); setDocOpen(true);
   }
-  function addItemFromTraitement(id: string) {
-    const tr = traitements.find((t) => t.id === id);
-    if (!tr) return;
+  function addLine(row: LineItem) {
     setItems((xs) => {
       const next = [...xs];
       const emptyIdx = next.findIndex((it) => !it.description.trim() && !it.unit_price);
-      const row = { description: tr.name, quantity: "1", unit_price: String(tr.price) };
       if (emptyIdx >= 0) next[emptyIdx] = row; else next.push(row);
       return next;
     });
+  }
+  function addItemFromActe(id: string) {
+    const a = actes.find((x) => x.id === id);
+    if (!a) return;
+    addLine({ description: a.name, quantity: "1", unit_price: String(a.price), acte_id: a.id });
+  }
+  function addItemFromPackage(id: string) {
+    const p = packages.find((x) => x.id === id);
+    if (!p) return;
+    if (p.price_override != null) {
+      addLine({ description: p.name, quantity: "1", unit_price: String(p.price_override), acte_id: null });
+      return;
+    }
+    p.lines.forEach((l) =>
+      addLine({ description: l.name, quantity: String(l.quantity), unit_price: String(l.price), acte_id: l.acte_id })
+    );
   }
   async function saveDoc() {
     const validItems = items.filter((it) => it.description.trim() && parseFloat(it.unit_price) >= 0);
@@ -177,6 +201,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     const rows = validItems.map((it) => ({
       facture_id: (fac as Doc).id, description: it.description.trim(),
       quantity: parseInt(it.quantity) || 1, unit_price: parseFloat(it.unit_price) || 0,
+      acte_id: it.acte_id ?? null,
     }));
     await supabase.from("facture_items").insert(rows);
     setDocs((xs) => [fac as Doc, ...xs]);
@@ -200,9 +225,13 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   }
 
   // ─── add visite ───
-  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), teeth: "", treated_by: "", clinical_notes: "" };
+  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), teeth: "", treated_by: "", clinical_notes: "", bill: true, acte_id: "" };
   const [visiteForm, setVisiteForm] = useState(emptyVisite);
-  function openVisite() { setVisiteForm(emptyVisite); setErr(""); setVisiteOpen(true); }
+  function defaultActeId() {
+    const cons = actes.find((a) => a.name.toLowerCase() === "consultation");
+    return (cons ?? actes[0])?.id ?? "";
+  }
+  function openVisite() { setVisiteForm({ ...emptyVisite, acte_id: defaultActeId() }); setErr(""); setVisiteOpen(true); }
   async function saveVisite() {
     if (!visiteForm.exam_date) { setErr("La date est requise."); return; }
     setBusy(true); setErr("");
@@ -215,6 +244,32 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     }).select("id, motif, exam_date, teeth, treated_by, clinical_notes").single();
     if (error) { setErr(error.message); setBusy(false); return; }
     setVisites((xs) => [data as Visite, ...xs]);
+
+    // Auto-bill the visit: append the selected acte to an open facture (create one if none)
+    if (visiteForm.bill && visiteForm.acte_id) {
+      const acte = actes.find((a) => a.id === visiteForm.acte_id);
+      if (acte) {
+        let target = docs.find((d) => d.type === "facture" && d.status !== "annulee");
+        if (!target) {
+          const { data: fac } = await supabase.from("factures").insert({
+            practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+            patient_id: dossier.patient_id, dossier_id: dossier.id,
+            type: "facture", status: "en_attente", total_price: 0, deposit_paid: 0,
+          }).select("id, type, status, total_price, created_at, notes").single();
+          if (fac) { target = fac as Doc; setDocs((xs) => [fac as Doc, ...xs]); }
+        }
+        if (target) {
+          await supabase.from("facture_items").insert({
+            facture_id: target.id, acte_id: acte.id, description: acte.name, quantity: 1, unit_price: acte.price,
+          });
+          const newTotal = Number(target.total_price) + Number(acte.price);
+          await supabase.from("factures").update({ total_price: newTotal }).eq("id", target.id);
+          const targetId = target.id;
+          setDocs((xs) => xs.map((d) => d.id === targetId ? { ...d, total_price: newTotal } : d));
+        }
+      }
+    }
+
     setBusy(false); setVisiteOpen(false);
   }
 
@@ -438,12 +493,21 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                 </select>
               </div>
             </div>
-            {traitements.length > 0 && (
+            {actes.length > 0 && (
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ajouter depuis le catalogue</label>
-                <select value="" onChange={(e) => { if (e.target.value) addItemFromTraitement(e.target.value); }} className={inputCls}>
-                  <option value="">— Choisir un soin —</option>
-                  {traitements.map((t) => <option key={t.id} value={t.id}>{t.name} — {t.price} MAD</option>)}
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ajouter un acte</label>
+                <select value="" onChange={(e) => { if (e.target.value) addItemFromActe(e.target.value); }} className={inputCls}>
+                  <option value="">— Choisir un acte —</option>
+                  {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
+                </select>
+              </div>
+            )}
+            {packages.length > 0 && (
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ajouter un traitement (paquet)</label>
+                <select value="" onChange={(e) => { if (e.target.value) addItemFromPackage(e.target.value); }} className={inputCls}>
+                  <option value="">— Choisir un traitement —</option>
+                  {packages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
             )}
@@ -504,6 +568,25 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
             <div>
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Notes cliniques</label>
               <textarea value={visiteForm.clinical_notes} onChange={(e) => setVisiteForm((f) => ({ ...f, clinical_notes: e.target.value }))} rows={3} className={`${inputCls} resize-none`} />
+            </div>
+            <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 space-y-3 bg-zinc-50/60 dark:bg-zinc-800/30">
+              <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
+                <input type="checkbox" checked={visiteForm.bill} onChange={(e) => setVisiteForm((f) => ({ ...f, bill: e.target.checked }))} className="w-4 h-4 accent-teal-600" />
+                Facturer cette visite
+              </label>
+              {visiteForm.bill && (
+                actes.length > 0 ? (
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Acte à facturer</label>
+                    <select value={visiteForm.acte_id} onChange={(e) => setVisiteForm((f) => ({ ...f, acte_id: e.target.value }))} className={inputCls}>
+                      {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
+                    </select>
+                    <p className="text-[11px] text-zinc-400 mt-1">Ajouté à une facture ouverte du dossier (créée si besoin).</p>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-amber-600 dark:text-amber-400">Aucun acte au catalogue — créez un acte « Consultation » pour pouvoir facturer.</p>
+                )
+              )}
             </div>
             {err && <p className="text-xs text-red-500">{err}</p>}
           </div>

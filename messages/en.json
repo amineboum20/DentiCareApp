@@ -156,6 +156,7 @@
       "patients": "Patients",
       "consultations": "Visits",
       "dossiers": "Cases",
+      "actes": "Acts",
       "traitements": "Treatments",
       "factures": "Invoices",
       "appointments": "Appointments",

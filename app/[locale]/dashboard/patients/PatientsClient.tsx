@@ -326,7 +326,7 @@ export default function PatientsClient({ initialPatients }: Props) {
             </p>
             {archivePreview && (
               <ul className="text-sm text-zinc-600 dark:text-zinc-300 mb-5 space-y-1">
-                {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} consultation{archivePreview.consultations > 1 ? "s" : ""}</li>}
+                {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} visite{archivePreview.consultations > 1 ? "s" : ""}</li>}
                 {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
                 {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
                 {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
