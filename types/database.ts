@@ -12,7 +12,9 @@ export type TreatmentCategory =
 export type FactureStatus = 'en_attente' | 'en_cours' | 'payee' | 'annulee'
 export type AppointmentType = 'consultation' | 'nettoyage' | 'soin' | 'chirurgie' | 'controle' | 'orthodontie' | 'autre'
 export type AppointmentStatus = 'planifie' | 'termine' | 'annule' | 'absent'
-export type DossierType = 'examen' | 'soin' | 'bilan' | 'urgence' | 'autre'
+export type DossierStatut = 'ouvert' | 'termine'
+export type AcompteMoyen = 'especes' | 'carte' | 'virement' | 'cheque' | 'autre'
+export type FactureDocType = 'devis' | 'facture'
 export type ConsultationMotif = 'consultation' | 'urgence' | 'controle' | 'soin' | 'autre'
 export type MemberRole = 'owner' | 'dentist' | 'assistant'
 
@@ -52,20 +54,33 @@ export interface Patient {
   updated_by: string | null
 }
 
+// Dossier = treatment case / "dossier de soins": groups visites (consultations),
+// factures and rendez-vous for one course of treatment, with an acomptes ledger.
 export interface Dossier {
   id: string
   practice_id: string
   patient_id: string
-  type: DossierType
-  exam_date: string
-  next_exam_date: string | null
-  treated_by: string | null
-  dental_notes: string | null
-  document_path: string | null
+  user_id: string
+  title: string
+  statut: DossierStatut
+  notes: string | null
   created_at: string
+  updated_at: string
   archived_at: string | null
   created_by: string | null
   updated_by: string | null
+}
+
+export interface Acompte {
+  id: string
+  practice_id: string
+  dossier_id: string
+  montant: number
+  date_paiement: string
+  moyen: AcompteMoyen
+  note: string | null
+  created_at: string
+  created_by: string | null
 }
 
 export interface Traitement {
@@ -89,6 +104,8 @@ export interface Facture {
   patient_id: string
   consultation_id: string | null
   appointment_id: string | null
+  dossier_id: string | null
+  type: FactureDocType
   status: FactureStatus
   total_price: number
   deposit_paid: number
@@ -113,6 +130,7 @@ export interface Appointment {
   id: string
   practice_id: string
   patient_id: string | null
+  dossier_id: string | null
   title: string
   scheduled_at: string
   duration_minutes: number
@@ -199,6 +217,7 @@ export interface Consultation {
   practice_id: string
   patient_id: string
   user_id: string
+  dossier_id: string | null
   motif: ConsultationMotif
   exam_date: string
   next_exam_date: string | null

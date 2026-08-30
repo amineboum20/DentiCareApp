@@ -155,6 +155,7 @@
       "dashboard": "Dashboard",
       "patients": "Patients",
       "consultations": "Consultations",
+      "dossiers": "Cases",
       "traitements": "Treatments",
       "factures": "Invoices",
       "appointments": "Appointments",

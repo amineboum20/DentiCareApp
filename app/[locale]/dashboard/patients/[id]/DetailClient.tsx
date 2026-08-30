@@ -74,6 +74,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   const [historyLoading, setHistoryLoading] = useState(true);
   const [historyConsultations, setHistoryConsultations] = useState<HistoryConsultation[]>([]);
   const [historyFactures, setHistoryFactures] = useState<HistoryFacture[]>([]);
+  const [historyDossiers, setHistoryDossiers] = useState<{ id: string; title: string; statut: string; created_at: string }[]>([]);
 
   // Edit modal
   const [modalOpen, setModalOpen] = useState(false);
@@ -110,9 +111,11 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
     Promise.all([
       supabase.from("consultations").select("id, motif, exam_date, next_exam_date, treated_by, clinical_notes, teeth").eq("patient_id", patient.id).order("exam_date", { ascending: false }),
       supabase.from("factures").select("id, status, total_price, deposit_paid, created_at, notes").eq("patient_id", patient.id).order("created_at", { ascending: false }),
-    ]).then(([{ data: consultations }, { data: factures }]) => {
+      supabase.from("dossiers").select("id, title, statut, created_at").eq("patient_id", patient.id).is("archived_at", null).order("created_at", { ascending: false }),
+    ]).then(([{ data: consultations }, { data: factures }, { data: dossiers }]) => {
       setHistoryConsultations((consultations ?? []) as HistoryConsultation[]);
       setHistoryFactures((factures ?? []) as HistoryFacture[]);
+      setHistoryDossiers((dossiers ?? []) as { id: string; title: string; statut: string; created_at: string }[]);
       setHistoryLoading(false);
     });
   }, [patient.id]);
@@ -332,7 +335,12 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
         {/* Section 3: Actions rapides + action bar */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
           <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-3">Actions rapides</p>
-          <div className="grid grid-cols-3 gap-2 mb-2">
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <button onClick={() => router.push(`/${locale}/dashboard/dossiers?new=1&patient_id=${patient.id}`)}
+              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+              <span className="text-lg">📁</span>
+              <span className="text-[11px] font-medium leading-tight">Dossier</span>
+            </button>
             <button onClick={() => router.push(`/${locale}/dashboard/factures?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
               <span className="text-lg">🧾</span>
@@ -406,6 +414,36 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </div>
           ) : (
             <div className="space-y-8">
+              {/* Dossiers */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                    📁 Dossiers
+                    <span className="text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{historyDossiers.length}</span>
+                  </h3>
+                  <button onClick={() => router.push(`/${locale}/dashboard/dossiers?new=1&patient_id=${patient.id}`)}
+                    className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium">+ Nouveau</button>
+                </div>
+                {historyDossiers.length === 0 ? (
+                  <p className="text-sm text-zinc-400 py-4 text-center">Aucun dossier</p>
+                ) : (
+                  <div className="space-y-2">
+                    {historyDossiers.map(d => (
+                      <div key={d.id} onClick={() => router.push(`/${locale}/dashboard/dossiers/${d.id}`)}
+                        className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm transition-all">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{d.title}</p>
+                          <p className="text-xs text-zinc-400">{fmtDate(d.created_at)}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ms-2 ${d.statut === "termine" ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400" : "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"}`}>
+                          {d.statut === "termine" ? "Terminé" : "Ouvert"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Consultations */}
               <div>
                 <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3 flex items-center gap-2">

@@ -28,6 +28,7 @@ export default function Sidebar({ firstName, shopName, email }: Props) {
     { icon: "📊", label: t("nav.dashboard"),    href: "/dashboard" },
     { icon: "👤", label: t("nav.patients"),      href: "/dashboard/patients" },
     { icon: "🏥", label: t("nav.consultations"), href: "/dashboard/consultations" },
+    { icon: "📁", label: t("nav.dossiers"),      href: "/dashboard/dossiers" },
     { icon: "🦷", label: t("nav.traitements"),   href: "/dashboard/traitements" },
     { icon: "🧾", label: t("nav.factures"),      href: "/dashboard/factures" },
     { icon: "📅", label: t("nav.appointments"),  href: "/dashboard/appointments" },
