@@ -85,6 +85,11 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.verifyOtp({ token_hash, type });
     if (!error && data.user) {
       const user = data.user;
+      // Invited members and password resets have no password yet — send them
+      // to the set-password page (next) rather than straight to the dashboard.
+      if (type === "invite" || type === "recovery") {
+        return NextResponse.redirect(`${origin}${next}`);
+      }
       const shopName = user.user_metadata?.shop_name as string | undefined;
       if (shopName) {
         await notifyApproval(

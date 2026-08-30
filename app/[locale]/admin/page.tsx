@@ -1,10 +1,17 @@
 import { redirect } from "next/navigation";
 import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { approvePractice, revokePractice } from "./actions";
+import { approvePractice, revokePractice, approveMember } from "./actions";
 import RejectButton from "./RejectButton";
+import MemberRejectButton from "./MemberRejectButton";
 
 export const dynamic = "force-dynamic";
+
+const ROLE_LABEL: Record<string, string> = {
+  owner: "Propriétaire",
+  dentist: "Dentiste",
+  assistant: "Assistant(e)",
+};
 
 type PracticeRow = {
   id: string;
@@ -13,11 +20,14 @@ type PracticeRow = {
   created_at: string;
 };
 type MemberRow = {
+  id: string;
   practice_id: string;
   user_id: string;
   first_name: string | null;
   last_name: string | null;
   role: string;
+  is_approved: boolean;
+  created_at: string;
 };
 
 export default async function AdminPage() {
@@ -28,16 +38,29 @@ export default async function AdminPage() {
 
   const [{ data: practices }, { data: members }, usersRes] = await Promise.all([
     supabase.from("practices").select("id, name, is_approved, created_at").order("created_at", { ascending: false }),
-    supabase.from("practice_members").select("practice_id, user_id, first_name, last_name, role"),
+    supabase.from("practice_members").select("id, practice_id, user_id, first_name, last_name, role, is_approved, created_at"),
     supabase.auth.admin.listUsers({ perPage: 1000 }),
   ]);
 
   const emailByUser = new Map<string, string>();
-  for (const u of usersRes.data?.users ?? []) emailByUser.set(u.id, u.email ?? "");
+  const emailConfirmedByUser = new Map<string, boolean>();
+  for (const u of usersRes.data?.users ?? []) {
+    emailByUser.set(u.id, u.email ?? "");
+    emailConfirmedByUser.set(u.id, Boolean(u.email_confirmed_at));
+  }
+
+  const allMembers = (members ?? []) as MemberRow[];
 
   const ownerByPractice = new Map<string, MemberRow>();
-  for (const m of (members ?? []) as MemberRow[]) {
+  for (const m of allMembers) {
     if (m.role === "owner" && !ownerByPractice.has(m.practice_id)) ownerByPractice.set(m.practice_id, m);
+  }
+
+  const practiceNameById = new Map<string, string>();
+  const practiceApprovedById = new Map<string, boolean>();
+  for (const p of (practices ?? []) as PracticeRow[]) {
+    practiceNameById.set(p.id, p.name || "(sans nom)");
+    practiceApprovedById.set(p.id, p.is_approved);
   }
 
   const rows = ((practices ?? []) as PracticeRow[]).map((p) => {
@@ -52,6 +75,19 @@ export default async function AdminPage() {
   const pending = rows.filter((r) => !r.is_approved);
   const approved = rows.filter((r) => r.is_approved);
 
+  // Owner-invited members awaiting individual approval (owners are gated at the
+  // practice level, so they never appear here).
+  const pendingMembers = allMembers
+    .filter((m) => m.role !== "owner" && m.is_approved === false)
+    .map((m) => ({
+      ...m,
+      practiceName: practiceNameById.get(m.practice_id) ?? "(cabinet inconnu)",
+      practiceApproved: practiceApprovedById.get(m.practice_id) ?? false,
+      email: emailByUser.get(m.user_id) ?? "—",
+      emailConfirmed: emailConfirmedByUser.get(m.user_id) ?? false,
+    }))
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+
   const fmtDate = (s: string) =>
     new Date(s).toLocaleString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
@@ -64,7 +100,7 @@ export default async function AdminPage() {
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Connecté en tant que {admin.email}</p>
           </div>
           <span className="rounded-full bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 text-xs font-semibold px-3 py-1">
-            {pending.length} en attente
+            {pending.length + pendingMembers.length} en attente
           </span>
         </div>
 
@@ -92,6 +128,47 @@ export default async function AdminPage() {
                       </button>
                     </form>
                     <RejectButton practiceId={r.id} shopName={r.name || ""} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Pending members */}
+        <section className="mb-10">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 mb-3">Membres en attente ({pendingMembers.length})</h2>
+          {pendingMembers.length === 0 ? (
+            <p className="text-sm text-zinc-400 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 text-center">
+              Aucun membre en attente
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {pendingMembers.map((m) => (
+                <div key={m.id} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-zinc-900 dark:text-white truncate">
+                      {`${m.first_name ?? ""} ${m.last_name ?? ""}`.trim() || "(sans nom)"}
+                      <span className="ml-2 text-xs font-medium text-zinc-400">{ROLE_LABEL[m.role] ?? m.role}</span>
+                    </p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{m.email}</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">
+                      Cabinet : {m.practiceName}
+                      {" · "}
+                      {m.emailConfirmed
+                        ? <span className="text-teal-600 dark:text-teal-400">email confirmé</span>
+                        : <span className="text-amber-600 dark:text-amber-400">email non confirmé</span>}
+                      {!m.practiceApproved && <span className="text-amber-600 dark:text-amber-400"> · cabinet non approuvé</span>}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <form action={approveMember}>
+                      <input type="hidden" name="member_id" value={m.id} />
+                      <button className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2.5 whitespace-nowrap transition">
+                        ✅ Approuver
+                      </button>
+                    </form>
+                    <MemberRejectButton memberId={m.id} memberName={`${m.first_name ?? ""} ${m.last_name ?? ""}`.trim()} />
                   </div>
                 </div>
               ))}

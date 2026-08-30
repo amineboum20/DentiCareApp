@@ -172,12 +172,12 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
     <>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Consultations</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Visites</h1>
         <button
           onClick={openAdd}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
         >
-          + Nouvelle consultation
+          + Nouvelle visite
         </button>
       </div>
 
@@ -199,14 +199,14 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <span className="text-4xl mb-3">{search ? "🔍" : "🏥"}</span>
             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              {search ? "Aucun résultat" : "Aucune consultation pour l'instant"}
+              {search ? "Aucun résultat" : "Aucune visite pour l'instant"}
             </p>
             {!search && (
               <button
                 onClick={openAdd}
                 className="mt-4 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium"
               >
-                + Nouvelle consultation
+                + Nouvelle visite
               </button>
             )}
           </div>
@@ -254,7 +254,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="font-semibold text-zinc-900 dark:text-white">
-                {editingConsultation ? "Modifier la consultation" : "Nouvelle consultation"}
+                {editingConsultation ? "Modifier la visite" : "Nouvelle visite"}
               </h2>
               <button
                 onClick={() => setModalOpen(false)}
@@ -366,7 +366,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cette consultation ?</h2>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cette visite ?</h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Cette action est irréversible.</p>
             <div className="flex gap-3 justify-end">
               <button

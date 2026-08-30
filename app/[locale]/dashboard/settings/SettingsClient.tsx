@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { MemberRole } from "@/types/database";
@@ -13,6 +14,7 @@ interface Member {
   first_name: string;
   last_name: string;
   created_at: string;
+  is_approved: boolean;
 }
 
 interface Props {
@@ -33,6 +35,7 @@ export default function SettingsClient({
   initialLogoUrl,
 }: Props) {
   const router = useRouter();
+  const locale = useLocale();
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const isOwner = memberRole === "owner";
@@ -59,9 +62,10 @@ export default function SettingsClient({
   const [members, setMembers] = useState<Member[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
-  const [newMember, setNewMember] = useState({ firstName: "", lastName: "", email: "", password: "", role: "dentist" as MemberRole });
+  const [newMember, setNewMember] = useState({ firstName: "", lastName: "", email: "", role: "dentist" as MemberRole });
   const [addingMember, setAddingMember] = useState(false);
   const [memberError, setMemberError] = useState("");
+  const [inviteSent, setInviteSent] = useState("");
 
   // — Password —
   const [newPassword, setNewPassword] = useState("");
@@ -202,26 +206,28 @@ export default function SettingsClient({
     e.preventDefault();
     setAddingMember(true);
     setMemberError("");
+    setInviteSent("");
     const res = await fetch("/api/members", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: newMember.email,
-        password: newMember.password,
         firstName: newMember.firstName,
         lastName: newMember.lastName,
         role: newMember.role,
+        locale,
       }),
     });
     const json = await res.json();
     if (!res.ok) {
-      setMemberError(json.error ?? "Erreur lors de la création du membre");
+      setMemberError(json.error ?? "Erreur lors de l'invitation du membre");
       setAddingMember(false);
       return;
     }
     setAddingMember(false);
     setShowAddMember(false);
-    setNewMember({ firstName: "", lastName: "", email: "", password: "", role: "dentist" });
+    setInviteSent(`Invitation envoyée à ${newMember.email}. Le membre pourra se connecter après confirmation de son e-mail et validation par l'administrateur.`);
+    setNewMember({ firstName: "", lastName: "", email: "", role: "dentist" });
     // Refresh members list
     const { data } = await supabase.from("practice_members").select("*").order("created_at");
     setMembers((data ?? []) as Member[]);
@@ -371,8 +377,17 @@ export default function SettingsClient({
           )}
         </div>
 
+        {inviteSent && (
+          <p className="mb-4 rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 px-4 py-3 text-sm text-teal-700 dark:text-teal-300">
+            ✅ {inviteSent}
+          </p>
+        )}
+
         {showAddMember && isOwner && (
           <form onSubmit={handleAddMember} className="mb-6 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 space-y-3">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Le membre recevra un e-mail pour définir son mot de passe. Son accès sera actif après validation par l&apos;administrateur.
+            </p>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Prénom</label>
@@ -391,11 +406,6 @@ export default function SettingsClient({
                 placeholder="dentiste@cabinet.com" required className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Mot de passe temporaire</label>
-              <input type="text" value={newMember.password} onChange={e => setNewMember(v => ({ ...v, password: e.target.value }))}
-                placeholder="Minimum 8 caractères" required className={inputCls} />
-            </div>
-            <div>
               <label className={labelCls}>Rôle</label>
               <select value={newMember.role} onChange={e => setNewMember(v => ({ ...v, role: e.target.value as MemberRole }))}
                 className={inputCls}>
@@ -406,7 +416,7 @@ export default function SettingsClient({
             {memberError && <p className="text-sm text-red-500">{memberError}</p>}
             <button type="submit" disabled={addingMember}
               className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-              {addingMember ? "Création…" : "Créer le compte"}
+              {addingMember ? "Envoi…" : "Envoyer l'invitation"}
             </button>
           </form>
         )}
@@ -418,8 +428,13 @@ export default function SettingsClient({
             {members.map(m => (
               <div key={m.id} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-zinc-100 dark:border-zinc-800">
                 <div>
-                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
                     {m.first_name} {m.last_name}
+                    {m.role !== "owner" && (
+                      m.is_approved
+                        ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">Actif</span>
+                        : <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">En attente</span>
+                    )}
                   </p>
                   <p className="text-xs text-zinc-400">{ROLE_LABEL[m.role]}</p>
                 </div>

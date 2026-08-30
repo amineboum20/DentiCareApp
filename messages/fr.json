@@ -176,14 +176,14 @@
     "newFacture": "Nouvelle facture",
     "bookAppointment": "Prendre RDV",
     "newDossier": "Nouveau dossier",
-    "newConsultation": "Nouvelle consultation",
+    "newConsultation": "Nouvelle visite",
     "recentActivity": "Activité récente",
     "shopReady": "Votre cabinet est prêt",
     "shopReadyDesc": "Commencez par ajouter votre premier patient.",
     "nav": {
       "dashboard": "Tableau de bord",
       "patients": "Patients",
-      "consultations": "Consultations",
+      "consultations": "Visites",
       "dossiers": "Dossiers",
       "traitements": "Traitements",
       "factures": "Factures",
@@ -340,10 +340,10 @@
     }
   },
   "consultations": {
-    "title": "Consultations",
+    "title": "Visites",
     "searchPlaceholder": "Rechercher par patient…",
-    "newConsultation": "Nouvelle consultation",
-    "noConsultations": "Aucune consultation pour l'instant",
+    "newConsultation": "Nouvelle visite",
+    "noConsultations": "Aucune visite pour l'instant",
     "noResults": "Aucun résultat",
     "columns": {
       "patient": "Patient",
@@ -359,11 +359,11 @@
       "autre": "Autre"
     },
     "form": {
-      "addTitle": "Nouvelle consultation",
-      "editTitle": "Modifier la consultation",
+      "addTitle": "Nouvelle visite",
+      "editTitle": "Modifier la visite",
       "patientId": "Patient",
       "motif": "Motif",
-      "examDate": "Date de consultation",
+      "examDate": "Date de visite",
       "nextExamDate": "Prochain contrôle",
       "treatedBy": "Dentiste",
       "teeth": "Dents concernées",
@@ -375,8 +375,8 @@
       "requiredError": "Le patient et la date sont obligatoires."
     },
     "deleteConfirm": {
-      "title": "Supprimer la consultation",
-      "message": "Supprimer la consultation de {name} du {date} ?",
+      "title": "Supprimer la visite",
+      "message": "Supprimer la visite de {name} du {date} ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
     }
@@ -450,9 +450,9 @@
     },
     "history": {
       "subtitle": "Dossiers et factures",
-      "consultations": "Consultations",
+      "consultations": "Visites",
       "factures": "Factures",
-      "noConsultations": "Aucune consultation enregistrée.",
+      "noConsultations": "Aucune visite enregistrée.",
       "noFactures": "Aucune facture enregistrée."
     },
     "form": {

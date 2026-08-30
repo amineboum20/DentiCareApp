@@ -262,7 +262,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-sm shrink-0">🏥</span>
                   <div className="min-w-0">
-                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Dernière consultation</p>
+                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Dernière visite</p>
                     <p className="text-[11px] text-zinc-400">
                       {snapshot?.lastConsultation
                         ? `${fmtDate(snapshot.lastConsultation.exam_date)} · ${snapshot.lastConsultation.motif}`
@@ -349,7 +349,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             <button onClick={() => router.push(`/${locale}/dashboard/consultations?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
               <span className="text-lg">🏥</span>
-              <span className="text-[11px] font-medium leading-tight">Consultation</span>
+              <span className="text-[11px] font-medium leading-tight">Visite</span>
             </button>
             <button onClick={() => router.push(`/${locale}/dashboard/appointments?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
@@ -447,13 +447,13 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
               {/* Consultations */}
               <div>
                 <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3 flex items-center gap-2">
-                  🏥 Consultations
+                  🏥 Visites
                   <span className="text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
                     {historyConsultations.length}
                   </span>
                 </h3>
                 {historyConsultations.length === 0 ? (
-                  <p className="text-sm text-zinc-400 py-4 text-center">Aucune consultation</p>
+                  <p className="text-sm text-zinc-400 py-4 text-center">Aucune visite</p>
                 ) : (
                   <div className="space-y-3">
                     {historyConsultations.map(c => (
@@ -579,7 +579,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </p>
             {archivePreview && (
               <ul className="text-sm text-zinc-600 dark:text-zinc-300 mb-5 space-y-1">
-                {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} consultation{archivePreview.consultations > 1 ? "s" : ""}</li>}
+                {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} visite{archivePreview.consultations > 1 ? "s" : ""}</li>}
                 {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
                 {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
                 {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (

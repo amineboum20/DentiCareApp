@@ -51,6 +51,49 @@ export async function rejectPractice(formData: FormData) {
   revalidatePath("/admin");
 }
 
+export async function approveMember(formData: FormData) {
+  const admin = await getAdminUser();
+  if (!admin) throw new Error("Non autorisé");
+
+  const memberId = String(formData.get("member_id") ?? "");
+  if (!memberId) throw new Error("member_id manquant");
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("practice_members")
+    .update({ is_approved: true })
+    .eq("id", memberId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin");
+}
+
+export async function rejectMember(formData: FormData) {
+  const admin = await getAdminUser();
+  if (!admin) throw new Error("Non autorisé");
+
+  const memberId = String(formData.get("member_id") ?? "");
+  if (!memberId) throw new Error("member_id manquant");
+
+  const supabase = createAdminClient();
+
+  // Guard: never delete an owner through the member-reject path.
+  const { data: target } = await supabase
+    .from("practice_members")
+    .select("user_id, role")
+    .eq("id", memberId)
+    .single();
+  if (target?.role === "owner") throw new Error("Impossible de supprimer un propriétaire");
+
+  await supabase.from("practice_members").delete().eq("id", memberId);
+  if (target?.user_id) {
+    const { error } = await supabase.auth.admin.deleteUser(target.user_id as string);
+    if (error) console.error("deleteUser error", target.user_id, error.message);
+  }
+
+  revalidatePath("/admin");
+}
+
 export async function revokePractice(formData: FormData) {
   const admin = await getAdminUser();
   if (!admin) throw new Error("Non autorisé");

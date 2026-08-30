@@ -118,7 +118,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-2xl shrink-0">🏥</div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Consultation — {MOTIF_LABEL[consultation.motif] ?? consultation.motif}</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Visite — {MOTIF_LABEL[consultation.motif] ?? consultation.motif}</h1>
             {patientName && (
               <button
                 onClick={() => router.push(`/${locale}/dashboard/patients/${consultation.patient_id}`)}
@@ -170,7 +170,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <h2 className="font-semibold text-zinc-900 dark:text-white">Modifier la consultation</h2>
+              <h2 className="font-semibold text-zinc-900 dark:text-white">Modifier la visite</h2>
               <button onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -228,7 +228,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cette consultation ?</h2>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cette visite ?</h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Cette action est irréversible.</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteOpen(false)}

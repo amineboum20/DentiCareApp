@@ -17,37 +17,45 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Only owners can add members" }, { status: 403 });
   }
 
-  const { email, password, firstName, lastName, role } = await req.json();
-  if (!email || !password || !firstName || !role) {
+  const { email, firstName, lastName, role, locale } = await req.json();
+  if (!email || !firstName || !role) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   const admin = createAdminClient();
-  const { data: newUser, error: createError } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { first_name: firstName, last_name: lastName ?? "" },
+
+  // Invite flow: the member gets an email, clicks it, and sets their own
+  // password (which confirms their address) — same shape as a self-signup,
+  // but they join the owner's existing practice instead of creating a new one.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://denticareapp.com";
+  const lang = typeof locale === "string" && locale ? locale : "fr";
+  const redirectTo = `${appUrl}/${lang}/auth/callback?next=/reset-password`;
+
+  const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: { first_name: firstName, last_name: lastName ?? "" },
+    redirectTo,
   });
 
-  if (createError) return NextResponse.json({ error: createError.message }, { status: 400 });
+  if (inviteError) return NextResponse.json({ error: inviteError.message }, { status: 400 });
 
+  // Attach to the owner's practice, pending admin approval.
   const { error: insertError } = await admin
     .from("practice_members")
     .insert({
       practice_id: caller.practice_id,
-      user_id: newUser.user.id,
+      user_id: invited.user.id,
       role,
       first_name: firstName,
       last_name: lastName ?? "",
+      is_approved: false,
     });
 
   if (insertError) {
-    await admin.auth.admin.deleteUser(newUser.user.id);
+    await admin.auth.admin.deleteUser(invited.user.id);
     return NextResponse.json({ error: insertError.message }, { status: 400 });
   }
 
-  return NextResponse.json({ success: true, userId: newUser.user.id });
+  return NextResponse.json({ success: true, userId: invited.user.id });
 }
 
 export async function DELETE(req: NextRequest) {
