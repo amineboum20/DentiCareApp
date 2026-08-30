@@ -1,10 +1,14 @@
 import { redirect } from "next/navigation";
 import { getMemberWithPractice } from "@/utils/supabase/queries";
+import { getAdminUser } from "@/utils/admin-auth";
 import { AppProvider } from "@/components/AppContext";
 import Sidebar from "./Sidebar";
 import GlobalSearch from "@/components/GlobalSearch";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  // Admins have no practice; send them to the approval dashboard instead of the pending screen.
+  if (await getAdminUser()) redirect("/admin");
+
   const result = await getMemberWithPractice();
   if (!result) redirect("/signin");
 
