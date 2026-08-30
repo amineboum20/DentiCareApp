@@ -72,6 +72,6 @@ begin
     update public.factures set dossier_id = d_id where id = f.id;
   end loop;
   insert into public.acomptes (practice_id, dossier_id, montant, date_paiement, moyen, note, created_at, created_by)
-  select f.practice_id, f.dossier_id, f.deposit_paid, coalesce(f.created_at::date, current_date), 'especes', 'Acompte migré', f.created_at, f.created_by
-  from public.factures f where f.deposit_paid > 0 and f.dossier_id is not null;
+  select fac.practice_id, fac.dossier_id, fac.deposit_paid, coalesce(fac.created_at::date, current_date), 'especes', 'Acompte migré', fac.created_at, fac.created_by
+  from public.factures fac where fac.deposit_paid > 0 and fac.dossier_id is not null;
 end $mig$;
