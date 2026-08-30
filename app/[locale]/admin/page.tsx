@@ -3,6 +3,7 @@ import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { approvePractice, revokePractice } from "./actions";
 import RejectButton from "./RejectButton";
+import AdminNav from "./AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +71,8 @@ export default async function AdminPage() {
             {pending.length} en attente
           </span>
         </div>
+
+        <AdminNav active="approvals" />
 
         {/* Pending */}
         <section className="mb-10">
