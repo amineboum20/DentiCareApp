@@ -207,30 +207,35 @@ export default function SettingsClient({
     setAddingMember(true);
     setMemberError("");
     setInviteSent("");
-    const res = await fetch("/api/members", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: newMember.email,
-        firstName: newMember.firstName,
-        lastName: newMember.lastName,
-        role: newMember.role,
-        locale,
-      }),
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      setMemberError(json.error ?? "Erreur lors de l'invitation du membre");
+    const invitedEmail = newMember.email;
+    try {
+      const res = await fetch("/api/members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: newMember.email,
+          firstName: newMember.firstName,
+          lastName: newMember.lastName,
+          role: newMember.role,
+          locale,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMemberError(json.error ?? "Erreur lors de l'invitation du membre");
+        return;
+      }
+      setShowAddMember(false);
+      setInviteSent(`Invitation envoyée à ${invitedEmail}. Le membre pourra se connecter après confirmation de son e-mail et validation par l'administrateur.`);
+      setNewMember({ firstName: "", lastName: "", email: "", role: "dentist" });
+      // Refresh members list
+      const { data } = await supabase.from("practice_members").select("*").order("created_at");
+      setMembers((data ?? []) as Member[]);
+    } catch {
+      setMemberError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
+    } finally {
       setAddingMember(false);
-      return;
     }
-    setAddingMember(false);
-    setShowAddMember(false);
-    setInviteSent(`Invitation envoyée à ${newMember.email}. Le membre pourra se connecter après confirmation de son e-mail et validation par l'administrateur.`);
-    setNewMember({ firstName: "", lastName: "", email: "", role: "dentist" });
-    // Refresh members list
-    const { data } = await supabase.from("practice_members").select("*").order("created_at");
-    setMembers((data ?? []) as Member[]);
   }
 
   async function handleRemoveMember(id: string) {
