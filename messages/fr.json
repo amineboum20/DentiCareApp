@@ -176,13 +176,14 @@
     "newFacture": "Nouvelle facture",
     "bookAppointment": "Prendre RDV",
     "newDossier": "Nouveau dossier",
+    "newConsultation": "Nouvelle consultation",
     "recentActivity": "Activité récente",
     "shopReady": "Votre cabinet est prêt",
     "shopReadyDesc": "Commencez par ajouter votre premier patient.",
     "nav": {
       "dashboard": "Tableau de bord",
       "patients": "Patients",
-      "dossiers": "Dossiers",
+      "consultations": "Consultations",
       "traitements": "Traitements",
       "factures": "Factures",
       "appointments": "Rendez-vous",
@@ -337,6 +338,48 @@
       "cancel": "Annuler"
     }
   },
+  "consultations": {
+    "title": "Consultations",
+    "searchPlaceholder": "Rechercher par patient…",
+    "newConsultation": "Nouvelle consultation",
+    "noConsultations": "Aucune consultation pour l'instant",
+    "noResults": "Aucun résultat",
+    "columns": {
+      "patient": "Patient",
+      "motif": "Motif",
+      "examDate": "Date",
+      "treatedBy": "Traité par"
+    },
+    "motifs": {
+      "consultation": "Consultation",
+      "urgence": "Urgence",
+      "controle": "Contrôle",
+      "soin": "Soin",
+      "autre": "Autre"
+    },
+    "form": {
+      "addTitle": "Nouvelle consultation",
+      "editTitle": "Modifier la consultation",
+      "patientId": "Patient",
+      "motif": "Motif",
+      "examDate": "Date de consultation",
+      "nextExamDate": "Prochain contrôle",
+      "treatedBy": "Dentiste",
+      "teeth": "Dents concernées",
+      "clinicalNotes": "Notes cliniques",
+      "exams": "Examens complémentaires",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "requiredError": "Le patient et la date sont obligatoires."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer la consultation",
+      "message": "Supprimer la consultation de {name} du {date} ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
   "dossiers": {
     "title": "Dossiers dentaires",
     "searchPlaceholder": "Rechercher par patient ou dentiste…",
@@ -406,9 +449,9 @@
     },
     "history": {
       "subtitle": "Dossiers et factures",
-      "dossiers": "Dossiers dentaires",
+      "consultations": "Consultations",
       "factures": "Factures",
-      "noDossiers": "Aucun dossier enregistré.",
+      "noConsultations": "Aucune consultation enregistrée.",
       "noFactures": "Aucune facture enregistrée."
     },
     "form": {

@@ -35,7 +35,7 @@ export default function PatientsClient({ initialPatients }: Props) {
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [archiveTarget, setArchiveTarget] = useState<Patient | null>(null);
-  const [archivePreview, setArchivePreview] = useState<{ dossiers: number; factures: number; appointments: number } | null>(null);
+  const [archivePreview, setArchivePreview] = useState<{ consultations: number; factures: number; appointments: number } | null>(null);
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -137,12 +137,12 @@ export default function PatientsClient({ initialPatients }: Props) {
   async function handleArchiveStart(patient: Patient) {
     setArchiveLoading(true);
     const [{ count: dCount }, { count: fCount }, { count: aCount }] = await Promise.all([
-      supabase.from("dossiers").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
+      supabase.from("consultations").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("factures").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
     ]);
     setArchiveTarget(patient);
-    setArchivePreview({ dossiers: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0 });
+    setArchivePreview({ consultations: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0 });
     setArchiveLoading(false);
   }
 
@@ -152,7 +152,7 @@ export default function PatientsClient({ initialPatients }: Props) {
     const now = new Date().toISOString();
     await Promise.all([
       supabase.from("patients").update({ archived_at: now }).eq("id", archiveTarget.id),
-      supabase.from("dossiers").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
+      supabase.from("consultations").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
       supabase.from("factures").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
       supabase.from("appointments").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
     ]);
@@ -326,10 +326,10 @@ export default function PatientsClient({ initialPatients }: Props) {
             </p>
             {archivePreview && (
               <ul className="text-sm text-zinc-600 dark:text-zinc-300 mb-5 space-y-1">
-                {archivePreview.dossiers > 0 && <li>• {archivePreview.dossiers} dossier{archivePreview.dossiers > 1 ? "s" : ""}</li>}
+                {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} consultation{archivePreview.consultations > 1 ? "s" : ""}</li>}
                 {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
                 {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
-                {archivePreview.dossiers === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
+                {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
                   <li className="text-zinc-400">Aucune donnée liée.</li>
                 )}
               </ul>

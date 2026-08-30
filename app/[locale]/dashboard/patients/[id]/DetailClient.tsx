@@ -13,9 +13,10 @@ interface Props {
   locale: string;
 }
 
-type HistoryDossier = {
-  id: string; type: string; exam_date: string;
-  next_exam_date: string | null; treated_by: string | null; dental_notes: string | null;
+type HistoryConsultation = {
+  id: string; motif: string; exam_date: string;
+  next_exam_date: string | null; treated_by: string | null; clinical_notes: string | null;
+  teeth: string | null;
 };
 
 type HistoryFacture = {
@@ -24,7 +25,7 @@ type HistoryFacture = {
 };
 
 type DetailSnapshot = {
-  lastDossier: { id: string; exam_date: string; type: string } | null;
+  lastConsultation: { id: string; exam_date: string; motif: string } | null;
   nextAppointment: { id: string; title: string; scheduled_at: string } | null;
   activeFactures: { id: string; status: string; total_price: number; deposit_paid: number }[];
 };
@@ -71,7 +72,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
   // History
   const [historyLoading, setHistoryLoading] = useState(true);
-  const [historyDossiers, setHistoryDossiers] = useState<HistoryDossier[]>([]);
+  const [historyConsultations, setHistoryConsultations] = useState<HistoryConsultation[]>([]);
   const [historyFactures, setHistoryFactures] = useState<HistoryFacture[]>([]);
 
   // Edit modal
@@ -82,7 +83,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
   // Archive
   const [archiveOpen, setArchiveOpen] = useState(false);
-  const [archivePreview, setArchivePreview] = useState<{ dossiers: number; factures: number; appointments: number } | null>(null);
+  const [archivePreview, setArchivePreview] = useState<{ consultations: number; factures: number; appointments: number } | null>(null);
   const [archiveLoading, setArchiveLoading] = useState(false);
 
   useEffect(() => {
@@ -92,12 +93,12 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   useEffect(() => {
     const now = new Date().toISOString();
     Promise.all([
-      supabase.from("dossiers").select("id, exam_date, type").eq("patient_id", patient.id).order("exam_date", { ascending: false }).limit(1),
+      supabase.from("consultations").select("id, exam_date, motif").eq("patient_id", patient.id).order("exam_date", { ascending: false }).limit(1),
       supabase.from("appointments").select("id, title, scheduled_at").eq("patient_id", patient.id).eq("status", "planifie").gte("scheduled_at", now).order("scheduled_at", { ascending: true }).limit(1),
       supabase.from("factures").select("id, status, total_price, deposit_paid").eq("patient_id", patient.id).in("status", ["en_attente", "en_cours"]),
-    ]).then(([{ data: dossier }, { data: appt }, { data: factures }]) => {
+    ]).then(([{ data: consultation }, { data: appt }, { data: factures }]) => {
       setSnapshot({
-        lastDossier: dossier?.[0] ?? null,
+        lastConsultation: consultation?.[0] ?? null,
         nextAppointment: appt?.[0] ?? null,
         activeFactures: (factures ?? []) as { id: string; status: string; total_price: number; deposit_paid: number }[],
       });
@@ -107,10 +108,10 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
   useEffect(() => {
     Promise.all([
-      supabase.from("dossiers").select("id, type, exam_date, next_exam_date, treated_by, dental_notes").eq("patient_id", patient.id).order("exam_date", { ascending: false }),
+      supabase.from("consultations").select("id, motif, exam_date, next_exam_date, treated_by, clinical_notes, teeth").eq("patient_id", patient.id).order("exam_date", { ascending: false }),
       supabase.from("factures").select("id, status, total_price, deposit_paid, created_at, notes").eq("patient_id", patient.id).order("created_at", { ascending: false }),
-    ]).then(([{ data: dossiers }, { data: factures }]) => {
-      setHistoryDossiers((dossiers ?? []) as HistoryDossier[]);
+    ]).then(([{ data: consultations }, { data: factures }]) => {
+      setHistoryConsultations((consultations ?? []) as HistoryConsultation[]);
       setHistoryFactures((factures ?? []) as HistoryFacture[]);
       setHistoryLoading(false);
     });
@@ -159,11 +160,11 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   async function handleArchiveStart() {
     setArchiveLoading(true);
     const [{ count: dCount }, { count: fCount }, { count: aCount }] = await Promise.all([
-      supabase.from("dossiers").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
+      supabase.from("consultations").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("factures").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
     ]);
-    setArchivePreview({ dossiers: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0 });
+    setArchivePreview({ consultations: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0 });
     setArchiveLoading(false);
     setArchiveOpen(true);
   }
@@ -173,7 +174,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
     const now = new Date().toISOString();
     await Promise.all([
       supabase.from("patients").update({ archived_at: now }).eq("id", patient.id),
-      supabase.from("dossiers").update({ archived_at: now }).eq("patient_id", patient.id),
+      supabase.from("consultations").update({ archived_at: now }).eq("patient_id", patient.id),
       supabase.from("factures").update({ archived_at: now }).eq("patient_id", patient.id),
       supabase.from("appointments").update({ archived_at: now }).eq("patient_id", patient.id),
     ]);
@@ -185,7 +186,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
     setArchiveLoading(true);
     await Promise.all([
       supabase.from("patients").update({ archived_at: null }).eq("id", patient.id),
-      supabase.from("dossiers").update({ archived_at: null }).eq("patient_id", patient.id),
+      supabase.from("consultations").update({ archived_at: null }).eq("patient_id", patient.id),
       supabase.from("factures").update({ archived_at: null }).eq("patient_id", patient.id),
       supabase.from("appointments").update({ archived_at: null }).eq("patient_id", patient.id),
     ]);
@@ -256,19 +257,19 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             <div className="space-y-1.5">
               <div className="flex items-center justify-between rounded-lg bg-zinc-50 dark:bg-zinc-800/60 px-3 py-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm shrink-0">🗂️</span>
+                  <span className="text-sm shrink-0">🏥</span>
                   <div className="min-w-0">
-                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Dernier dossier</p>
+                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Dernière consultation</p>
                     <p className="text-[11px] text-zinc-400">
-                      {snapshot?.lastDossier
-                        ? `${fmtDate(snapshot.lastDossier.exam_date)} · ${snapshot.lastDossier.type}`
-                        : "Aucun"}
+                      {snapshot?.lastConsultation
+                        ? `${fmtDate(snapshot.lastConsultation.exam_date)} · ${snapshot.lastConsultation.motif}`
+                        : "Aucune"}
                     </p>
                   </div>
                 </div>
-                {snapshot?.lastDossier && (
+                {snapshot?.lastConsultation && (
                   <button
-                    onClick={() => router.push(`/${locale}/dashboard/dossiers/${snapshot.lastDossier!.id}`)}
+                    onClick={() => router.push(`/${locale}/dashboard/consultations/${snapshot.lastConsultation!.id}`)}
                     className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-medium shrink-0 ms-2">
                     Voir →
                   </button>
@@ -337,10 +338,10 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
               <span className="text-lg">🧾</span>
               <span className="text-[11px] font-medium leading-tight">Facture</span>
             </button>
-            <button onClick={() => router.push(`/${locale}/dashboard/dossiers?new=1&patient_id=${patient.id}`)}
+            <button onClick={() => router.push(`/${locale}/dashboard/consultations?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
-              <span className="text-lg">🗂️</span>
-              <span className="text-[11px] font-medium leading-tight">Dossier</span>
+              <span className="text-lg">🏥</span>
+              <span className="text-[11px] font-medium leading-tight">Consultation</span>
             </button>
             <button onClick={() => router.push(`/${locale}/dashboard/appointments?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
@@ -405,28 +406,29 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </div>
           ) : (
             <div className="space-y-8">
-              {/* Dossiers */}
+              {/* Consultations */}
               <div>
                 <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3 flex items-center gap-2">
-                  🗂️ Dossiers
+                  🏥 Consultations
                   <span className="text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
-                    {historyDossiers.length}
+                    {historyConsultations.length}
                   </span>
                 </h3>
-                {historyDossiers.length === 0 ? (
-                  <p className="text-sm text-zinc-400 py-4 text-center">Aucun dossier</p>
+                {historyConsultations.length === 0 ? (
+                  <p className="text-sm text-zinc-400 py-4 text-center">Aucune consultation</p>
                 ) : (
                   <div className="space-y-3">
-                    {historyDossiers.map(d => (
-                      <div key={d.id} onClick={() => router.push(`/${locale}/dashboard/dossiers/${d.id}`)}
+                    {historyConsultations.map(c => (
+                      <div key={c.id} onClick={() => router.push(`/${locale}/dashboard/consultations/${c.id}`)}
                         className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm transition-all">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-zinc-900 dark:text-white">{d.type}</span>
-                          <span className="text-xs text-zinc-400">{fmtDate(d.exam_date)}</span>
+                          <span className="text-sm font-medium text-zinc-900 dark:text-white">{c.motif}</span>
+                          <span className="text-xs text-zinc-400">{fmtDate(c.exam_date)}</span>
                         </div>
-                        {d.next_exam_date && <p className="text-xs text-zinc-400 mb-1">Prochain: {fmtDate(d.next_exam_date)}</p>}
-                        {d.treated_by && <p className="text-xs text-zinc-400 mb-1">Dr. {d.treated_by}</p>}
-                        {d.dental_notes && <p className="text-xs text-zinc-500 mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-700">{d.dental_notes}</p>}
+                        {c.teeth && <p className="text-xs text-zinc-400 mb-1">Dents: {c.teeth}</p>}
+                        {c.next_exam_date && <p className="text-xs text-zinc-400 mb-1">Prochain: {fmtDate(c.next_exam_date)}</p>}
+                        {c.treated_by && <p className="text-xs text-zinc-400 mb-1">Dr. {c.treated_by}</p>}
+                        {c.clinical_notes && <p className="text-xs text-zinc-500 mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-700">{c.clinical_notes}</p>}
                       </div>
                     ))}
                   </div>
@@ -539,10 +541,10 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </p>
             {archivePreview && (
               <ul className="text-sm text-zinc-600 dark:text-zinc-300 mb-5 space-y-1">
-                {archivePreview.dossiers > 0 && <li>• {archivePreview.dossiers} dossier{archivePreview.dossiers > 1 ? "s" : ""}</li>}
+                {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} consultation{archivePreview.consultations > 1 ? "s" : ""}</li>}
                 {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
                 {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
-                {archivePreview.dossiers === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
+                {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
                   <li className="text-zinc-400">Aucune donnée liée.</li>
                 )}
               </ul>

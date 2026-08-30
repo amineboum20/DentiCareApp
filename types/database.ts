@@ -13,6 +13,7 @@ export type FactureStatus = 'en_attente' | 'en_cours' | 'payee' | 'annulee'
 export type AppointmentType = 'consultation' | 'nettoyage' | 'soin' | 'chirurgie' | 'controle' | 'orthodontie' | 'autre'
 export type AppointmentStatus = 'planifie' | 'termine' | 'annule' | 'absent'
 export type DossierType = 'examen' | 'soin' | 'bilan' | 'urgence' | 'autre'
+export type ConsultationMotif = 'consultation' | 'urgence' | 'controle' | 'soin' | 'autre'
 export type MemberRole = 'owner' | 'dentist' | 'assistant'
 
 export interface Practice {
@@ -86,7 +87,7 @@ export interface Facture {
   id: string
   practice_id: string
   patient_id: string
-  dossier_id: string | null
+  consultation_id: string | null
   appointment_id: string | null
   status: FactureStatus
   total_price: number
@@ -190,5 +191,28 @@ export interface AppointmentWithPatient extends Appointment {
 }
 
 export interface DossierWithPatient extends Dossier {
+  patients: Pick<Patient, 'first_name' | 'last_name'>
+}
+
+export interface Consultation {
+  id: string
+  practice_id: string
+  patient_id: string
+  user_id: string
+  motif: ConsultationMotif
+  exam_date: string
+  next_exam_date: string | null
+  treated_by: string | null
+  teeth: string | null
+  clinical_notes: string | null
+  exams: string | null
+  exam_files: string[]
+  archived_at: string | null
+  created_at: string
+  created_by: string | null
+  updated_by: string | null
+}
+
+export interface ConsultationWithPatient extends Consultation {
   patients: Pick<Patient, 'first_name' | 'last_name'>
 }
