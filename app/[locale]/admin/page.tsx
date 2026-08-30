@@ -3,7 +3,6 @@ import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { approvePractice, revokePractice } from "./actions";
 import RejectButton from "./RejectButton";
-import AdminNav from "./AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -57,22 +56,17 @@ export default async function AdminPage() {
     new Date(s).toLocaleString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-6 py-10">
+    <div className="px-6 py-8 sm:py-10">
       <div className="mx-auto max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🦷</span>
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Admin — DentiCare</h1>
-            </div>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Approbations</h1>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Connecté en tant que {admin.email}</p>
           </div>
           <span className="rounded-full bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 text-xs font-semibold px-3 py-1">
             {pending.length} en attente
           </span>
         </div>
-
-        <AdminNav active="approvals" />
 
         {/* Pending */}
         <section className="mb-10">
