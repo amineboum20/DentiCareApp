@@ -1,4 +1,19 @@
 <title>DentiCare Workspace</title>
+<script>
+// Follow the admin app's theme. Same-origin, so we read the `theme` cookie
+// (or localStorage) for the initial paint and listen for the storage event
+// the app's theme toggle fires to update live without a reload.
+(function () {
+  function apply(t) {
+    if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+  }
+  try {
+    var m = document.cookie.match(/(?:^|;\s*)theme=([^;]*)/);
+    apply((m && decodeURIComponent(m[1])) || localStorage.getItem('theme'));
+  } catch (e) {}
+  window.addEventListener('storage', function (e) { if (e.key === 'theme') apply(e.newValue); });
+})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Inter:wght@300;400;500;600&amp;display=swap">
 
 <script id="state" type="application/json">{"results":{}}</script>
