@@ -504,7 +504,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section id="how" className="relative py-24 px-6" style={{ backgroundImage: "url(/pexels-gustavo-fring-5621864.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}>
+      <section id="how" className="relative py-24 px-6" style={{ backgroundImage: "url(/pexels-cottonbro-6502017.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}>
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10">
           <div className="max-w-4xl mx-auto text-center mb-14">
