@@ -21,6 +21,36 @@ export async function approvePractice(formData: FormData) {
   revalidatePath("/admin");
 }
 
+export async function rejectPractice(formData: FormData) {
+  const admin = await getAdminUser();
+  if (!admin) throw new Error("Non autorisé");
+
+  const practiceId = String(formData.get("practice_id") ?? "");
+  if (!practiceId) throw new Error("practice_id manquant");
+
+  const supabase = createAdminClient();
+
+  // Collect the practice's member accounts before deleting the rows.
+  const { data: members } = await supabase
+    .from("practice_members")
+    .select("user_id")
+    .eq("practice_id", practiceId);
+  const userIds = (members ?? []).map((m) => m.user_id as string);
+
+  // Delete members, then the practice (members FK both auth.users and practices).
+  await supabase.from("practice_members").delete().eq("practice_id", practiceId);
+  const { error: practiceError } = await supabase.from("practices").delete().eq("id", practiceId);
+  if (practiceError) throw new Error(practiceError.message);
+
+  // Delete the auth accounts so the email is free to sign up again.
+  for (const uid of userIds) {
+    const { error } = await supabase.auth.admin.deleteUser(uid);
+    if (error) console.error("deleteUser error", uid, error.message);
+  }
+
+  revalidatePath("/admin");
+}
+
 export async function revokePractice(formData: FormData) {
   const admin = await getAdminUser();
   if (!admin) throw new Error("Non autorisé");

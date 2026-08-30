@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { approvePractice, revokePractice } from "./actions";
+import RejectButton from "./RejectButton";
 
 export const dynamic = "force-dynamic";
 
@@ -86,12 +87,15 @@ export default async function AdminPage() {
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{r.ownerName} · {r.ownerEmail}</p>
                     <p className="text-xs text-zinc-400 mt-0.5">Inscrit le {fmtDate(r.created_at)}</p>
                   </div>
-                  <form action={approvePractice}>
-                    <input type="hidden" name="practice_id" value={r.id} />
-                    <button className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2.5 whitespace-nowrap transition">
-                      ✅ Approuver
-                    </button>
-                  </form>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <form action={approvePractice}>
+                      <input type="hidden" name="practice_id" value={r.id} />
+                      <button className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2.5 whitespace-nowrap transition">
+                        ✅ Approuver
+                      </button>
+                    </form>
+                    <RejectButton practiceId={r.id} shopName={r.name || ""} />
+                  </div>
                 </div>
               ))}
             </div>
