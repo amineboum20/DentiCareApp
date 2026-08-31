@@ -8,6 +8,13 @@ const intlMiddleware = createMiddleware(routing);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // API routes do their own auth and are not locale-prefixed. Running
+  // next-intl on them redirects e.g. /api/members -> /fr/api/members (404),
+  // which silently breaks every client fetch. Let them pass through.
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next({ request });
+  }
+
   if (pathname.startsWith("/track/")) {
     return NextResponse.next({ request });
   }
@@ -55,5 +62,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };
