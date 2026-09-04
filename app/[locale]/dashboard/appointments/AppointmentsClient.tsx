@@ -49,7 +49,7 @@ function patientName(appt: AppointmentWithPatient) {
 
 export default function AppointmentsClient({ initialAppointments, patients }: Props) {
   const t = useTranslations("appointments");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -65,6 +65,12 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  // Optional dossier attach for a new RDV (mirrors the visite form).
+  const [rdvDossierId, setRdvDossierId] = useState("");
+  const [rdvOpenDossiers, setRdvOpenDossiers] = useState<{ id: string; title: string }[]>([]);
+  const [rdvNewDossierMode, setRdvNewDossierMode] = useState(false);
+  const [rdvNewDossierTitle, setRdvNewDossierTitle] = useState("");
+  const [rdvCreatingDossier, setRdvCreatingDossier] = useState(false);
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -79,9 +85,17 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     const now = new Date();
     const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     setForm({ ...emptyForm, patient_id: patientId, scheduled_at: local });
+    setRdvDossierId(""); setRdvNewDossierMode(false); setRdvNewDossierTitle("");
     setError("");
     setModalOpen(true);
   }, [searchParams]);
+
+  // Load the selected patient's OPEN dossiers so a new RDV can attach to one.
+  useEffect(() => {
+    if (!modalOpen || editing || !form.patient_id) { setRdvOpenDossiers([]); return; }
+    supabase.from("dossiers").select("id, title").eq("patient_id", form.patient_id).eq("statut", "ouvert").is("archived_at", null).order("created_at", { ascending: false })
+      .then(({ data }) => setRdvOpenDossiers((data ?? []) as { id: string; title: string }[]));
+  }, [modalOpen, editing, form.patient_id, supabase]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -116,13 +130,33 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       .toISOString()
       .slice(0, 16);
     setForm({ ...emptyForm, scheduled_at: local });
+    setRdvDossierId(""); setRdvNewDossierMode(false); setRdvNewDossierTitle("");
     setError("");
     setModalOpen(true);
+  }
+  async function createRdvDossier() {
+    if (!rdvNewDossierTitle.trim() || !form.patient_id) return;
+    setRdvCreatingDossier(true);
+    const { data, error: e } = await supabase.from("dossiers").insert({
+      practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+      patient_id: form.patient_id, title: rdvNewDossierTitle.trim(), statut: "ouvert",
+    }).select("id, title").single();
+    setRdvCreatingDossier(false);
+    if (e || !data) return;
+    setRdvOpenDossiers((xs) => [{ id: data.id as string, title: data.title as string }, ...xs]);
+    setRdvDossierId(data.id as string);
+    setRdvNewDossierMode(false); setRdvNewDossierTitle("");
   }
 
   async function handleSave() {
     if (!form.title.trim() || !form.scheduled_at) {
       setError(t("form.requiredError"));
+      return;
+    }
+    // A RDV is a future plan — block creating one in the past (editing an
+    // already-past RDV stays allowed, since it simply aged).
+    if (!editing && form.scheduled_at.slice(0, 10) < new Date().toLocaleDateString("en-CA")) {
+      setError("Un rendez-vous ne peut pas être dans le passé — enregistrez plutôt une visite.");
       return;
     }
     setSaving(true);
@@ -159,7 +193,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     } else {
       const { data, error: err } = await supabase
         .from("appointments")
-        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
+        .insert({ ...payload, dossier_id: rdvDossierId || null, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
         .select()
         .single();
       if (err) { setError(err.message); setSaving(false); return; }
@@ -341,7 +375,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                       className={`text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 ${STATUS_STYLE[a.status] ?? ""}`}
                     >
                       {STATUSES.map((s) => (
-                        <option key={s} value={s}>
+                        <option key={s} value={s} className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white">
                           {t(`statuses.${s}`)}
                         </option>
                       ))}
@@ -427,6 +461,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                   <input
                     type="datetime-local"
                     value={form.scheduled_at}
+                    min={!editing && nowRef ? `${nowRef.today}T00:00` : undefined}
                     onChange={(e) => setField("scheduled_at", e.target.value)}
                     className={inputCls}
                   />
@@ -462,6 +497,28 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                   ))}
                 </select>
               </div>
+              {/* Rattacher à un dossier (nouveau RDV uniquement) */}
+              {!editing && (
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Rattacher à un dossier</label>
+                  {!rdvNewDossierMode ? (
+                    <div className="flex gap-1">
+                      <select value={rdvDossierId} onChange={(e) => setRdvDossierId(e.target.value)} className={`flex-1 ${inputCls}`} disabled={!form.patient_id}>
+                        <option value="">— Aucun —</option>
+                        {rdvOpenDossiers.map((d) => <option key={d.id} value={d.id}>{d.title}</option>)}
+                      </select>
+                      <button type="button" onClick={() => { setRdvNewDossierMode(true); setRdvNewDossierTitle(""); }} disabled={!form.patient_id} title="Nouveau dossier" className="px-2.5 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 hover:bg-teal-100 text-sm font-bold transition-colors disabled:opacity-40 shrink-0">+</button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-1">
+                      <input value={rdvNewDossierTitle} onChange={(e) => setRdvNewDossierTitle(e.target.value)} placeholder="Intitulé du dossier" className={`flex-1 ${inputCls}`} />
+                      <button type="button" onClick={createRdvDossier} disabled={rdvCreatingDossier || !rdvNewDossierTitle.trim()} className="px-2.5 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium transition-colors disabled:opacity-40 shrink-0">{rdvCreatingDossier ? "…" : "Créer"}</button>
+                      <button type="button" onClick={() => { setRdvNewDossierMode(false); setRdvNewDossierTitle(""); }} className="px-2 text-zinc-400 hover:text-zinc-600 text-sm shrink-0">✕</button>
+                    </div>
+                  )}
+                  {!form.patient_id && <p className="text-[11px] text-zinc-400 mt-1">Sélectionnez d&apos;abord un patient.</p>}
+                </div>
+              )}
               {/* Notes */}
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">

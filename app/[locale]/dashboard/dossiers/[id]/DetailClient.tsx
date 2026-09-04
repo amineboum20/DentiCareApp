@@ -10,6 +10,7 @@ import type {
 import { useAppContext } from "@/components/AppContext";
 import { DR } from "@/components/DetailRow";
 import { exportFacturePdf } from "@/utils/pdf-export";
+import { billActesToDossier } from "@/utils/billing";
 
 interface Props {
   dossier: DossierWithPatient;
@@ -269,15 +270,18 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   }
 
   // ─── add visite ───
-  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), teeth: "", treated_by: "", clinical_notes: "", bill: true, acte_id: "" };
+  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), teeth: "", treated_by: "", clinical_notes: "", bill: true };
   const [visiteForm, setVisiteForm] = useState(emptyVisite);
-  function defaultActeId() {
-    const cons = actes.find((a) => a.name.toLowerCase() === "consultation");
-    return (cons ?? actes[0])?.id ?? "";
+  const [visiteBillActes, setVisiteBillActes] = useState<ActeLite[]>([]);
+  function openVisite() {
+    const cons = actes.find((a) => a.name.toLowerCase() === "consultation") ?? actes[0];
+    setVisiteForm({ ...emptyVisite });
+    setVisiteBillActes(cons ? [cons] : []);
+    setErr(""); setVisiteOpen(true);
   }
-  function openVisite() { setVisiteForm({ ...emptyVisite, acte_id: defaultActeId() }); setErr(""); setVisiteOpen(true); }
   async function saveVisite() {
     if (!visiteForm.exam_date) { setErr("La date est requise."); return; }
+    if (visiteForm.exam_date > today) { setErr("Une visite ne peut pas être dans le futur — planifiez plutôt un rendez-vous."); return; }
     setBusy(true); setErr("");
     const { data, error } = await supabase.from("consultations").insert({
       practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
@@ -289,29 +293,11 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     if (error) { setErr(error.message); setBusy(false); return; }
     setVisites((xs) => [data as Visite, ...xs]);
 
-    // Auto-bill the visit: append the selected acte to an open facture (create one if none)
-    if (visiteForm.bill && visiteForm.acte_id) {
-      const acte = actes.find((a) => a.id === visiteForm.acte_id);
-      if (acte) {
-        let target = docs.find((d) => d.type === "facture" && d.status !== "annulee" && d.status !== "payee");
-        if (!target) {
-          const { data: fac } = await supabase.from("factures").insert({
-            practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
-            patient_id: dossier.patient_id, dossier_id: dossier.id,
-            type: "facture", status: "en_attente", total_price: 0, deposit_paid: 0,
-          }).select("id, type, status, total_price, created_at, notes").single();
-          if (fac) { target = fac as Doc; setDocs((xs) => [fac as Doc, ...xs]); }
-        }
-        if (target) {
-          await supabase.from("facture_items").insert({
-            facture_id: target.id, acte_id: acte.id, description: acte.name, quantity: 1, unit_price: acte.price,
-          });
-          const newTotal = Number(target.total_price) + Number(acte.price);
-          await supabase.from("factures").update({ total_price: newTotal }).eq("id", target.id);
-          const targetId = target.id;
-          setDocs((xs) => xs.map((d) => d.id === targetId ? { ...d, total_price: newTotal } : d));
-        }
-      }
+    // Bill the selected actes into the dossier, then refresh the documents list.
+    if (visiteForm.bill && visiteBillActes.length > 0) {
+      await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: dossier.patient_id, dossierId: dossier.id, actes: visiteBillActes });
+      const { data: dd } = await supabase.from("factures").select("id, type, status, total_price, created_at, notes").eq("dossier_id", dossier.id).order("created_at", { ascending: false });
+      setDocs((dd ?? []) as Doc[]);
     }
 
     setBusy(false); setVisiteOpen(false);
@@ -328,6 +314,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   }
   async function saveRdv() {
     if (!rdvForm.title.trim() || !rdvForm.scheduled_at) { setErr("Le titre et la date sont requis."); return; }
+    if (rdvForm.scheduled_at.slice(0, 10) < today) { setErr("Un rendez-vous ne peut pas être dans le passé."); return; }
     setBusy(true); setErr("");
     const { data, error } = await supabase.from("appointments").insert({
       practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
@@ -679,12 +666,29 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               </label>
               {visiteForm.bill && (
                 actes.length > 0 ? (
-                  <div>
-                    <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Acte à facturer</label>
-                    <select value={visiteForm.acte_id} onChange={(e) => setVisiteForm((f) => ({ ...f, acte_id: e.target.value }))} className={inputCls}>
+                  <div className="space-y-2">
+                    <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">Actes à facturer</label>
+                    {visiteBillActes.length > 0 && (
+                      <div className="space-y-1">
+                        {visiteBillActes.map((a, i) => (
+                          <div key={i} className="flex items-center justify-between rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1.5">
+                            <span className="text-sm text-zinc-800 dark:text-zinc-200 truncate">{a.name}</span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-xs text-zinc-500">{a.price.toFixed(2)} MAD</span>
+                              <button type="button" onClick={() => setVisiteBillActes((xs) => xs.filter((_, j) => j !== i))} className="text-zinc-300 hover:text-red-500 text-sm">✕</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <select value="" onChange={(e) => { const a = actes.find((x) => x.id === e.target.value); if (a) setVisiteBillActes((xs) => [...xs, a]); }} className={inputCls}>
+                      <option value="">+ Ajouter un acte…</option>
                       {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                     </select>
-                    <p className="text-[11px] text-zinc-400 mt-1">Ajouté à une facture ouverte du dossier (créée si besoin).</p>
+                    <div className="flex justify-between text-[11px] text-zinc-400">
+                      <span>Ajouté à une facture ouverte du dossier (créée si besoin).</span>
+                      <span className="font-medium text-zinc-600 dark:text-zinc-300">Total : {visiteBillActes.reduce((s, a) => s + a.price, 0).toFixed(2)} MAD</span>
+                    </div>
                   </div>
                 ) : (
                   <p className="text-[11px] text-amber-600 dark:text-amber-400">Aucun acte au catalogue — créez un acte « Consultation » pour pouvoir facturer.</p>
@@ -708,7 +712,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Date &amp; heure <span className="text-red-500">*</span></label>
-                <input type="datetime-local" value={rdvForm.scheduled_at} onChange={(e) => setRdvForm((f) => ({ ...f, scheduled_at: e.target.value }))} className={inputCls} />
+                <input type="datetime-local" min={`${today}T00:00`} value={rdvForm.scheduled_at} onChange={(e) => setRdvForm((f) => ({ ...f, scheduled_at: e.target.value }))} className={inputCls} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Durée (min)</label>

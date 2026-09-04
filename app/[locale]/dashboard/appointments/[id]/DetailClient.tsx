@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { AppointmentWithPatient, Patient, ConsultationMotif } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
+import { billActesToDossier } from "@/utils/billing";
 
 // Map an appointment type onto a visite motif (covers both type vocabularies).
 const TYPE_TO_MOTIF: Record<string, ConsultationMotif> = {
@@ -79,7 +80,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [convertOpen, setConvertOpen] = useState(false);
   const [converting, setConverting] = useState(false);
   const [convertBill, setConvertBill] = useState(false);
-  const [convertActeId, setConvertActeId] = useState("");
+  const [convertActes, setConvertActes] = useState<{ id: string; name: string; price: number }[]>([]);
   const [actes, setActes] = useState<{ id: string; name: string; price: number }[]>([]);
   const today = new Date().toLocaleDateString("en-CA");
   const canConvert = appointment.scheduled_at.slice(0, 10) <= today && appointment.status !== "annule";
@@ -97,8 +98,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     supabase.from("actes").select("id, name, price").order("name").then(({ data }) => {
       const list = (data ?? []) as { id: string; name: string; price: number }[];
       setActes(list);
-      const cons = list.find((a) => a.name.toLowerCase() === "consultation");
-      setConvertActeId((cons ?? list[0])?.id ?? "");
+      const cons = list.find((a) => a.name.toLowerCase() === "consultation") ?? list[0];
+      setConvertActes(cons ? [cons] : []);
     });
   }, [convertOpen, appointment.dossier_id, supabase]);
 
@@ -116,24 +117,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     await supabase.from("appointments").update({ status: "termine" }).eq("id", appointment.id);
     setAppointment((a) => ({ ...a, status: "termine" }));
     // Optional billing into the RDV's dossier (mirrors the hub / visite flow).
-    if (appointment.dossier_id && convertBill && convertActeId) {
-      const acte = actes.find((a) => a.id === convertActeId);
-      if (acte) {
-        const { data: facs } = await supabase.from("factures").select("id, total_price, status, type").eq("dossier_id", appointment.dossier_id);
-        let target = (facs ?? []).find((f) => f.type === "facture" && f.status !== "annulee" && f.status !== "payee") as { id: string; total_price: number } | undefined;
-        if (!target) {
-          const { data: fac } = await supabase.from("factures").insert({
-            practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
-            patient_id: appointment.patient_id, dossier_id: appointment.dossier_id,
-            type: "facture", status: "en_attente", total_price: 0, deposit_paid: 0,
-          }).select("id, total_price").single();
-          target = fac as { id: string; total_price: number } | undefined;
-        }
-        if (target) {
-          await supabase.from("facture_items").insert({ facture_id: target.id, acte_id: acte.id, description: acte.name, quantity: 1, unit_price: acte.price });
-          await supabase.from("factures").update({ total_price: Number(target.total_price) + Number(acte.price) }).eq("id", target.id);
-        }
-      }
+    if (appointment.dossier_id && convertBill && convertActes.length > 0) {
+      await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: appointment.patient_id as string, dossierId: appointment.dossier_id, actes: convertActes });
     }
     router.push(`/${locale}/dashboard/consultations/${(cons as { id: string }).id}`);
   }
@@ -366,9 +351,23 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 </label>
                 {convertBill && (
                   actes.length > 0 ? (
-                    <div>
-                      <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Acte à facturer</label>
-                      <select value={convertActeId} onChange={(e) => setConvertActeId(e.target.value)} className={inputCls}>
+                    <div className="space-y-2">
+                      <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">Actes à facturer</label>
+                      {convertActes.length > 0 && (
+                        <div className="space-y-1">
+                          {convertActes.map((a, i) => (
+                            <div key={i} className="flex items-center justify-between rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1.5">
+                              <span className="text-sm text-zinc-800 dark:text-zinc-200 truncate">{a.name}</span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-xs text-zinc-500">{a.price.toFixed(2)} MAD</span>
+                                <button type="button" onClick={() => setConvertActes((xs) => xs.filter((_, j) => j !== i))} className="text-zinc-300 hover:text-red-500 text-sm">✕</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <select value="" onChange={(e) => { const a = actes.find((x) => x.id === e.target.value); if (a) setConvertActes((xs) => [...xs, a]); }} className={inputCls}>
+                        <option value="">+ Ajouter un acte…</option>
                         {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                       </select>
                     </div>

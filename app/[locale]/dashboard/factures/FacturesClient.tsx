@@ -18,7 +18,11 @@ const emptyForm = {
   total_price: "",
   deposit_paid: "0",
   notes: "",
-  appointment_id: "",
+  consultation_id: "",
+};
+
+const MOTIF_LABEL: Record<string, string> = {
+  consultation: "Consultation", controle: "Contrôle", soin: "Soin", urgence: "Urgence", autre: "Autre",
 };
 
 const STATUS_STYLE: Record<string, string> = {
@@ -59,11 +63,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [patientAppointments, setPatientAppointments] = useState<{id: string; title: string; scheduled_at: string}[]>([]);
-  const [newApptMode, setNewApptMode] = useState(false);
-  const [newApptTitle, setNewApptTitle] = useState("");
-  const [newApptDate, setNewApptDate] = useState("");
-  const [newApptTime, setNewApptTime] = useState("");
+  const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string; dossier_id: string | null }[]>([]);
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -81,15 +81,12 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!form.patient_id || !modalOpen) { setPatientAppointments([]); return; }
-    const now = new Date().toISOString();
-    supabase.from("appointments")
-      .select("id, title, scheduled_at")
+    if (!form.patient_id || !modalOpen) { setPatientVisites([]); return; }
+    supabase.from("consultations")
+      .select("id, exam_date, motif, dossier_id")
       .eq("patient_id", form.patient_id)
-      .eq("status", "planifie")
-      .gte("scheduled_at", now)
-      .order("scheduled_at", { ascending: true })
-      .then(({ data }) => setPatientAppointments((data ?? []) as {id: string; title: string; scheduled_at: string}[]));
+      .order("exam_date", { ascending: false })
+      .then(({ data }) => setPatientVisites((data ?? []) as { id: string; exam_date: string; motif: string; dossier_id: string | null }[]));
   }, [form.patient_id, modalOpen, supabase]);
 
   const filtered = useMemo(() =>
@@ -123,29 +120,17 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
     setSaving(true);
     setError("");
 
-    let appointmentId = form.appointment_id || null;
-    if (newApptMode && newApptDate && newApptTime) {
-      const { data: apptData } = await supabase.from("appointments").insert({
-        practice_id: practiceId,
-        created_by: currentUserId,
-        user_id: currentUserId,
-        patient_id: form.patient_id || null,
-        title: newApptTitle.trim() || "Soins dentaires",
-        type: "soin",
-        status: "planifie",
-        scheduled_at: `${newApptDate}T${newApptTime}:00`,
-        notes: null,
-      }).select().single();
-      if (apptData) appointmentId = apptData.id;
-    }
-
+    // A facture is generated for a visite: link the chosen consultation and
+    // inherit its dossier so the invoice lands in the right case.
+    const selectedVisite = patientVisites.find((v) => v.id === form.consultation_id);
     const payload = {
       patient_id: form.patient_id.trim(),
       status: form.status,
       total_price: parseFloat(form.total_price),
       deposit_paid: parseFloat(form.deposit_paid) || 0,
       notes: form.notes.trim() || null,
-      appointment_id: appointmentId,
+      consultation_id: form.consultation_id || null,
+      dossier_id: selectedVisite?.dossier_id ?? null,
     };
 
     if (editingFacture) {
@@ -291,7 +276,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  {t("form.patientId")} <span className="text-red-500">*</span>
+                  Patient <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={form.patient_id}
@@ -312,7 +297,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                 </label>
                 <select {...field("status")} className={inputCls}>
                   {STATUSES.map((s) => (
-                    <option key={s} value={s}>{t(`status.${s}`)}</option>
+                    <option key={s} value={s}>{STATUS_LABEL[s]}</option>
                   ))}
                 </select>
               </div>
@@ -340,43 +325,18 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">📅 RDV lié (optionnel)</label>
-                {!newApptMode ? (
-                  <div className="flex gap-1">
-                    <select value={form.appointment_id} onChange={(e) => setForm((f) => ({ ...f, appointment_id: e.target.value }))}
-                      className={`flex-1 ${inputCls}`}>
-                      <option value="">— Aucun —</option>
-                      {patientAppointments.map((a) => (
-                        <option key={a.id} value={a.id}>
-                          {new Date(a.scheduled_at).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} — {a.title}
-                        </option>
-                      ))}
-                    </select>
-                    <button type="button"
-                      onClick={() => { setNewApptMode(true); setNewApptTitle("Soins dentaires"); }}
-                      disabled={!form.patient_id}
-                      title="Créer un RDV"
-                      className="px-2.5 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 hover:bg-teal-100 text-sm font-bold transition-colors disabled:opacity-40 shrink-0">
-                      +
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2 p-3 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/10">
-                    <input value={newApptTitle} onChange={(e) => setNewApptTitle(e.target.value)}
-                      placeholder="Titre du RDV"
-                      className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500" />
-                    <div className="grid grid-cols-2 gap-2">
-                      <input type="date" value={newApptDate} onChange={(e) => setNewApptDate(e.target.value)}
-                        className="px-2.5 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500" />
-                      <input type="time" value={newApptTime} onChange={(e) => setNewApptTime(e.target.value)}
-                        className="px-2.5 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500" />
-                    </div>
-                    <button type="button" onClick={() => { setNewApptMode(false); setNewApptDate(""); setNewApptTime(""); }}
-                      className="text-[11px] text-zinc-400 hover:text-zinc-600 transition-colors">
-                      ✕ Annuler
-                    </button>
-                  </div>
-                )}
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">🦷 Visite liée (optionnel)</label>
+                <select value={form.consultation_id} onChange={(e) => setForm((f) => ({ ...f, consultation_id: e.target.value }))} className={inputCls} disabled={!form.patient_id}>
+                  <option value="">— Aucune —</option>
+                  {patientVisites.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {new Date(v.exam_date).toLocaleDateString("fr-FR")} — {MOTIF_LABEL[v.motif] ?? v.motif}
+                    </option>
+                  ))}
+                </select>
+                {form.patient_id && patientVisites.length === 0 && <p className="text-[11px] text-zinc-400 mt-1">Aucune visite pour ce patient.</p>}
+                {!form.patient_id && <p className="text-[11px] text-zinc-400 mt-1">Sélectionnez d&apos;abord un patient.</p>}
+                <p className="text-[11px] text-zinc-400 mt-1">La facture reprend le dossier de la visite choisie.</p>
               </div>
 
               {error && <p className="text-xs text-red-500">{error}</p>}
