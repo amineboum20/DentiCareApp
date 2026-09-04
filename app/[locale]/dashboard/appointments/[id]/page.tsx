@@ -14,7 +14,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
   const [{ data: appointment }, { data: patients }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("*, patients(first_name, last_name)")
+      .select("*, patients(first_name, last_name), dossiers(title)")
       .eq("id", id)
       .single(),
     supabase
@@ -29,7 +29,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
   return (
     <div className="p-4 sm:p-8">
       <AppointmentDetailClient
-        appointment={appointment as AppointmentWithPatient}
+        appointment={appointment as AppointmentWithPatient & { dossiers: { title: string } | null }}
         patients={(patients ?? []) as Pick<Patient, "id" | "first_name" | "last_name">[]}
         locale={locale}
       />

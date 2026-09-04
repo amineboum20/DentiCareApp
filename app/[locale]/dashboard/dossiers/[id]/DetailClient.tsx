@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type {
   DossierWithPatient, DossierStatut, ConsultationMotif,
-  FactureDocType, FactureStatus, AcompteMoyen,
+  FactureDocType, FactureStatus, AcompteMoyen, AppointmentType,
 } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { DR } from "@/components/DetailRow";
@@ -26,6 +26,9 @@ type Doc = {
 };
 type Acompte = {
   id: string; montant: number; date_paiement: string; moyen: AcompteMoyen; note: string | null;
+};
+type Rdv = {
+  id: string; title: string; scheduled_at: string; duration_minutes: number | null; type: string; status: string; notes: string | null;
 };
 type LineItem = { description: string; quantity: string; unit_price: string; acte_id?: string | null };
 type ActeLite = { id: string; name: string; price: number };
@@ -48,10 +51,26 @@ const MOYENS: AcompteMoyen[] = ["especes", "carte", "virement", "cheque", "autre
 const MOYEN_LABEL: Record<string, string> = {
   especes: "Espèces", carte: "Carte", virement: "Virement", cheque: "Chèque", autre: "Autre",
 };
+const APPT_TYPES: AppointmentType[] = ["consultation", "nettoyage", "soin", "chirurgie", "controle", "orthodontie", "autre"];
+const APPT_TYPE_LABEL: Record<string, string> = {
+  consultation: "Consultation", nettoyage: "Nettoyage", soin: "Soin", chirurgie: "Chirurgie", controle: "Contrôle", orthodontie: "Orthodontie", autre: "Autre",
+};
+const APPT_STATUS_LABEL: Record<string, string> = {
+  planifie: "Planifié", termine: "Terminé", annule: "Annulé", absent: "Absent",
+};
+const APPT_STATUS_STYLE: Record<string, string> = {
+  planifie: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+  termine:  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  annule:   "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+  absent:   "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+};
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
+}
+function fmtDateTime(iso: string) {
+  return new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 function money(n: number) { return `${n.toFixed(2)} MAD`; }
 
@@ -64,6 +83,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [visites, setVisites] = useState<Visite[]>([]);
   const [docs, setDocs] = useState<Doc[]>([]);
   const [acomptes, setAcomptes] = useState<Acompte[]>([]);
+  const [rdvs, setRdvs] = useState<Rdv[]>([]);
   const [actes, setActes] = useState<ActeLite[]>([]);
   const [packages, setPackages] = useState<PackageLite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,6 +94,8 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [acompteOpen, setAcompteOpen] = useState(false);
   const [docOpen, setDocOpen] = useState(false);
   const [visiteOpen, setVisiteOpen] = useState(false);
+  const [rdvOpen, setRdvOpen] = useState(false);
+  const [cancelTarget, setCancelTarget] = useState<Doc | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -87,10 +109,12 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       supabase.from("acomptes").select("id, montant, date_paiement, moyen, note").eq("dossier_id", dossier.id).order("date_paiement", { ascending: false }),
       supabase.from("actes").select("id, name, price").order("name", { ascending: true }),
       supabase.from("traitements").select("id, name, price_override, traitement_actes(quantity, acte_id, actes(name, price))").order("name", { ascending: true }),
-    ]).then(([v, d, a, ac, tr]) => {
+      supabase.from("appointments").select("id, title, scheduled_at, duration_minutes, type, status, notes").eq("dossier_id", dossier.id).order("scheduled_at", { ascending: false }),
+    ]).then(([v, d, a, ac, tr, r]) => {
       setVisites((v.data ?? []) as Visite[]);
       setDocs((d.data ?? []) as Doc[]);
       setAcomptes((a.data ?? []) as Acompte[]);
+      setRdvs((r.data ?? []) as Rdv[]);
       setActes((ac.data ?? []) as ActeLite[]);
       type TraitementRow = {
         id: string; name: string; price_override: number | null;
@@ -211,7 +235,21 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     setDocs((xs) => [fac as Doc, ...xs]);
     setBusy(false); setDocOpen(false);
   }
-  async function deleteDoc(id: string) {
+  // A facture is an accounting record — it is never deleted, only cancelled
+  // (status → "annulee"): the row is kept for the audit trail and drops out of
+  // every total. A devis is a draft quote, so it can still be removed outright.
+  async function cancelFacture(id: string) {
+    const { error } = await supabase.from("factures").update({ status: "annulee" }).eq("id", id);
+    if (error) { setErr(error.message); return; }
+    setDocs((xs) => xs.map((d) => d.id === id ? { ...d, status: "annulee" } : d));
+    setCancelTarget(null);
+  }
+  async function reactivateFacture(id: string) {
+    const { error } = await supabase.from("factures").update({ status: "en_attente" }).eq("id", id);
+    if (error) { setErr(error.message); return; }
+    setDocs((xs) => xs.map((d) => d.id === id ? { ...d, status: "en_attente" } : d));
+  }
+  async function deleteDevis(id: string) {
     await supabase.from("factures").delete().eq("id", id);
     setDocs((xs) => xs.filter((d) => d.id !== id));
   }
@@ -277,6 +315,30 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     setBusy(false); setVisiteOpen(false);
   }
 
+  // ─── add rendez-vous (linked to this dossier + patient) ───
+  const emptyRdv = { title: "", scheduled_at: "", duration_minutes: "30", type: "consultation" as AppointmentType, notes: "" };
+  const [rdvForm, setRdvForm] = useState(emptyRdv);
+  function openRdv() {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setRdvForm({ ...emptyRdv, scheduled_at: local });
+    setErr(""); setRdvOpen(true);
+  }
+  async function saveRdv() {
+    if (!rdvForm.title.trim() || !rdvForm.scheduled_at) { setErr("Le titre et la date sont requis."); return; }
+    setBusy(true); setErr("");
+    const { data, error } = await supabase.from("appointments").insert({
+      practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+      patient_id: dossier.patient_id, dossier_id: dossier.id,
+      title: rdvForm.title.trim(), scheduled_at: new Date(rdvForm.scheduled_at).toISOString(),
+      duration_minutes: rdvForm.duration_minutes ? parseInt(rdvForm.duration_minutes) : null,
+      type: rdvForm.type, status: "planifie", notes: rdvForm.notes.trim() || null,
+    }).select("id, title, scheduled_at, duration_minutes, type, status, notes").single();
+    if (error) { setErr(error.message); setBusy(false); return; }
+    setRdvs((xs) => [data as Rdv, ...xs].sort((a, b) => b.scheduled_at.localeCompare(a.scheduled_at)));
+    setBusy(false); setRdvOpen(false);
+  }
+
   return (
     <>
       {/* Header */}
@@ -333,23 +395,35 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               <p className="text-sm text-zinc-400 py-4 text-center">Aucun document</p>
             ) : (
               <div className="space-y-2">
-                {docs.map((d) => (
-                  <div key={d.id} className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2.5">
+                {docs.map((d) => {
+                  const annulee = d.status === "annulee";
+                  return (
+                  <div key={d.id} className={`flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 px-3 py-2.5 ${annulee ? "bg-zinc-50/50 dark:bg-zinc-800/20 opacity-70" : "bg-zinc-50 dark:bg-zinc-800/50"}`}>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${d.type === "devis" ? "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" : "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"}`}>{d.type === "devis" ? "Devis" : "Facture"}</span>
+                        {annulee && <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">Annulée</span>}
                         <span className="text-xs text-zinc-400">{fmtDate(d.created_at)}</span>
                       </div>
-                      <p className="text-sm font-semibold text-zinc-900 dark:text-white mt-0.5">{money(Number(d.total_price))}</p>
+                      <p className={`text-sm font-semibold mt-0.5 ${annulee ? "text-zinc-400 line-through" : "text-zinc-900 dark:text-white"}`}>{money(Number(d.total_price))}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {d.type === "facture" && (
+                      {d.type === "facture" && !annulee && (
                         <button onClick={() => downloadFacture(d)} title="Télécharger la facture (PDF)" className="text-xs px-2 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-teal-400 font-medium transition-colors">⬇ PDF</button>
                       )}
-                      <button onClick={() => deleteDoc(d.id)} title="Supprimer" className="text-xs text-zinc-300 hover:text-red-500 transition-colors">✕</button>
+                      {d.type === "facture" ? (
+                        annulee ? (
+                          <button onClick={() => reactivateFacture(d.id)} title="Réactiver la facture" className="text-sm text-zinc-400 hover:text-teal-500 transition-colors">↩</button>
+                        ) : (
+                          <button onClick={() => setCancelTarget(d)} title="Annuler la facture" className="text-xs text-zinc-300 hover:text-red-500 transition-colors">✕</button>
+                        )
+                      ) : (
+                        <button onClick={() => deleteDevis(d.id)} title="Supprimer le devis" className="text-xs text-zinc-300 hover:text-red-500 transition-colors">✕</button>
+                      )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -414,6 +488,29 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                     </div>
                     {v.teeth && <p className="text-[11px] text-zinc-400 mt-1">Dents : {v.teeth}</p>}
                     {v.clinical_notes && <p className="text-[11px] text-zinc-500 mt-1 line-clamp-2">{v.clinical_notes}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Rendez-vous */}
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">Rendez-vous <span className="text-zinc-300">({rdvs.length})</span></p>
+              <button onClick={openRdv} className="text-xs px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors">+ Ajouter un RDV</button>
+            </div>
+            {loading ? <p className="text-sm text-zinc-400 py-3 text-center">Chargement…</p> : rdvs.length === 0 ? (
+              <p className="text-sm text-zinc-400 py-4 text-center">Aucun rendez-vous</p>
+            ) : (
+              <div className="space-y-2">
+                {rdvs.map((r) => (
+                  <div key={r.id} onClick={() => router.push(`/${locale}/dashboard/appointments/${r.id}`)} className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-3 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 transition-all">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-medium text-zinc-900 dark:text-white truncate">{r.title}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 ${APPT_STATUS_STYLE[r.status] ?? ""}`}>{APPT_STATUS_LABEL[r.status] ?? r.status}</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 mt-1">{fmtDateTime(r.scheduled_at)}{r.duration_minutes ? ` · ${r.duration_minutes} min` : ""} · {APPT_TYPE_LABEL[r.type] ?? r.type}</p>
                   </div>
                 ))}
               </div>
@@ -596,6 +693,56 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
           </div>
           <ModalFooter onCancel={() => setVisiteOpen(false)} onSave={saveVisite} busy={busy} saveLabel="Enregistrer" />
         </Modal>
+      )}
+
+      {/* Add rendez-vous modal */}
+      {rdvOpen && (
+        <Modal title="Ajouter un rendez-vous" onClose={() => setRdvOpen(false)}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Titre <span className="text-red-500">*</span></label>
+              <input value={rdvForm.title} onChange={(e) => setRdvForm((f) => ({ ...f, title: e.target.value }))} placeholder="Ex. Contrôle post-opératoire" className={inputCls} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Date &amp; heure <span className="text-red-500">*</span></label>
+                <input type="datetime-local" value={rdvForm.scheduled_at} onChange={(e) => setRdvForm((f) => ({ ...f, scheduled_at: e.target.value }))} className={inputCls} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Durée (min)</label>
+                <input type="number" min="0" step="5" value={rdvForm.duration_minutes} onChange={(e) => setRdvForm((f) => ({ ...f, duration_minutes: e.target.value }))} className={inputCls} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Type</label>
+              <select value={rdvForm.type} onChange={(e) => setRdvForm((f) => ({ ...f, type: e.target.value as AppointmentType }))} className={inputCls}>
+                {APPT_TYPES.map((tp) => <option key={tp} value={tp}>{APPT_TYPE_LABEL[tp]}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Notes</label>
+              <textarea value={rdvForm.notes} onChange={(e) => setRdvForm((f) => ({ ...f, notes: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
+            </div>
+            <p className="text-[11px] text-zinc-400">Le rendez-vous sera rattaché à ce dossier et au patient {patientName}.</p>
+            {err && <p className="text-xs text-red-500">{err}</p>}
+          </div>
+          <ModalFooter onCancel={() => setRdvOpen(false)} onSave={saveRdv} busy={busy} saveLabel="Enregistrer" />
+        </Modal>
+      )}
+
+      {/* Cancel facture confirmation */}
+      {cancelTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Annuler cette facture ?</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">La facture de {money(Number(cancelTarget.total_price))} sera marquée « Annulée » et retirée du total facturé. Elle reste conservée pour l'historique.</p>
+            <p className="text-xs text-zinc-400 mb-6">Vous pourrez la réactiver à tout moment.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setCancelTarget(null)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">Retour</button>
+              <button onClick={() => cancelFacture(cancelTarget.id)} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">Annuler la facture</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Delete dossier */}

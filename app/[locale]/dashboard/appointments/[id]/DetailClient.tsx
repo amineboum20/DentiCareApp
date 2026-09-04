@@ -8,7 +8,7 @@ import type { AppointmentWithPatient, Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 
 interface Props {
-  appointment: AppointmentWithPatient;
+  appointment: AppointmentWithPatient & { dossiers?: { title: string } | { title: string }[] | null };
   patients: Pick<Patient, "id" | "first_name" | "last_name">[];
   locale: string;
 }
@@ -69,6 +69,10 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
 
   const patientData = appointment.patients as { first_name: string; last_name: string } | null;
   const patientName = patientData ? `${patientData.first_name} ${patientData.last_name}` : null;
+  // Linked dossier comes from the server prop (a to-one embed; array-guarded per
+  // Supabase). Kept from the initial prop since edits don't change dossier_id.
+  const dossierRel = (initialAppointment as { dossiers?: { title: string } | { title: string }[] | null }).dossiers;
+  const dossierTitle = Array.isArray(dossierRel) ? (dossierRel[0]?.title ?? null) : (dossierRel?.title ?? null);
 
   async function handleStatusChange(newStatus: AppointmentStatus) {
     await supabase.from("appointments").update({ status: newStatus }).eq("id", appointment.id);
@@ -167,6 +171,12 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
           </div>
           <div className="space-y-1">
             <DR label="Patient" value={patientName} />
+            {dossierTitle && appointment.dossier_id && (
+              <div className="flex gap-3 py-0.5">
+                <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Dossier</span>
+                <button onClick={() => router.push(`/${locale}/dashboard/dossiers/${appointment.dossier_id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{dossierTitle} →</button>
+              </div>
+            )}
             <DR label="Type" value={TYPE_LABEL[appointment.type] ?? appointment.type} />
             <DR label="Date &amp; heure" value={fmtDateTime(appointment.scheduled_at)} />
             <DR label="Durée" value={appointment.duration_minutes != null ? `${appointment.duration_minutes} min` : null} />

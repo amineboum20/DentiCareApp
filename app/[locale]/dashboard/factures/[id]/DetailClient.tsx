@@ -109,10 +109,16 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
     setSaving(false); setModalOpen(false);
   }
 
-  async function handleDelete() {
+  // A facture is never deleted — it is cancelled (status → "annulee"). The row is
+  // kept for the audit trail and drops out of every total; reactivate it via the
+  // status buttons above.
+  async function handleCancel() {
     setDeleting(true);
-    await supabase.from("factures").delete().eq("id", facture.id);
-    router.push(`/${locale}/dashboard/factures`);
+    const { error } = await supabase.from("factures").update({ status: "annulee" }).eq("id", facture.id);
+    setDeleting(false);
+    if (error) return;
+    setFacture((f) => ({ ...f, status: "annulee" }));
+    setDeleteOpen(false);
   }
 
   async function exportPdf() {
@@ -251,10 +257,12 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
 
         {/* Action bar */}
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
-          <button onClick={() => setDeleteOpen(true)}
-            className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-            Supprimer
-          </button>
+          {facture.status !== "annulee" && (
+            <button onClick={() => setDeleteOpen(true)}
+              className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
+              Annuler la facture
+            </button>
+          )}
           <button onClick={exportPdf}
             className="px-4 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors">
             🖨️ PDF
@@ -324,16 +332,16 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cette facture ?</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Cette action est irréversible. Les lignes de facture seront également supprimées.</p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Annuler cette facture ?</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">La facture sera marquée « Annulée » et exclue des totaux. Elle reste conservée pour l&apos;historique — réactivez-la via les boutons de statut.</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteOpen(false)}
                 className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                Annuler
+                Retour
               </button>
-              <button onClick={handleDelete} disabled={deleting}
+              <button onClick={handleCancel} disabled={deleting}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                {deleting ? "Suppression…" : "Supprimer"}
+                {deleting ? "Annulation…" : "Annuler la facture"}
               </button>
             </div>
           </div>
