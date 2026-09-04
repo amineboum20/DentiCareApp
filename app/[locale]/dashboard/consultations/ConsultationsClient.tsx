@@ -46,7 +46,7 @@ function fmtDate(iso: string | null) {
 const MOTIFS: ConsultationMotif[] = ["consultation", "controle", "soin", "urgence", "autre"];
 
 export default function ConsultationsClient({ initialConsultations, patients }: Props) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -61,6 +61,14 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  // Optional dossier attach + billing for a new visite (not shown when editing).
+  const [actes, setActes] = useState<{ id: string; name: string; price: number }[]>([]);
+  const [openDossiers, setOpenDossiers] = useState<{ id: string; title: string }[]>([]);
+  const [dossierId, setDossierId] = useState("");
+  const [bill, setBill] = useState(false);
+  const [billActeId, setBillActeId] = useState("");
+  // A visite is today or a forgotten past one — never the future (that's a RDV).
+  const today = new Date().toLocaleDateString("en-CA");
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -72,10 +80,24 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
     if (searchParams.get("new") !== "1") return;
     const patientId = searchParams.get("patient_id") ?? "";
     setEditingConsultation(null);
-    setForm({ ...emptyForm, patient_id: patientId });
+    setForm({ ...emptyForm, patient_id: patientId, exam_date: today });
+    setDossierId(""); setBill(false); setBillActeId("");
     setError("");
     setModalOpen(true);
-  }, [searchParams]);
+  }, [searchParams, today]);
+
+  // Load the acte catalogue once (used for optional visit billing).
+  useEffect(() => {
+    supabase.from("actes").select("id, name, price").order("name")
+      .then(({ data }) => setActes((data ?? []) as { id: string; name: string; price: number }[]));
+  }, [supabase]);
+
+  // Load the selected patient's OPEN dossiers so a new visite can attach to one.
+  useEffect(() => {
+    if (!modalOpen || editingConsultation || !form.patient_id) { setOpenDossiers([]); return; }
+    supabase.from("dossiers").select("id, title").eq("patient_id", form.patient_id).eq("statut", "ouvert").is("archived_at", null).order("created_at", { ascending: false })
+      .then(({ data }) => setOpenDossiers((data ?? []) as { id: string; title: string }[]));
+  }, [modalOpen, editingConsultation, form.patient_id, supabase]);
 
   const filtered = useMemo(() =>
     consultations.filter((c) => {
@@ -87,9 +109,14 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
 
   function openAdd() {
     setEditingConsultation(null);
-    setForm(emptyForm);
+    setForm({ ...emptyForm, exam_date: today });
+    setDossierId(""); setBill(false); setBillActeId("");
     setError("");
     setModalOpen(true);
+  }
+  function defaultActeId() {
+    const cons = actes.find((a) => a.name.toLowerCase() === "consultation");
+    return (cons ?? actes[0])?.id ?? "";
   }
 
   function field(key: keyof typeof emptyForm) {
@@ -103,6 +130,10 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
   async function handleSave() {
     if (!form.patient_id || !form.exam_date.trim()) {
       setError("Le patient et la date sont obligatoires.");
+      return;
+    }
+    if (form.exam_date > today) {
+      setError("Une visite ne peut pas être dans le futur — planifiez plutôt un rendez-vous.");
       return;
     }
     setSaving(true);
@@ -131,11 +162,33 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
     } else {
       const { data, error: err } = await supabase
         .from("consultations")
-        .insert({ ...payload, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
+        .insert({ ...payload, dossier_id: dossierId || null, practice_id: practiceId, created_by: currentUserId, user_id: currentUserId })
         .select("*, patients(first_name, last_name)")
         .single();
       if (err) { setError(err.message); setSaving(false); return; }
       setConsultations((cs) => [data as ConsultationWithPatient, ...cs]);
+
+      // Optional: bill this visite into the chosen dossier — append the acte to an
+      // open facture of that dossier, creating one if none (mirrors the hub).
+      if (dossierId && bill && billActeId) {
+        const acte = actes.find((a) => a.id === billActeId);
+        if (acte) {
+          const { data: facs } = await supabase.from("factures").select("id, total_price, status, type").eq("dossier_id", dossierId);
+          let target = (facs ?? []).find((f) => f.type === "facture" && f.status !== "annulee" && f.status !== "payee") as { id: string; total_price: number } | undefined;
+          if (!target) {
+            const { data: fac } = await supabase.from("factures").insert({
+              practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+              patient_id: form.patient_id, dossier_id: dossierId,
+              type: "facture", status: "en_attente", total_price: 0, deposit_paid: 0,
+            }).select("id, total_price").single();
+            target = fac as { id: string; total_price: number } | undefined;
+          }
+          if (target) {
+            await supabase.from("facture_items").insert({ facture_id: target.id, acte_id: acte.id, description: acte.name, quantity: 1, unit_price: acte.price });
+            await supabase.from("factures").update({ total_price: Number(target.total_price) + Number(acte.price) }).eq("id", target.id);
+          }
+        }
+      }
     }
 
     setSaving(false);
@@ -281,7 +334,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
                     Date <span className="text-red-500">*</span>
                   </label>
-                  <input type="date" {...field("exam_date")} className={inputCls} />
+                  <input type="date" max={today} {...field("exam_date")} className={inputCls} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
@@ -311,6 +364,40 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Examens complémentaires</label>
                 <textarea {...field("exams")} rows={2} placeholder="Radio, scanner, test…" className={`${inputCls} resize-none`} />
               </div>
+
+              {!editingConsultation && (
+                <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 space-y-3 bg-zinc-50/60 dark:bg-zinc-800/30">
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Rattacher à un dossier</label>
+                    <select value={dossierId} onChange={(e) => { setDossierId(e.target.value); if (!e.target.value) setBill(false); }} className={inputCls} disabled={!form.patient_id}>
+                      <option value="">— Aucun (visite simple) —</option>
+                      {openDossiers.map((d) => <option key={d.id} value={d.id}>{d.title}</option>)}
+                    </select>
+                    {form.patient_id && openDossiers.length === 0 && <p className="text-[11px] text-zinc-400 mt-1">Aucun dossier ouvert pour ce patient.</p>}
+                  </div>
+                  {dossierId && (
+                    <>
+                      <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
+                        <input type="checkbox" checked={bill} onChange={(e) => { setBill(e.target.checked); if (e.target.checked && !billActeId) setBillActeId(defaultActeId()); }} className="w-4 h-4 accent-teal-600" />
+                        Facturer cette visite
+                      </label>
+                      {bill && (
+                        actes.length > 0 ? (
+                          <div>
+                            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Acte à facturer</label>
+                            <select value={billActeId} onChange={(e) => setBillActeId(e.target.value)} className={inputCls}>
+                              {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
+                            </select>
+                            <p className="text-[11px] text-zinc-400 mt-1">Ajouté à une facture ouverte du dossier (créée si besoin).</p>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-amber-600 dark:text-amber-400">Aucun acte au catalogue — créez un acte « Consultation » pour pouvoir facturer.</p>
+                        )
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
 
               {error && <p className="text-xs text-red-500">{error}</p>}
             </div>

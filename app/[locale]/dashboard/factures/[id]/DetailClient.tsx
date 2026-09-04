@@ -46,7 +46,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
   const t = useTranslations("factures");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
-  const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
+  const { shopName, shopAddress, shopPhone, logoUrl, currentUserId } = useAppContext();
 
   const [facture, setFacture] = useState<FactureWithPatient>(initialFacture);
   const [items, setItems] = useState<FactureItem[]>([]);
@@ -57,6 +57,13 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
   const [formError, setFormError] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Correction: a draft (en_attente) facture can have its lines edited in place;
+  // once en_cours/payée it is locked — correct it by cancel + reissue instead.
+  const [editLines, setEditLines] = useState(false);
+  const [lineDraft, setLineDraft] = useState<{ description: string; quantity: string; unit_price: string }[]>([]);
+  const [savingLines, setSavingLines] = useState(false);
+  const [reissuing, setReissuing] = useState(false);
+  const isDraft = facture.status === "en_attente";
 
   const patientData = facture.patients as { first_name: string; last_name: string } | null;
   const patientName = patientData ? `${patientData.first_name} ${patientData.last_name}` : null;
@@ -119,6 +126,44 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
     if (error) return;
     setFacture((f) => ({ ...f, status: "annulee" }));
     setDeleteOpen(false);
+  }
+
+  function startEditLines() {
+    setLineDraft(items.map((i) => ({ description: i.description, quantity: String(i.quantity), unit_price: String(i.unit_price) })));
+    if (items.length === 0) setLineDraft([{ description: "", quantity: "1", unit_price: "" }]);
+    setEditLines(true);
+  }
+  async function saveLines() {
+    const valid = lineDraft.filter((l) => l.description.trim() && parseFloat(l.unit_price) >= 0);
+    if (valid.length === 0) { setFormError("Ajoutez au moins une ligne."); return; }
+    setSavingLines(true); setFormError("");
+    const rows = valid.map((l) => ({ facture_id: facture.id, description: l.description.trim(), quantity: parseInt(l.quantity) || 1, unit_price: parseFloat(l.unit_price) || 0, acte_id: null }));
+    await supabase.from("facture_items").delete().eq("facture_id", facture.id);
+    const { data: inserted } = await supabase.from("facture_items").insert(rows).select("*");
+    const newTotal = rows.reduce((s, r) => s + r.quantity * r.unit_price, 0);
+    await supabase.from("factures").update({ total_price: newTotal }).eq("id", facture.id);
+    setItems((inserted ?? []) as FactureItem[]);
+    setFacture((f) => ({ ...f, total_price: newTotal }));
+    setSavingLines(false); setEditLines(false);
+  }
+  // Correct a locked facture: optionally cancel the original, then clone its
+  // lines into a fresh en_attente draft you can edit.
+  async function reissue(cancelOriginal: boolean) {
+    setReissuing(true);
+    if (cancelOriginal) {
+      await supabase.from("factures").update({ status: "annulee" }).eq("id", facture.id);
+    }
+    const { data: fac, error } = await supabase.from("factures").insert({
+      practice_id: facture.practice_id, created_by: currentUserId, user_id: currentUserId,
+      patient_id: facture.patient_id, dossier_id: facture.dossier_id, appointment_id: facture.appointment_id,
+      type: facture.type, status: "en_attente", total_price: facture.total_price, deposit_paid: 0,
+      notes: facture.notes,
+    }).select("id").single();
+    if (error || !fac) { setReissuing(false); return; }
+    if (items.length > 0) {
+      await supabase.from("facture_items").insert(items.map((i) => ({ facture_id: (fac as { id: string }).id, description: i.description, quantity: i.quantity, unit_price: i.unit_price, acte_id: i.acte_id ?? null })));
+    }
+    router.push(`/${locale}/dashboard/factures/${(fac as { id: string }).id}`);
   }
 
   async function exportPdf() {
@@ -217,18 +262,44 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
 
         {/* Items */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">
-            Lignes de facture
-            {!itemsLoading && (
-              <span className="ml-2 text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{items.length}</span>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
+              Lignes de facture
+              {!itemsLoading && (
+                <span className="ml-2 text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{items.length}</span>
+              )}
+            </h2>
+            {isDraft && !editLines && !itemsLoading && (
+              <button onClick={startEditLines} className="text-xs px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 font-medium transition-colors">✏️ Modifier les lignes</button>
             )}
-          </h2>
+          </div>
           {itemsLoading ? (
             <div className="flex justify-center py-6">
               <svg className="w-6 h-6 animate-spin text-teal-500" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
+            </div>
+          ) : editLines ? (
+            <div className="space-y-2">
+              {lineDraft.map((l, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <input placeholder="Description" value={l.description} onChange={(e) => setLineDraft((xs) => xs.map((x, j) => j === i ? { ...x, description: e.target.value } : x))} className={`flex-1 ${inputCls}`} />
+                  <input type="number" min="1" value={l.quantity} onChange={(e) => setLineDraft((xs) => xs.map((x, j) => j === i ? { ...x, quantity: e.target.value } : x))} className="w-16 px-2 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                  <input type="number" min="0" step="0.01" value={l.unit_price} onChange={(e) => setLineDraft((xs) => xs.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} className="w-24 px-2 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                  <button type="button" onClick={() => setLineDraft((xs) => xs.length > 1 ? xs.filter((_, j) => j !== i) : xs)} className="text-zinc-300 hover:text-red-500 text-sm shrink-0">✕</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => setLineDraft((xs) => [...xs, { description: "", quantity: "1", unit_price: "" }])} className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium">+ Ajouter une ligne</button>
+              <div className="flex justify-between items-center pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                <span className="text-sm text-zinc-500">Total</span>
+                <span className="text-base font-bold text-zinc-900 dark:text-white">{lineDraft.reduce((s, l) => s + (parseFloat(l.quantity) || 0) * (parseFloat(l.unit_price) || 0), 0).toFixed(2)} MAD</span>
+              </div>
+              {formError && <p className="text-xs text-red-500">{formError}</p>}
+              <div className="flex items-center gap-3 justify-end pt-1">
+                <button onClick={() => { setEditLines(false); setFormError(""); }} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">Annuler</button>
+                <button onClick={saveLines} disabled={savingLines} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{savingLines ? "Enregistrement…" : "Enregistrer les lignes"}</button>
+              </div>
             </div>
           ) : items.length === 0 ? (
             <p className="text-sm text-zinc-400 py-4 text-center">Aucune ligne de facture</p>
@@ -261,6 +332,18 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
             <button onClick={() => setDeleteOpen(true)}
               className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
               Annuler la facture
+            </button>
+          )}
+          {(facture.status === "en_cours" || facture.status === "payee") && (
+            <button onClick={() => reissue(true)} disabled={reissuing}
+              className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+              {reissuing ? "…" : "Corriger (annuler + recréer)"}
+            </button>
+          )}
+          {facture.status === "annulee" && (
+            <button onClick={() => reissue(false)} disabled={reissuing}
+              className="px-4 py-2 rounded-lg border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+              {reissuing ? "…" : "Recréer une facture"}
             </button>
           )}
           <button onClick={exportPdf}

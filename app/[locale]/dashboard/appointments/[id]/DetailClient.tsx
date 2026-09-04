@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { AppointmentWithPatient, Patient } from "@/types/database";
+import type { AppointmentWithPatient, Patient, ConsultationMotif } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import { useAppContext } from "@/components/AppContext";
+
+// Map an appointment type onto a visite motif (covers both type vocabularies).
+const TYPE_TO_MOTIF: Record<string, ConsultationMotif> = {
+  consultation: "consultation", controle: "controle", soin: "soin",
+  nettoyage: "soin", chirurgie: "soin", orthodontie: "soin",
+  urgence: "urgence", premiere_visite: "consultation", autre: "autre",
+};
 
 interface Props {
   appointment: AppointmentWithPatient & { dossiers?: { title: string } | { title: string }[] | null };
@@ -56,8 +64,9 @@ const emptyForm = {
 
 export default function AppointmentDetailClient({ appointment: initialAppointment, patients, locale }: Props) {
   const t = useTranslations("appointments");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const { practiceId, currentUserId } = useAppContext();
 
   const [appointment, setAppointment] = useState<AppointmentWithPatient>(initialAppointment);
   const [modalOpen, setModalOpen] = useState(false);
@@ -66,6 +75,14 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [formError, setFormError] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Convert-to-visite (only for a today/past RDV).
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [converting, setConverting] = useState(false);
+  const [convertBill, setConvertBill] = useState(false);
+  const [convertActeId, setConvertActeId] = useState("");
+  const [actes, setActes] = useState<{ id: string; name: string; price: number }[]>([]);
+  const today = new Date().toLocaleDateString("en-CA");
+  const canConvert = appointment.scheduled_at.slice(0, 10) <= today && appointment.status !== "annule";
 
   const patientData = appointment.patients as { first_name: string; last_name: string } | null;
   const patientName = patientData ? `${patientData.first_name} ${patientData.last_name}` : null;
@@ -73,6 +90,53 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   // Supabase). Kept from the initial prop since edits don't change dossier_id.
   const dossierRel = (initialAppointment as { dossiers?: { title: string } | { title: string }[] | null }).dossiers;
   const dossierTitle = Array.isArray(dossierRel) ? (dossierRel[0]?.title ?? null) : (dossierRel?.title ?? null);
+
+  // Load the acte catalogue when opening the convert dialog for a dossier RDV.
+  useEffect(() => {
+    if (!convertOpen || !appointment.dossier_id) return;
+    supabase.from("actes").select("id, name, price").order("name").then(({ data }) => {
+      const list = (data ?? []) as { id: string; name: string; price: number }[];
+      setActes(list);
+      const cons = list.find((a) => a.name.toLowerCase() === "consultation");
+      setConvertActeId((cons ?? list[0])?.id ?? "");
+    });
+  }, [convertOpen, appointment.dossier_id, supabase]);
+
+  async function doConvert() {
+    if (!appointment.patient_id) return;
+    setConverting(true);
+    const motif = TYPE_TO_MOTIF[appointment.type] ?? "consultation";
+    const { data: cons, error } = await supabase.from("consultations").insert({
+      practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+      patient_id: appointment.patient_id, dossier_id: appointment.dossier_id,
+      motif, exam_date: appointment.scheduled_at.slice(0, 10),
+      clinical_notes: appointment.notes?.trim() || null,
+    }).select("id").single();
+    if (error) { setConverting(false); return; }
+    await supabase.from("appointments").update({ status: "termine" }).eq("id", appointment.id);
+    setAppointment((a) => ({ ...a, status: "termine" }));
+    // Optional billing into the RDV's dossier (mirrors the hub / visite flow).
+    if (appointment.dossier_id && convertBill && convertActeId) {
+      const acte = actes.find((a) => a.id === convertActeId);
+      if (acte) {
+        const { data: facs } = await supabase.from("factures").select("id, total_price, status, type").eq("dossier_id", appointment.dossier_id);
+        let target = (facs ?? []).find((f) => f.type === "facture" && f.status !== "annulee" && f.status !== "payee") as { id: string; total_price: number } | undefined;
+        if (!target) {
+          const { data: fac } = await supabase.from("factures").insert({
+            practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+            patient_id: appointment.patient_id, dossier_id: appointment.dossier_id,
+            type: "facture", status: "en_attente", total_price: 0, deposit_paid: 0,
+          }).select("id, total_price").single();
+          target = fac as { id: string; total_price: number } | undefined;
+        }
+        if (target) {
+          await supabase.from("facture_items").insert({ facture_id: target.id, acte_id: acte.id, description: acte.name, quantity: 1, unit_price: acte.price });
+          await supabase.from("factures").update({ total_price: Number(target.total_price) + Number(acte.price) }).eq("id", target.id);
+        }
+      }
+    }
+    router.push(`/${locale}/dashboard/consultations/${(cons as { id: string }).id}`);
+  }
 
   async function handleStatusChange(newStatus: AppointmentStatus) {
     await supabase.from("appointments").update({ status: newStatus }).eq("id", appointment.id);
@@ -207,6 +271,12 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
             className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
             Supprimer
           </button>
+          {canConvert && (
+            <button onClick={() => { setConvertBill(false); setConvertOpen(true); }}
+              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+              🦷 Convertir en visite
+            </button>
+          )}
           <div className="ms-auto">
             <button onClick={openEdit}
               className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
@@ -275,6 +345,43 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                   {saving ? t("form.saving") : t("form.save")}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Convert to visite */}
+      {convertOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Convertir en visite</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+              Une visite datée du {fmtDateTime(appointment.scheduled_at)} sera créée{dossierTitle ? <> dans le dossier <span className="font-medium text-zinc-700 dark:text-zinc-300">{dossierTitle}</span></> : ""} et ce rendez-vous sera marqué « Terminé ».
+            </p>
+            {appointment.dossier_id && (
+              <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 space-y-3 bg-zinc-50/60 dark:bg-zinc-800/30 mb-4">
+                <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
+                  <input type="checkbox" checked={convertBill} onChange={(e) => setConvertBill(e.target.checked)} className="w-4 h-4 accent-teal-600" />
+                  Facturer cette visite
+                </label>
+                {convertBill && (
+                  actes.length > 0 ? (
+                    <div>
+                      <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Acte à facturer</label>
+                      <select value={convertActeId} onChange={(e) => setConvertActeId(e.target.value)} className={inputCls}>
+                        {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
+                      </select>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400">Aucun acte au catalogue.</p>
+                  )
+                )}
+              </div>
+            )}
+            {!appointment.patient_id && <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">Ce rendez-vous n&apos;a pas de patient — impossible de créer une visite.</p>}
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConvertOpen(false)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">Annuler</button>
+              <button onClick={doConvert} disabled={converting || !appointment.patient_id} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{converting ? "Conversion…" : "Créer la visite"}</button>
             </div>
           </div>
         </div>

@@ -58,7 +58,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
 
   const [appointments, setAppointments] = useState<AppointmentWithPatient[]>(initialAppointments);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">("planifie");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<AppointmentWithPatient | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AppointmentWithPatient | null>(null);
@@ -100,7 +100,9 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       if (!map.has(day)) map.set(day, []);
       map.get(day)!.push(a);
     });
-    return Array.from(map.entries()).sort(([a], [b]) => b.localeCompare(a));
+    // Soonest first: days ascending, and each day's slots ascending by time.
+    for (const list of map.values()) list.sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at));
+    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
 
   function setField(key: keyof typeof emptyForm, value: string) {

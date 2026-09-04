@@ -137,6 +137,8 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const reste = totalFacture - totalPaid;
 
   const inputCls = "w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
+  // A visite is today or a forgotten past one — never the future (that's a RDV).
+  const today = new Date().toLocaleDateString("en-CA");
 
   // ─── edit dossier ───
   const [editForm, setEditForm] = useState({ title: "", statut: "ouvert" as DossierStatut, notes: "" });
@@ -653,7 +655,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Date <span className="text-red-500">*</span></label>
-                <input type="date" value={visiteForm.exam_date} onChange={(e) => setVisiteForm((f) => ({ ...f, exam_date: e.target.value }))} className={inputCls} />
+                <input type="date" max={today} value={visiteForm.exam_date} onChange={(e) => setVisiteForm((f) => ({ ...f, exam_date: e.target.value }))} className={inputCls} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
