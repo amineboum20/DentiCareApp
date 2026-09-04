@@ -195,16 +195,25 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     setDeleteTarget(null);
   }
 
+  // Compute "today"/"tomorrow" only after mount so the server and the first
+  // client render produce identical HTML (avoids a hydration mismatch from
+  // calling Date.now()/new Date() during render).
+  const [nowRef, setNowRef] = useState<{ today: string; tomorrow: string } | null>(null);
+  useEffect(() => {
+    setNowRef({
+      today: new Date().toISOString().slice(0, 10),
+      tomorrow: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+    });
+  }, []);
+
   function formatTime(iso: string) {
     return new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   }
 
   function formatDayHeader(iso: string) {
     const d = new Date(iso + "T00:00:00");
-    const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-    if (iso === today) return t("today");
-    if (iso === tomorrow) return t("tomorrow");
+    if (nowRef && iso === nowRef.today) return t("today");
+    if (nowRef && iso === nowRef.tomorrow) return t("tomorrow");
     return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
   }
 
