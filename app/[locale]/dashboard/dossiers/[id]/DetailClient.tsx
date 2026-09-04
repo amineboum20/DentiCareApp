@@ -249,7 +249,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     if (visiteForm.bill && visiteForm.acte_id) {
       const acte = actes.find((a) => a.id === visiteForm.acte_id);
       if (acte) {
-        let target = docs.find((d) => d.type === "facture" && d.status !== "annulee");
+        let target = docs.find((d) => d.type === "facture" && d.status !== "annulee" && d.status !== "payee");
         if (!target) {
           const { data: fac } = await supabase.from("factures").insert({
             practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,

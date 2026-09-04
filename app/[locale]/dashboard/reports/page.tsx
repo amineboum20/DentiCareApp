@@ -14,12 +14,13 @@ export default async function ReportsPage() {
     { data: recentFactures },
   ] = await Promise.all([
     supabase.from("patients").select("*", { count: "exact", head: true }),
-    supabase.from("factures").select("total_price, status").gte("created_at", firstOfMonth),
-    supabase.from("factures").select("total_price, status").gte("created_at", firstOfYear),
+    supabase.from("factures").select("total_price, status").neq("type", "devis").gte("created_at", firstOfMonth),
+    supabase.from("factures").select("total_price, status").neq("type", "devis").gte("created_at", firstOfYear),
     supabase.from("facture_items").select("description, unit_price").limit(20),
     supabase
       .from("factures")
       .select("id, status, total_price, created_at, patients(first_name, last_name)")
+      .neq("type", "devis")
       .order("created_at", { ascending: false })
       .limit(10),
   ]);

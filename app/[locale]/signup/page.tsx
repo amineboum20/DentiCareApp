@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
@@ -8,6 +8,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function SignUp() {
   const t = useTranslations("signUp");
+  const locale = useLocale();
   const [cabinetName, setCabinetName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -28,6 +29,7 @@ export default function SignUp() {
       password,
       options: {
         data: { shop_name: cabinetName, first_name: firstName, last_name: lastName },
+        emailRedirectTo: `${window.location.origin}/${locale}/auth/callback`,
       },
     });
     if (signUpError) { setError(signUpError.message); setLoading(false); return; }

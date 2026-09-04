@@ -42,7 +42,7 @@ export default async function TrackAppointmentPage({
 
   const { data: appt } = await supabase
     .from("appointments")
-    .select("*, patients(first_name, last_name, phone)")
+    .select("title, type, status, scheduled_at, duration_minutes, notes, user_id, patients(first_name, last_name)")
     .eq("id", appointmentId)
     .single();
 
@@ -65,8 +65,10 @@ export default async function TrackAppointmentPage({
     hour: "2-digit",
     minute: "2-digit",
   });
-  const patientName = appt.patients
-    ? `${appt.patients.first_name} ${appt.patients.last_name}`
+  // supabase-js types a to-one embed as an array, though at runtime it's a single object.
+  const patient = appt.patients as unknown as { first_name: string; last_name: string } | null;
+  const patientName = patient
+    ? `${patient.first_name} ${patient.last_name}`
     : "Patient";
   const statusColor =
     appt.status === "planifie"
