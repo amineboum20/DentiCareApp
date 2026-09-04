@@ -53,7 +53,7 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
       .select("supplier_id, suppliers(*)")
       .eq("treatment_id", acte.id)
       .then(({ data }) => {
-        const linked = (data ?? []).map((r: any) => r.suppliers as Supplier).filter(Boolean);
+        const linked = ((data ?? []) as unknown as { suppliers: Supplier }[]).map((r) => r.suppliers).filter(Boolean);
         setSuppliers(linked);
         setSuppliersLoading(false);
       });
@@ -196,7 +196,7 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <h2 className="font-semibold text-zinc-900 dark:text-white">Modifier l'acte</h2>
+              <h2 className="font-semibold text-zinc-900 dark:text-white">Modifier l&apos;acte</h2>
               <button onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">

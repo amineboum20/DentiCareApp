@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!result) redirect("/signin");
 
   const { member, user } = result;
-  const practice = member.practices as any;
+  const practice = member.practices;
 
   // Two gates: the practice must be approved (owner signup) and the individual
   // member must be approved (owner-invited members await admin validation).

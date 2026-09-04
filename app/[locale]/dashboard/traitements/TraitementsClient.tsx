@@ -233,7 +233,7 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
               {search ? "Aucun résultat" : "Aucun traitement pour l'instant"}
             </p>
             {!search && actes.length === 0 && (
-              <p className="text-xs text-zinc-400 mt-2">Créez d'abord des actes, puis regroupez-les ici.</p>
+              <p className="text-xs text-zinc-400 mt-2">Créez d&apos;abord des actes, puis regroupez-les ici.</p>
             )}
             {!search && actes.length > 0 && (
               <button
@@ -311,7 +311,7 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">Actes du paquet <span className="text-red-500">*</span></label>
                 {actes.length === 0 ? (
-                  <p className="text-xs text-zinc-400">Aucun acte disponible. Créez des actes d'abord.</p>
+                  <p className="text-xs text-zinc-400">Aucun acte disponible. Créez des actes d&apos;abord.</p>
                 ) : (
                   <div className="space-y-2">
                     {lines.map((l, i) => (

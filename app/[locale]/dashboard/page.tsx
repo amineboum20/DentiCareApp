@@ -9,7 +9,7 @@ export default async function Dashboard() {
 
   const result = await getMemberWithPractice();
   const firstName = result?.member?.first_name ?? "";
-  const shopName  = (result?.member?.practices as any)?.name ?? "votre cabinet";
+  const shopName  = result?.member?.practices?.name ?? "votre cabinet";
   const now = new Date();
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
@@ -110,8 +110,8 @@ export default async function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {(recentFactures ?? []).map((f: any) => {
-                const patient = f.patients as { first_name: string; last_name: string } | null;
+              {((recentFactures ?? []) as unknown as { id: string; created_at: string; status: string; total_price: number | null; patients: { first_name: string; last_name: string } | null }[]).map((f) => {
+                const patient = f.patients;
                 return (
                   <div key={f.id} className="flex items-center justify-between py-2 border-b border-zinc-50 dark:border-zinc-800 last:border-0">
                     <div>
@@ -145,8 +145,8 @@ export default async function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {(upcomingAppointments ?? []).map((a: any) => {
-                const patient = a.patients as { first_name: string; last_name: string } | null;
+              {((upcomingAppointments ?? []) as unknown as { id: string; title: string; type: string; scheduled_at: string; patients: { first_name: string; last_name: string } | null }[]).map((a) => {
+                const patient = a.patients;
                 const d = new Date(a.scheduled_at);
                 return (
                   <div key={a.id} className="flex items-center gap-3 py-2 border-b border-zinc-50 dark:border-zinc-800 last:border-0">

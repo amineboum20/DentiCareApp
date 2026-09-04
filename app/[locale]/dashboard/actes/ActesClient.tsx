@@ -87,22 +87,6 @@ export default function ActesClient({ initialActes }: Props) {
     setModalOpen(true);
   }
 
-  function openEdit(a: Acte) {
-    setEditingActe(a);
-    setForm({
-      name: a.name,
-      category: a.category,
-      price: String(a.price),
-      duration_minutes: a.duration_minutes != null ? String(a.duration_minutes) : "",
-      description: a.description ?? "",
-      notes: a.notes ?? "",
-    });
-    setError("");
-    supabase.from("treatment_suppliers").select("supplier_id").eq("treatment_id", a.id)
-      .then(({ data }) => setSelectedSuppliers((data ?? []).map((r: { supplier_id: string }) => r.supplier_id)));
-    setModalOpen(true);
-  }
-
   function field(key: keyof typeof emptyForm) {
     return {
       value: form[key],

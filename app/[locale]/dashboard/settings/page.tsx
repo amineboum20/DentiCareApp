@@ -15,7 +15,7 @@ export default async function SettingsPage() {
 
   if (!member) redirect("/signin");
 
-  const practice = (member as any).practices as any;
+  const practice = member.practices;
 
   return (
     <div className="p-4 sm:p-8 max-w-xl">

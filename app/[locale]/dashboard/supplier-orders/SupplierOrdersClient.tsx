@@ -75,19 +75,6 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
     setError(""); setModalOpen(true);
   }
 
-  function openEdit(o: SupplierOrder) {
-    setEditing(o);
-    setForm({
-      supplier_id: o.supplier_id,
-      status: o.status,
-      ordered_at: o.ordered_at.split("T")[0],
-      expected_at: o.expected_at ? o.expected_at.split("T")[0] : "",
-      total_cost: o.total_cost != null ? String(o.total_cost) : "",
-      notes: o.notes ?? "",
-    });
-    setError(""); setModalOpen(true);
-  }
-
   async function handleSave() {
     if (!form.supplier_id) { setError(t("form.requiredError")); return; }
     setSaving(true); setError("");

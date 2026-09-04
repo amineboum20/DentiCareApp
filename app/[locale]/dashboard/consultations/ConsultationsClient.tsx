@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { ConsultationWithPatient, ConsultationMotif, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
@@ -89,22 +88,6 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
   function openAdd() {
     setEditingConsultation(null);
     setForm(emptyForm);
-    setError("");
-    setModalOpen(true);
-  }
-
-  function openEdit(c: ConsultationWithPatient) {
-    setEditingConsultation(c);
-    setForm({
-      patient_id: c.patient_id,
-      motif: c.motif,
-      exam_date: c.exam_date,
-      next_exam_date: c.next_exam_date ?? "",
-      treated_by: c.treated_by ?? "",
-      teeth: c.teeth ?? "",
-      clinical_notes: c.clinical_notes ?? "",
-      exams: c.exams ?? "",
-    });
     setError("");
     setModalOpen(true);
   }

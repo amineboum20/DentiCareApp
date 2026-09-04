@@ -530,7 +530,7 @@ export default function Home() {
       {/* Testimonial */}
       <section className="py-20 px-6">
         <div data-animate style={{ opacity: 0, transform: "translateY(24px)", transition: "opacity 0.7s ease, transform 0.7s ease" }} className="max-w-2xl mx-auto text-center">
-          <p className="text-xl sm:text-2xl font-medium text-zinc-700 dark:text-zinc-300 leading-relaxed italic">"{t("testimonial.quote")}"</p>
+          <p className="text-xl sm:text-2xl font-medium text-zinc-700 dark:text-zinc-300 leading-relaxed italic">&ldquo;{t("testimonial.quote")}&rdquo;</p>
           <div className="mt-6 flex flex-col items-center gap-1">
             <span className="font-semibold text-zinc-900 dark:text-white">{t("testimonial.author")}</span>
             <span className="text-sm text-zinc-400">{t("testimonial.role")}</span>

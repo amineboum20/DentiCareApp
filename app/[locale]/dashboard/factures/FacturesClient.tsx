@@ -107,20 +107,6 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
     setModalOpen(true);
   }
 
-  function openEdit(f: FactureWithPatient) {
-    setEditingFacture(f);
-    setForm({
-      patient_id: f.patient_id,
-      status: f.status,
-      total_price: String(f.total_price),
-      deposit_paid: String(f.deposit_paid),
-      notes: f.notes ?? "",
-      appointment_id: f.appointment_id ?? "",
-    });
-    setError("");
-    setModalOpen(true);
-  }
-
   function field(key: keyof typeof emptyForm) {
     return {
       value: form[key],

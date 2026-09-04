@@ -70,21 +70,6 @@ export default function PatientsClient({ initialPatients }: Props) {
     setModalOpen(true);
   }
 
-  function openEdit(c: Patient) {
-    setEditingPatient(c);
-    setForm({
-      first_name: c.first_name,
-      last_name: c.last_name,
-      email: c.email ?? "",
-      phone: c.phone ?? "",
-      date_of_birth: c.date_of_birth ?? "",
-      address: c.address ?? "",
-      notes: c.notes ?? "",
-    });
-    setError("");
-    setModalOpen(true);
-  }
-
   function field(key: keyof typeof form) {
     return {
       value: form[key],

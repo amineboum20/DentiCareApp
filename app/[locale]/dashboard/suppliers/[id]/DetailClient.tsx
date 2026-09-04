@@ -37,7 +37,7 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
       .select("treatment_id, actes(*)")
       .eq("supplier_id", supplier.id)
       .then(({ data }) => {
-        const linked = (data ?? []).map((r: any) => r.actes as Acte).filter(Boolean);
+        const linked = ((data ?? []) as unknown as { actes: Acte }[]).map((r) => r.actes).filter(Boolean);
         setTreatments(linked);
         setTreatmentsLoading(false);
       });

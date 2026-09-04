@@ -92,9 +92,13 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       setDocs((d.data ?? []) as Doc[]);
       setAcomptes((a.data ?? []) as Acompte[]);
       setActes((ac.data ?? []) as ActeLite[]);
-      setPackages(((tr.data ?? []) as any[]).map((p) => ({
+      type TraitementRow = {
+        id: string; name: string; price_override: number | null;
+        traitement_actes: { quantity: number; acte_id: string; actes: { name: string; price: number } | null }[] | null;
+      };
+      setPackages(((tr.data ?? []) as unknown as TraitementRow[]).map((p) => ({
         id: p.id, name: p.name, price_override: p.price_override,
-        lines: (p.traitement_actes ?? []).map((l: any) => ({
+        lines: (p.traitement_actes ?? []).map((l) => ({
           quantity: l.quantity, acte_id: l.acte_id,
           name: l.actes?.name ?? "Acte", price: l.actes?.price ?? 0,
         })),

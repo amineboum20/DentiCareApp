@@ -1,8 +1,3 @@
-function fmt(v: number | null) {
-  if (v === null) return "—";
-  return (v >= 0 ? "+" : "") + v.toFixed(2);
-}
-
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");

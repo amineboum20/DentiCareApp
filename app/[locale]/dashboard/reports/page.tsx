@@ -10,13 +10,11 @@ export default async function ReportsPage() {
     { count: totalPatients },
     { data: facturesMois },
     { data: facturesAnnee },
-    { data: topTraitements },
     { data: recentFactures },
   ] = await Promise.all([
     supabase.from("patients").select("*", { count: "exact", head: true }),
     supabase.from("factures").select("total_price, status").neq("type", "devis").gte("created_at", firstOfMonth),
     supabase.from("factures").select("total_price, status").neq("type", "devis").gte("created_at", firstOfYear),
-    supabase.from("facture_items").select("description, unit_price").limit(20),
     supabase
       .from("factures")
       .select("id, status, total_price, created_at, patients(first_name, last_name)")
@@ -102,7 +100,7 @@ export default async function ReportsPage() {
           <p className="text-sm text-zinc-400 text-center py-6">Aucune facture</p>
         ) : (
           <div className="space-y-2">
-            {(recentFactures ?? []).map((f: any) => (
+            {((recentFactures ?? []) as unknown as { id: string; created_at: string; status: string; total_price: number | null; patients: { first_name: string; last_name: string } | null }[]).map((f) => (
               <div
                 key={f.id}
                 className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 px-4 py-3"

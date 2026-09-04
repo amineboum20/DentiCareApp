@@ -118,25 +118,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     setModalOpen(true);
   }
 
-  function openEdit(a: AppointmentWithPatient) {
-    setEditing(a);
-    const dt = new Date(a.scheduled_at);
-    const local = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-    setForm({
-      patient_id: a.patient_id ?? "",
-      title: a.title,
-      scheduled_at: local,
-      duration_minutes: a.duration_minutes != null ? String(a.duration_minutes) : "",
-      type: a.type,
-      status: a.status,
-      notes: a.notes ?? "",
-    });
-    setError("");
-    setModalOpen(true);
-  }
-
   async function handleSave() {
     if (!form.title.trim() || !form.scheduled_at) {
       setError(t("form.requiredError"));

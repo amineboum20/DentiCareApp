@@ -41,7 +41,7 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
   const locale = pathname.split("/")[1];
   const { practiceId, currentUserId } = useAppContext();
 
-  const [dossiers, setDossiers] = useState<DossierWithPatient[]>(initialDossiers);
+  const [dossiers] = useState<DossierWithPatient[]>(initialDossiers);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
