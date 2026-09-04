@@ -117,8 +117,18 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
 
   async function exportPdf() {
     const { exportFacturePdf } = await import("@/utils/pdf-export");
+    // When the facture belongs to a dossier, deposit is tracked via the shared
+    // acomptes ledger (deposit_paid stays 0), so mirror the dossier hub figure.
+    let depositPaid = facture.deposit_paid;
+    if (facture.dossier_id) {
+      const { data: acs } = await supabase.from("acomptes").select("montant").eq("dossier_id", facture.dossier_id);
+      const paid = (acs ?? []).reduce((s, a) => s + Number(a.montant), 0);
+      depositPaid = Math.min(paid, Number(facture.total_price));
+    }
     exportFacturePdf({
       factureId: facture.id,
+      docType: facture.type,
+      appointmentId: facture.appointment_id,
       patientName: patientName ?? "",
       patientPhone: null,
       patientAddress: null,
@@ -126,7 +136,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       statusLabel: FACTURE_STATUS_LABEL[facture.status] ?? facture.status,
       items: items.map(i => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price })),
       totalPrice: facture.total_price,
-      depositPaid: facture.deposit_paid,
+      depositPaid,
       notes: facture.notes,
       shopName, shopAddress, shopPhone, logoUrl,
     });

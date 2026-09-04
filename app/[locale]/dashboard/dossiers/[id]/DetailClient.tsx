@@ -215,7 +215,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   async function downloadFacture(d: Doc) {
     const { data: fitems } = await supabase.from("facture_items").select("description, quantity, unit_price").eq("facture_id", d.id);
     await exportFacturePdf({
-      factureId: d.id, patientName,
+      factureId: d.id, docType: "facture", appointmentId: null, patientName,
       patientPhone: patient.phone ?? null, patientAddress: patient.address ?? null,
       createdAt: d.created_at, statusLabel: FACTURE_STATUS_LABEL[d.status] ?? d.status,
       items: (fitems ?? []) as { description: string; quantity: number; unit_price: number }[],

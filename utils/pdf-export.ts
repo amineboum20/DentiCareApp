@@ -36,6 +36,8 @@ async function loadLogoDataUrl(
 // A4 dental invoice PDF
 export async function exportFacturePdf(opts: {
   factureId: string;
+  docType?: "facture" | "devis";
+  appointmentId?: string | null;
   patientName: string;
   patientPhone: string | null;
   patientAddress: string | null;
@@ -53,7 +55,8 @@ export async function exportFacturePdf(opts: {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const W = 210, ml = 20, mr = W - 20;
-  const invoiceNumber = `DC-${opts.factureId.slice(0, 8).toUpperCase()}`;
+  const isDevis = opts.docType === "devis";
+  const invoiceNumber = `${isDevis ? "DV" : "DC"}-${opts.factureId.slice(0, 8).toUpperCase()}`;
 
   let logoData: { dataUrl: string; aspect: number } | null = null;
   if (opts.logoUrl) logoData = await loadLogoDataUrl(opts.logoUrl);
@@ -90,7 +93,7 @@ export async function exportFacturePdf(opts: {
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(20, 20, 20);
-  doc.text("FACTURE DENTAIRE", ml, 50);
+  doc.text(isDevis ? "DEVIS DENTAIRE" : "FACTURE DENTAIRE", ml, 50);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(80, 80, 80);
@@ -203,9 +206,9 @@ export async function exportFacturePdf(opts: {
   // QR code linking to appointment track page
   try {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    if (origin) {
+    if (origin && opts.appointmentId) {
       const QRCode = (await import("qrcode")).default;
-      const qrDataUrl = await QRCode.toDataURL(`${origin}/track/${opts.factureId}`, {
+      const qrDataUrl = await QRCode.toDataURL(`${origin}/track/${opts.appointmentId}`, {
         width: 120,
         margin: 1,
       });
@@ -225,7 +228,7 @@ export async function exportFacturePdf(opts: {
   );
 
   doc.save(
-    `facture-dentaire-${invoiceNumber}-${opts.patientName.replace(/\s+/g, "-")}.pdf`
+    `${isDevis ? "devis" : "facture"}-dentaire-${invoiceNumber}-${opts.patientName.replace(/\s+/g, "-")}.pdf`
   );
 }
 
