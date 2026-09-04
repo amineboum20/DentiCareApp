@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -44,7 +44,7 @@ const emptyForm = {
 
 export default function FactureDetailClient({ facture: initialFacture, patients, locale }: Props) {
   const t = useTranslations("factures");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
 
@@ -66,7 +66,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       setItems((data ?? []) as FactureItem[]);
       setItemsLoading(false);
     });
-  }, [facture.id]);
+  }, [facture.id, supabase]);
 
   async function handleStatusChange(newStatus: string) {
     await supabase.from("factures").update({ status: newStatus }).eq("id", facture.id);

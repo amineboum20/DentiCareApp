@@ -56,7 +56,7 @@ function fmtDate(iso: string | null) {
 function money(n: number) { return `${n.toFixed(2)} MAD`; }
 
 export default function DossierDetailClient({ dossier: initialDossier, locale }: Props) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const { practiceId, currentUserId, shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
 
@@ -105,7 +105,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       })));
       setLoading(false);
     });
-  }, [dossier.id]);
+  }, [dossier.id, supabase]);
 
   const totalFacture = useMemo(() => docs.filter(d => d.type === "facture" && d.status !== "annulee").reduce((s, d) => s + Number(d.total_price), 0), [docs]);
   const totalDevis = useMemo(() => docs.filter(d => d.type === "devis").reduce((s, d) => s + Number(d.total_price), 0), [docs]);

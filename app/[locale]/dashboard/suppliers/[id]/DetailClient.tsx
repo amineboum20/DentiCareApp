@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -18,7 +18,7 @@ const emptyForm = {
 
 export default function SupplierDetailClient({ supplier: initialSupplier, locale }: Props) {
   const t = useTranslations("suppliers");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
   const [supplier, setSupplier] = useState<Supplier>(initialSupplier);
@@ -41,7 +41,7 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
         setTreatments(linked);
         setTreatmentsLoading(false);
       });
-  }, [supplier.id]);
+  }, [supplier.id, supabase]);
 
   function openEdit() {
     setForm({

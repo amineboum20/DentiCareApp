@@ -37,7 +37,7 @@ const CATEGORIES: TreatmentCategory[] = [
 ];
 
 export default function ActesClient({ initialActes }: Props) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -59,7 +59,7 @@ export default function ActesClient({ initialActes }: Props) {
     const id = searchParams.get("detail");
     if (!id) return;
     router.push(`/${locale}/dashboard/actes/${id}`);
-  }, [searchParams]);
+  }, [searchParams, locale, router]);
 
   useEffect(() => {
     if (searchParams.get("new") === "1") openAdd();
@@ -69,7 +69,7 @@ export default function ActesClient({ initialActes }: Props) {
     if (!practiceId) return;
     supabase.from("suppliers").select("*").eq("practice_id", practiceId).order("name")
       .then(({ data }) => setSuppliers((data ?? []) as Supplier[]));
-  }, [practiceId]);
+  }, [practiceId, supabase]);
 
   const filtered = useMemo(() =>
     actes.filter((a) =>

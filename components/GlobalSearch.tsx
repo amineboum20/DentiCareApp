@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
 
@@ -16,7 +16,7 @@ export default function GlobalSearch() {
   const [appts, setAppts] = useState<ApptR[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function GlobalSearch() {
       setAppts(a.data ?? []);
     }, 180);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, supabase]);
 
   const total = patients.length + traitements.length + appts.length;
 

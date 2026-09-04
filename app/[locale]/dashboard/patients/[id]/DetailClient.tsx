@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -61,7 +61,7 @@ const emptyForm = {
 
 export default function PatientDetailClient({ patient: initialPatient, locale }: Props) {
   const t = useTranslations("patients");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const [patient, setPatient] = useState<Patient>(initialPatient);
   const [isMobile, setIsMobile] = useState(false);
@@ -105,7 +105,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       });
       setSnapshotLoading(false);
     });
-  }, [patient.id]);
+  }, [patient.id, supabase]);
 
   useEffect(() => {
     Promise.all([
@@ -118,7 +118,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       setHistoryDossiers((dossiers ?? []) as { id: string; title: string; statut: string; created_at: string }[]);
       setHistoryLoading(false);
     });
-  }, [patient.id]);
+  }, [patient.id, supabase]);
 
   function openEdit() {
     setForm({

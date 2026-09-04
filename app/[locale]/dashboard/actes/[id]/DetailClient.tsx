@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { Acte, Supplier, TreatmentCategory } from "@/types/database";
@@ -34,7 +34,7 @@ const emptyForm = {
 };
 
 export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
   const [acte, setActe] = useState<Acte>(initialActe);
@@ -57,7 +57,7 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
         setSuppliers(linked);
         setSuppliersLoading(false);
       });
-  }, [acte.id]);
+  }, [acte.id, supabase]);
 
   function openEdit() {
     setForm({

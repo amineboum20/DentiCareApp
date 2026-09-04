@@ -44,7 +44,7 @@ export default function PatientsClient({ initialPatients }: Props) {
     const id = searchParams.get("detail");
     if (!id) return;
     router.push(`/${locale}/dashboard/patients/${id}`);
-  }, [searchParams]);
+  }, [searchParams, locale, router]);
 
   useEffect(() => {
     if (searchParams.get("new") !== "1") return;

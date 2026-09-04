@@ -56,7 +56,7 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
     const id = searchParams.get("detail");
     if (!id) return;
     router.push(`/${locale}/dashboard/supplier-orders/${id}`);
-  }, [searchParams]);
+  }, [searchParams, locale, router]);
 
   const supplierMap = Object.fromEntries(suppliers.map(s => [s.id, s]));
 

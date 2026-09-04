@@ -44,7 +44,7 @@ function fmtDate(iso: string | null) {
 
 export default function FacturesClient({ initialFactures, patients }: Props) {
   const t = useTranslations("factures");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -69,7 +69,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
     const id = searchParams.get("detail");
     if (!id) return;
     router.push(`/${locale}/dashboard/factures/${id}`);
-  }, [searchParams]);
+  }, [searchParams, locale, router]);
 
   useEffect(() => {
     if (searchParams.get("new") !== "1") return;
@@ -90,7 +90,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
       .gte("scheduled_at", now)
       .order("scheduled_at", { ascending: true })
       .then(({ data }) => setPatientAppointments((data ?? []) as {id: string; title: string; scheduled_at: string}[]));
-  }, [form.patient_id, modalOpen]);
+  }, [form.patient_id, modalOpen, supabase]);
 
   const filtered = useMemo(() =>
     factures.filter((f) => {

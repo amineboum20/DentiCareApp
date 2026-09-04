@@ -70,7 +70,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     const id = searchParams.get("detail");
     if (!id) return;
     router.push(`/${locale}/dashboard/appointments/${id}`);
-  }, [searchParams]);
+  }, [searchParams, locale, router]);
 
   useEffect(() => {
     if (searchParams.get("new") !== "1") return;

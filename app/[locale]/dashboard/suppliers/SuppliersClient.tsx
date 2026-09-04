@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -17,7 +17,7 @@ const emptyForm = {
 
 export default function SuppliersClient({ initialSuppliers }: Props) {
   const t = useTranslations("suppliers");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
@@ -46,7 +46,7 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
         });
         setTreatmentCounts(counts);
       });
-  }, [suppliers]);
+  }, [suppliers, supabase]);
 
   const filtered = suppliers.filter(s =>
     `${s.name} ${s.contact_name ?? ""} ${s.email ?? ""} ${s.phone ?? ""}`.toLowerCase().includes(search.toLowerCase())

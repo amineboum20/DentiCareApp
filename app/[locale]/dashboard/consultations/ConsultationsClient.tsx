@@ -66,7 +66,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
     const id = searchParams.get("detail");
     if (!id) return;
     router.push(`/${locale}/dashboard/consultations/${id}`);
-  }, [searchParams]);
+  }, [searchParams, locale, router]);
 
   useEffect(() => {
     if (searchParams.get("new") !== "1") return;
