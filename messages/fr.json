@@ -201,7 +201,9 @@
     },
     "signOut": "Se déconnecter",
     "noUpcomingAppts": "Aucun rendez-vous à venir",
-    "at": "à"
+    "at": "à",
+    "seeAll": "Tout voir →",
+    "upcomingAppointments": "Prochains rendez-vous"
   },
   "appointments": {
     "title": "Rendez-vous",
@@ -633,7 +635,9 @@
       "consultations": "Visites",
       "factures": "Factures",
       "noConsultations": "Aucune visite enregistrée.",
-      "noFactures": "Aucune facture enregistrée."
+      "noFactures": "Aucune facture enregistrée.",
+      "dossiers": "Dossiers médicaux",
+      "noDossiers": "Aucun dossier trouvé."
     },
     "form": {
       "addTitle": "Nouveau patient",

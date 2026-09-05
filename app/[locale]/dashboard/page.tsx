@@ -103,7 +103,7 @@ export default async function Dashboard() {
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{t("recentActivity")}</h2>
-            <Link href="/dashboard/factures" className="text-xs text-teal-600 hover:underline">Tout voir →</Link>
+            <Link href="/dashboard/factures" className="text-xs text-teal-600 hover:underline">{t("seeAll")}</Link>
           </div>
           {(recentFactures ?? []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -137,8 +137,8 @@ export default async function Dashboard() {
 
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Prochains rendez-vous</h2>
-            <Link href="/dashboard/appointments" className="text-xs text-teal-600 hover:underline">Tout voir →</Link>
+            <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{t("upcomingAppointments")}</h2>
+            <Link href="/dashboard/appointments" className="text-xs text-teal-600 hover:underline">{t("seeAll")}</Link>
           </div>
           {(upcomingAppointments ?? []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">

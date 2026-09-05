@@ -201,7 +201,9 @@
     },
     "signOut": "تسجيل الخروج",
     "noUpcomingAppts": "لا مواعيد قادمة",
-    "at": "على"
+    "at": "على",
+    "seeAll": "عرض الكل ←",
+    "upcomingAppointments": "المواعيد القادمة"
   },
   "appointments": {
     "title": "المواعيد",
@@ -591,7 +593,9 @@
       "dossiers": "الملفات الطبية",
       "factures": "الفواتير",
       "noDossiers": "لا ملفات.",
-      "noFactures": "لا فواتير."
+      "noFactures": "لا فواتير.",
+      "consultations": "الزيارات",
+      "noConsultations": "لا زيارات مسجلة."
     },
     "form": {
       "addTitle": "مريض جديد",
@@ -1262,5 +1266,47 @@
     "deleting": "جارٍ الحذف…",
     "saving": "جارٍ الحفظ…",
     "save": "حفظ"
+  },
+  "consultations": {
+    "title": "الزيارات",
+    "searchPlaceholder": "ابحث حسب المريض…",
+    "newConsultation": "زيارة جديدة",
+    "noConsultations": "لا زيارات بعد",
+    "noResults": "لا نتائج",
+    "columns": {
+      "patient": "المريض",
+      "motif": "السبب",
+      "examDate": "التاريخ",
+      "treatedBy": "عالجه"
+    },
+    "motifs": {
+      "consultation": "استشارة",
+      "urgence": "طوارئ",
+      "controle": "مراجعة",
+      "soin": "علاج",
+      "autre": "أخرى"
+    },
+    "form": {
+      "addTitle": "زيارة جديدة",
+      "editTitle": "تعديل الزيارة",
+      "patientId": "المريض",
+      "motif": "السبب",
+      "examDate": "تاريخ الزيارة",
+      "nextExamDate": "المراجعة القادمة",
+      "treatedBy": "طبيب الأسنان",
+      "teeth": "الأسنان المعنية",
+      "clinicalNotes": "ملاحظات سريرية",
+      "exams": "فحوصات إضافية",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ…",
+      "cancel": "إلغاء",
+      "requiredError": "المريض والتاريخ إلزاميان."
+    },
+    "deleteConfirm": {
+      "title": "حذف الزيارة",
+      "message": "حذف زيارة {name} بتاريخ {date}؟",
+      "confirm": "حذف",
+      "cancel": "إلغاء"
+    }
   }
 }

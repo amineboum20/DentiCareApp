@@ -201,7 +201,9 @@
     },
     "signOut": "Sign out",
     "noUpcomingAppts": "No upcoming appointments",
-    "at": "at"
+    "at": "at",
+    "seeAll": "See all →",
+    "upcomingAppointments": "Upcoming appointments"
   },
   "appointments": {
     "title": "Appointments",
@@ -591,7 +593,9 @@
       "dossiers": "Dental records",
       "factures": "Invoices",
       "noDossiers": "No records found.",
-      "noFactures": "No invoices found."
+      "noFactures": "No invoices found.",
+      "consultations": "Visits",
+      "noConsultations": "No visit recorded."
     },
     "form": {
       "addTitle": "New patient",
@@ -1262,5 +1266,47 @@
     "deleting": "Deleting…",
     "saving": "Saving…",
     "save": "Save"
+  },
+  "consultations": {
+    "title": "Visits",
+    "searchPlaceholder": "Search by patient…",
+    "newConsultation": "New visit",
+    "noConsultations": "No visit yet",
+    "noResults": "No results",
+    "columns": {
+      "patient": "Patient",
+      "motif": "Reason",
+      "examDate": "Date",
+      "treatedBy": "Treated by"
+    },
+    "motifs": {
+      "consultation": "Consultation",
+      "urgence": "Emergency",
+      "controle": "Check-up",
+      "soin": "Care",
+      "autre": "Other"
+    },
+    "form": {
+      "addTitle": "New visit",
+      "editTitle": "Edit visit",
+      "patientId": "Patient",
+      "motif": "Reason",
+      "examDate": "Visit date",
+      "nextExamDate": "Next check-up",
+      "treatedBy": "Dentist",
+      "teeth": "Teeth involved",
+      "clinicalNotes": "Clinical notes",
+      "exams": "Additional exams",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "requiredError": "Patient and date are required."
+    },
+    "deleteConfirm": {
+      "title": "Delete visit",
+      "message": "Delete {name}'s visit from {date}?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
   }
 }
