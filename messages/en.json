@@ -452,7 +452,9 @@
       "noVisits": "No visits for this patient.",
       "selectPatientFirst": "Select a patient first.",
       "visiteDossierNote": "The invoice uses the case of the selected visit.",
-      "requiredError": "Please fill in the required fields."
+      "requiredError": "Please fill in the required fields.",
+      "totalPrice": "Total (MAD)",
+      "depositPaid": "Deposit (MAD)"
     },
     "deleteConfirm": {
       "title": "Delete invoice",

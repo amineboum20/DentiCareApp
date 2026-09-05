@@ -452,7 +452,9 @@
       "noVisits": "لا زيارات لهذا المريض.",
       "selectPatientFirst": "اختر مريضاً أولاً.",
       "visiteDossierNote": "تعتمد الفاتورة على ملف الزيارة المختارة.",
-      "requiredError": "يرجى ملء الحقول المطلوبة."
+      "requiredError": "يرجى ملء الحقول المطلوبة.",
+      "totalPrice": "المجموع (درهم)",
+      "depositPaid": "الدفعة (درهم)"
     },
     "deleteConfirm": {
       "title": "حذف الفاتورة",

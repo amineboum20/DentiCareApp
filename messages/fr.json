@@ -452,7 +452,9 @@
       "noVisits": "Aucune visite pour ce patient.",
       "selectPatientFirst": "Sélectionnez d'abord un patient.",
       "visiteDossierNote": "La facture reprend le dossier de la visite choisie.",
-      "requiredError": "Veuillez remplir les champs requis."
+      "requiredError": "Veuillez remplir les champs requis.",
+      "totalPrice": "Total (MAD)",
+      "depositPaid": "Acompte (MAD)"
     },
     "deleteConfirm": {
       "title": "Supprimer la facture",
