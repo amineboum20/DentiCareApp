@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { TreatmentCategory } from "@/types/database";
@@ -67,6 +68,8 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
   const supabase = createClient();
   const searchParams = useSearchParams();
   const { practiceId, currentUserId } = useAppContext();
+  const t = useTranslations("traitements");
+  const tcat = useTranslations("categories");
 
   const [packages, setPackages] = useState<Package[]>(initialTraitements);
   const [search, setSearch] = useState("");
@@ -123,9 +126,9 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
   }, [lines, form.price_override, acteById]);
 
   async function handleSave() {
-    if (!form.name.trim()) { setError("Le nom est obligatoire."); return; }
+    if (!form.name.trim()) { setError(t("errName")); return; }
     const validLines = lines.filter(l => l.acte_id && (parseInt(l.quantity) || 0) > 0);
-    if (validLines.length === 0) { setError("Ajoutez au moins un acte au paquet."); return; }
+    if (validLines.length === 0) { setError(t("errNoActe")); return; }
     setSaving(true);
     setError("");
 
@@ -201,14 +204,14 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Traitements</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Paquets réutilisables regroupant plusieurs actes</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{t("subtitle")}</p>
         </div>
         <button
           onClick={openAdd}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
         >
-          + Nouveau traitement
+          + {t("newTraitement")}
         </button>
       </div>
 
@@ -217,7 +220,7 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
         <span className="absolute inset-y-0 start-3 flex items-center text-zinc-400 text-sm">🔍</span>
         <input
           type="text"
-          placeholder="Rechercher un traitement…"
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full ps-9 pe-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -230,17 +233,17 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <span className="text-4xl mb-3">{search ? "🔍" : "🦷"}</span>
             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              {search ? "Aucun résultat" : "Aucun traitement pour l'instant"}
+              {search ? t("noResults") : t("empty")}
             </p>
             {!search && actes.length === 0 && (
-              <p className="text-xs text-zinc-400 mt-2">Créez d&apos;abord des actes, puis regroupez-les ici.</p>
+              <p className="text-xs text-zinc-400 mt-2">{t("emptyNoActes")}</p>
             )}
             {!search && actes.length > 0 && (
               <button
                 onClick={openAdd}
                 className="mt-4 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium"
               >
-                + Nouveau traitement
+                + {t("newTraitement")}
               </button>
             )}
           </div>
@@ -249,10 +252,10 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Traitement</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Catégorie</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Actes</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Prix</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.traitement")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.category")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.actes")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.price")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -265,15 +268,15 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{p.name}</td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_STYLE[p.category] ?? CATEGORY_STYLE.autre}`}>
-                        {p.category}
+                        {tcat(p.category)}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">
-                      {p.traitement_actes.length} acte{p.traitement_actes.length > 1 ? "s" : ""}
+                      {t("acteCount", { count: p.traitement_actes.length })}
                     </td>
                     <td className="px-5 py-3.5 text-zinc-900 dark:text-white font-medium">
                       {computedPrice(p).toFixed(2)} MAD
-                      {p.price_override != null && <span className="ml-1 text-[10px] text-zinc-400">(forfait)</span>}
+                      {p.price_override != null && <span className="ml-1 text-[10px] text-zinc-400">{t("flatRate")}</span>}
                     </td>
                   </tr>
                 ))}
@@ -289,29 +292,29 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="font-semibold text-zinc-900 dark:text-white">
-                {editing ? "Modifier le traitement" : "Nouveau traitement"}
+                {editing ? t("editTitle") : t("addTitle")}
               </h2>
               <button onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
 
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Nom <span className="text-red-500">*</span></label>
-                <input type="text" value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} placeholder="Ex. Pose de couronne" />
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.name")} <span className="text-red-500">*</span></label>
+                <input type="text" value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} placeholder={t("form.namePlaceholder")} />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Catégorie</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.category")}</label>
                 <select value={form.category} onChange={(e) => setForm(f => ({ ...f, category: e.target.value as TreatmentCategory }))} className={inputCls}>
-                  {CATEGORIES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  {CATEGORIES.map((opt) => <option key={opt} value={opt}>{tcat(opt)}</option>)}
                 </select>
               </div>
 
               {/* Actes composition */}
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">Actes du paquet <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">{t("form.packageActes")} <span className="text-red-500">*</span></label>
                 {actes.length === 0 ? (
-                  <p className="text-xs text-zinc-400">Aucun acte disponible. Créez des actes d&apos;abord.</p>
+                  <p className="text-xs text-zinc-400">{t("form.noActesAvailable")}</p>
                 ) : (
                   <div className="space-y-2">
                     {lines.map((l, i) => (
@@ -329,25 +332,25 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
                           className="w-16 px-2 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                         />
                         <button type="button" onClick={() => setLines(xs => xs.filter((_, j) => j !== i))}
-                          className="text-zinc-400 hover:text-red-500 px-1.5 text-lg leading-none" aria-label="Retirer">×</button>
+                          className="text-zinc-400 hover:text-red-500 px-1.5 text-lg leading-none" aria-label={t("form.remove")}>×</button>
                       </div>
                     ))}
                     <button type="button" onClick={() => setLines(xs => [...xs, { acte_id: actes[0]?.id ?? "", quantity: "1" }])}
-                      className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium">+ Ajouter un acte</button>
+                      className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium">+ {t("form.addActe")}</button>
                   </div>
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Prix forfaitaire (MAD)</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.flatPrice")}</label>
                   <input type="number" min="0" step="0.01" value={form.price_override}
                     onChange={(e) => setForm(f => ({ ...f, price_override: e.target.value }))}
-                    placeholder="auto" className={inputCls} />
-                  <p className="text-[10px] text-zinc-400 mt-1">Vide = somme des actes</p>
+                    placeholder={t("form.autoPlaceholder")} className={inputCls} />
+                  <p className="text-[10px] text-zinc-400 mt-1">{t("form.flatHint")}</p>
                 </div>
                 <div className="flex flex-col justify-end">
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Total</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.total")}</label>
                   <div className="px-3 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 text-sm font-semibold">
                     {formTotal.toFixed(2)} MAD
                   </div>
@@ -355,7 +358,7 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Description</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.description")}</label>
                 <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
               </div>
 
@@ -366,15 +369,15 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
               {editing && (
                 <button type="button" onClick={() => { setDeleteTarget(editing); setModalOpen(false); }}
                   className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-                  Supprimer
+                  {t("form.delete")}
                 </button>
               )}
               <div className="ms-auto flex items-center gap-3">
                 <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                  Annuler
+                  {t("form.cancel")}
                 </button>
                 <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                  {saving ? "Enregistrement…" : "Enregistrer"}
+                  {saving ? t("form.saving") : t("form.save")}
                 </button>
               </div>
             </div>
@@ -386,14 +389,14 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer ce traitement ?</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Le paquet sera supprimé. Les actes du catalogue ne sont pas affectés.</p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("deleteDialog.title")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("deleteDialog.body")}</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                Annuler
+                {t("form.cancel")}
               </button>
               <button onClick={handleDelete} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">
-                Supprimer
+                {t("form.delete")}
               </button>
             </div>
           </div>

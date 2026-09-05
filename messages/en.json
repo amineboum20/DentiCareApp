@@ -286,7 +286,7 @@
   },
   "traitements": {
     "title": "Treatments",
-    "searchPlaceholder": "Search by name or category…",
+    "searchPlaceholder": "Search for a treatment…",
     "newTraitement": "New treatment",
     "noTraitements": "No treatments yet",
     "noTraitementsDesc": "Add your dental procedures and services.",
@@ -314,7 +314,7 @@
       "addTitle": "New treatment",
       "editTitle": "Edit treatment",
       "name": "Name",
-      "namePlaceholder": "e.g. Scaling",
+      "namePlaceholder": "e.g. Crown placement",
       "category": "Category",
       "price": "Price (MAD)",
       "duration": "Duration (minutes)",
@@ -325,13 +325,41 @@
       "cancel": "Cancel",
       "requiredError": "Name and price are required.",
       "suppliers": "Suppliers",
-      "noSuppliers": "No suppliers"
+      "noSuppliers": "No suppliers",
+      "packageActes": "Package procedures",
+      "noActesAvailable": "No procedures available. Create procedures first.",
+      "remove": "Remove",
+      "addActe": "Add a procedure",
+      "flatPrice": "Flat price (MAD)",
+      "autoPlaceholder": "auto",
+      "flatHint": "Empty = sum of procedures",
+      "total": "Total",
+      "delete": "Delete"
     },
     "deleteConfirm": {
       "title": "Delete treatment",
       "message": "Delete \"{name}\"? This cannot be undone.",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "errName": "Name is required.",
+    "errNoActe": "Add at least one procedure to the package.",
+    "subtitle": "Reusable packages grouping several procedures",
+    "empty": "No treatments yet",
+    "emptyNoActes": "Create procedures first, then group them here.",
+    "col": {
+      "traitement": "Treatment",
+      "category": "Category",
+      "actes": "Procedures",
+      "price": "Price"
+    },
+    "acteCount": "{count, plural, one {# procedure} other {# procedures}}",
+    "flatRate": "(flat rate)",
+    "addTitle": "New treatment",
+    "editTitle": "Edit treatment",
+    "deleteDialog": {
+      "title": "Delete this treatment?",
+      "body": "The package will be deleted. Catalog procedures are not affected."
     }
   },
   "factures": {
@@ -794,5 +822,54 @@
     "cancel": "Cancel",
     "saving": "Saving…",
     "save": "Save"
+  },
+  "categories": {
+    "nettoyage": "Cleaning & scaling",
+    "obturation": "Filling (cavity)",
+    "extraction": "Extraction",
+    "couronne": "Crown",
+    "implant": "Implant",
+    "orthodontie": "Orthodontics",
+    "blanchiment": "Whitening",
+    "prothese": "Dental prosthesis",
+    "autre": "Other"
+  },
+  "actes": {
+    "errRequired": "Name and price are required.",
+    "title": "Procedures",
+    "subtitle": "Billable procedures (x-ray, scaling, extraction…)",
+    "newActe": "New procedure",
+    "searchPlaceholder": "Search for a procedure…",
+    "noResults": "No results",
+    "empty": "No procedures yet",
+    "col": {
+      "acte": "Procedure",
+      "category": "Category",
+      "price": "Price",
+      "duration": "Duration"
+    },
+    "minutesShort": "{n} min",
+    "addTitle": "New procedure",
+    "editTitle": "Edit procedure",
+    "form": {
+      "name": "Name",
+      "category": "Category",
+      "price": "Price (MAD)",
+      "duration": "Duration",
+      "minutesPlaceholder": "minutes",
+      "code": "Code / rating (insurance)",
+      "codePlaceholder": "Nomenclature code",
+      "description": "Description",
+      "notes": "Notes",
+      "suppliers": "Suppliers",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save"
+    },
+    "deleteDialog": {
+      "title": "Delete this procedure?",
+      "body": "This action is irreversible."
+    }
   }
 }

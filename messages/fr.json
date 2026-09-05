@@ -286,7 +286,7 @@
   },
   "traitements": {
     "title": "Traitements",
-    "searchPlaceholder": "Rechercher par nom ou catégorie…",
+    "searchPlaceholder": "Rechercher un traitement…",
     "newTraitement": "Nouveau traitement",
     "noTraitements": "Aucun traitement pour l'instant",
     "noTraitementsDesc": "Ajoutez vos soins et actes dentaires.",
@@ -314,7 +314,7 @@
       "addTitle": "Nouveau traitement",
       "editTitle": "Modifier le traitement",
       "name": "Nom",
-      "namePlaceholder": "Ex. Détartrage",
+      "namePlaceholder": "Ex. Pose de couronne",
       "category": "Catégorie",
       "price": "Prix (MAD)",
       "duration": "Durée (minutes)",
@@ -325,13 +325,41 @@
       "cancel": "Annuler",
       "requiredError": "Le nom et le prix sont obligatoires.",
       "suppliers": "Fournisseurs",
-      "noSuppliers": "Aucun fournisseur"
+      "noSuppliers": "Aucun fournisseur",
+      "packageActes": "Actes du paquet",
+      "noActesAvailable": "Aucun acte disponible. Créez des actes d'abord.",
+      "remove": "Retirer",
+      "addActe": "Ajouter un acte",
+      "flatPrice": "Prix forfaitaire (MAD)",
+      "autoPlaceholder": "auto",
+      "flatHint": "Vide = somme des actes",
+      "total": "Total",
+      "delete": "Supprimer"
     },
     "deleteConfirm": {
       "title": "Supprimer le traitement",
       "message": "Supprimer \"{name}\" ? Cette action est irréversible.",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    },
+    "errName": "Le nom est obligatoire.",
+    "errNoActe": "Ajoutez au moins un acte au paquet.",
+    "subtitle": "Paquets réutilisables regroupant plusieurs actes",
+    "empty": "Aucun traitement pour l'instant",
+    "emptyNoActes": "Créez d'abord des actes, puis regroupez-les ici.",
+    "col": {
+      "traitement": "Traitement",
+      "category": "Catégorie",
+      "actes": "Actes",
+      "price": "Prix"
+    },
+    "acteCount": "{count, plural, one {# acte} other {# actes}}",
+    "flatRate": "(forfait)",
+    "addTitle": "Nouveau traitement",
+    "editTitle": "Modifier le traitement",
+    "deleteDialog": {
+      "title": "Supprimer ce traitement ?",
+      "body": "Le paquet sera supprimé. Les actes du catalogue ne sont pas affectés."
     }
   },
   "factures": {
@@ -836,5 +864,54 @@
     "cancel": "Annuler",
     "saving": "Enregistrement…",
     "save": "Enregistrer"
+  },
+  "categories": {
+    "nettoyage": "Nettoyage & détartrage",
+    "obturation": "Obturation (carie)",
+    "extraction": "Extraction",
+    "couronne": "Couronne",
+    "implant": "Implant",
+    "orthodontie": "Orthodontie",
+    "blanchiment": "Blanchiment",
+    "prothese": "Prothèse dentaire",
+    "autre": "Autre"
+  },
+  "actes": {
+    "errRequired": "Le nom et le prix sont obligatoires.",
+    "title": "Actes",
+    "subtitle": "Actes facturables (radio, détartrage, extraction…)",
+    "newActe": "Nouvel acte",
+    "searchPlaceholder": "Rechercher un acte…",
+    "noResults": "Aucun résultat",
+    "empty": "Aucun acte pour l'instant",
+    "col": {
+      "acte": "Acte",
+      "category": "Catégorie",
+      "price": "Prix",
+      "duration": "Durée"
+    },
+    "minutesShort": "{n} min",
+    "addTitle": "Nouvel acte",
+    "editTitle": "Modifier l'acte",
+    "form": {
+      "name": "Nom",
+      "category": "Catégorie",
+      "price": "Prix (MAD)",
+      "duration": "Durée",
+      "minutesPlaceholder": "minutes",
+      "code": "Code / cotation (mutuelle)",
+      "codePlaceholder": "Code nomenclature",
+      "description": "Description",
+      "notes": "Notes",
+      "suppliers": "Fournisseurs",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "save": "Enregistrer"
+    },
+    "deleteDialog": {
+      "title": "Supprimer cet acte ?",
+      "body": "Cette action est irréversible."
+    }
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { Acte, TreatmentCategory, Supplier } from "@/types/database";
@@ -44,6 +45,8 @@ export default function ActesClient({ initialActes }: Props) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
   const { practiceId, currentUserId } = useAppContext();
+  const t = useTranslations("actes");
+  const tcat = useTranslations("categories");
 
   const [actes, setActes] = useState<Acte[]>(initialActes);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -98,7 +101,7 @@ export default function ActesClient({ initialActes }: Props) {
 
   async function handleSave() {
     if (!form.name.trim() || !form.price) {
-      setError("Le nom et le prix sont obligatoires.");
+      setError(t("errRequired"));
       return;
     }
     setSaving(true);
@@ -162,14 +165,14 @@ export default function ActesClient({ initialActes }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Actes</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Actes facturables (radio, détartrage, extraction…)</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{t("subtitle")}</p>
         </div>
         <button
           onClick={openAdd}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
         >
-          + Nouvel acte
+          + {t("newActe")}
         </button>
       </div>
 
@@ -178,7 +181,7 @@ export default function ActesClient({ initialActes }: Props) {
         <span className="absolute inset-y-0 start-3 flex items-center text-zinc-400 text-sm">🔍</span>
         <input
           type="text"
-          placeholder="Rechercher un acte…"
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full ps-9 pe-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -191,14 +194,14 @@ export default function ActesClient({ initialActes }: Props) {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <span className="text-4xl mb-3">{search ? "🔍" : "🦷"}</span>
             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              {search ? "Aucun résultat" : "Aucun acte pour l'instant"}
+              {search ? t("noResults") : t("empty")}
             </p>
             {!search && (
               <button
                 onClick={openAdd}
                 className="mt-4 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium"
               >
-                + Nouvel acte
+                + {t("newActe")}
               </button>
             )}
           </div>
@@ -207,10 +210,10 @@ export default function ActesClient({ initialActes }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Acte</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Catégorie</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Prix</th>
-                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">Durée</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.acte")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.category")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.price")}</th>
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.duration")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -223,12 +226,12 @@ export default function ActesClient({ initialActes }: Props) {
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{a.name}</td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_STYLE[a.category] ?? CATEGORY_STYLE.autre}`}>
-                        {a.category}
+                        {tcat(a.category)}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{a.price.toFixed(2)} MAD</td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">
-                      {a.duration_minutes != null ? `${a.duration_minutes} min` : "—"}
+                      {a.duration_minutes != null ? t("minutesShort", { n: a.duration_minutes }) : "—"}
                     </td>
                   </tr>
                 ))}
@@ -244,7 +247,7 @@ export default function ActesClient({ initialActes }: Props) {
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="font-semibold text-zinc-900 dark:text-white">
-                {editingActe ? "Modifier l'acte" : "Nouvel acte"}
+                {editingActe ? t("editTitle") : t("addTitle")}
               </h2>
               <button
                 onClick={() => setModalOpen(false)}
@@ -257,18 +260,18 @@ export default function ActesClient({ initialActes }: Props) {
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  Nom <span className="text-red-500">*</span>
+                  {t("form.name")} <span className="text-red-500">*</span>
                 </label>
                 <input type="text" {...field("name")} className={inputCls} />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  Catégorie <span className="text-red-500">*</span>
+                  {t("form.category")} <span className="text-red-500">*</span>
                 </label>
                 <select {...field("category")} className={inputCls}>
                   {CATEGORIES.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                    <option key={opt} value={opt}>{tcat(opt)}</option>
                   ))}
                 </select>
               </div>
@@ -276,33 +279,33 @@ export default function ActesClient({ initialActes }: Props) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                    Prix (MAD) <span className="text-red-500">*</span>
+                    {t("form.price")} <span className="text-red-500">*</span>
                   </label>
                   <input type="number" min="0" step="0.01" {...field("price")} className={inputCls} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                    Durée
+                    {t("form.duration")}
                   </label>
-                  <input type="number" min="0" step="1" {...field("duration_minutes")} placeholder="minutes" className={inputCls} />
+                  <input type="number" min="0" step="1" {...field("duration_minutes")} placeholder={t("form.minutesPlaceholder")} className={inputCls} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Code / cotation (mutuelle)</label>
-                <input {...field("code")} placeholder="Code nomenclature" className={inputCls} />
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.code")}</label>
+                <input {...field("code")} placeholder={t("form.codePlaceholder")} className={inputCls} />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  Description
+                  {t("form.description")}
                 </label>
                 <textarea {...field("description")} rows={2} className={`${inputCls} resize-none`} />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  Notes
+                  {t("form.notes")}
                 </label>
                 <textarea {...field("notes")} rows={2} className={`${inputCls} resize-none`} />
               </div>
@@ -310,7 +313,7 @@ export default function ActesClient({ initialActes }: Props) {
               {suppliers.length > 0 && (
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-2">
-                    Fournisseurs
+                    {t("form.suppliers")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {suppliers.map(s => {
@@ -342,7 +345,7 @@ export default function ActesClient({ initialActes }: Props) {
                   onClick={() => { setDeleteTarget(editingActe); setModalOpen(false); }}
                   className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
                 >
-                  Supprimer
+                  {t("form.delete")}
                 </button>
               )}
               <div className="ms-auto flex items-center gap-3">
@@ -350,14 +353,14 @@ export default function ActesClient({ initialActes }: Props) {
                   onClick={() => setModalOpen(false)}
                   className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  Annuler
+                  {t("form.cancel")}
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
                   className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors"
                 >
-                  {saving ? "Enregistrement…" : "Enregistrer"}
+                  {saving ? t("form.saving") : t("form.save")}
                 </button>
               </div>
             </div>
@@ -369,22 +372,22 @@ export default function ActesClient({ initialActes }: Props) {
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cet acte ?</h2>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("deleteDialog.title")}</h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-              Cette action est irréversible.
+              {t("deleteDialog.body")}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleteTarget(null)}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
-                Annuler
+                {t("form.cancel")}
               </button>
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
               >
-                Supprimer
+                {t("form.delete")}
               </button>
             </div>
           </div>

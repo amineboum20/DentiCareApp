@@ -286,7 +286,7 @@
   },
   "traitements": {
     "title": "العلاجات",
-    "searchPlaceholder": "بحث بالاسم أو الفئة…",
+    "searchPlaceholder": "ابحث عن علاج…",
     "newTraitement": "علاج جديد",
     "noTraitements": "لا علاجات بعد",
     "noTraitementsDesc": "أضف إجراءاتك السنية.",
@@ -314,24 +314,52 @@
       "addTitle": "علاج جديد",
       "editTitle": "تعديل العلاج",
       "name": "الاسم",
-      "namePlaceholder": "مثال: تنظيف",
+      "namePlaceholder": "مثال: تركيب تاج",
       "category": "الفئة",
       "price": "السعر (MAD)",
       "duration": "المدة (دقائق)",
-      "description": "وصف",
+      "description": "الوصف",
       "notes": "ملاحظات",
       "save": "حفظ",
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
       "requiredError": "الاسم والسعر إلزاميان.",
       "suppliers": "الموردون",
-      "noSuppliers": "لا موردين"
+      "noSuppliers": "لا موردين",
+      "packageActes": "إجراءات الباقة",
+      "noActesAvailable": "لا إجراءات متاحة. أنشئ الإجراءات أولاً.",
+      "remove": "إزالة",
+      "addActe": "إضافة إجراء",
+      "flatPrice": "السعر المقطوع (درهم)",
+      "autoPlaceholder": "تلقائي",
+      "flatHint": "فارغ = مجموع الإجراءات",
+      "total": "المجموع",
+      "delete": "حذف"
     },
     "deleteConfirm": {
       "title": "حذف العلاج",
       "message": "حذف \"{name}\"؟ هذا الإجراء لا يمكن التراجع عنه.",
       "confirm": "حذف",
       "cancel": "إلغاء"
+    },
+    "errName": "الاسم مطلوب.",
+    "errNoActe": "أضف إجراءً واحداً على الأقل للباقة.",
+    "subtitle": "باقات قابلة لإعادة الاستخدام تجمع عدة إجراءات",
+    "empty": "لا علاجات بعد",
+    "emptyNoActes": "أنشئ الإجراءات أولاً ثم اجمعها هنا.",
+    "col": {
+      "traitement": "العلاج",
+      "category": "الفئة",
+      "actes": "الإجراءات",
+      "price": "السعر"
+    },
+    "acteCount": "{count} إجراء",
+    "flatRate": "(مقطوع)",
+    "addTitle": "علاج جديد",
+    "editTitle": "تعديل العلاج",
+    "deleteDialog": {
+      "title": "حذف هذا العلاج؟",
+      "body": "ستُحذف الباقة. لا تتأثر إجراءات الكتالوج."
     }
   },
   "factures": {
@@ -794,5 +822,54 @@
     "cancel": "إلغاء",
     "saving": "جارٍ الحفظ…",
     "save": "حفظ"
+  },
+  "categories": {
+    "nettoyage": "تنظيف وتقليح",
+    "obturation": "حشو (تسوس)",
+    "extraction": "خلع",
+    "couronne": "تاج",
+    "implant": "زرعة",
+    "orthodontie": "تقويم الأسنان",
+    "blanchiment": "تبييض",
+    "prothese": "تركيبة سنية",
+    "autre": "أخرى"
+  },
+  "actes": {
+    "errRequired": "الاسم والسعر مطلوبان.",
+    "title": "الإجراءات",
+    "subtitle": "إجراءات قابلة للفوترة (أشعة، تقليح، خلع…)",
+    "newActe": "إجراء جديد",
+    "searchPlaceholder": "ابحث عن إجراء…",
+    "noResults": "لا نتائج",
+    "empty": "لا إجراءات بعد",
+    "col": {
+      "acte": "الإجراء",
+      "category": "الفئة",
+      "price": "السعر",
+      "duration": "المدة"
+    },
+    "minutesShort": "{n} د",
+    "addTitle": "إجراء جديد",
+    "editTitle": "تعديل الإجراء",
+    "form": {
+      "name": "الاسم",
+      "category": "الفئة",
+      "price": "السعر (درهم)",
+      "duration": "المدة",
+      "minutesPlaceholder": "دقائق",
+      "code": "الرمز / التصنيف (التأمين)",
+      "codePlaceholder": "رمز التصنيف",
+      "description": "الوصف",
+      "notes": "ملاحظات",
+      "suppliers": "الموردون",
+      "delete": "حذف",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ…",
+      "save": "حفظ"
+    },
+    "deleteDialog": {
+      "title": "حذف هذا الإجراء؟",
+      "body": "هذا الإجراء لا رجعة فيه."
+    }
   }
 }
