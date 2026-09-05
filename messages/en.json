@@ -351,7 +351,7 @@
       "addTitle": "New invoice",
       "editTitle": "Edit invoice",
       "patient": "Patient",
-      "selectPatient": "Select a patient…",
+      "selectPatient": "— Select a patient —",
       "status": "Status",
       "items": "Items",
       "addItem": "Add item",
@@ -368,13 +368,32 @@
       "saving": "Saving…",
       "cancel": "Cancel",
       "patientRequired": "Please select a patient.",
-      "itemRequired": "Add at least one item."
+      "itemRequired": "Add at least one item.",
+      "linkedVisit": "Linked visit (optional)",
+      "none": "— None —",
+      "noVisits": "No visits for this patient.",
+      "selectPatientFirst": "Select a patient first.",
+      "visiteDossierNote": "The invoice uses the case of the selected visit.",
+      "requiredError": "Please fill in the required fields."
     },
     "deleteConfirm": {
       "title": "Delete invoice",
       "message": "Delete invoice for {name} on {date}?",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "motif": {
+      "consultation": "Consultation",
+      "controle": "Check-up",
+      "soin": "Treatment",
+      "urgence": "Emergency",
+      "autre": "Other"
+    },
+    "cancelDialog": {
+      "title": "Cancel this invoice?",
+      "body": "The invoice will be marked \"Cancelled\" and excluded from totals. It is kept for history — you can reactivate it by changing its status.",
+      "back": "Back",
+      "confirm": "Cancel invoice"
     }
   },
   "dossiers": {

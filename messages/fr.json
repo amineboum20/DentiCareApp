@@ -351,7 +351,7 @@
       "addTitle": "Nouvelle facture",
       "editTitle": "Modifier la facture",
       "patient": "Patient",
-      "selectPatient": "Choisir un patient…",
+      "selectPatient": "— Sélectionner un patient —",
       "status": "Statut",
       "items": "Actes",
       "addItem": "Ajouter un acte",
@@ -368,13 +368,32 @@
       "saving": "Enregistrement…",
       "cancel": "Annuler",
       "patientRequired": "Veuillez sélectionner un patient.",
-      "itemRequired": "Ajoutez au moins un acte."
+      "itemRequired": "Ajoutez au moins un acte.",
+      "linkedVisit": "Visite liée (optionnel)",
+      "none": "— Aucune —",
+      "noVisits": "Aucune visite pour ce patient.",
+      "selectPatientFirst": "Sélectionnez d'abord un patient.",
+      "visiteDossierNote": "La facture reprend le dossier de la visite choisie.",
+      "requiredError": "Veuillez remplir les champs requis."
     },
     "deleteConfirm": {
       "title": "Supprimer la facture",
       "message": "Supprimer la facture de {name} du {date} ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    },
+    "motif": {
+      "consultation": "Consultation",
+      "controle": "Contrôle",
+      "soin": "Soin",
+      "urgence": "Urgence",
+      "autre": "Autre"
+    },
+    "cancelDialog": {
+      "title": "Annuler cette facture ?",
+      "body": "La facture sera marquée « Annulée » et exclue des totaux. Elle reste conservée pour l'historique — vous pourrez la réactiver en changeant son statut.",
+      "back": "Retour",
+      "confirm": "Annuler la facture"
     }
   },
   "consultations": {

@@ -351,7 +351,7 @@
       "addTitle": "فاتورة جديدة",
       "editTitle": "تعديل الفاتورة",
       "patient": "المريض",
-      "selectPatient": "اختر مريضاً…",
+      "selectPatient": "— اختر مريضاً —",
       "status": "الحالة",
       "items": "العناصر",
       "addItem": "إضافة عنصر",
@@ -368,13 +368,32 @@
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
       "patientRequired": "يرجى اختيار مريض.",
-      "itemRequired": "أضف عنصراً واحداً على الأقل."
+      "itemRequired": "أضف عنصراً واحداً على الأقل.",
+      "linkedVisit": "الزيارة المرتبطة (اختياري)",
+      "none": "— لا شيء —",
+      "noVisits": "لا زيارات لهذا المريض.",
+      "selectPatientFirst": "اختر مريضاً أولاً.",
+      "visiteDossierNote": "تعتمد الفاتورة على ملف الزيارة المختارة.",
+      "requiredError": "يرجى ملء الحقول المطلوبة."
     },
     "deleteConfirm": {
       "title": "حذف الفاتورة",
       "message": "حذف فاتورة {name} بتاريخ {date}؟",
       "confirm": "حذف",
       "cancel": "إلغاء"
+    },
+    "motif": {
+      "consultation": "استشارة",
+      "controle": "فحص",
+      "soin": "علاج",
+      "urgence": "طارئ",
+      "autre": "أخرى"
+    },
+    "cancelDialog": {
+      "title": "إلغاء هذه الفاتورة؟",
+      "body": "ستُعلَّم الفاتورة كـ«ملغاة» وتُستبعد من المجاميع. تبقى محفوظة في السجل — يمكنك إعادة تفعيلها بتغيير حالتها.",
+      "back": "رجوع",
+      "confirm": "إلغاء الفاتورة"
     }
   },
   "dossiers": {

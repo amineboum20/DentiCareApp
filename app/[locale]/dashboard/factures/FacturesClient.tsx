@@ -21,22 +21,11 @@ const emptyForm = {
   consultation_id: "",
 };
 
-const MOTIF_LABEL: Record<string, string> = {
-  consultation: "Consultation", controle: "Contrôle", soin: "Soin", urgence: "Urgence", autre: "Autre",
-};
-
 const STATUS_STYLE: Record<string, string> = {
   en_attente: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
   en_cours:   "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
   payee:      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
   annulee:    "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  en_attente: "En attente",
-  en_cours:   "En cours",
-  payee:      "Payée",
-  annulee:    "Annulée",
 };
 
 const STATUSES: FactureStatus[] = ["en_attente", "en_cours", "payee", "annulee"];
@@ -48,6 +37,7 @@ function fmtDate(iso: string | null) {
 
 export default function FacturesClient({ initialFactures, patients }: Props) {
   const t = useTranslations("factures");
+  const ts = useTranslations("factureStatus");
   const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -241,7 +231,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[f.status] ?? STATUS_STYLE.en_attente}`}>
-                        {STATUS_LABEL[f.status] ?? f.status}
+                        {ts(f.status)}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{f.total_price.toFixed(2)} MAD</td>
@@ -284,7 +274,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                   className={inputCls}
                   required
                 >
-                  <option value="">— Sélectionner un patient —</option>
+                  <option value="">{t("form.selectPatient")}</option>
                   {patients.map((p) => (
                     <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
                   ))}
@@ -297,7 +287,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                 </label>
                 <select {...field("status")} className={inputCls}>
                   {STATUSES.map((s) => (
-                    <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+                    <option key={s} value={s}>{ts(s)}</option>
                   ))}
                 </select>
               </div>
@@ -325,18 +315,18 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">🦷 Visite liée (optionnel)</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">🦷 {t("form.linkedVisit")}</label>
                 <select value={form.consultation_id} onChange={(e) => setForm((f) => ({ ...f, consultation_id: e.target.value }))} className={inputCls} disabled={!form.patient_id}>
-                  <option value="">— Aucune —</option>
+                  <option value="">{t("form.none")}</option>
                   {patientVisites.map((v) => (
                     <option key={v.id} value={v.id}>
-                      {new Date(v.exam_date).toLocaleDateString("fr-FR")} — {MOTIF_LABEL[v.motif] ?? v.motif}
+                      {new Date(v.exam_date).toLocaleDateString("fr-FR")} — {t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif}
                     </option>
                   ))}
                 </select>
-                {form.patient_id && patientVisites.length === 0 && <p className="text-[11px] text-zinc-400 mt-1">Aucune visite pour ce patient.</p>}
-                {!form.patient_id && <p className="text-[11px] text-zinc-400 mt-1">Sélectionnez d&apos;abord un patient.</p>}
-                <p className="text-[11px] text-zinc-400 mt-1">La facture reprend le dossier de la visite choisie.</p>
+                {form.patient_id && patientVisites.length === 0 && <p className="text-[11px] text-zinc-400 mt-1">{t("form.noVisits")}</p>}
+                {!form.patient_id && <p className="text-[11px] text-zinc-400 mt-1">{t("form.selectPatientFirst")}</p>}
+                <p className="text-[11px] text-zinc-400 mt-1">{t("form.visiteDossierNote")}</p>
               </div>
 
               {error && <p className="text-xs text-red-500">{error}</p>}
@@ -376,22 +366,22 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Annuler cette facture ?</h2>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("cancelDialog.title")}</h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-              La facture sera marquée « Annulée » et exclue des totaux. Elle reste conservée pour l&apos;historique — vous pourrez la réactiver en changeant son statut.
+              {t("cancelDialog.body")}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleteTarget(null)}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
-                Retour
+                {t("cancelDialog.back")}
               </button>
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
               >
-                Annuler la facture
+                {t("cancelDialog.confirm")}
               </button>
             </div>
           </div>
