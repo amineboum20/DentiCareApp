@@ -680,5 +680,63 @@
     "pendingMember": "Your access to <b>{name}</b> is being reviewed. You'll be able to sign in once it's approved.",
     "pendingPractice": "Your practice <b>{name}</b> is being verified. You'll get access once it's approved.",
     "questionsContact": "Questions? Contact"
+  },
+  "visites": {
+    "motif": {
+      "consultation": "Consultation",
+      "controle": "Check-up",
+      "soin": "Treatment",
+      "urgence": "Emergency",
+      "autre": "Other"
+    },
+    "errRequired": "Patient and date are required.",
+    "errFuture": "A visit can't be in the future — schedule an appointment instead.",
+    "autoDossierTitle": "Visit of {date}",
+    "title": "Visits",
+    "newVisit": "New visit",
+    "searchPlaceholder": "Search by patient…",
+    "noResults": "No results",
+    "noVisits": "No visits yet",
+    "col": {
+      "patient": "Patient",
+      "motif": "Reason",
+      "date": "Date",
+      "treatedBy": "Treated by",
+      "teeth": "Teeth"
+    },
+    "addTitle": "New visit",
+    "editTitle": "Edit visit",
+    "form": {
+      "patient": "Patient",
+      "selectPatient": "— Select a patient —",
+      "motif": "Reason",
+      "date": "Date",
+      "nextExam": "Next check-up",
+      "dentist": "Dentist",
+      "clinicalNotes": "Clinical notes",
+      "exams": "Additional exams",
+      "examsPlaceholder": "X-ray, scan, test…",
+      "linkDossier": "Link to a case",
+      "noneAuto": "— None (auto-created if billed) —",
+      "newDossier": "New case",
+      "dossierTitlePlaceholder": "Case title",
+      "create": "Create",
+      "noOpenDossier": "No open case — use + to create one.",
+      "selectPatientFirst": "Select a patient first.",
+      "billVisit": "Bill this visit",
+      "addActe": "+ Add a procedure…",
+      "billExistingNote": "Added to an open invoice of the case (created if needed).",
+      "autoDossierNote": "A case \"Visit of {date}\" will be created automatically.",
+      "totalLabel": "Total",
+      "noActes": "No procedures in the catalog — create a \"Consultation\" procedure to bill.",
+      "saving": "Saving…",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete this visit?",
+      "body": "This action is irreversible."
+    }
   }
 }

@@ -680,5 +680,63 @@
     "pendingMember": "جارٍ مراجعة وصولك إلى <b>{name}</b>. ستتمكن من تسجيل الدخول بمجرد الموافقة عليه.",
     "pendingPractice": "جارٍ التحقق من عيادتك <b>{name}</b>. ستحصل على الوصول بمجرد الموافقة عليها.",
     "questionsContact": "أسئلة؟ تواصل مع"
+  },
+  "visites": {
+    "motif": {
+      "consultation": "استشارة",
+      "controle": "فحص",
+      "soin": "علاج",
+      "urgence": "طارئ",
+      "autre": "أخرى"
+    },
+    "errRequired": "المريض والتاريخ مطلوبان.",
+    "errFuture": "لا يمكن أن تكون الزيارة في المستقبل — حدّد موعداً بدلاً من ذلك.",
+    "autoDossierTitle": "زيارة {date}",
+    "title": "الزيارات",
+    "newVisit": "زيارة جديدة",
+    "searchPlaceholder": "ابحث بالمريض…",
+    "noResults": "لا نتائج",
+    "noVisits": "لا زيارات بعد",
+    "col": {
+      "patient": "المريض",
+      "motif": "السبب",
+      "date": "التاريخ",
+      "treatedBy": "عالجه",
+      "teeth": "الأسنان"
+    },
+    "addTitle": "زيارة جديدة",
+    "editTitle": "تعديل الزيارة",
+    "form": {
+      "patient": "المريض",
+      "selectPatient": "— اختر مريضاً —",
+      "motif": "السبب",
+      "date": "التاريخ",
+      "nextExam": "الفحص القادم",
+      "dentist": "طبيب الأسنان",
+      "clinicalNotes": "ملاحظات سريرية",
+      "exams": "فحوصات إضافية",
+      "examsPlaceholder": "أشعة، ماسح، فحص…",
+      "linkDossier": "ربط بملف",
+      "noneAuto": "— لا شيء (يُنشأ تلقائياً عند الفوترة) —",
+      "newDossier": "ملف جديد",
+      "dossierTitlePlaceholder": "عنوان الملف",
+      "create": "إنشاء",
+      "noOpenDossier": "لا ملف مفتوح — استخدم + لإنشاء واحد.",
+      "selectPatientFirst": "اختر مريضاً أولاً.",
+      "billVisit": "فوترة هذه الزيارة",
+      "addActe": "+ إضافة إجراء…",
+      "billExistingNote": "يُضاف إلى فاتورة مفتوحة للملف (تُنشأ عند الحاجة).",
+      "autoDossierNote": "سيُنشأ ملف «زيارة {date}» تلقائياً.",
+      "totalLabel": "المجموع",
+      "noActes": "لا إجراءات في الكتالوج — أنشئ إجراء «استشارة» لتتمكن من الفوترة.",
+      "saving": "جارٍ الحفظ…",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "delete": "حذف"
+    },
+    "deleteDialog": {
+      "title": "حذف هذه الزيارة؟",
+      "body": "هذا الإجراء لا رجعة فيه."
+    }
   }
 }

@@ -722,5 +722,63 @@
     "pendingMember": "Votre accès au cabinet <b>{name}</b> est en cours de validation. Vous pourrez vous connecter dès qu'il sera approuvé.",
     "pendingPractice": "Votre cabinet <b>{name}</b> est en cours de vérification. Vous recevrez un accès dès qu'il sera approuvé.",
     "questionsContact": "Des questions ? Contactez"
+  },
+  "visites": {
+    "motif": {
+      "consultation": "Consultation",
+      "controle": "Contrôle",
+      "soin": "Soin",
+      "urgence": "Urgence",
+      "autre": "Autre"
+    },
+    "errRequired": "Le patient et la date sont obligatoires.",
+    "errFuture": "Une visite ne peut pas être dans le futur — planifiez plutôt un rendez-vous.",
+    "autoDossierTitle": "Visite du {date}",
+    "title": "Visites",
+    "newVisit": "Nouvelle visite",
+    "searchPlaceholder": "Rechercher par patient…",
+    "noResults": "Aucun résultat",
+    "noVisits": "Aucune visite pour l'instant",
+    "col": {
+      "patient": "Patient",
+      "motif": "Motif",
+      "date": "Date",
+      "treatedBy": "Traité par",
+      "teeth": "Dents"
+    },
+    "addTitle": "Nouvelle visite",
+    "editTitle": "Modifier la visite",
+    "form": {
+      "patient": "Patient",
+      "selectPatient": "— Sélectionner un patient —",
+      "motif": "Motif",
+      "date": "Date",
+      "nextExam": "Prochain contrôle",
+      "dentist": "Dentiste",
+      "clinicalNotes": "Notes cliniques",
+      "exams": "Examens complémentaires",
+      "examsPlaceholder": "Radio, scanner, test…",
+      "linkDossier": "Rattacher à un dossier",
+      "noneAuto": "— Aucun (créé auto. si facturé) —",
+      "newDossier": "Nouveau dossier",
+      "dossierTitlePlaceholder": "Intitulé du dossier",
+      "create": "Créer",
+      "noOpenDossier": "Aucun dossier ouvert — utilisez + pour en créer un.",
+      "selectPatientFirst": "Sélectionnez d'abord un patient.",
+      "billVisit": "Facturer cette visite",
+      "addActe": "+ Ajouter un acte…",
+      "billExistingNote": "Ajouté à une facture ouverte du dossier (créée si besoin).",
+      "autoDossierNote": "Un dossier « Visite du {date} » sera créé automatiquement.",
+      "totalLabel": "Total",
+      "noActes": "Aucun acte au catalogue — créez un acte « Consultation » pour pouvoir facturer.",
+      "saving": "Enregistrement…",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "deleteDialog": {
+      "title": "Supprimer cette visite ?",
+      "body": "Cette action est irréversible."
+    }
   }
 }
