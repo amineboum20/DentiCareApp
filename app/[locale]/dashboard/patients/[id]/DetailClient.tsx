@@ -7,6 +7,10 @@ import { createClient } from "@/utils/supabase/client";
 import type { Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import LocalInstant from "@/components/LocalInstant";
+import ToothChart, { type ToothRow } from "@/components/ToothChart";
+import { useAppContext } from "@/components/AppContext";
+import { isChildAge } from "@/components/odontogram-data";
+import { exportPatientInfoPdf } from "@/utils/patient-print";
 
 
 interface Props {
@@ -59,8 +63,10 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   const tv = useTranslations("visites");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const { shopName, shopAddress, shopPhone } = useAppContext();
   const [patient, setPatient] = useState<Patient>(initialPatient);
   const [isMobile, setIsMobile] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
   // Snapshot
   const [snapshotLoading, setSnapshotLoading] = useState(true);
@@ -71,6 +77,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   const [historyConsultations, setHistoryConsultations] = useState<HistoryConsultation[]>([]);
   const [historyFactures, setHistoryFactures] = useState<HistoryFacture[]>([]);
   const [historyDossiers, setHistoryDossiers] = useState<{ id: string; title: string; statut: string; created_at: string }[]>([]);
+  const [toothRows, setToothRows] = useState<ToothRow[]>([]);
 
   // Edit modal
   const [modalOpen, setModalOpen] = useState(false);
@@ -108,13 +115,40 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       supabase.from("consultations").select("id, motif, exam_date, next_exam_date, treated_by, clinical_notes, teeth").eq("patient_id", patient.id).order("exam_date", { ascending: false }),
       supabase.from("factures").select("id, status, total_price, deposit_paid, created_at, notes").eq("patient_id", patient.id).order("created_at", { ascending: false }),
       supabase.from("dossiers").select("id, title, statut, created_at").eq("patient_id", patient.id).is("archived_at", null).order("created_at", { ascending: false }),
-    ]).then(([{ data: consultations }, { data: factures }, { data: dossiers }]) => {
+      supabase.from("tooth_chart").select("tooth, status, note").eq("patient_id", patient.id),
+    ]).then(([{ data: consultations }, { data: factures }, { data: dossiers }, { data: teeth }]) => {
       setHistoryConsultations((consultations ?? []) as HistoryConsultation[]);
       setHistoryFactures((factures ?? []) as HistoryFacture[]);
       setHistoryDossiers((dossiers ?? []) as { id: string; title: string; statut: string; created_at: string }[]);
+      setToothRows((teeth ?? []) as ToothRow[]);
       setHistoryLoading(false);
     });
   }, [patient.id, supabase]);
+
+  async function handlePrint() {
+    setPrinting(true);
+    try {
+      const chart = Object.fromEntries(toothRows.map((r) => [r.tooth, { status: r.status }]));
+      await exportPatientInfoPdf({
+        patientName: `${patient.first_name} ${patient.last_name}`.trim(),
+        dob: patient.date_of_birth,
+        sexe: patient.sexe,
+        cin: patient.cin,
+        phone: patient.phone,
+        address: patient.address,
+        mutuelleOrganisme: patient.mutuelle_organisme,
+        mutuelleNumero: patient.mutuelle_numero,
+        mutuelleLien: patient.mutuelle_lien,
+        chart,
+        isChild: isChildAge(patient.date_of_birth),
+        shopName,
+        shopAddress,
+        shopPhone,
+      });
+    } finally {
+      setPrinting(false);
+    }
+  }
 
   function openEdit() {
     setForm({
@@ -341,80 +375,6 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </div>
           )}
         </div>
-        </div>{/* end left column */}
-
-        {/* RIGHT column: actions rapides + history */}
-        <div className="space-y-6 pb-8">
-        {/* Section 3: Actions rapides + action bar */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
-          <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-3">{t("detail.quickActions")}</p>
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            <button onClick={() => router.push(`/${locale}/dashboard/dossiers?new=1&patient_id=${patient.id}`)}
-              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
-              <span className="text-lg">📁</span>
-              <span className="text-[11px] font-medium leading-tight">{t("detail.dossier")}</span>
-            </button>
-            <button onClick={() => router.push(`/${locale}/dashboard/consultations?new=1&patient_id=${patient.id}`)}
-              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
-              <span className="text-lg">🏥</span>
-              <span className="text-[11px] font-medium leading-tight">{t("detail.visite")}</span>
-            </button>
-            <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${patient.id}`)}
-              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
-              <span className="text-lg">💊</span>
-              <span className="text-[11px] font-medium leading-tight">{t("detail.ordonnance")}</span>
-            </button>
-            <button onClick={() => router.push(`/${locale}/dashboard/appointments?new=1&patient_id=${patient.id}`)}
-              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
-              <span className="text-lg">📅</span>
-              <span className="text-[11px] font-medium leading-tight">{t("detail.rdv")}</span>
-            </button>
-          </div>
-          {(patient.phone || (!isMobile && patient.email)) && (
-            <div className={`grid gap-2 mb-2 ${patient.phone && (!isMobile ? patient.email : true) ? "grid-cols-2" : "grid-cols-1"}`}>
-              {isMobile && patient.phone ? (
-                <a href={`tel:${patient.phone.replace(/\D/g, "")}`}
-                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
-                  <span className="text-lg">📞</span>
-                  <span className="text-[11px] font-medium leading-tight">{t("detail.call")}</span>
-                </a>
-              ) : !isMobile && patient.email ? (
-                <a href={`mailto:${patient.email}`}
-                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
-                  <span className="text-lg">✉️</span>
-                  <span className="text-[11px] font-medium leading-tight">{t("detail.sendEmail")}</span>
-                </a>
-              ) : null}
-              {patient.phone && (
-                <a href={`https://wa.me/${patient.phone.replace(/\D/g, "")}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors text-emerald-600 dark:text-emerald-400">
-                  <span className="text-lg">💬</span>
-                  <span className="text-[11px] font-medium leading-tight">{t("detail.whatsapp")}</span>
-                </a>
-              )}
-            </div>
-          )}
-          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-            {patient.archived_at ? (
-              <button onClick={handleUnarchive} disabled={archiveLoading}
-                className="px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-                {archiveLoading ? tc("loading") : t("detail.unarchive")}
-              </button>
-            ) : (
-              <button onClick={handleArchiveStart} disabled={archiveLoading}
-                className="px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-                {archiveLoading ? tc("loading") : t("archive.archive")}
-              </button>
-            )}
-            <div className="ms-auto">
-              <button onClick={openEdit}
-                className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-                ✏️ {t("detail.edit")}
-              </button>
-            </div>
-          </div>
-        </div>
         {/* Section 3: History */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-5">{t("detail.history")}</h2>
@@ -522,6 +482,87 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </div>
           )}
         </div>
+        </div>{/* end left column */}
+
+        {/* RIGHT column: actions rapides + history */}
+        <div className="space-y-6 pb-8">
+        {/* Section 3: Actions rapides + action bar */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
+          <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide mb-3">{t("detail.quickActions")}</p>
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <button onClick={() => router.push(`/${locale}/dashboard/dossiers?new=1&patient_id=${patient.id}`)}
+              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+              <span className="text-lg">📁</span>
+              <span className="text-[11px] font-medium leading-tight">{t("detail.dossier")}</span>
+            </button>
+            <button onClick={() => router.push(`/${locale}/dashboard/consultations?new=1&patient_id=${patient.id}`)}
+              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+              <span className="text-lg">🏥</span>
+              <span className="text-[11px] font-medium leading-tight">{t("detail.visite")}</span>
+            </button>
+            <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${patient.id}`)}
+              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+              <span className="text-lg">💊</span>
+              <span className="text-[11px] font-medium leading-tight">{t("detail.ordonnance")}</span>
+            </button>
+            <button onClick={() => router.push(`/${locale}/dashboard/appointments?new=1&patient_id=${patient.id}`)}
+              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+              <span className="text-lg">📅</span>
+              <span className="text-[11px] font-medium leading-tight">{t("detail.rdv")}</span>
+            </button>
+          </div>
+          <button onClick={handlePrint} disabled={printing}
+            className="w-full flex items-center justify-center gap-2 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300 mb-2 disabled:opacity-60">
+            <span className="text-lg">🖨️</span>
+            <span className="text-[11px] font-medium leading-tight">{printing ? tc("loading") : t("detail.printInfo")}</span>
+          </button>
+          {(patient.phone || (!isMobile && patient.email)) && (
+            <div className={`grid gap-2 mb-2 ${patient.phone && (!isMobile ? patient.email : true) ? "grid-cols-2" : "grid-cols-1"}`}>
+              {isMobile && patient.phone ? (
+                <a href={`tel:${patient.phone.replace(/\D/g, "")}`}
+                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
+                  <span className="text-lg">📞</span>
+                  <span className="text-[11px] font-medium leading-tight">{t("detail.call")}</span>
+                </a>
+              ) : !isMobile && patient.email ? (
+                <a href={`mailto:${patient.email}`}
+                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
+                  <span className="text-lg">✉️</span>
+                  <span className="text-[11px] font-medium leading-tight">{t("detail.sendEmail")}</span>
+                </a>
+              ) : null}
+              {patient.phone && (
+                <a href={`https://wa.me/${patient.phone.replace(/\D/g, "")}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors text-emerald-600 dark:text-emerald-400">
+                  <span className="text-lg">💬</span>
+                  <span className="text-[11px] font-medium leading-tight">{t("detail.whatsapp")}</span>
+                </a>
+              )}
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+            {patient.archived_at ? (
+              <button onClick={handleUnarchive} disabled={archiveLoading}
+                className="px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+                {archiveLoading ? tc("loading") : t("detail.unarchive")}
+              </button>
+            ) : (
+              <button onClick={handleArchiveStart} disabled={archiveLoading}
+                className="px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
+                {archiveLoading ? tc("loading") : t("archive.archive")}
+              </button>
+            )}
+            <div className="ms-auto">
+              <button onClick={openEdit}
+                className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
+                ✏️ {t("detail.edit")}
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Section: Odontogram */}
+        <ToothChart patientId={patient.id} initial={toothRows} birthDate={patient.date_of_birth} />
         </div>{/* end right column */}
       </div>{/* end grid */}
 

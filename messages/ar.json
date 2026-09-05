@@ -1,4 +1,23 @@
 {
+  "toothChart": {
+    "title": "المخطط السني",
+    "adult": "بالغ",
+    "child": "طفل",
+    "toothLabel": "السن {tooth}",
+    "notePlaceholder": "ملاحظة (اختياري)",
+    "clear": "مسح",
+    "selectHint": "انقر على سنٍّ لتحديد حالته.",
+    "status": {
+      "carie": "تسوّس",
+      "obturee": "محشوّة",
+      "couronne": "تاج",
+      "a_traiter": "تحتاج علاجاً",
+      "prothese": "تعويض",
+      "bridge": "جسر",
+      "implant": "زرعة",
+      "absente": "مفقودة"
+    }
+  },
   "nav": {
     "features": "الميزات",
     "howItWorks": "كيف يعمل",
@@ -659,6 +678,7 @@
       "unpaidFactures": "{count} فاتورة غير مسددة",
       "due": "مستحق",
       "quickActions": "إجراءات سريعة",
+      "printInfo": "طباعة المعلومات",
       "dossier": "ملف",
       "visite": "زيارة",
       "ordonnance": "وصفة",

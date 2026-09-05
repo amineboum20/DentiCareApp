@@ -1,4 +1,23 @@
 {
+  "toothChart": {
+    "title": "Schéma dentaire",
+    "adult": "Adulte",
+    "child": "Enfant",
+    "toothLabel": "Dent {tooth}",
+    "notePlaceholder": "Note (facultatif)",
+    "clear": "Effacer",
+    "selectHint": "Cliquez sur une dent pour définir son état.",
+    "status": {
+      "carie": "Carie",
+      "obturee": "Obturée",
+      "couronne": "Couronne",
+      "a_traiter": "À traiter",
+      "prothese": "Prothèse",
+      "bridge": "Bridge",
+      "implant": "Implant",
+      "absente": "Absente"
+    }
+  },
   "nav": {
     "features": "Fonctionnalités",
     "howItWorks": "Comment ça marche",
@@ -701,6 +720,7 @@
       "unpaidFactures": "{count, plural, one {# facture non soldée} other {# factures non soldées}}",
       "due": "dû",
       "quickActions": "Actions rapides",
+      "printInfo": "Imprimer infos",
       "dossier": "Dossier",
       "visite": "Visite",
       "ordonnance": "Ordonnance",

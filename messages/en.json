@@ -1,4 +1,23 @@
 {
+  "toothChart": {
+    "title": "Dental chart",
+    "adult": "Adult",
+    "child": "Child",
+    "toothLabel": "Tooth {tooth}",
+    "notePlaceholder": "Note (optional)",
+    "clear": "Clear",
+    "selectHint": "Click a tooth to set its condition.",
+    "status": {
+      "carie": "Caries",
+      "obturee": "Filled",
+      "couronne": "Crown",
+      "a_traiter": "To treat",
+      "prothese": "Prosthesis",
+      "bridge": "Bridge",
+      "implant": "Implant",
+      "absente": "Missing"
+    }
+  },
   "nav": {
     "features": "Features",
     "howItWorks": "How it works",
@@ -659,6 +678,7 @@
       "unpaidFactures": "{count, plural, one {# unpaid invoice} other {# unpaid invoices}}",
       "due": "due",
       "quickActions": "Quick actions",
+      "printInfo": "Print info",
       "dossier": "Case",
       "visite": "Visit",
       "ordonnance": "Prescription",
