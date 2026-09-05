@@ -134,7 +134,7 @@
     "inviteButton": "Activer mon compte"
   },
   "signUp": {
-    "title": "Créez votre compte",
+    "title": "Créez votre cabinet",
     "subtitle": "Gratuit pour démarrer — sans carte bancaire",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "signInLink": "Se connecter",
@@ -155,8 +155,6 @@
     "goToSignIn": "Aller à la connexion",
     "inviteTitle": "Inscription sur invitation",
     "inviteDesc": "L'accès à DentiCare est actuellement disponible uniquement sur demande. Contactez-nous pour créer votre compte démo gratuit.",
-    "title": "Créez votre cabinet",
-    "subtitle": "Gratuit pour démarrer — sans carte bancaire",
     "cabinetName": "Nom du cabinet",
     "cabinetNamePlaceholder": "Cabinet Dr. Dupont",
     "sentTitle": "Vérifiez votre e-mail !",
@@ -214,8 +212,21 @@
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
     "allStatuses": "Tous",
-    "statuses": { "planifie": "Planifié", "termine": "Terminé", "annule": "Annulé", "absent": "Absent" },
-    "types": { "consultation": "Consultation", "nettoyage": "Nettoyage", "soin": "Soin", "chirurgie": "Chirurgie", "controle": "Contrôle", "orthodontie": "Orthodontie", "autre": "Autre" },
+    "statuses": {
+      "planifie": "Planifié",
+      "termine": "Terminé",
+      "annule": "Annulé",
+      "absent": "Absent"
+    },
+    "types": {
+      "consultation": "Consultation",
+      "nettoyage": "Nettoyage",
+      "soin": "Soin",
+      "chirurgie": "Chirurgie",
+      "controle": "Contrôle",
+      "orthodontie": "Orthodontie",
+      "autre": "Autre"
+    },
     "form": {
       "addTitle": "Nouveau rendez-vous",
       "editTitle": "Modifier le rendez-vous",
@@ -281,7 +292,12 @@
       "prothese": "Prothèse",
       "autre": "Autre"
     },
-    "columns": { "traitement": "Traitement", "category": "Catégorie", "price": "Prix", "duration": "Durée" },
+    "columns": {
+      "traitement": "Traitement",
+      "category": "Catégorie",
+      "price": "Prix",
+      "duration": "Durée"
+    },
     "form": {
       "addTitle": "Nouveau traitement",
       "editTitle": "Modifier le traitement",
@@ -315,8 +331,20 @@
     "noResults": "Aucun résultat",
     "noResultsDesc": "Aucune facture ne correspond à \"{query}\".",
     "allStatuses": "Toutes",
-    "statuses": { "en_attente": "En attente", "en_cours": "En cours", "payee": "Payée", "annulee": "Annulée" },
-    "columns": { "patient": "Patient", "date": "Date", "status": "Statut", "total": "Total", "deposit": "Acompte", "remaining": "Reste dû" },
+    "statuses": {
+      "en_attente": "En attente",
+      "en_cours": "En cours",
+      "payee": "Payée",
+      "annulee": "Annulée"
+    },
+    "columns": {
+      "patient": "Patient",
+      "date": "Date",
+      "status": "Statut",
+      "total": "Total",
+      "deposit": "Acompte",
+      "remaining": "Reste dû"
+    },
     "form": {
       "addTitle": "Nouvelle facture",
       "editTitle": "Modifier la facture",
@@ -528,7 +556,12 @@
       "received": "Reçue",
       "cancelled": "Annulée"
     },
-    "columns": { "supplier": "Fournisseur", "status": "Statut", "date": "Date", "total": "Total" },
+    "columns": {
+      "supplier": "Fournisseur",
+      "status": "Statut",
+      "date": "Date",
+      "total": "Total"
+    },
     "form": {
       "addTitle": "Nouvelle commande",
       "editTitle": "Modifier la commande",
@@ -550,5 +583,14 @@
       "confirm": "Supprimer",
       "cancel": "Annuler"
     }
+  },
+  "search": {
+    "placeholder": "Rechercher patients, traitements, rendez-vous…",
+    "archived": "Archivé",
+    "patients": "Patients",
+    "actes": "Actes",
+    "appointments": "Rendez-vous",
+    "factures": "Factures",
+    "noResults": "Aucun résultat pour « {query} »"
   }
 }

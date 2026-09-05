@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
 
@@ -18,6 +19,7 @@ export default function GlobalSearch() {
   const containerRef = useRef<HTMLDivElement>(null);
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const t = useTranslations("search");
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -74,7 +76,7 @@ export default function GlobalSearch() {
         <input
           ref={inputRef}
           type="text"
-          placeholder="Rechercher patients, traitements, rendez-vous…"
+          placeholder={t("placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => { if (query.trim()) setOpen(true); }}
@@ -91,7 +93,7 @@ export default function GlobalSearch() {
         <div className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden z-50">
           {patients.length > 0 && (
             <>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Patients</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">{t("patients")}</p>
               {patients.map((p) => (
                 <button key={p.id} onClick={() => go(`/dashboard/patients/${p.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-start transition-colors">
@@ -102,7 +104,7 @@ export default function GlobalSearch() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-zinc-900 dark:text-white">{p.first_name} {p.last_name}</p>
                       {p.archived_at && (
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 shrink-0">Archivé</span>
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 shrink-0">{t("archived")}</span>
                       )}
                     </div>
                     {p.phone && <p className="text-xs text-zinc-400 truncate">{p.phone}</p>}
@@ -114,7 +116,7 @@ export default function GlobalSearch() {
           {traitements.length > 0 && (
             <>
               {patients.length > 0 && <div className="border-t border-zinc-100 dark:border-zinc-800" />}
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Actes</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">{t("actes")}</p>
               {traitements.map((tr) => (
                 <button key={tr.id} onClick={() => go(`/dashboard/actes/${tr.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-start transition-colors">
@@ -127,7 +129,7 @@ export default function GlobalSearch() {
           {appts.length > 0 && (
             <>
               {(patients.length > 0 || traitements.length > 0) && <div className="border-t border-zinc-100 dark:border-zinc-800" />}
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">Rendez-vous</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 px-4 pt-3 pb-1">{t("appointments")}</p>
               {appts.map((a) => (
                 <button key={a.id} onClick={() => go(`/dashboard/appointments/${a.id}`)}
                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-start transition-colors">
@@ -142,8 +144,8 @@ export default function GlobalSearch() {
           )}
           <div className="border-t border-zinc-100 dark:border-zinc-800 px-4 py-2 flex gap-4">
             {([
-              { href: "/dashboard/patients", label: "Patients", icon: "👤" },
-              { href: "/dashboard/factures", label: "Factures", icon: "🧾" },
+              { href: "/dashboard/patients", label: t("patients"), icon: "👤" },
+              { href: "/dashboard/factures", label: t("factures"), icon: "🧾" },
             ] as const).map((l) => (
               <button key={l.href} onClick={() => go(l.href)}
                 className="text-[10px] text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-1">
@@ -156,7 +158,7 @@ export default function GlobalSearch() {
 
       {open && query.trim() && total === 0 && (
         <div className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 py-6 z-50">
-          <p className="text-sm text-zinc-400 text-center">Aucun résultat pour « {query} »</p>
+          <p className="text-sm text-zinc-400 text-center">{t("noResults", { query })}</p>
         </div>
       )}
     </div>
