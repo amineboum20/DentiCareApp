@@ -48,6 +48,7 @@ const emptyForm = {
   first_name: "", last_name: "", email: "",
   phone: "", date_of_birth: "", address: "", notes: "",
   mutuelle_organisme: "", mutuelle_numero: "", mutuelle_lien: "",
+  cin: "", sexe: "",
 };
 
 export default function PatientDetailClient({ patient: initialPatient, locale }: Props) {
@@ -127,6 +128,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       mutuelle_organisme: patient.mutuelle_organisme ?? "",
       mutuelle_numero: patient.mutuelle_numero ?? "",
       mutuelle_lien: patient.mutuelle_lien ?? "",
+      cin: patient.cin ?? "",
+      sexe: patient.sexe ?? "",
     });
     setFormError("");
     setModalOpen(true);
@@ -154,6 +157,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       mutuelle_organisme: form.mutuelle_organisme.trim() || null,
       mutuelle_numero: form.mutuelle_numero.trim() || null,
       mutuelle_lien: form.mutuelle_lien.trim() || null,
+      cin: form.cin.trim() || null,
+      sexe: form.sexe || null,
     };
     const { data, error: err } = await supabase.from("patients").update(payload).eq("id", patient.id).select().single();
     if (err) { setFormError(err.message); setSaving(false); return; }
@@ -244,6 +249,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             <DR label={t("columns.phone")} value={patient.phone} />
             <DR label={t("columns.email")} value={patient.email} />
             <DR label={t("columns.dob")} value={fmtDate(patient.date_of_birth)} />
+            <DR label={t("detail.cin")} value={patient.cin} />
+            <DR label={t("detail.sexe")} value={patient.sexe === "M" ? t("form.sexeM") : patient.sexe === "F" ? t("form.sexeF") : null} />
             <DR label={t("detail.address")} value={patient.address} />
             <DR label={t("detail.mutuelle")} value={patient.mutuelle_organisme} />
             <DR label={t("detail.insuredNo")} value={patient.mutuelle_numero ? `${patient.mutuelle_numero}${patient.mutuelle_lien ? ` (${patient.mutuelle_lien})` : ""}` : null} />
@@ -547,9 +554,23 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                   <input type="email" {...field("email")} className={inputCls} />
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.dob")}</label>
-                <input type="date" {...field("date_of_birth")} className={inputCls} />
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.dob")}</label>
+                  <input type="date" {...field("date_of_birth")} className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.cin")}</label>
+                  <input {...field("cin")} className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.sexe")}</label>
+                  <select value={form.sexe} onChange={(e) => setForm(f => ({ ...f, sexe: e.target.value }))} className={inputCls}>
+                    <option value="">—</option>
+                    <option value="M">{t("form.sexeM")}</option>
+                    <option value="F">{t("form.sexeF")}</option>
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.address")}</label>

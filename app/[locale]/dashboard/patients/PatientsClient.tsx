@@ -15,6 +15,7 @@ const emptyForm = {
   first_name: "", last_name: "", email: "",
   phone: "", date_of_birth: "", address: "", notes: "",
   mutuelle_organisme: "", mutuelle_numero: "", mutuelle_lien: "",
+  cin: "", sexe: "",
 };
 
 function fmtDate(iso: string | null) {
@@ -98,6 +99,8 @@ export default function PatientsClient({ initialPatients }: Props) {
       mutuelle_organisme: form.mutuelle_organisme.trim() || null,
       mutuelle_numero: form.mutuelle_numero.trim() || null,
       mutuelle_lien: form.mutuelle_lien.trim() || null,
+      cin: form.cin.trim() || null,
+      sexe: form.sexe || null,
     };
 
     if (editingPatient) {
@@ -267,9 +270,23 @@ export default function PatientsClient({ initialPatients }: Props) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.dob")}</label>
-                <input type="date" {...field("date_of_birth")} className={inputCls} />
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.dob")}</label>
+                  <input type="date" {...field("date_of_birth")} className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.cin")}</label>
+                  <input {...field("cin")} className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.sexe")}</label>
+                  <select value={form.sexe} onChange={(e) => setForm((f) => ({ ...f, sexe: e.target.value }))} className={inputCls}>
+                    <option value="">—</option>
+                    <option value="M">{t("form.sexeM")}</option>
+                    <option value="F">{t("form.sexeF")}</option>
+                  </select>
+                </div>
               </div>
 
               <div>

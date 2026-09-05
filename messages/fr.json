@@ -652,6 +652,10 @@
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "cancel": "Annuler",
+      "cin": "N° CIN",
+      "sexe": "Sexe",
+      "sexeM": "Homme",
+      "sexeF": "Femme",
       "requiredError": "Le prénom et le nom sont obligatoires."
     },
     "deleteConfirm": {
@@ -686,6 +690,8 @@
       "address": "Adresse",
       "mutuelle": "Mutuelle",
       "insuredNo": "N° assuré",
+      "cin": "N° CIN",
+      "sexe": "Sexe",
       "notes": "Notes",
       "quickView": "Vue rapide",
       "lastVisit": "Dernière visite",

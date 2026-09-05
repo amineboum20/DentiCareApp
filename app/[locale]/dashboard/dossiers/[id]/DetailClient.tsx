@@ -87,7 +87,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [rdvOpen, setRdvOpen] = useState(false);
   const [cancelTarget, setCancelTarget] = useState<Doc | null>(null);
   const [busy, setBusy] = useState(false);
-  const [feuilleBusy, setFeuilleBusy] = useState(false);
+  const [feuilleBusy, setFeuilleBusy] = useState<"CNOPS" | "CNSS" | null>(null);
   const [err, setErr] = useState("");
 
   const patient = dossier.patients as { first_name: string; last_name: string; phone?: string | null; address?: string | null };
@@ -262,10 +262,10 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   }
 
   // ─── feuille de soins (mutuelle) ───
-  async function generateFeuille() {
-    setFeuilleBusy(true);
+  async function generateFeuille(insurer: "CNOPS" | "CNSS") {
+    setFeuilleBusy(insurer);
     try {
-      const { data: pat } = await supabase.from("patients").select("mutuelle_organisme, mutuelle_numero, mutuelle_lien, phone").eq("id", dossier.patient_id).single();
+      const { data: pat } = await supabase.from("patients").select("mutuelle_numero, mutuelle_lien, phone, cin, sexe, date_of_birth, address").eq("id", dossier.patient_id).single();
       const { data: facs } = await supabase.from("factures").select("status, type, facture_items(description, quantity, unit_price, acte_date, actes(code))").eq("dossier_id", dossier.id);
       type FI = { description: string; quantity: number; unit_price: number; acte_date: string | null; actes: { code: string | null } | { code: string | null }[] | null };
       const acts: { date: string | null; code: string | null; designation: string; quantity: number; honoraires: number }[] = [];
@@ -286,16 +286,19 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
         prat = (p as { name: string; inpe: string | null; numero_ordre: string | null } | null) ?? null;
       }
 
-      const patM = pat as { mutuelle_organisme: string | null; mutuelle_numero: string | null; mutuelle_lien: string | null; phone: string | null } | null;
+      const patM = pat as { mutuelle_numero: string | null; mutuelle_lien: string | null; phone: string | null; cin: string | null; sexe: string | null; date_of_birth: string | null; address: string | null } | null;
       await exportFeuilleSoinsPdf({
+        insurer,
         dossierId: dossier.id, dossierTitle: dossier.title, date: today,
         patientName, patientPhone: patM?.phone ?? patient.phone ?? null,
-        mutuelleOrganisme: patM?.mutuelle_organisme ?? null, mutuelleNumero: patM?.mutuelle_numero ?? null, mutuelleLien: patM?.mutuelle_lien ?? null,
+        patientCin: patM?.cin ?? null, patientSexe: patM?.sexe ?? null,
+        patientBirthDate: patM?.date_of_birth ?? null, patientAddress: patM?.address ?? null,
+        mutuelleNumero: patM?.mutuelle_numero ?? null, mutuelleLien: patM?.mutuelle_lien ?? null,
         praticienName: prat?.name ?? null, praticienInpe: prat?.inpe ?? null, praticienNumeroOrdre: prat?.numero_ordre ?? null,
         acts, total, shopName, shopAddress, shopPhone, logoUrl,
       });
     } finally {
-      setFeuilleBusy(false);
+      setFeuilleBusy(null);
     }
   }
 
@@ -399,7 +402,10 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               </div>
             </div>
             {totalDevis > 0 && <p className="text-[11px] text-zinc-400 mt-1">{t("devisEstimated", { amount: money(totalDevis) })}</p>}
-            <button onClick={generateFeuille} disabled={feuilleBusy} className="mt-3 w-full px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors disabled:opacity-60">{feuilleBusy ? t("generating") : `🧾 ${t("feuilleSoins")}`}</button>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button onClick={() => generateFeuille("CNOPS")} disabled={feuilleBusy !== null} className="px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors disabled:opacity-60">{feuilleBusy === "CNOPS" ? t("generating") : "🧾 FDS CNOPS"}</button>
+              <button onClick={() => generateFeuille("CNSS")} disabled={feuilleBusy !== null} className="px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors disabled:opacity-60">{feuilleBusy === "CNSS" ? t("generating") : "🧾 FDS CNSS"}</button>
+            </div>
           </div>
 
           {/* Documents */}

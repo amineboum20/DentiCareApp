@@ -52,6 +52,8 @@ export interface Patient {
   mutuelle_organisme: string | null
   mutuelle_numero: string | null
   mutuelle_lien: string | null
+  cin: string | null
+  sexe: string | null
   created_at: string
   updated_at: string
   archived_at: string | null

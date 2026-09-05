@@ -229,12 +229,16 @@ export async function exportFacturePdf(opts: {
 
 // Feuille de soins (mutuelle / AMO reimbursement sheet) PDF
 export async function exportFeuilleSoinsPdf(opts: {
+  insurer: "CNOPS" | "CNSS";
   dossierId: string;
   dossierTitle: string;
   date: string;
   patientName: string;
   patientPhone: string | null;
-  mutuelleOrganisme: string | null;
+  patientCin: string | null;
+  patientSexe: string | null;
+  patientBirthDate: string | null;
+  patientAddress: string | null;
   mutuelleNumero: string | null;
   mutuelleLien: string | null;
   praticienName: string | null;
@@ -249,103 +253,125 @@ export async function exportFeuilleSoinsPdf(opts: {
 }) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
-  const W = 210, ml = 20, mr = W - 20;
+  const W = 210, ml = 14, mr = W - 14;
+  const isCnops = opts.insurer === "CNOPS";
+  const ref = isCnops ? "1.1.03.01" : "1.2.03.01";
   const number = `FS-${opts.dossierId.slice(0, 8).toUpperCase()}`;
+  const accent: [number, number, number] = isCnops ? [16, 110, 130] : [40, 90, 60];
+  const col2 = ml + (mr - ml) / 2;
 
+  const gray = (v: number) => doc.setTextColor(v, v, v);
+  function band(top: number, text: string): number {
+    doc.setFillColor(accent[0], accent[1], accent[2]);
+    doc.rect(ml, top, mr - ml, 6, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); doc.setTextColor(255, 255, 255);
+    doc.text(text.toUpperCase(), ml + 2, top + 4.1);
+    return top + 11;
+  }
+  function label(x: number, yy: number, text: string) {
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); gray(110); doc.text(text, x, yy);
+  }
+  function value(x: number, yy: number, text: string | null | undefined) {
+    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(25, 25, 25);
+    doc.text(text && String(text).length ? String(text) : "—", x, yy);
+  }
+  function checkbox(x: number, yy: number, checked: boolean, text: string) {
+    doc.setDrawColor(120, 120, 120); doc.setLineWidth(0.3); doc.rect(x, yy - 3, 3.2, 3.2);
+    if (checked) { doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(25, 25, 25); doc.text("X", x + 0.5, yy - 0.4); }
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(50, 50, 50); doc.text(text, x + 4.5, yy);
+  }
+  const lien = (opts.mutuelleLien || "").toLowerCase();
+  const isConjoint = /conjoint|epoux|époux|epouse|épouse/.test(lien);
+  const isEnfant = /enfant|fils|fille/.test(lien);
+  const isLuiMeme = /lui|soi|assur|titulaire|meme|même/.test(lien);
+
+  // ── header ──
   let logoData: { dataUrl: string; aspect: number } | null = null;
   if (opts.logoUrl) logoData = await loadLogoDataUrl(opts.logoUrl);
   if (logoData) {
-    const maxW = 40, maxH = 20;
+    const maxW = 30, maxH = 15;
     const imgW = logoData.aspect > maxW / maxH ? maxW : maxH * logoData.aspect;
     const imgH = logoData.aspect > maxW / maxH ? maxW / logoData.aspect : maxH;
-    doc.addImage(logoData.dataUrl, logoData.dataUrl.startsWith("data:image/png") ? "PNG" : "JPEG", ml, 12, imgW, imgH);
-  } else {
-    doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(20, 20, 20);
-    doc.text("DentiCare", ml, 22);
+    doc.addImage(logoData.dataUrl, logoData.dataUrl.startsWith("data:image/png") ? "PNG" : "JPEG", ml, 9, imgW, imgH);
   }
-  doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(20, 20, 20);
-  doc.text(opts.shopName || "DentiCare", mr, 17, { align: "right" });
-  doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(90, 90, 90);
-  if (opts.shopAddress) doc.text(opts.shopAddress, mr, 23, { align: "right" });
-  if (opts.shopPhone) doc.text(opts.shopPhone, mr, 28, { align: "right" });
+  doc.setFont("helvetica", "bold"); doc.setFontSize(20); doc.setTextColor(accent[0], accent[1], accent[2]);
+  doc.text(opts.insurer, W / 2, 16, { align: "center" });
+  doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(25, 25, 25);
+  doc.text("Feuille de soins dentaires", W / 2, 22, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); gray(110);
+  doc.text("Assurance Maladie Obligatoire", W / 2, 27, { align: "center" });
+  doc.setFontSize(7.5); doc.setTextColor(90, 90, 90);
+  doc.text(`Réf. ANAM ${ref}`, mr, 12, { align: "right" });
+  doc.text("N° Dossier : ____________", mr, 27, { align: "right" });
+  doc.setDrawColor(200, 200, 200); doc.setLineWidth(0.3); doc.line(ml, 30, mr, 30);
 
-  doc.setDrawColor(200, 200, 200); doc.line(ml, 36, mr, 36);
+  // ── Partie réservée à l'assuré(e) ──
+  let y = band(34, "Partie réservée à l'assuré(e)");
+  label(ml, y, "Nom et prénom"); value(ml + 28, y, opts.patientName); y += 7;
+  if (isCnops) { label(ml, y, "N° Affiliation"); value(ml + 28, y, opts.mutuelleNumero); label(col2, y, "N° Immatriculation"); value(col2 + 32, y, opts.mutuelleNumero); }
+  else { label(ml, y, "N° Immatriculation"); value(ml + 32, y, opts.mutuelleNumero); }
+  y += 7;
+  label(ml, y, "N° CIN"); value(ml + 28, y, opts.patientCin);
+  label(col2, y, "Lien de parenté"); checkbox(col2 + 28, y, isConjoint, "Conjoint"); checkbox(col2 + 50, y, isEnfant, "Enfant");
+  if (!isCnops) checkbox(col2 + 68, y, isLuiMeme, "Lui-même");
+  y += 7;
+  label(ml, y, "Adresse"); value(ml + 28, y, opts.patientAddress); y += 7;
+  label(ml, y, "Montant des frais (Dhs)"); value(ml + 40, y, opts.total.toFixed(2));
+  label(col2, y, "Nombre de pièces jointes"); value(col2 + 42, y, "____");
 
-  doc.setFontSize(18); doc.setFont("helvetica", "bold"); doc.setTextColor(20, 20, 20);
-  doc.text("FEUILLE DE SOINS", ml, 50);
-  doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(80, 80, 80);
-  doc.text(`N° ${number}`, ml, 57);
-  doc.text("Date :", mr - 38, 50);
-  doc.setFont("helvetica", "bold"); doc.setTextColor(20, 20, 20);
-  doc.text(fmtDate(opts.date), mr, 50, { align: "right" });
+  // ── Bénéficiaire de soins ──
+  y = band(y + 3, "Bénéficiaire de soins");
+  label(ml, y, "Nom et prénom"); value(ml + 28, y, opts.patientName); y += 7;
+  label(ml, y, "Date de naissance"); value(ml + 30, y, opts.patientBirthDate ? fmtDate(opts.patientBirthDate) : null);
+  label(col2, y, "Sexe"); checkbox(col2 + 12, y, opts.patientSexe === "M", "M"); checkbox(col2 + 28, y, opts.patientSexe === "F", "F");
+  label(col2 + 46, y, "N° CIN"); value(col2 + 58, y, opts.patientCin);
 
-  doc.setDrawColor(200, 200, 200); doc.line(ml, 64, mr, 64);
+  // ── Identification du chirurgien dentiste ──
+  y = band(y + 3, "Identification du chirurgien dentiste");
+  label(ml, y, "N° INP"); value(ml + 28, y, opts.praticienInpe); y += 7;
+  label(ml, y, "Type de soins");
+  checkbox(ml + 28, y, false, "Soins"); checkbox(ml + 48, y, false, "Prothèse"); checkbox(ml + 74, y, false, "Orthodontie / ODF"); checkbox(ml + 116, y, false, "Autres");
+  y += 7;
+  label(ml, y, "N° entente préalable"); value(ml + 36, y, "____");
 
-  // Patient / assuré block
-  let y = 73;
-  doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(90, 90, 90);
-  doc.text("ASSURÉ / PATIENT", ml, y);
+  // ── Description des actes ──
+  y = band(y + 3, "Description des actes");
+  const cDent = ml + 1, cCode = ml + 16, cDate = ml + 34, cDes = ml + 58, cMont = mr - 1;
+  doc.setFillColor(238, 240, 242); doc.rect(ml, y - 4.5, mr - ml, 6, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); gray(70);
+  doc.text("Dents", cDent, y); doc.text("Code", cCode, y); doc.text("Date", cDate, y); doc.text("Désignation de l'acte", cDes, y); doc.text("Montant (MAD)", cMont, y, { align: "right" });
   y += 6;
-  doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(20, 20, 20);
-  doc.text(opts.patientName, ml, y);
-  y += 6;
-  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(70, 70, 70);
-  const infoBits = [
-    opts.mutuelleOrganisme ? `Organisme : ${opts.mutuelleOrganisme}` : null,
-    opts.mutuelleNumero ? `N° immatriculation : ${opts.mutuelleNumero}` : null,
-    opts.mutuelleLien ? `Lien : ${opts.mutuelleLien}` : null,
-    opts.patientPhone ? `Tél : ${opts.patientPhone}` : null,
-  ].filter(Boolean) as string[];
-  infoBits.forEach((b) => { doc.text(b, ml, y); y += 5; });
-  y += 4;
-  doc.setDrawColor(220, 220, 220); doc.line(ml, y, mr, y);
-
-  // Acts table
-  y += 9;
-  const colDate = ml, colCode = ml + 26, colDes = ml + 48, colHon = mr;
-  doc.setFillColor(244, 244, 248); doc.rect(ml, y - 4.5, mr - ml, 7, "F");
-  doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(60, 60, 60);
-  doc.text("Date", colDate, y);
-  doc.text("Code", colCode, y);
-  doc.text("Désignation de l'acte", colDes, y);
-  doc.text("Honoraires (MAD)", colHon, y, { align: "right" });
-  y += 8;
-  doc.setFont("helvetica", "normal"); doc.setFontSize(9);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(8.5);
   for (const a of opts.acts) {
-    doc.setTextColor(50, 50, 50);
-    doc.text(a.date ? fmtDate(a.date) : "—", colDate, y);
-    doc.text(a.code ?? "—", colCode, y);
-    doc.setTextColor(30, 30, 30);
+    gray(45);
+    doc.text(a.code ?? "—", cCode, y);
+    doc.text(a.date ? fmtDate(a.date) : "—", cDate, y);
     const desig = a.quantity > 1 ? `${a.designation} (x${a.quantity})` : a.designation;
-    doc.text(doc.splitTextToSize(desig, colHon - colDes - 20)[0], colDes, y);
-    doc.text(a.honoraires.toFixed(2), colHon, y, { align: "right" });
+    doc.setTextColor(30, 30, 30); doc.text(doc.splitTextToSize(desig, cMont - cDes - 22)[0], cDes, y);
+    doc.text(a.honoraires.toFixed(2), cMont, y, { align: "right" });
     y += 7;
-    doc.setDrawColor(235, 235, 235); doc.line(ml, y - 2, mr, y - 2);
+    doc.setDrawColor(230, 230, 230); doc.setLineWidth(0.2); doc.line(ml, y - 2.5, mr, y - 2.5);
   }
-  y += 4;
-  doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(100, 100, 100);
-  doc.text("Total honoraires :", colDes, y, { align: "right" });
-  doc.setTextColor(20, 20, 20);
-  doc.text(`${opts.total.toFixed(2)} MAD`, colHon, y, { align: "right" });
+  y += 3;
+  doc.setFont("helvetica", "bold"); doc.setFontSize(9); gray(90);
+  doc.text("Total honoraires :", cMont - 30, y, { align: "right" });
+  doc.setTextColor(20, 20, 20); doc.text(`${opts.total.toFixed(2)} MAD`, cMont, y, { align: "right" });
 
-  // Praticien / signature block
-  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(90, 90, 90);
-  doc.text(opts.praticienName ? `Dr. ${opts.praticienName}` : "Le praticien", mr, 250, { align: "right" });
-  const idBits = [
-    opts.praticienInpe ? `INPE : ${opts.praticienInpe}` : null,
-    opts.praticienNumeroOrdre ? `N° ordre : ${opts.praticienNumeroOrdre}` : null,
-  ].filter(Boolean) as string[];
-  let sy = 255;
-  idBits.forEach((b) => { doc.setFontSize(8); doc.setTextColor(120, 120, 120); doc.text(b, mr, sy, { align: "right" }); sy += 4; });
-  doc.setDrawColor(200, 200, 200); doc.line(mr - 55, sy + 2, mr, sy + 2);
-  doc.setFontSize(7); doc.setTextColor(160, 160, 160);
-  doc.text("Signature / cachet", mr, sy + 6, { align: "right" });
+  // ── Attestation / signature ──
+  const boxY = Math.max(y + 14, 252);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); gray(110);
+  doc.text("Fait à ______________  le __________", ml, boxY);
+  doc.text("Signature de l'assuré(e)", ml, boxY + 20);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(30, 30, 30);
+  doc.text(opts.praticienName ? `Dr. ${opts.praticienName}` : "Le chirurgien dentiste", mr, boxY, { align: "right" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); gray(120);
+  if (opts.praticienInpe) doc.text(`INPE : ${opts.praticienInpe}`, mr, boxY + 5, { align: "right" });
+  doc.text("Cachet et signature du praticien", mr, boxY + 20, { align: "right" });
 
-  doc.setFontSize(7); doc.setTextColor(160, 160, 160);
-  doc.line(ml, 284, mr, 284);
-  doc.text(`Généré par DentiCare · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, { align: "center" });
+  doc.setFontSize(6.5); doc.setTextColor(160, 160, 160);
+  doc.text(`Généré par DentiCare · ${opts.insurer} · ${number} · ${fmtDate(opts.date)}`, W / 2, 291, { align: "center" });
 
-  doc.save(`feuille-soins-${number}-${opts.patientName.replace(/\s+/g, "-")}.pdf`);
+  doc.save(`feuille-soins-${opts.insurer}-${number}-${opts.patientName.replace(/\s+/g, "-")}.pdf`);
 }
 
 // Prescription (ordonnance) PDF

@@ -610,6 +610,10 @@
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
+      "cin": "CIN no.",
+      "sexe": "Sex",
+      "sexeM": "Male",
+      "sexeF": "Female",
       "requiredError": "First name and last name are required."
     },
     "deleteConfirm": {
@@ -644,6 +648,8 @@
       "address": "Address",
       "mutuelle": "Insurance",
       "insuredNo": "Insured no.",
+      "cin": "CIN no.",
+      "sexe": "Sex",
       "notes": "Notes",
       "quickView": "Quick view",
       "lastVisit": "Last visit",
