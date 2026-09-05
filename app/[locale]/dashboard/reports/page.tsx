@@ -1,6 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
+import { getTranslations } from "next-intl/server";
 
 export default async function ReportsPage() {
+  const t = await getTranslations("reports");
+  const ts = await getTranslations("factureStatus");
   const supabase = await createClient();
   const now = new Date();
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -36,12 +39,6 @@ export default async function ReportsPage() {
     annulee:    (facturesMois ?? []).filter((f) => f.status === "annulee").length,
   };
 
-  const STATUS_LABEL: Record<string, string> = {
-    en_attente: "En attente",
-    en_cours:   "En cours",
-    payee:      "Payée",
-    annulee:    "Annulée",
-  };
   const STATUS_COLOR: Record<string, string> = {
     en_attente: "bg-amber-100 text-amber-700",
     en_cours:   "bg-teal-100 text-teal-700",
@@ -52,16 +49,16 @@ export default async function ReportsPage() {
   return (
     <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
-        Rapports &amp; Statistiques
+        {t("title")}
       </h1>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Patients total", value: totalPatients ?? 0, icon: "🦷" },
-          { label: "CA ce mois (MAD)", value: revenueMois.toFixed(2), icon: "💰" },
-          { label: "CA cette année (MAD)", value: revenueAnnee.toFixed(2), icon: "📈" },
-          { label: "Factures ce mois", value: (facturesMois ?? []).length, icon: "🧾" },
+          { label: t("totalPatients"), value: totalPatients ?? 0, icon: "🦷" },
+          { label: t("revenueMonth"), value: revenueMois.toFixed(2), icon: "💰" },
+          { label: t("revenueYear"), value: revenueAnnee.toFixed(2), icon: "📈" },
+          { label: t("facturesMonth"), value: (facturesMois ?? []).length, icon: "🧾" },
         ].map((s) => (
           <div
             key={s.label}
@@ -77,7 +74,7 @@ export default async function ReportsPage() {
       {/* Facture status breakdown */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 mb-6">
         <h2 className="font-semibold text-zinc-900 dark:text-white mb-4">
-          Factures ce mois — par statut
+          {t("byStatus")}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {Object.entries(facturesByStatus).map(([status, count]) => (
@@ -85,7 +82,7 @@ export default async function ReportsPage() {
               <span
                 className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[status] ?? ""}`}
               >
-                {STATUS_LABEL[status] ?? status}
+                {ts(status)}
               </span>
               <p className="text-2xl font-bold text-zinc-900 dark:text-white mt-2">{count}</p>
             </div>
@@ -95,9 +92,9 @@ export default async function ReportsPage() {
 
       {/* Recent factures */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-        <h2 className="font-semibold text-zinc-900 dark:text-white mb-4">Dernières factures</h2>
+        <h2 className="font-semibold text-zinc-900 dark:text-white mb-4">{t("recentFactures")}</h2>
         {(recentFactures ?? []).length === 0 ? (
-          <p className="text-sm text-zinc-400 text-center py-6">Aucune facture</p>
+          <p className="text-sm text-zinc-400 text-center py-6">{t("noFactures")}</p>
         ) : (
           <div className="space-y-2">
             {((recentFactures ?? []) as unknown as { id: string; created_at: string; status: string; total_price: number | null; patients: { first_name: string; last_name: string } | null }[]).map((f) => (
@@ -119,7 +116,7 @@ export default async function ReportsPage() {
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[f.status] ?? ""}`}
                   >
-                    {STATUS_LABEL[f.status] ?? f.status}
+                    {ts(f.status)}
                   </span>
                   <span className="text-sm font-semibold text-zinc-900 dark:text-white">
                     {f.total_price?.toFixed(2)} MAD

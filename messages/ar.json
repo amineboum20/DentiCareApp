@@ -265,9 +265,9 @@
     "selectPatientFirst": "اختر مريضاً أولاً."
   },
   "reports": {
-    "title": "التقارير",
+    "title": "التقارير والإحصائيات",
     "totalPatients": "إجمالي المرضى",
-    "revenueMonth": "الإيراد هذا الشهر",
+    "revenueMonth": "الإيرادات هذا الشهر (درهم)",
     "facturesMonth": "فواتير هذا الشهر",
     "appointmentsToday": "مواعيد اليوم",
     "thisMonth": "هذا الشهر",
@@ -282,7 +282,11 @@
     "pendingAmount": "المبلغ المستحق",
     "pendingAmountDesc": "الإجمالي ناقص الدفعات",
     "revenueChart": "الإيراد (6 أشهر الأخيرة)",
-    "factureStatus": "توزيع الفواتير"
+    "factureStatus": "توزيع الفواتير",
+    "revenueYear": "الإيرادات هذا العام (درهم)",
+    "byStatus": "فواتير هذا الشهر — حسب الحالة",
+    "recentFactures": "أحدث الفواتير",
+    "noFactures": "لا فواتير"
   },
   "traitements": {
     "title": "العلاجات",
@@ -659,7 +663,8 @@
     "reactivate": "إعادة التفعيل",
     "firstName": "الاسم الأول",
     "lastName": "اللقب",
-    "email": "البريد الإلكتروني"
+    "email": "البريد الإلكتروني",
+    "back": "رجوع"
   },
   "settings": {
     "logoTooLarge": "يجب ألا يتجاوز الشعار 2 ميغابايت.",
@@ -881,12 +886,25 @@
       "delete": "حذف",
       "cancel": "إلغاء",
       "saving": "جارٍ الحفظ…",
-      "save": "حفظ"
+      "save": "حفظ",
+      "durationMin": "المدة (دقيقة)"
     },
     "deleteDialog": {
       "title": "حذف هذا الإجراء؟",
       "body": "هذا الإجراء لا رجعة فيه."
-    }
+    },
+    "errName": "الاسم مطلوب.",
+    "informations": "معلومات",
+    "dr": {
+      "price": "السعر",
+      "duration": "المدة",
+      "description": "الوصف",
+      "notes": "ملاحظات"
+    },
+    "linkedSuppliers": "الموردون المرتبطون",
+    "noLinkedSupplier": "لا مورد مرتبط",
+    "edit": "تعديل",
+    "deleting": "جارٍ الحذف…"
   },
   "dossierStatus": {
     "ouvert": "مفتوح",

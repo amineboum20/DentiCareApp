@@ -265,9 +265,9 @@
     "selectPatientFirst": "Select a patient first."
   },
   "reports": {
-    "title": "Reports",
+    "title": "Reports & Statistics",
     "totalPatients": "Total patients",
-    "revenueMonth": "Revenue this month",
+    "revenueMonth": "Revenue this month (MAD)",
     "facturesMonth": "Invoices this month",
     "appointmentsToday": "Appointments today",
     "thisMonth": "this month",
@@ -282,7 +282,11 @@
     "pendingAmount": "Outstanding balance",
     "pendingAmountDesc": "Total minus deposits paid",
     "revenueChart": "Revenue (last 6 months)",
-    "factureStatus": "Invoice breakdown"
+    "factureStatus": "Invoice breakdown",
+    "revenueYear": "Revenue this year (MAD)",
+    "byStatus": "Invoices this month — by status",
+    "recentFactures": "Recent invoices",
+    "noFactures": "No invoices"
   },
   "traitements": {
     "title": "Treatments",
@@ -659,7 +663,8 @@
     "reactivate": "Reactivate",
     "firstName": "First name",
     "lastName": "Last name",
-    "email": "Email"
+    "email": "Email",
+    "back": "Back"
   },
   "settings": {
     "logoTooLarge": "The logo must not exceed 2 MB.",
@@ -881,12 +886,25 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "saving": "Saving…",
-      "save": "Save"
+      "save": "Save",
+      "durationMin": "Duration (min)"
     },
     "deleteDialog": {
       "title": "Delete this procedure?",
       "body": "This action is irreversible."
-    }
+    },
+    "errName": "Name is required.",
+    "informations": "Information",
+    "dr": {
+      "price": "Price",
+      "duration": "Duration",
+      "description": "Description",
+      "notes": "Notes"
+    },
+    "linkedSuppliers": "Linked suppliers",
+    "noLinkedSupplier": "No linked supplier",
+    "edit": "Edit",
+    "deleting": "Deleting…"
   },
   "dossierStatus": {
     "ouvert": "Open",

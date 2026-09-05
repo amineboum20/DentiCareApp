@@ -265,9 +265,9 @@
     "selectPatientFirst": "Sélectionnez d'abord un patient."
   },
   "reports": {
-    "title": "Rapports",
-    "totalPatients": "Total patients",
-    "revenueMonth": "CA ce mois",
+    "title": "Rapports & Statistiques",
+    "totalPatients": "Patients total",
+    "revenueMonth": "CA ce mois (MAD)",
     "facturesMonth": "Factures ce mois",
     "appointmentsToday": "RDV aujourd'hui",
     "thisMonth": "ce mois",
@@ -282,7 +282,11 @@
     "pendingAmount": "Reste à percevoir",
     "pendingAmountDesc": "Total - acomptes versés",
     "revenueChart": "Chiffre d'affaires (6 derniers mois)",
-    "factureStatus": "Répartition des factures"
+    "factureStatus": "Répartition des factures",
+    "revenueYear": "CA cette année (MAD)",
+    "byStatus": "Factures ce mois — par statut",
+    "recentFactures": "Dernières factures",
+    "noFactures": "Aucune facture"
   },
   "traitements": {
     "title": "Traitements",
@@ -701,7 +705,8 @@
     "reactivate": "Réactiver",
     "firstName": "Prénom",
     "lastName": "Nom",
-    "email": "Email"
+    "email": "Email",
+    "back": "Retour"
   },
   "settings": {
     "logoTooLarge": "Le logo ne doit pas dépasser 2 Mo.",
@@ -923,12 +928,25 @@
       "delete": "Supprimer",
       "cancel": "Annuler",
       "saving": "Enregistrement…",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "durationMin": "Durée (min)"
     },
     "deleteDialog": {
       "title": "Supprimer cet acte ?",
       "body": "Cette action est irréversible."
-    }
+    },
+    "errName": "Le nom est requis.",
+    "informations": "Informations",
+    "dr": {
+      "price": "Prix",
+      "duration": "Durée",
+      "description": "Description",
+      "notes": "Notes"
+    },
+    "linkedSuppliers": "Fournisseurs liés",
+    "noLinkedSupplier": "Aucun fournisseur lié",
+    "edit": "Modifier",
+    "deleting": "Suppression…"
   },
   "dossierStatus": {
     "ouvert": "Ouvert",
