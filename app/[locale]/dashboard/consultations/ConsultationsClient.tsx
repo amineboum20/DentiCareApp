@@ -18,7 +18,6 @@ const emptyForm = {
   exam_date: "",
   next_exam_date: "",
   treated_by: "",
-  teeth: "",
   clinical_notes: "",
   exams: "",
 };
@@ -158,7 +157,6 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
       exam_date: form.exam_date,
       next_exam_date: form.next_exam_date || null,
       treated_by: form.treated_by.trim() || null,
-      teeth: form.teeth.trim() || null,
       clinical_notes: form.clinical_notes.trim() || null,
       exams: form.exams.trim() || null,
     };
@@ -181,9 +179,23 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
       if (err) { setError(err.message); setSaving(false); return; }
       setConsultations((cs) => [data as ConsultationWithPatient, ...cs]);
 
-      // Optional: bill the selected actes into the chosen dossier.
-      if (dossierId && bill && billActes.length > 0) {
-        await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: form.patient_id, dossierId, actes: billActes });
+      // Bill the selected actes. A facture lives in a dossier, so if none was
+      // chosen we auto-create one and attach this visite to it.
+      if (bill && billActes.length > 0) {
+        let targetDossierId = dossierId;
+        if (!targetDossierId) {
+          const { data: dz } = await supabase.from("dossiers").insert({
+            practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+            patient_id: form.patient_id, title: `Visite du ${new Date(form.exam_date).toLocaleDateString("fr-FR")}`, statut: "ouvert",
+          }).select("id").single();
+          if (dz) {
+            targetDossierId = (dz as { id: string }).id;
+            await supabase.from("consultations").update({ dossier_id: targetDossierId }).eq("id", (data as { id: string }).id);
+          }
+        }
+        if (targetDossierId) {
+          await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: form.patient_id, dossierId: targetDossierId, actes: billActes });
+        }
       }
     }
 
@@ -340,15 +352,9 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
-                  <input type="text" placeholder="Dr. Nom" {...field("treated_by")} className={inputCls} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dents concernées</label>
-                  <input type="text" placeholder="Ex. 11, 12, 21…" {...field("teeth")} className={inputCls} />
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
+                <input type="text" placeholder="Dr. Nom" {...field("treated_by")} className={inputCls} />
               </div>
 
               <div>
@@ -367,8 +373,8 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                     <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Rattacher à un dossier</label>
                     {!newDossierMode ? (
                       <div className="flex gap-1">
-                        <select value={dossierId} onChange={(e) => { setDossierId(e.target.value); if (!e.target.value) setBill(false); }} className={`flex-1 ${inputCls}`} disabled={!form.patient_id}>
-                          <option value="">— Aucun (visite simple) —</option>
+                        <select value={dossierId} onChange={(e) => setDossierId(e.target.value)} className={`flex-1 ${inputCls}`} disabled={!form.patient_id}>
+                          <option value="">— Aucun (créé auto. si facturé) —</option>
                           {openDossiers.map((d) => <option key={d.id} value={d.id}>{d.title}</option>)}
                         </select>
                         <button type="button" onClick={() => { setNewDossierMode(true); setNewDossierTitle(""); }} disabled={!form.patient_id} title="Nouveau dossier" className="px-2.5 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 hover:bg-teal-100 text-sm font-bold transition-colors disabled:opacity-40 shrink-0">+</button>
@@ -383,7 +389,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                     {form.patient_id && openDossiers.length === 0 && !newDossierMode && <p className="text-[11px] text-zinc-400 mt-1">Aucun dossier ouvert — utilisez + pour en créer un.</p>}
                     {!form.patient_id && <p className="text-[11px] text-zinc-400 mt-1">Sélectionnez d&apos;abord un patient.</p>}
                   </div>
-                  {dossierId && (
+                  {form.patient_id && (
                     <>
                       <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
                         <input type="checkbox" checked={bill} onChange={(e) => { setBill(e.target.checked); if (e.target.checked && billActes.length === 0) { const c = actes.find((a) => a.name.toLowerCase() === "consultation") ?? actes[0]; if (c) setBillActes([c]); } }} className="w-4 h-4 accent-teal-600" />
@@ -410,7 +416,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                               {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                             </select>
                             <div className="flex justify-between text-[11px] text-zinc-400">
-                              <span>Ajouté à une facture ouverte du dossier (créée si besoin).</span>
+                              <span>{dossierId ? "Ajouté à une facture ouverte du dossier (créée si besoin)." : `Un dossier « Visite du ${form.exam_date ? new Date(form.exam_date).toLocaleDateString("fr-FR") : "…"} » sera créé automatiquement.`}</span>
                               <span className="font-medium text-zinc-600 dark:text-zinc-300">Total : {billActes.reduce((s, a) => s + a.price, 0).toFixed(2)} MAD</span>
                             </div>
                           </div>

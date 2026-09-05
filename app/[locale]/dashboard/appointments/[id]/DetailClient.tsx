@@ -94,7 +94,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
 
   // Load the acte catalogue when opening the convert dialog for a dossier RDV.
   useEffect(() => {
-    if (!convertOpen || !appointment.dossier_id) return;
+    if (!convertOpen) return;
     supabase.from("actes").select("id, name, price").order("name").then(({ data }) => {
       const list = (data ?? []) as { id: string; name: string; price: number }[];
       setActes(list);
@@ -116,9 +116,23 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     if (error) { setConverting(false); return; }
     await supabase.from("appointments").update({ status: "termine" }).eq("id", appointment.id);
     setAppointment((a) => ({ ...a, status: "termine" }));
-    // Optional billing into the RDV's dossier (mirrors the hub / visite flow).
-    if (appointment.dossier_id && convertBill && convertActes.length > 0) {
-      await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: appointment.patient_id as string, dossierId: appointment.dossier_id, actes: convertActes });
+    // Bill the actes; if the RDV had no dossier, auto-create one and attach the
+    // new visite to it (mirrors the visite flow).
+    if (convertBill && convertActes.length > 0) {
+      let targetDossierId = appointment.dossier_id;
+      if (!targetDossierId) {
+        const { data: dz } = await supabase.from("dossiers").insert({
+          practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+          patient_id: appointment.patient_id as string, title: `Visite du ${new Date(appointment.scheduled_at).toLocaleDateString("fr-FR")}`, statut: "ouvert",
+        }).select("id").single();
+        if (dz) {
+          targetDossierId = (dz as { id: string }).id;
+          await supabase.from("consultations").update({ dossier_id: targetDossierId }).eq("id", (cons as { id: string }).id);
+        }
+      }
+      if (targetDossierId) {
+        await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: appointment.patient_id as string, dossierId: targetDossierId, actes: convertActes });
+      }
     }
     router.push(`/${locale}/dashboard/consultations/${(cons as { id: string }).id}`);
   }
@@ -343,7 +357,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
               Une visite datée du {fmtDateTime(appointment.scheduled_at)} sera créée{dossierTitle ? <> dans le dossier <span className="font-medium text-zinc-700 dark:text-zinc-300">{dossierTitle}</span></> : ""} et ce rendez-vous sera marqué « Terminé ».
             </p>
-            {appointment.dossier_id && (
+            {appointment.patient_id && (
               <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 space-y-3 bg-zinc-50/60 dark:bg-zinc-800/30 mb-4">
                 <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
                   <input type="checkbox" checked={convertBill} onChange={(e) => setConvertBill(e.target.checked)} className="w-4 h-4 accent-teal-600" />
@@ -370,6 +384,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                         <option value="">+ Ajouter un acte…</option>
                         {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                       </select>
+                      {!appointment.dossier_id && <p className="text-[11px] text-zinc-400">Un dossier « Visite du {new Date(appointment.scheduled_at).toLocaleDateString("fr-FR")} » sera créé automatiquement.</p>}
                     </div>
                   ) : (
                     <p className="text-[11px] text-amber-600 dark:text-amber-400">Aucun acte au catalogue.</p>

@@ -270,7 +270,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   }
 
   // ─── add visite ───
-  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), teeth: "", treated_by: "", clinical_notes: "", bill: true };
+  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), treated_by: "", clinical_notes: "", bill: true };
   const [visiteForm, setVisiteForm] = useState(emptyVisite);
   const [visiteBillActes, setVisiteBillActes] = useState<ActeLite[]>([]);
   function openVisite() {
@@ -287,7 +287,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
       patient_id: dossier.patient_id, dossier_id: dossier.id,
       motif: visiteForm.motif, exam_date: visiteForm.exam_date,
-      teeth: visiteForm.teeth.trim() || null, treated_by: visiteForm.treated_by.trim() || null,
+      treated_by: visiteForm.treated_by.trim() || null,
       clinical_notes: visiteForm.clinical_notes.trim() || null,
     }).select("id, motif, exam_date, teeth, treated_by, clinical_notes").single();
     if (error) { setErr(error.message); setBusy(false); return; }
@@ -645,15 +645,9 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                 <input type="date" max={today} value={visiteForm.exam_date} onChange={(e) => setVisiteForm((f) => ({ ...f, exam_date: e.target.value }))} className={inputCls} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
-                <input value={visiteForm.treated_by} onChange={(e) => setVisiteForm((f) => ({ ...f, treated_by: e.target.value }))} className={inputCls} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dents</label>
-                <input placeholder="Ex. 11, 12…" value={visiteForm.teeth} onChange={(e) => setVisiteForm((f) => ({ ...f, teeth: e.target.value }))} className={inputCls} />
-              </div>
+            <div>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
+              <input value={visiteForm.treated_by} onChange={(e) => setVisiteForm((f) => ({ ...f, treated_by: e.target.value }))} className={inputCls} />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Notes cliniques</label>
