@@ -96,7 +96,13 @@
     "button": "Reset password",
     "loading": "Resetting…",
     "mismatch": "Passwords do not match.",
-    "tooShort": "Password must be at least 6 characters."
+    "tooShort": "Password must be at least 6 characters.",
+    "email": "Email",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "inviteTitle": "Welcome!",
+    "inviteSubtitle": "Set your password to activate your account.",
+    "inviteButton": "Activate my account"
   },
   "signUp": {
     "title": "Create your account",

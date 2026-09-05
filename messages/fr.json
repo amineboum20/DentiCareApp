@@ -125,7 +125,13 @@
     "button": "Réinitialiser le mot de passe",
     "loading": "Réinitialisation en cours…",
     "mismatch": "Les mots de passe ne correspondent pas.",
-    "tooShort": "Le mot de passe doit contenir au moins 6 caractères."
+    "tooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+    "email": "E-mail",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "inviteTitle": "Bienvenue !",
+    "inviteSubtitle": "Définissez votre mot de passe pour activer votre compte.",
+    "inviteButton": "Activer mon compte"
   },
   "signUp": {
     "title": "Créez votre compte",
