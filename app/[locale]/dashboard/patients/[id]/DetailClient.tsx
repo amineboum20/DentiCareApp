@@ -82,7 +82,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
   // Archive
   const [archiveOpen, setArchiveOpen] = useState(false);
-  const [archivePreview, setArchivePreview] = useState<{ consultations: number; factures: number; appointments: number } | null>(null);
+  const [archivePreview, setArchivePreview] = useState<{ consultations: number; factures: number; appointments: number; ordonnances: number } | null>(null);
   const [archiveLoading, setArchiveLoading] = useState(false);
 
   useEffect(() => {
@@ -166,12 +166,13 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
   async function handleArchiveStart() {
     setArchiveLoading(true);
-    const [{ count: dCount }, { count: fCount }, { count: aCount }] = await Promise.all([
+    const [{ count: dCount }, { count: fCount }, { count: aCount }, { count: oCount }] = await Promise.all([
       supabase.from("consultations").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("factures").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
+      supabase.from("ordonnances").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
     ]);
-    setArchivePreview({ consultations: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0 });
+    setArchivePreview({ consultations: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0, ordonnances: oCount ?? 0 });
     setArchiveLoading(false);
     setArchiveOpen(true);
   }
@@ -604,7 +605,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                 {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} visite{archivePreview.consultations > 1 ? "s" : ""}</li>}
                 {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
                 {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
-                {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
+                {archivePreview.ordonnances > 0 && <li>• {archivePreview.ordonnances} ordonnance{archivePreview.ordonnances > 1 ? "s" : ""}</li>}
+                {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && archivePreview.ordonnances === 0 && (
                   <li className="text-zinc-400">Aucune donnée liée.</li>
                 )}
               </ul>

@@ -36,7 +36,7 @@ export default function PatientsClient({ initialPatients }: Props) {
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [archiveTarget, setArchiveTarget] = useState<Patient | null>(null);
-  const [archivePreview, setArchivePreview] = useState<{ consultations: number; factures: number; appointments: number } | null>(null);
+  const [archivePreview, setArchivePreview] = useState<{ consultations: number; factures: number; appointments: number; ordonnances: number } | null>(null);
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -125,13 +125,14 @@ export default function PatientsClient({ initialPatients }: Props) {
 
   async function handleArchiveStart(patient: Patient) {
     setArchiveLoading(true);
-    const [{ count: dCount }, { count: fCount }, { count: aCount }] = await Promise.all([
+    const [{ count: dCount }, { count: fCount }, { count: aCount }, { count: oCount }] = await Promise.all([
       supabase.from("consultations").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("factures").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
       supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
+      supabase.from("ordonnances").select("*", { count: "exact", head: true }).eq("patient_id", patient.id).is("archived_at", null),
     ]);
     setArchiveTarget(patient);
-    setArchivePreview({ consultations: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0 });
+    setArchivePreview({ consultations: dCount ?? 0, factures: fCount ?? 0, appointments: aCount ?? 0, ordonnances: oCount ?? 0 });
     setArchiveLoading(false);
   }
 
@@ -334,7 +335,8 @@ export default function PatientsClient({ initialPatients }: Props) {
                 {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} visite{archivePreview.consultations > 1 ? "s" : ""}</li>}
                 {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
                 {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
-                {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && (
+                {archivePreview.ordonnances > 0 && <li>• {archivePreview.ordonnances} ordonnance{archivePreview.ordonnances > 1 ? "s" : ""}</li>}
+                {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && archivePreview.ordonnances === 0 && (
                   <li className="text-zinc-400">Aucune donnée liée.</li>
                 )}
               </ul>
