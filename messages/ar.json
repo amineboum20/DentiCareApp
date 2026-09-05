@@ -245,14 +245,24 @@
       "save": "حفظ",
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
-      "requiredError": "العنوان والتاريخ إلزاميان."
+      "requiredError": "العنوان والتاريخ إلزاميان.",
+      "scheduledAt": "التاريخ والوقت"
     },
     "deleteConfirm": {
       "title": "حذف الموعد",
       "message": "حذف الموعد \"{title}\"؟",
       "confirm": "حذف",
       "cancel": "إلغاء"
-    }
+    },
+    "errPast": "لا يمكن أن يكون الموعد في الماضي — سجّل زيارة بدلاً من ذلك.",
+    "errFutureStatus": "الموعد القادم يمكن أن يكون فقط «مجدول» أو «ملغى».",
+    "dentist": "طبيب الأسنان",
+    "linkDossier": "ربط بملف",
+    "none": "— لا شيء —",
+    "newDossier": "ملف جديد",
+    "dossierTitlePlaceholder": "عنوان الملف",
+    "create": "إنشاء",
+    "selectPatientFirst": "اختر مريضاً أولاً."
   },
   "reports": {
     "title": "التقارير",

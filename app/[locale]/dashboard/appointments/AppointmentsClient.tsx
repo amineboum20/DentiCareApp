@@ -159,11 +159,11 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     // A RDV is a future plan — block creating one in the past (editing an
     // already-past RDV stays allowed, since it simply aged).
     if (!editing && form.scheduled_at.slice(0, 10) < new Date().toLocaleDateString("en-CA")) {
-      setError("Un rendez-vous ne peut pas être dans le passé — enregistrez plutôt une visite.");
+      setError(t("errPast"));
       return;
     }
     if (form.scheduled_at.slice(0, 10) > new Date().toLocaleDateString("en-CA") && (form.status === "termine" || form.status === "absent")) {
-      setError("Un rendez-vous à venir ne peut être que « Planifié » ou « Annulé ».");
+      setError(t("errFutureStatus"));
       return;
     }
     setSaving(true);
@@ -502,29 +502,29 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("dentist")}</label>
                 <PraticienSelect value={form.praticien_id} onChange={(id) => setField("praticien_id", id)} className={inputCls} />
               </div>
               {/* Rattacher à un dossier (nouveau RDV uniquement) */}
               {!editing && (
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Rattacher à un dossier</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("linkDossier")}</label>
                   {!rdvNewDossierMode ? (
                     <div className="flex gap-1">
                       <select value={rdvDossierId} onChange={(e) => setRdvDossierId(e.target.value)} className={`flex-1 ${inputCls}`} disabled={!form.patient_id}>
-                        <option value="">— Aucun —</option>
+                        <option value="">{t("none")}</option>
                         {rdvOpenDossiers.map((d) => <option key={d.id} value={d.id}>{d.title}</option>)}
                       </select>
-                      <button type="button" onClick={() => { setRdvNewDossierMode(true); setRdvNewDossierTitle(""); }} disabled={!form.patient_id} title="Nouveau dossier" className="px-2.5 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 hover:bg-teal-100 text-sm font-bold transition-colors disabled:opacity-40 shrink-0">+</button>
+                      <button type="button" onClick={() => { setRdvNewDossierMode(true); setRdvNewDossierTitle(""); }} disabled={!form.patient_id} title={t("newDossier")} className="px-2.5 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 hover:bg-teal-100 text-sm font-bold transition-colors disabled:opacity-40 shrink-0">+</button>
                     </div>
                   ) : (
                     <div className="flex gap-1">
-                      <input value={rdvNewDossierTitle} onChange={(e) => setRdvNewDossierTitle(e.target.value)} placeholder="Intitulé du dossier" className={`flex-1 ${inputCls}`} />
-                      <button type="button" onClick={createRdvDossier} disabled={rdvCreatingDossier || !rdvNewDossierTitle.trim()} className="px-2.5 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium transition-colors disabled:opacity-40 shrink-0">{rdvCreatingDossier ? "…" : "Créer"}</button>
+                      <input value={rdvNewDossierTitle} onChange={(e) => setRdvNewDossierTitle(e.target.value)} placeholder={t("dossierTitlePlaceholder")} className={`flex-1 ${inputCls}`} />
+                      <button type="button" onClick={createRdvDossier} disabled={rdvCreatingDossier || !rdvNewDossierTitle.trim()} className="px-2.5 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium transition-colors disabled:opacity-40 shrink-0">{rdvCreatingDossier ? "…" : t("create")}</button>
                       <button type="button" onClick={() => { setRdvNewDossierMode(false); setRdvNewDossierTitle(""); }} className="px-2 text-zinc-400 hover:text-zinc-600 text-sm shrink-0">✕</button>
                     </div>
                   )}
-                  {!form.patient_id && <p className="text-[11px] text-zinc-400 mt-1">Sélectionnez d&apos;abord un patient.</p>}
+                  {!form.patient_id && <p className="text-[11px] text-zinc-400 mt-1">{t("selectPatientFirst")}</p>}
                 </div>
               )}
               {/* Notes */}

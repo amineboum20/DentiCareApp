@@ -245,14 +245,24 @@
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "cancel": "Annuler",
-      "requiredError": "Le titre et la date sont obligatoires."
+      "requiredError": "Le titre et la date sont obligatoires.",
+      "scheduledAt": "Date et heure"
     },
     "deleteConfirm": {
       "title": "Supprimer le rendez-vous",
       "message": "Supprimer le rendez-vous \"{title}\" ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
-    }
+    },
+    "errPast": "Un rendez-vous ne peut pas être dans le passé — enregistrez plutôt une visite.",
+    "errFutureStatus": "Un rendez-vous à venir ne peut être que « Planifié » ou « Annulé ».",
+    "dentist": "Dentiste",
+    "linkDossier": "Rattacher à un dossier",
+    "none": "— Aucun —",
+    "newDossier": "Nouveau dossier",
+    "dossierTitlePlaceholder": "Intitulé du dossier",
+    "create": "Créer",
+    "selectPatientFirst": "Sélectionnez d'abord un patient."
   },
   "reports": {
     "title": "Rapports",

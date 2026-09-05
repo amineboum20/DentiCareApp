@@ -245,14 +245,24 @@
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
-      "requiredError": "Title and date are required."
+      "requiredError": "Title and date are required.",
+      "scheduledAt": "Date & time"
     },
     "deleteConfirm": {
       "title": "Delete appointment",
       "message": "Delete appointment \"{title}\"?",
       "confirm": "Delete",
       "cancel": "Cancel"
-    }
+    },
+    "errPast": "An appointment can't be in the past — record a visit instead.",
+    "errFutureStatus": "An upcoming appointment can only be \"Scheduled\" or \"Cancelled\".",
+    "dentist": "Dentist",
+    "linkDossier": "Link to a case",
+    "none": "— None —",
+    "newDossier": "New case",
+    "dossierTitlePlaceholder": "Case title",
+    "create": "Create",
+    "selectPatientFirst": "Select a patient first."
   },
   "reports": {
     "title": "Reports",
