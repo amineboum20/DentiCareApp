@@ -738,5 +738,61 @@
       "title": "Delete this visit?",
       "body": "This action is irreversible."
     }
+  },
+  "praticiens": {
+    "errNameRequired": "Name is required.",
+    "backToSettings": "Settings",
+    "title": "Practitioners",
+    "newPraticien": "New practitioner",
+    "empty": "No practitioners",
+    "drPrefix": "Dr.",
+    "ordreShort": "License no.",
+    "editArrow": "Edit →",
+    "addTitle": "New practitioner",
+    "editTitle": "Edit practitioner",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Dentist's name",
+      "numeroOrdre": "License no.",
+      "speciality": "Speciality",
+      "specialityPlaceholder": "e.g. Orthodontics",
+      "phone": "Phone"
+    },
+    "archive": "Archive",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save"
+  },
+  "medicaments": {
+    "errNameRequired": "Name is required.",
+    "backToOrdonnances": "Prescriptions",
+    "title": "Medication catalog",
+    "newMedicament": "New medication",
+    "searchPlaceholder": "Search for a medication…",
+    "noResults": "No results",
+    "empty": "No medications in the catalog",
+    "editArrow": "Edit →",
+    "addTitle": "New medication",
+    "editTitle": "Edit medication",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Amoxicillin 500mg",
+      "form": "Form",
+      "formPlaceholder": "Tablet, syrup…",
+      "defaults": "Default values",
+      "posologie": "Dosage",
+      "posologiePlaceholder": "1 tab x3/day",
+      "duree": "Duration",
+      "dureePlaceholder": "7 days",
+      "quantite": "Quantity",
+      "quantitePlaceholder": "1 box",
+      "instructions": "Instructions",
+      "instructionsPlaceholder": "After meals",
+      "notes": "Notes"
+    },
+    "archive": "Archive",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save"
   }
 }

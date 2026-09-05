@@ -780,5 +780,61 @@
       "title": "Supprimer cette visite ?",
       "body": "Cette action est irréversible."
     }
+  },
+  "praticiens": {
+    "errNameRequired": "Le nom est requis.",
+    "backToSettings": "Paramètres",
+    "title": "Praticiens",
+    "newPraticien": "Nouveau praticien",
+    "empty": "Aucun praticien",
+    "drPrefix": "Dr.",
+    "ordreShort": "N° ordre",
+    "editArrow": "Modifier →",
+    "addTitle": "Nouveau praticien",
+    "editTitle": "Modifier le praticien",
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "Nom du dentiste",
+      "numeroOrdre": "N° d'ordre",
+      "speciality": "Spécialité",
+      "specialityPlaceholder": "Ex. Orthodontie",
+      "phone": "Téléphone"
+    },
+    "archive": "Archiver",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer"
+  },
+  "medicaments": {
+    "errNameRequired": "Le nom est requis.",
+    "backToOrdonnances": "Ordonnances",
+    "title": "Catalogue des médicaments",
+    "newMedicament": "Nouveau médicament",
+    "searchPlaceholder": "Rechercher un médicament…",
+    "noResults": "Aucun résultat",
+    "empty": "Aucun médicament au catalogue",
+    "editArrow": "Modifier →",
+    "addTitle": "Nouveau médicament",
+    "editTitle": "Modifier le médicament",
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "Ex. Amoxicilline 500mg",
+      "form": "Forme",
+      "formPlaceholder": "Comprimé, sirop…",
+      "defaults": "Valeurs par défaut",
+      "posologie": "Posologie",
+      "posologiePlaceholder": "1 cp x3/j",
+      "duree": "Durée",
+      "dureePlaceholder": "7 jours",
+      "quantite": "Quantité",
+      "quantitePlaceholder": "1 boîte",
+      "instructions": "Instructions",
+      "instructionsPlaceholder": "Après les repas",
+      "notes": "Notes"
+    },
+    "archive": "Archiver",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer"
   }
 }

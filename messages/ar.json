@@ -738,5 +738,61 @@
       "title": "حذف هذه الزيارة؟",
       "body": "هذا الإجراء لا رجعة فيه."
     }
+  },
+  "praticiens": {
+    "errNameRequired": "الاسم مطلوب.",
+    "backToSettings": "الإعدادات",
+    "title": "الممارسون",
+    "newPraticien": "ممارس جديد",
+    "empty": "لا ممارسون",
+    "drPrefix": "د.",
+    "ordreShort": "رقم القيد",
+    "editArrow": "تعديل →",
+    "addTitle": "ممارس جديد",
+    "editTitle": "تعديل الممارس",
+    "form": {
+      "name": "الاسم",
+      "namePlaceholder": "اسم طبيب الأسنان",
+      "numeroOrdre": "رقم القيد",
+      "speciality": "التخصص",
+      "specialityPlaceholder": "مثال: تقويم الأسنان",
+      "phone": "الهاتف"
+    },
+    "archive": "أرشفة",
+    "cancel": "إلغاء",
+    "saving": "جارٍ الحفظ…",
+    "save": "حفظ"
+  },
+  "medicaments": {
+    "errNameRequired": "الاسم مطلوب.",
+    "backToOrdonnances": "الوصفات الطبية",
+    "title": "كتالوج الأدوية",
+    "newMedicament": "دواء جديد",
+    "searchPlaceholder": "ابحث عن دواء…",
+    "noResults": "لا نتائج",
+    "empty": "لا أدوية في الكتالوج",
+    "editArrow": "تعديل →",
+    "addTitle": "دواء جديد",
+    "editTitle": "تعديل الدواء",
+    "form": {
+      "name": "الاسم",
+      "namePlaceholder": "مثال: أموكسيسيلين 500 ملغ",
+      "form": "الشكل",
+      "formPlaceholder": "قرص، شراب…",
+      "defaults": "القيم الافتراضية",
+      "posologie": "الجرعة",
+      "posologiePlaceholder": "قرص ×3 يومياً",
+      "duree": "المدة",
+      "dureePlaceholder": "7 أيام",
+      "quantite": "الكمية",
+      "quantitePlaceholder": "علبة واحدة",
+      "instructions": "التعليمات",
+      "instructionsPlaceholder": "بعد الوجبات",
+      "notes": "ملاحظات"
+    },
+    "archive": "أرشفة",
+    "cancel": "إلغاء",
+    "saving": "جارٍ الحفظ…",
+    "save": "حفظ"
   }
 }
