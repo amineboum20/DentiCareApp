@@ -85,6 +85,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [docs, setDocs] = useState<Doc[]>([]);
   const [acomptes, setAcomptes] = useState<Acompte[]>([]);
   const [rdvs, setRdvs] = useState<Rdv[]>([]);
+  const [ordos, setOrdos] = useState<{ id: string; date: string; prescriber: string | null }[]>([]);
   const [actes, setActes] = useState<ActeLite[]>([]);
   const [packages, setPackages] = useState<PackageLite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,11 +112,13 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       supabase.from("actes").select("id, name, price").order("name", { ascending: true }),
       supabase.from("traitements").select("id, name, price_override, traitement_actes(quantity, acte_id, actes(name, price))").order("name", { ascending: true }),
       supabase.from("appointments").select("id, title, scheduled_at, duration_minutes, type, status, notes").eq("dossier_id", dossier.id).order("scheduled_at", { ascending: false }),
-    ]).then(([v, d, a, ac, tr, r]) => {
+      supabase.from("ordonnances").select("id, date, prescriber").eq("dossier_id", dossier.id).is("archived_at", null).order("date", { ascending: false }),
+    ]).then(([v, d, a, ac, tr, r, o]) => {
       setVisites((v.data ?? []) as Visite[]);
       setDocs((d.data ?? []) as Doc[]);
       setAcomptes((a.data ?? []) as Acompte[]);
       setRdvs((r.data ?? []) as Rdv[]);
+      setOrdos((o.data ?? []) as { id: string; date: string; prescriber: string | null }[]);
       setActes((ac.data ?? []) as ActeLite[]);
       type TraitementRow = {
         id: string; name: string; price_override: number | null;
@@ -500,6 +503,26 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 ${APPT_STATUS_STYLE[r.status] ?? ""}`}>{APPT_STATUS_LABEL[r.status] ?? r.status}</span>
                     </div>
                     <p className="text-[11px] text-zinc-400 mt-1">{fmtDateTime(r.scheduled_at)}{r.duration_minutes ? ` · ${r.duration_minutes} min` : ""} · {APPT_TYPE_LABEL[r.type] ?? r.type}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Ordonnances */}
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">Ordonnances <span className="text-zinc-300">({ordos.length})</span></p>
+              <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${dossier.patient_id}&dossier_id=${dossier.id}`)} className="text-xs px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors">+ Ordonnance</button>
+            </div>
+            {loading ? <p className="text-sm text-zinc-400 py-3 text-center">Chargement…</p> : ordos.length === 0 ? (
+              <p className="text-sm text-zinc-400 py-4 text-center">Aucune ordonnance</p>
+            ) : (
+              <div className="space-y-2">
+                {ordos.map((o) => (
+                  <div key={o.id} onClick={() => router.push(`/${locale}/dashboard/ordonnances/${o.id}`)} className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2.5 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 transition-all">
+                    <span className="text-sm font-medium text-zinc-900 dark:text-white">💊 Ordonnance</span>
+                    <span className="text-xs text-zinc-400">{fmtDate(o.date)}{o.prescriber ? ` · Dr. ${o.prescriber}` : ""}</span>
                   </div>
                 ))}
               </div>
