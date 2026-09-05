@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { MemberRole } from "@/types/database";
@@ -37,6 +37,8 @@ export default function SettingsClient({
 }: Props) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("settings");
+  const tc = useTranslations("common");
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const isOwner = memberRole === "owner";
@@ -130,7 +132,7 @@ export default function SettingsClient({
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { setError("Le logo ne doit pas dépasser 2 Mo."); return; }
+    if (file.size > 2 * 1024 * 1024) { setError(t("logoTooLarge")); return; }
     setLogoFile(file);
     setLogoPreview(URL.createObjectURL(file));
     setError("");
@@ -227,20 +229,20 @@ export default function SettingsClient({
         return;
       }
       setShowAddMember(false);
-      setInviteSent(`Invitation envoyée à ${invitedEmail}. Le membre pourra se connecter après confirmation de son e-mail et validation par l'administrateur.`);
+      setInviteSent(t("inviteSentMsg", { email: invitedEmail }));
       setNewMember({ firstName: "", lastName: "", email: "", role: "dentist" });
       // Refresh members list
       const { data } = await supabase.from("practice_members").select("*").order("created_at");
       setMembers((data ?? []) as Member[]);
     } catch {
-      setMemberError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
+      setMemberError(t("serverError"));
     } finally {
       setAddingMember(false);
     }
   }
 
   async function setMemberActive(id: string, action: "deactivate" | "reactivate") {
-    if (action === "deactivate" && !confirm("Désactiver ce membre ? Il ne pourra plus se connecter, mais son compte et ses données (patients, factures…) sont conservés. Vous pourrez le réactiver à tout moment.")) return;
+    if (action === "deactivate" && !confirm(t("deactivateConfirm"))) return;
     const res = await fetch("/api/members", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -254,8 +256,8 @@ export default function SettingsClient({
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
     setPwError("");
-    if (newPassword.length < 8) { setPwError("Le mot de passe doit contenir au moins 8 caractères."); return; }
-    if (newPassword !== confirmPassword) { setPwError("Les mots de passe ne correspondent pas."); return; }
+    if (newPassword.length < 8) { setPwError(t("pwMin")); return; }
+    if (newPassword !== confirmPassword) { setPwError(t("pwMismatch")); return; }
     setPwSaving(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) { setPwError(error.message); setPwSaving(false); return; }
@@ -267,29 +269,29 @@ export default function SettingsClient({
   }
 
   const displayLogo = logoPreview ?? logoUrl;
-  const ROLE_LABEL: Record<MemberRole, string> = { owner: "Propriétaire", dentist: "Dentiste", assistant: "Assistant(e)" };
+  const ROLE_LABEL: Record<MemberRole, string> = { owner: t("roles.owner"), dentist: t("roles.dentist"), assistant: t("roles.assistant") };
 
   return (
     <div className="space-y-6">
       {/* Practice info — owner only */}
       {isOwner && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">Informations du cabinet</h2>
+          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">{t("practiceInfo")}</h2>
           <div className="space-y-4">
             <div>
-              <label className={labelCls}>Nom du cabinet</label>
+              <label className={labelCls}>{t("practiceName")}</label>
               <input value={shopName} onChange={e => setShopName(e.target.value)}
-                placeholder="Ex. Cabinet Dentaire Benali" className={inputCls} />
+                placeholder={t("practiceNamePlaceholder")} className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Adresse</label>
+              <label className={labelCls}>{t("address")}</label>
               <input value={address} onChange={e => setAddress(e.target.value)}
-                placeholder="Ex. 12 Rue Mohammed V, Casablanca" className={inputCls} />
+                placeholder={t("addressPlaceholder")} className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Téléphone</label>
+              <label className={labelCls}>{t("phone")}</label>
               <input value={phone} onChange={e => setPhone(e.target.value)}
-                placeholder="Ex. +212 6XX XXX XXX" className={inputCls} />
+                placeholder={t("phonePlaceholder")} className={inputCls} />
             </div>
           </div>
         </div>
@@ -298,7 +300,7 @@ export default function SettingsClient({
       {/* Logo — owner only */}
       {isOwner && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">Logo</h2>
+          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">{t("logo")}</h2>
           <div className="flex items-start gap-4">
             <div className="w-20 h-20 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex items-center justify-center overflow-hidden shrink-0 bg-zinc-50 dark:bg-zinc-800">
               {displayLogo ? (
@@ -313,12 +315,12 @@ export default function SettingsClient({
                 onChange={handleFileChange} className="hidden" id="logo-input" />
               <label htmlFor="logo-input"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                Choisir un fichier
+                {t("chooseFile")}
               </label>
-              <p className="text-xs text-zinc-400 mt-2">JPG, PNG, WebP ou SVG · max 2 Mo</p>
+              <p className="text-xs text-zinc-400 mt-2">{t("logoHint")}</p>
               {displayLogo && (
                 <button onClick={removeLogo} className="mt-2 text-xs text-red-500 hover:text-red-600 transition-colors">
-                  Supprimer le logo
+                  {t("removeLogo")}
                 </button>
               )}
             </div>
@@ -337,30 +339,30 @@ export default function SettingsClient({
           <div className="flex items-center gap-3">
             <button onClick={handleSave} disabled={saving}
               className="px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-              {saving ? "Enregistrement…" : "Enregistrer"}
+              {saving ? tc("saving") : tc("save")}
             </button>
-            {saved && <span className="text-sm text-emerald-600 dark:text-emerald-400">✓ Enregistré</span>}
+            {saved && <span className="text-sm text-emerald-600 dark:text-emerald-400">✓ {tc("saved")}</span>}
           </div>
         </>
       )}
 
       {/* Language */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-        <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4">Langue</h2>
+        <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4">{t("language")}</h2>
         <LanguageSwitcher saveToAccount />
       </div>
 
       {/* Password change */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-        <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">Changer le mot de passe</h2>
+        <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">{t("changePassword")}</h2>
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
-            <label className={labelCls}>Nouveau mot de passe</label>
+            <label className={labelCls}>{t("newPasswordLabel")}</label>
             <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
-              placeholder="Minimum 8 caractères" className={inputCls} />
+              placeholder={t("pwMinPlaceholder")} className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Confirmer le mot de passe</label>
+            <label className={labelCls}>{t("confirmPasswordLabel")}</label>
             <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
               placeholder="••••••••" className={inputCls} />
           </div>
@@ -368,9 +370,9 @@ export default function SettingsClient({
           <div className="flex items-center gap-3">
             <button type="submit" disabled={pwSaving}
               className="px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-              {pwSaving ? "Enregistrement…" : "Changer le mot de passe"}
+              {pwSaving ? tc("saving") : t("changePassword")}
             </button>
-            {pwSaved && <span className="text-sm text-emerald-600 dark:text-emerald-400">✓ Mot de passe mis à jour</span>}
+            {pwSaved && <span className="text-sm text-emerald-600 dark:text-emerald-400">✓ {t("pwUpdated")}</span>}
           </div>
         </form>
       </div>
@@ -378,11 +380,11 @@ export default function SettingsClient({
       {/* Members */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Membres du cabinet</h2>
+          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{t("practiceMembers")}</h2>
           {isOwner && (
             <button onClick={() => { setShowAddMember(v => !v); setMemberError(""); }}
               className="text-xs px-3 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-colors">
-              {showAddMember ? "Annuler" : "+ Ajouter un membre"}
+              {showAddMember ? tc("cancel") : "+ " + t("addMember")}
             </button>
           )}
         </div>
@@ -396,43 +398,43 @@ export default function SettingsClient({
         {showAddMember && isOwner && (
           <form onSubmit={handleAddMember} className="mb-6 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 space-y-3">
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Le membre recevra un e-mail pour définir son mot de passe. Son accès sera actif après validation par l&apos;administrateur.
+              {t("inviteHint")}
             </p>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelCls}>Prénom</label>
+                <label className={labelCls}>{tc("firstName")}</label>
                 <input value={newMember.firstName} onChange={e => setNewMember(v => ({ ...v, firstName: e.target.value }))}
-                  placeholder="Karim" required className={inputCls} />
+                  placeholder={t("firstNamePlaceholder")} required className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>Nom</label>
+                <label className={labelCls}>{tc("lastName")}</label>
                 <input value={newMember.lastName} onChange={e => setNewMember(v => ({ ...v, lastName: e.target.value }))}
-                  placeholder="Benali" className={inputCls} />
+                  placeholder={t("lastNamePlaceholder")} className={inputCls} />
               </div>
             </div>
             <div>
-              <label className={labelCls}>Email</label>
+              <label className={labelCls}>{tc("email")}</label>
               <input type="email" value={newMember.email} onChange={e => setNewMember(v => ({ ...v, email: e.target.value }))}
-                placeholder="dentiste@cabinet.com" required className={inputCls} />
+                placeholder={t("emailPlaceholder")} required className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Rôle</label>
+              <label className={labelCls}>{t("role")}</label>
               <select value={newMember.role} onChange={e => setNewMember(v => ({ ...v, role: e.target.value as MemberRole }))}
                 className={inputCls}>
-                <option value="dentist">Dentiste</option>
-                <option value="assistant">Assistant(e)</option>
+                <option value="dentist">{t("roles.dentist")}</option>
+                <option value="assistant">{t("roles.assistant")}</option>
               </select>
             </div>
             {memberError && <p className="text-sm text-red-500">{memberError}</p>}
             <button type="submit" disabled={addingMember}
               className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-              {addingMember ? "Envoi…" : "Envoyer l'invitation"}
+              {addingMember ? t("sending") : t("sendInvite")}
             </button>
           </form>
         )}
 
         {membersLoading ? (
-          <div className="text-sm text-zinc-400 py-4 text-center">Chargement…</div>
+          <div className="text-sm text-zinc-400 py-4 text-center">{tc("loading")}</div>
         ) : (
           <div className="space-y-2">
             {members.map(m => (
@@ -442,10 +444,10 @@ export default function SettingsClient({
                     {m.first_name} {m.last_name}
                     {m.role !== "owner" && (
                       m.deactivated_at
-                        ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400">Désactivé</span>
+                        ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400">{tc("deactivated")}</span>
                         : m.is_approved
-                          ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">Actif</span>
-                          : <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">En attente</span>
+                          ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">{tc("active")}</span>
+                          : <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">{tc("pending")}</span>
                     )}
                   </p>
                   <p className="text-xs text-zinc-400">{ROLE_LABEL[m.role]}</p>
@@ -454,11 +456,11 @@ export default function SettingsClient({
                   m.deactivated_at
                     ? <button onClick={() => setMemberActive(m.id, "reactivate")}
                         className="text-xs text-emerald-500 hover:text-emerald-600 px-2 py-1 rounded transition-colors">
-                        Réactiver
+                        {tc("reactivate")}
                       </button>
                     : <button onClick={() => setMemberActive(m.id, "deactivate")}
                         className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded transition-colors">
-                        Désactiver
+                        {tc("deactivate")}
                       </button>
                 )}
               </div>
@@ -469,16 +471,16 @@ export default function SettingsClient({
 
       {/* Praticiens */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Praticiens</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">{t("praticiens")}</h2>
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 flex items-center justify-between">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Gérez les dentistes du cabinet et leur INPE (pour les feuilles de soins).</p>
-          <button onClick={() => router.push(`/${locale}/dashboard/praticiens`)} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors shrink-0 ms-4">Gérer les praticiens →</button>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("praticiensDesc")}</p>
+          <button onClick={() => router.push(`/${locale}/dashboard/praticiens`)} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors shrink-0 ms-4">{t("managePraticiens")}</button>
         </div>
       </div>
 
       {/* Treatment catalog */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Catalogue des soins</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">{t("careCatalog")}</h2>
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex gap-1 mb-6">
             {(["category", "option"] as const).map(tab => (
@@ -486,12 +488,12 @@ export default function SettingsClient({
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   treatCatalogTab === tab ? "bg-teal-600 text-white" : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}>
-                {tab === "category" ? "Catégories" : "Options"}
+                {tab === "category" ? t("tabCategories") : t("tabOptions")}
               </button>
             ))}
           </div>
           {treatAttrLoading ? (
-            <div className="text-center py-8 text-zinc-400 text-sm">Chargement…</div>
+            <div className="text-center py-8 text-zinc-400 text-sm">{tc("loading")}</div>
           ) : (
             <div className="space-y-1 mb-4 max-h-64 overflow-y-auto">
               {treatAttributes.filter(a => a.attr_type === treatCatalogTab).map(attr => (
@@ -499,23 +501,23 @@ export default function SettingsClient({
                   <span className="text-sm text-zinc-800 dark:text-zinc-200">{attr.name}</span>
                   <button onClick={() => deleteTreatAttribute(attr.id)}
                     className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-opacity text-xs px-2 py-0.5 rounded">
-                    Suppr.
+                    {t("deleteShort")}
                   </button>
                 </div>
               ))}
               {treatAttributes.filter(a => a.attr_type === treatCatalogTab).length === 0 && (
-                <p className="text-zinc-400 text-sm py-4 text-center">Aucun élément</p>
+                <p className="text-zinc-400 text-sm py-4 text-center">{t("noItems")}</p>
               )}
             </div>
           )}
           <div className="flex gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
             <input value={newTreatAttrName} onChange={e => setNewTreatAttrName(e.target.value)}
               onKeyDown={e => e.key === "Enter" && addTreatAttribute()}
-              placeholder={`Nouvelle ${treatCatalogTab === "category" ? "catégorie" : "option"}…`}
+              placeholder={t(treatCatalogTab === "category" ? "newCategory" : "newOptionCat")}
               className="flex-1 px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
             <button onClick={addTreatAttribute} disabled={treatAttrSaving || !newTreatAttrName.trim()}
               className="px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors">
-              Ajouter
+              {tc("add")}
             </button>
           </div>
         </div>
