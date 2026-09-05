@@ -227,7 +227,9 @@
       "chirurgie": "جراحة",
       "controle": "مراجعة",
       "orthodontie": "تقويم",
-      "autre": "أخرى"
+      "autre": "أخرى",
+      "premiere_visite": "زيارة أولى",
+      "urgence": "طارئ"
     },
     "form": {
       "addTitle": "موعد جديد",
@@ -262,7 +264,41 @@
     "newDossier": "ملف جديد",
     "dossierTitlePlaceholder": "عنوان الملف",
     "create": "إنشاء",
-    "selectPatientFirst": "اختر مريضاً أولاً."
+    "selectPatientFirst": "اختر مريضاً أولاً.",
+    "detail": {
+      "autoDossierTitle": "زيارة {date}",
+      "errRequired": "المريض والعنوان والتاريخ مطلوبة.",
+      "informations": "معلومات",
+      "patient": "المريض",
+      "dossier": "الملف",
+      "linkedVisit": "الزيارة المرتبطة",
+      "type": "النوع",
+      "dateTime": "التاريخ والوقت",
+      "duration": "المدة",
+      "notes": "ملاحظات",
+      "changeStatus": "تغيير الحالة",
+      "edit": "تعديل",
+      "selectPatient": "اختر مريضاً",
+      "dentist": "طبيب الأسنان",
+      "terminerTitle": "إنهاء الموعد",
+      "terminerBody1": "هذا الموعد بتاريخ",
+      "terminerBody2": "سيُعلَّم «منتهٍ» ويُربط بزيارة.",
+      "newVisite": "زيارة جديدة",
+      "existingVisite": "زيارة موجودة",
+      "visiteToLink": "الزيارة المراد ربطها",
+      "chooseVisite": "— اختر زيارة —",
+      "noVisiteForPatient": "لا زيارة لهذا المريض — أنشئ واحدة.",
+      "visiteDated": "ستُنشأ زيارة بتاريخ {date}",
+      "inDossier": "في الملف",
+      "billVisit": "فوترة هذه الزيارة",
+      "addActe": "إضافة إجراء…",
+      "autoDossierNote": "سيُنشأ ملف «زيارة {date}» تلقائياً.",
+      "noActes": "لا إجراءات في الكتالوج.",
+      "terminer": "إنهاء",
+      "deleteQ": "حذف هذا الموعد؟",
+      "irreversible": "هذا الإجراء لا رجعة فيه.",
+      "deleting": "جارٍ الحذف…"
+    }
   },
   "reports": {
     "title": "التقارير والإحصائيات",

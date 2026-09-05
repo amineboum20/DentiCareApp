@@ -227,7 +227,9 @@
       "chirurgie": "Surgery",
       "controle": "Check-up",
       "orthodontie": "Orthodontics",
-      "autre": "Other"
+      "autre": "Other",
+      "premiere_visite": "First visit",
+      "urgence": "Emergency"
     },
     "form": {
       "addTitle": "New appointment",
@@ -262,7 +264,41 @@
     "newDossier": "New case",
     "dossierTitlePlaceholder": "Case title",
     "create": "Create",
-    "selectPatientFirst": "Select a patient first."
+    "selectPatientFirst": "Select a patient first.",
+    "detail": {
+      "autoDossierTitle": "Visit of {date}",
+      "errRequired": "Patient, title and date are required.",
+      "informations": "Information",
+      "patient": "Patient",
+      "dossier": "Case",
+      "linkedVisit": "Linked visit",
+      "type": "Type",
+      "dateTime": "Date & time",
+      "duration": "Duration",
+      "notes": "Notes",
+      "changeStatus": "Change status",
+      "edit": "Edit",
+      "selectPatient": "Select a patient",
+      "dentist": "Dentist",
+      "terminerTitle": "Complete the appointment",
+      "terminerBody1": "This appointment on",
+      "terminerBody2": "will be marked \"Completed\" and linked to a visit.",
+      "newVisite": "New visit",
+      "existingVisite": "Existing visit",
+      "visiteToLink": "Visit to link",
+      "chooseVisite": "— Choose a visit —",
+      "noVisiteForPatient": "No visit for this patient — create one.",
+      "visiteDated": "A visit dated {date} will be created",
+      "inDossier": "in the case",
+      "billVisit": "Bill this visit",
+      "addActe": "Add a procedure…",
+      "autoDossierNote": "A case \"Visit of {date}\" will be created automatically.",
+      "noActes": "No procedures in the catalog.",
+      "terminer": "Complete",
+      "deleteQ": "Delete this appointment?",
+      "irreversible": "This action is irreversible.",
+      "deleting": "Deleting…"
+    }
   },
   "reports": {
     "title": "Reports & Statistics",

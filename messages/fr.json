@@ -227,7 +227,9 @@
       "chirurgie": "Chirurgie",
       "controle": "Contrôle",
       "orthodontie": "Orthodontie",
-      "autre": "Autre"
+      "autre": "Autre",
+      "premiere_visite": "Première visite",
+      "urgence": "Urgence"
     },
     "form": {
       "addTitle": "Nouveau rendez-vous",
@@ -262,7 +264,41 @@
     "newDossier": "Nouveau dossier",
     "dossierTitlePlaceholder": "Intitulé du dossier",
     "create": "Créer",
-    "selectPatientFirst": "Sélectionnez d'abord un patient."
+    "selectPatientFirst": "Sélectionnez d'abord un patient.",
+    "detail": {
+      "autoDossierTitle": "Visite du {date}",
+      "errRequired": "Le patient, le titre et la date sont requis.",
+      "informations": "Informations",
+      "patient": "Patient",
+      "dossier": "Dossier",
+      "linkedVisit": "Visite liée",
+      "type": "Type",
+      "dateTime": "Date & heure",
+      "duration": "Durée",
+      "notes": "Notes",
+      "changeStatus": "Changer le statut",
+      "edit": "Modifier",
+      "selectPatient": "Sélectionner un patient",
+      "dentist": "Dentiste",
+      "terminerTitle": "Terminer le rendez-vous",
+      "terminerBody1": "Ce rendez-vous du",
+      "terminerBody2": "sera marqué « Terminé » et rattaché à une visite.",
+      "newVisite": "Nouvelle visite",
+      "existingVisite": "Visite existante",
+      "visiteToLink": "Visite à rattacher",
+      "chooseVisite": "— Choisir une visite —",
+      "noVisiteForPatient": "Aucune visite pour ce patient — créez-en une.",
+      "visiteDated": "Une visite datée du {date} sera créée",
+      "inDossier": "dans le dossier",
+      "billVisit": "Facturer cette visite",
+      "addActe": "Ajouter un acte…",
+      "autoDossierNote": "Un dossier « Visite du {date} » sera créé automatiquement.",
+      "noActes": "Aucun acte au catalogue.",
+      "terminer": "Terminer",
+      "deleteQ": "Supprimer ce rendez-vous ?",
+      "irreversible": "Cette action est irréversible.",
+      "deleting": "Suppression…"
+    }
   },
   "reports": {
     "title": "Rapports & Statistiques",

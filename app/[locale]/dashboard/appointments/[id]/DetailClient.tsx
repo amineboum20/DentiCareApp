@@ -34,28 +34,9 @@ const STATUS_STYLE: Record<string, string> = {
   absent:   "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  planifie: "Planifié",
-  termine:  "Terminé",
-  annule:   "Annulé",
-  absent:   "Absent",
-};
-
 const STATUSES: AppointmentStatus[] = ["planifie", "termine", "annule", "absent"];
 
-const MOTIF_LABEL: Record<string, string> = {
-  consultation: "Consultation", controle: "Contrôle", soin: "Soin", urgence: "Urgence", autre: "Autre",
-};
-
 const TYPES: AppointmentType[] = ["premiere_visite", "controle", "soin", "urgence", "autre"];
-
-const TYPE_LABEL: Record<string, string> = {
-  premiere_visite: "Première visite",
-  controle: "Contrôle",
-  soin: "Soin",
-  urgence: "Urgence",
-  autre: "Autre",
-};
 
 const emptyForm = {
   patient_id: "", title: "",
@@ -66,6 +47,8 @@ const emptyForm = {
 
 export default function AppointmentDetailClient({ appointment: initialAppointment, patients, locale }: Props) {
   const t = useTranslations("appointments");
+  const tc = useTranslations("common");
+  const tv = useTranslations("visites");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const { practiceId, currentUserId } = useAppContext();
@@ -154,7 +137,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
         if (!targetDossierId) {
           const { data: dz } = await supabase.from("dossiers").insert({
             practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
-            patient_id: appointment.patient_id as string, title: `Visite du ${new Date(appointment.scheduled_at).toLocaleDateString("fr-FR")}`, statut: "ouvert",
+            patient_id: appointment.patient_id as string, title: t("detail.autoDossierTitle", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") }), statut: "ouvert",
           }).select("id").single();
           if (dz) {
             targetDossierId = (dz as { id: string }).id;
@@ -201,11 +184,11 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
 
   async function handleSave() {
     if (!form.patient_id || !form.title.trim() || !form.scheduled_at) {
-      setFormError("Le patient, le titre et la date sont requis.");
+      setFormError(t("detail.errRequired"));
       return;
     }
     if (form.scheduled_at.slice(0, 10) > today && (form.status === "termine" || form.status === "absent")) {
-      setFormError("Un rendez-vous à venir ne peut être que « Planifié » ou « Annulé ».");
+      setFormError(t("errFutureStatus"));
       return;
     }
     setSaving(true); setFormError("");
@@ -243,7 +226,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 12L6 8l4-4" />
           </svg>
-          Retour
+          {tc("back")}
         </button>
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-2xl shrink-0">📅</div>
@@ -264,34 +247,34 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       <div className="space-y-6">
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Informations</h2>
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{t("detail.informations")}</h2>
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[appointment.status] ?? ""}`}>
-              {STATUS_LABEL[appointment.status] ?? appointment.status}
+              {t(`statuses.${appointment.status}`)}
             </span>
           </div>
           <div className="space-y-1">
-            <DR label="Patient" value={patientName} />
+            <DR label={t("detail.patient")} value={patientName} />
             {dossierTitle && appointment.dossier_id && (
               <div className="flex gap-3 py-0.5">
-                <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Dossier</span>
+                <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{t("detail.dossier")}</span>
                 <button onClick={() => router.push(`/${locale}/dashboard/dossiers/${appointment.dossier_id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{dossierTitle} →</button>
               </div>
             )}
             {linkedVisite && (
               <div className="flex gap-3 py-0.5">
-                <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Visite liée</span>
-                <button onClick={() => router.push(`/${locale}/dashboard/consultations/${linkedVisite.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{new Date(linkedVisite.exam_date).toLocaleDateString("fr-FR")} — {MOTIF_LABEL[linkedVisite.motif] ?? linkedVisite.motif} →</button>
+                <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{t("detail.linkedVisit")}</span>
+                <button onClick={() => router.push(`/${locale}/dashboard/consultations/${linkedVisite.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{new Date(linkedVisite.exam_date).toLocaleDateString("fr-FR")} — {tv.has(`motif.${linkedVisite.motif}`) ? tv(`motif.${linkedVisite.motif}`) : linkedVisite.motif} →</button>
               </div>
             )}
-            <DR label="Type" value={TYPE_LABEL[appointment.type] ?? appointment.type} />
-            <DR label="Date &amp; heure" value={<LocalInstant iso={appointment.scheduled_at} options={{ weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }} />} />
-            <DR label="Durée" value={appointment.duration_minutes != null ? `${appointment.duration_minutes} min` : null} />
-            <DR label="Notes" value={appointment.notes} />
+            <DR label={t("detail.type")} value={t.has(`types.${appointment.type}`) ? t(`types.${appointment.type}`) : appointment.type} />
+            <DR label={t("detail.dateTime")} value={<LocalInstant iso={appointment.scheduled_at} options={{ weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }} />} />
+            <DR label={t("detail.duration")} value={appointment.duration_minutes != null ? `${appointment.duration_minutes} min` : null} />
+            <DR label={t("detail.notes")} value={appointment.notes} />
           </div>
 
           {/* Inline status change */}
           <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-            <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">Changer le statut</label>
+            <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">{t("detail.changeStatus")}</label>
             <div className="flex flex-wrap gap-2">
               {allowedStatuses.map(s => (
                 <button key={s}
@@ -301,7 +284,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                       ? `${STATUS_STYLE[s]} border-transparent ring-2 ring-offset-1 ring-teal-400`
                       : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-600"
                   }`}>
-                  {STATUS_LABEL[s]}
+                  {t(`statuses.${s}`)}
                 </button>
               ))}
             </div>
@@ -311,12 +294,12 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
           <button onClick={() => setDeleteOpen(true)}
             className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-            Supprimer
+            {tc("delete")}
           </button>
           <div className="ms-auto">
             <button onClick={openEdit}
               className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-              ✏️ Modifier
+              ✏️ {t("detail.edit")}
             </button>
           </div>
         </div>
@@ -334,7 +317,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.patient")} <span className="text-red-500">*</span></label>
                 <select {...field("patient_id")} className={inputCls}>
-                  <option value="">Sélectionner un patient</option>
+                  <option value="">{t("detail.selectPatient")}</option>
                   {patients.map(p => <option key={p.id} value={p.id}>{p.last_name} {p.first_name}</option>)}
                 </select>
               </div>
@@ -346,13 +329,13 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.type")}</label>
                   <select {...field("type")} className={inputCls}>
-                    {TYPES.map(tp => <option key={tp} value={tp}>{TYPE_LABEL[tp]}</option>)}
+                    {TYPES.map(tp => <option key={tp} value={tp}>{t(`types.${tp}`)}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.status")}</label>
                   <select {...field("status")} className={inputCls}>
-                    {STATUSES.filter(s => !form.scheduled_at || form.scheduled_at.slice(0, 10) <= today || s === "planifie" || s === "annule" || s === form.status).map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+                    {STATUSES.filter(s => !form.scheduled_at || form.scheduled_at.slice(0, 10) <= today || s === "planifie" || s === "annule" || s === form.status).map(s => <option key={s} value={s}>{t(`statuses.${s}`)}</option>)}
                   </select>
                 </div>
               </div>
@@ -367,7 +350,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("detail.dentist")}</label>
                 <PraticienSelect value={form.praticien_id} onChange={(id) => setForm((f) => ({ ...f, praticien_id: id }))} className={inputCls} />
               </div>
               <div>
@@ -394,30 +377,30 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       {terminerOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Terminer le rendez-vous</h2>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("detail.terminerTitle")}</h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              Ce rendez-vous du <LocalInstant iso={appointment.scheduled_at} options={{ weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }} /> sera marqué « Terminé » et rattaché à une visite.
+              {t("detail.terminerBody1")} <LocalInstant iso={appointment.scheduled_at} options={{ weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }} /> {t("detail.terminerBody2")}
             </p>
             <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg mb-4">
-              <button type="button" onClick={() => setLinkMode("new")} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${linkMode === "new" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 dark:text-zinc-400"}`}>Nouvelle visite</button>
-              <button type="button" onClick={() => setLinkMode("existing")} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${linkMode === "existing" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 dark:text-zinc-400"}`}>Visite existante</button>
+              <button type="button" onClick={() => setLinkMode("new")} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${linkMode === "new" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 dark:text-zinc-400"}`}>{t("detail.newVisite")}</button>
+              <button type="button" onClick={() => setLinkMode("existing")} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${linkMode === "existing" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 dark:text-zinc-400"}`}>{t("detail.existingVisite")}</button>
             </div>
 
             {linkMode === "existing" ? (
               <div className="mb-4">
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Visite à rattacher</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("detail.visiteToLink")}</label>
                 <select value={existingVisiteId} onChange={(e) => setExistingVisiteId(e.target.value)} className={inputCls}>
-                  <option value="">— Choisir une visite —</option>
-                  {patientVisites.map((v) => <option key={v.id} value={v.id}>{new Date(v.exam_date).toLocaleDateString("fr-FR")} — {MOTIF_LABEL[v.motif] ?? v.motif}</option>)}
+                  <option value="">{t("detail.chooseVisite")}</option>
+                  {patientVisites.map((v) => <option key={v.id} value={v.id}>{new Date(v.exam_date).toLocaleDateString("fr-FR")} — {tv.has(`motif.${v.motif}`) ? tv(`motif.${v.motif}`) : v.motif}</option>)}
                 </select>
-                {patientVisites.length === 0 && <p className="text-[11px] text-zinc-400 mt-1">Aucune visite pour ce patient — créez-en une.</p>}
+                {patientVisites.length === 0 && <p className="text-[11px] text-zinc-400 mt-1">{t("detail.noVisiteForPatient")}</p>}
               </div>
             ) : (
               <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 space-y-3 bg-zinc-50/60 dark:bg-zinc-800/30 mb-4">
-                <p className="text-[11px] text-zinc-400">Une visite datée du {new Date(appointment.scheduled_at).toLocaleDateString("fr-FR")} sera créée{dossierTitle ? <> dans le dossier <span className="font-medium text-zinc-600 dark:text-zinc-300">{dossierTitle}</span></> : ""}.</p>
+                <p className="text-[11px] text-zinc-400">{t("detail.visiteDated", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") })}{dossierTitle ? <> {t("detail.inDossier")} <span className="font-medium text-zinc-600 dark:text-zinc-300">{dossierTitle}</span></> : ""}.</p>
                 <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
                   <input type="checkbox" checked={billOn} onChange={(e) => setBillOn(e.target.checked)} className="w-4 h-4 accent-teal-600" />
-                  Facturer cette visite
+                  {t("detail.billVisit")}
                 </label>
                 {billOn && (
                   actes.length > 0 ? (
@@ -436,20 +419,20 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                         </div>
                       )}
                       <select value="" onChange={(e) => { const a = actes.find((x) => x.id === e.target.value); if (a) setBillActes((xs) => [...xs, a]); }} className={inputCls}>
-                        <option value="">+ Ajouter un acte…</option>
+                        <option value="">+ {t("detail.addActe")}</option>
                         {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                       </select>
-                      {!appointment.dossier_id && <p className="text-[11px] text-zinc-400">Un dossier « Visite du {new Date(appointment.scheduled_at).toLocaleDateString("fr-FR")} » sera créé automatiquement.</p>}
+                      {!appointment.dossier_id && <p className="text-[11px] text-zinc-400">{t("detail.autoDossierNote", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") })}</p>}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-amber-600 dark:text-amber-400">Aucun acte au catalogue.</p>
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400">{t("detail.noActes")}</p>
                   )
                 )}
               </div>
             )}
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setTerminerOpen(false)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">Annuler</button>
-              <button onClick={doTerminer} disabled={terminering || (linkMode === "existing" && !existingVisiteId)} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{terminering ? "…" : "Terminer"}</button>
+              <button onClick={() => setTerminerOpen(false)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">{tc("cancel")}</button>
+              <button onClick={doTerminer} disabled={terminering || (linkMode === "existing" && !existingVisiteId)} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{terminering ? "…" : t("detail.terminer")}</button>
             </div>
           </div>
         </div>
@@ -459,16 +442,16 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer ce rendez-vous ?</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Cette action est irréversible.</p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("detail.deleteQ")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("detail.irreversible")}</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteOpen(false)}
                 className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                Annuler
+                {tc("cancel")}
               </button>
               <button onClick={handleDelete} disabled={deleting}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                {deleting ? "Suppression…" : "Supprimer"}
+                {deleting ? t("detail.deleting") : tc("delete")}
               </button>
             </div>
           </div>
