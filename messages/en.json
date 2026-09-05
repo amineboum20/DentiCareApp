@@ -954,6 +954,27 @@
       "cancel": "Cancel",
       "saving": "Saving…",
       "save": "Save"
+    },
+    "detailTitle": "Prescription",
+    "detail": {
+      "informations": "Information",
+      "patient": "Patient",
+      "date": "Date",
+      "prescriber": "Prescriber",
+      "linkedVisit": "Linked visit",
+      "dossier": "Case",
+      "notes": "Notes",
+      "medications": "Medications",
+      "noMeds": "No medication",
+      "reactivate": "Reactivate",
+      "cancelOrdo": "Cancel prescription",
+      "edit": "Edit",
+      "editTitle": "Edit prescription",
+      "medShort": "Medication",
+      "instructionsShort": "Instructions",
+      "cancelDialogTitle": "Cancel this prescription?",
+      "cancelDialogBody": "It will be marked \"Cancelled\" and kept for history.",
+      "cancelDialogHint": "You can reactivate it at any time."
     }
   }
 }

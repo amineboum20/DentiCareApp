@@ -996,6 +996,27 @@
       "cancel": "Annuler",
       "saving": "Enregistrement…",
       "save": "Enregistrer"
+    },
+    "detailTitle": "Ordonnance",
+    "detail": {
+      "informations": "Informations",
+      "patient": "Patient",
+      "date": "Date",
+      "prescriber": "Prescripteur",
+      "linkedVisit": "Visite liée",
+      "dossier": "Dossier",
+      "notes": "Notes",
+      "medications": "Médicaments",
+      "noMeds": "Aucun médicament",
+      "reactivate": "Réactiver",
+      "cancelOrdo": "Annuler l'ordonnance",
+      "edit": "Modifier",
+      "editTitle": "Modifier l'ordonnance",
+      "medShort": "Médicament",
+      "instructionsShort": "Instructions",
+      "cancelDialogTitle": "Annuler cette ordonnance ?",
+      "cancelDialogBody": "Elle sera marquée « Annulée » et conservée pour l'historique.",
+      "cancelDialogHint": "Vous pourrez la réactiver à tout moment."
     }
   }
 }

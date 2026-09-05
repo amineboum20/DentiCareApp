@@ -954,6 +954,27 @@
       "cancel": "إلغاء",
       "saving": "جارٍ الحفظ…",
       "save": "حفظ"
+    },
+    "detailTitle": "وصفة طبية",
+    "detail": {
+      "informations": "معلومات",
+      "patient": "المريض",
+      "date": "التاريخ",
+      "prescriber": "الواصف",
+      "linkedVisit": "الزيارة المرتبطة",
+      "dossier": "الملف",
+      "notes": "ملاحظات",
+      "medications": "الأدوية",
+      "noMeds": "لا دواء",
+      "reactivate": "إعادة التفعيل",
+      "cancelOrdo": "إلغاء الوصفة",
+      "edit": "تعديل",
+      "editTitle": "تعديل الوصفة",
+      "medShort": "الدواء",
+      "instructionsShort": "التعليمات",
+      "cancelDialogTitle": "إلغاء هذه الوصفة؟",
+      "cancelDialogBody": "ستُعلَّم كـ«ملغاة» وتُحفظ في السجل.",
+      "cancelDialogHint": "يمكنك إعادة تفعيلها في أي وقت."
     }
   }
 }
