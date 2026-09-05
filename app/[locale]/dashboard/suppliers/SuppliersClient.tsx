@@ -17,6 +17,7 @@ const emptyForm = {
 
 export default function SuppliersClient({ initialSuppliers }: Props) {
   const t = useTranslations("suppliers");
+  const tc = useTranslations("common");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const pathname = usePathname();
@@ -148,10 +149,10 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button onClick={() => openEdit(s)} className="text-xs px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                    Modifier
+                    {t("edit")}
                   </button>
                   <button onClick={() => setDeleteTarget(s)} className="text-xs px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                    Supprimer
+                    {tc("delete")}
                   </button>
                 </div>
               </div>
@@ -169,29 +170,29 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
             <div className="space-y-4">
               <div>
                 <label className={labelCls}>{t("form.name")} *</label>
-                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex. Dentsply Sirona" className={inputCls} />
+                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t("form.namePlaceholder")} className={inputCls} />
               </div>
               <div>
                 <label className={labelCls}>{t("form.contact")}</label>
-                <input value={form.contact_name} onChange={e => setForm(f => ({ ...f, contact_name: e.target.value }))} placeholder="Nom du contact" className={inputCls} />
+                <input value={form.contact_name} onChange={e => setForm(f => ({ ...f, contact_name: e.target.value }))} placeholder={t("form.contactPlaceholder")} className={inputCls} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>{t("form.phone")}</label>
-                  <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+212 6XX XXX XXX" className={inputCls} />
+                  <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder={t("form.phonePlaceholder")} className={inputCls} />
                 </div>
                 <div>
                   <label className={labelCls}>{t("form.email")}</label>
-                  <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="contact@example.com" className={inputCls} />
+                  <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder={t("form.emailPlaceholder")} className={inputCls} />
                 </div>
               </div>
               <div>
                 <label className={labelCls}>{t("form.address")}</label>
-                <input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Adresse" className={inputCls} />
+                <input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder={t("form.addressPlaceholder")} className={inputCls} />
               </div>
               <div>
                 <label className={labelCls}>{t("form.notes")}</label>
-                <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} placeholder="Notes…" className={inputCls + " resize-none"} />
+                <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} placeholder={t("form.notesPlaceholder")} className={inputCls + " resize-none"} />
               </div>
             </div>
             {error && <p className="mt-3 text-sm text-red-500">{error}</p>}

@@ -140,7 +140,7 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
 
       {suppliers.length === 0 && (
         <div className="mb-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-          <p className="text-sm text-amber-700 dark:text-amber-300">Ajoutez d&apos;abord un fournisseur pour créer des commandes.</p>
+          <p className="text-sm text-amber-700 dark:text-amber-300">{t("needSupplier")}</p>
         </div>
       )}
 

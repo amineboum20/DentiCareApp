@@ -692,13 +692,31 @@
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
-      "requiredError": "Supplier name is required."
+      "requiredError": "Supplier name is required.",
+      "namePlaceholder": "e.g. Dentsply Sirona",
+      "contactPlaceholder": "Contact name",
+      "phonePlaceholder": "+212 6XX XXX XXX",
+      "emailPlaceholder": "contact@example.com",
+      "addressPlaceholder": "Address",
+      "notesPlaceholder": "Notes…",
+      "contactName": "Contact name"
     },
     "deleteConfirm": {
       "title": "Delete supplier",
       "message": "Permanently delete {name}?",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "edit": "Edit",
+    "detail": {
+      "informations": "Information",
+      "contact": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "noLinkedActe": "No linked procedure",
+      "deleteQ": "Delete this supplier?",
+      "irreversible": "This action is irreversible.",
+      "deleting": "Deleting…"
     }
   },
   "supplierOrders": {
@@ -734,13 +752,29 @@
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
-      "requiredError": "Supplier is required."
+      "requiredError": "Supplier is required.",
+      "receivedAt": "Received date"
     },
     "deleteConfirm": {
       "title": "Delete order",
       "message": "Delete this order?",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "needSupplier": "Add a supplier first to create orders.",
+    "detail": {
+      "title": "Supplier order",
+      "informations": "Information",
+      "supplier": "Supplier",
+      "orderDate": "Order date",
+      "expectedDelivery": "Expected delivery",
+      "receivedDate": "Received date",
+      "totalCost": "Total cost",
+      "notes": "Notes",
+      "selectSupplier": "Select a supplier",
+      "deleteQ": "Delete this order?",
+      "irreversible": "This action is irreversible.",
+      "deleting": "Deleting…"
     }
   },
   "search": {

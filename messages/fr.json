@@ -734,13 +734,31 @@
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "cancel": "Annuler",
-      "requiredError": "Le nom du fournisseur est obligatoire."
+      "requiredError": "Le nom du fournisseur est obligatoire.",
+      "namePlaceholder": "Ex. Dentsply Sirona",
+      "contactPlaceholder": "Nom du contact",
+      "phonePlaceholder": "+212 6XX XXX XXX",
+      "emailPlaceholder": "contact@example.com",
+      "addressPlaceholder": "Adresse",
+      "notesPlaceholder": "Notes…",
+      "contactName": "Nom du contact"
     },
     "deleteConfirm": {
       "title": "Supprimer le fournisseur",
       "message": "Supprimer {name} définitivement ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    },
+    "edit": "Modifier",
+    "detail": {
+      "informations": "Informations",
+      "contact": "Contact",
+      "phone": "Téléphone",
+      "email": "Email",
+      "noLinkedActe": "Aucun acte lié",
+      "deleteQ": "Supprimer ce fournisseur ?",
+      "irreversible": "Cette action est irréversible.",
+      "deleting": "Suppression…"
     }
   },
   "supplierOrders": {
@@ -776,13 +794,29 @@
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "cancel": "Annuler",
-      "requiredError": "Le fournisseur est obligatoire."
+      "requiredError": "Le fournisseur est obligatoire.",
+      "receivedAt": "Date de réception"
     },
     "deleteConfirm": {
       "title": "Supprimer la commande",
       "message": "Supprimer cette commande ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    },
+    "needSupplier": "Ajoutez d'abord un fournisseur pour créer des commandes.",
+    "detail": {
+      "title": "Commande fournisseur",
+      "informations": "Informations",
+      "supplier": "Fournisseur",
+      "orderDate": "Date de commande",
+      "expectedDelivery": "Livraison prévue",
+      "receivedDate": "Date de réception",
+      "totalCost": "Coût total",
+      "notes": "Notes",
+      "selectSupplier": "Sélectionner un fournisseur",
+      "deleteQ": "Supprimer cette commande ?",
+      "irreversible": "Cette action est irréversible.",
+      "deleting": "Suppression…"
     }
   },
   "search": {

@@ -18,6 +18,7 @@ const emptyForm = {
 
 export default function SupplierDetailClient({ supplier: initialSupplier, locale }: Props) {
   const t = useTranslations("suppliers");
+  const tc = useTranslations("common");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
@@ -112,11 +113,11 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
 
       <div className="space-y-6">
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">Informations</h2>
+          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">{t("detail.informations")}</h2>
           <div className="space-y-1">
-            <DR label="Contact" value={supplier.contact_name} />
-            <DR label="Téléphone" value={supplier.phone} />
-            <DR label="Email" value={supplier.email} />
+            <DR label={t("detail.contact")} value={supplier.contact_name} />
+            <DR label={t("detail.phone")} value={supplier.phone} />
+            <DR label={t("detail.email")} value={supplier.email} />
             <DR label="Adresse" value={supplier.address} />
             <DR label="Notes" value={supplier.notes} />
           </div>
@@ -155,7 +156,7 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
               </svg>
             </div>
           ) : treatments.length === 0 ? (
-            <p className="text-sm text-zinc-400 py-4 text-center">Aucun acte lié</p>
+            <p className="text-sm text-zinc-400 py-4 text-center">{t("detail.noLinkedActe")}</p>
           ) : (
             <div className="space-y-2">
               {treatments.map(tr => (
@@ -249,16 +250,16 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer ce fournisseur ?</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Cette action est irréversible.</p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("detail.deleteQ")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("detail.irreversible")}</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteOpen(false)}
                 className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                Annuler
+                {tc("cancel")}
               </button>
               <button onClick={handleDelete} disabled={deleting}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                {deleting ? "Suppression…" : "Supprimer"}
+                {deleting ? t("detail.deleting") : tc("delete")}
               </button>
             </div>
           </div>

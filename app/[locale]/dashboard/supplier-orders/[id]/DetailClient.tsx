@@ -22,13 +22,6 @@ const STATUS_STYLE: Record<string, string> = {
   cancelled: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  ordered:   "Commandé",
-  partial:   "Partiel",
-  received:  "Reçu",
-  cancelled: "Annulé",
-};
-
 const STATUSES: SupplierOrderStatus[] = ["ordered", "partial", "received", "cancelled"];
 
 function fmtDate(iso: string | null) {
@@ -44,6 +37,7 @@ const emptyForm = {
 
 export default function SupplierOrderDetailClient({ order: initialOrder, suppliers, locale }: Props) {
   const t = useTranslations("supplierOrders");
+  const tc = useTranslations("common");
   const supabase = createClient();
   const router = useRouter();
 
@@ -120,7 +114,7 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-2xl shrink-0">📦</div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Commande fournisseur</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("detail.title")}</h1>
             {supplierName && (
               <button
                 onClick={() => router.push(`/${locale}/dashboard/suppliers/${order.supplier_id}`)}
@@ -136,18 +130,18 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
       <div className="space-y-6">
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Informations</h2>
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{t("detail.informations")}</h2>
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[order.status] ?? ""}`}>
-              {STATUS_LABEL[order.status] ?? order.status}
+              {t(`statuses.${order.status}`)}
             </span>
           </div>
           <div className="space-y-1">
-            <DR label="Fournisseur" value={supplierName} />
-            <DR label="Date de commande" value={fmtDate(order.ordered_at)} />
-            <DR label="Livraison prévue" value={fmtDate(order.expected_at)} />
-            <DR label="Date de réception" value={fmtDate(order.received_at)} />
-            <DR label="Coût total" value={order.total_cost != null ? `${Number(order.total_cost).toFixed(2)} MAD` : null} />
-            <DR label="Notes" value={order.notes} />
+            <DR label={t("detail.supplier")} value={supplierName} />
+            <DR label={t("detail.orderDate")} value={fmtDate(order.ordered_at)} />
+            <DR label={t("detail.expectedDelivery")} value={fmtDate(order.expected_at)} />
+            <DR label={t("detail.receivedDate")} value={fmtDate(order.received_at)} />
+            <DR label={t("detail.totalCost")} value={order.total_cost != null ? `${Number(order.total_cost).toFixed(2)} MAD` : null} />
+            <DR label={t("detail.notes")} value={order.notes} />
           </div>
 
 
@@ -179,14 +173,14 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.supplier")} <span className="text-red-500">*</span></label>
                 <select {...field("supplier_id")} className={inputCls}>
-                  <option value="">Sélectionner un fournisseur</option>
+                  <option value="">{t("detail.selectSupplier")}</option>
                   {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.status")}</label>
                 <select {...field("status")} className={inputCls}>
-                  {STATUSES.map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+                  {STATUSES.map(s => <option key={s} value={s}>{t(`statuses.${s}`)}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -233,16 +227,16 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cette commande ?</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Cette action est irréversible.</p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("detail.deleteQ")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("detail.irreversible")}</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteOpen(false)}
                 className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                Annuler
+                {tc("cancel")}
               </button>
               <button onClick={handleDelete} disabled={deleting}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                {deleting ? "Suppression…" : "Supprimer"}
+                {deleting ? t("detail.deleting") : tc("delete")}
               </button>
             </div>
           </div>

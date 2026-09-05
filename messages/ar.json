@@ -692,13 +692,31 @@
       "save": "حفظ",
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
-      "requiredError": "اسم المورد إلزامي."
+      "requiredError": "اسم المورد إلزامي.",
+      "namePlaceholder": "مثال: Dentsply Sirona",
+      "contactPlaceholder": "اسم جهة الاتصال",
+      "phonePlaceholder": "+212 6XX XXX XXX",
+      "emailPlaceholder": "contact@example.com",
+      "addressPlaceholder": "العنوان",
+      "notesPlaceholder": "ملاحظات…",
+      "contactName": "اسم جهة الاتصال"
     },
     "deleteConfirm": {
       "title": "حذف المورد",
       "message": "حذف {name} نهائيًا؟",
       "confirm": "حذف",
       "cancel": "إلغاء"
+    },
+    "edit": "تعديل",
+    "detail": {
+      "informations": "معلومات",
+      "contact": "جهة الاتصال",
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "noLinkedActe": "لا إجراء مرتبط",
+      "deleteQ": "حذف هذا المورد؟",
+      "irreversible": "هذا الإجراء لا رجعة فيه.",
+      "deleting": "جارٍ الحذف…"
     }
   },
   "supplierOrders": {
@@ -734,13 +752,29 @@
       "save": "حفظ",
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
-      "requiredError": "المورد إلزامي."
+      "requiredError": "المورد إلزامي.",
+      "receivedAt": "تاريخ الاستلام"
     },
     "deleteConfirm": {
       "title": "حذف الطلب",
       "message": "حذف هذا الطلب؟",
       "confirm": "حذف",
       "cancel": "إلغاء"
+    },
+    "needSupplier": "أضف مورداً أولاً لإنشاء طلبات.",
+    "detail": {
+      "title": "طلب مورد",
+      "informations": "معلومات",
+      "supplier": "المورد",
+      "orderDate": "تاريخ الطلب",
+      "expectedDelivery": "التسليم المتوقع",
+      "receivedDate": "تاريخ الاستلام",
+      "totalCost": "التكلفة الإجمالية",
+      "notes": "ملاحظات",
+      "selectSupplier": "اختر مورداً",
+      "deleteQ": "حذف هذا الطلب؟",
+      "irreversible": "هذا الإجراء لا رجعة فيه.",
+      "deleting": "جارٍ الحذف…"
     }
   },
   "search": {
