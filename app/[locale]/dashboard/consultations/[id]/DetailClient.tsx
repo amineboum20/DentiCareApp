@@ -7,13 +7,28 @@ import type { ConsultationWithPatient, ConsultationMotif } from "@/types/databas
 import { DR } from "@/components/DetailRow";
 
 interface Props {
-  consultation: ConsultationWithPatient;
+  consultation: ConsultationWithPatient & { dossiers?: { id: string; title: string; statut: string } | { id: string; title: string; statut: string }[] | null };
+  originRdv: { id: string; scheduled_at: string; title: string } | null;
+  facturation: { facture: number; paye: number; reste: number } | null;
   locale: string;
 }
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
+}
+function fmtDateTime(iso: string) {
+  return new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+// Like DR but always renders (empty shows "—"), so the clinical structure stays visible.
+function AlwaysRow({ label, value }: { label: string; value: string | null }) {
+  return (
+    <div className="flex gap-3 py-0.5">
+      <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{label}</span>
+      <span className="text-sm text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">{value && value.trim() ? value : "—"}</span>
+    </div>
+  );
 }
 
 const MOTIF_STYLE: Record<string, string> = {
@@ -39,9 +54,12 @@ const emptyForm = {
   exam_date: "", next_exam_date: "", treated_by: "", teeth: "", clinical_notes: "", exams: "",
 };
 
-export default function ConsultationDetailClient({ consultation: initialConsultation, locale }: Props) {
+export default function ConsultationDetailClient({ consultation: initialConsultation, originRdv, facturation, locale }: Props) {
   const supabase = createClient();
   const router = useRouter();
+
+  const dossierRel = initialConsultation.dossiers;
+  const dossier = Array.isArray(dossierRel) ? (dossierRel[0] ?? null) : (dossierRel ?? null);
 
   const [consultation, setConsultation] = useState<ConsultationWithPatient>(initialConsultation);
   const [modalOpen, setModalOpen] = useState(false);
@@ -141,15 +159,54 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
           </div>
           <div className="space-y-1">
             <DR label="Patient" value={patientName} />
-            <DR label="Date" value={fmtDate(consultation.exam_date)} />
-            <DR label="Prochain contrôle" value={fmtDate(consultation.next_exam_date)} />
-            <DR label="Traité par" value={consultation.treated_by ? `Dr. ${consultation.treated_by}` : null} />
-            <DR label="Dents concernées" value={consultation.teeth} />
-            <DR label="Notes cliniques" value={consultation.clinical_notes} />
-            <DR label="Examens complémentaires" value={consultation.exams} />
+            <AlwaysRow label="Date" value={fmtDate(consultation.exam_date)} />
+            <AlwaysRow label="Prochain contrôle" value={consultation.next_exam_date ? fmtDate(consultation.next_exam_date) : null} />
+            <AlwaysRow label="Dentiste" value={consultation.treated_by ? `Dr. ${consultation.treated_by}` : null} />
+            {consultation.teeth && <DR label="Dents concernées" value={consultation.teeth} />}
+            <AlwaysRow label="Notes cliniques" value={consultation.clinical_notes} />
+            <AlwaysRow label="Examens complémentaires" value={consultation.exams} />
             <DR label="Créé le" value={fmtDate(consultation.created_at)} />
           </div>
         </div>
+
+        {(dossier || originRdv || facturation) && (
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">Rattachement &amp; facturation</h2>
+            <div className="space-y-1">
+              {dossier && (
+                <div className="flex gap-3 py-0.5">
+                  <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Dossier</span>
+                  <button onClick={() => router.push(`/${locale}/dashboard/dossiers/${dossier.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{dossier.title} →</button>
+                </div>
+              )}
+              {originRdv && (
+                <div className="flex gap-3 py-0.5">
+                  <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Rendez-vous d&apos;origine</span>
+                  <button onClick={() => router.push(`/${locale}/dashboard/appointments/${originRdv.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{fmtDateTime(originRdv.scheduled_at)} →</button>
+                </div>
+              )}
+            </div>
+            {facturation && (
+              <>
+                <div className="grid grid-cols-3 gap-2 mt-4">
+                  <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/60 px-3 py-2.5 text-center">
+                    <p className="text-[10px] text-zinc-400 uppercase">Facturé</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white">{facturation.facture.toFixed(0)}</p>
+                  </div>
+                  <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/10 px-3 py-2.5 text-center">
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase">Payé</p>
+                    <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{facturation.paye.toFixed(0)}</p>
+                  </div>
+                  <div className={`rounded-xl px-3 py-2.5 text-center ${facturation.reste > 0 ? "bg-amber-50 dark:bg-amber-900/10" : "bg-zinc-50 dark:bg-zinc-800/60"}`}>
+                    <p className={`text-[10px] uppercase ${facturation.reste > 0 ? "text-amber-600 dark:text-amber-400" : "text-zinc-400"}`}>Reste</p>
+                    <p className={`text-sm font-bold ${facturation.reste > 0 ? "text-amber-600 dark:text-amber-400" : "text-zinc-500"}`}>{facturation.reste.toFixed(0)}</p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-zinc-400 mt-2">Facturation gérée au niveau du dossier (MAD).</p>
+              </>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
           <button onClick={() => setDeleteOpen(true)}
