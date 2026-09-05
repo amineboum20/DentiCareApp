@@ -227,6 +227,157 @@ export async function exportFacturePdf(opts: {
   );
 }
 
+// Prescription (ordonnance) PDF
+export async function exportOrdonnancePdf(opts: {
+  ordonnanceId: string;
+  patientName: string;
+  patientPhone: string | null;
+  date: string;
+  prescriber: string | null;
+  lines: Array<{ name: string; posologie: string | null; duree: string | null; quantite: string | null; instructions: string | null }>;
+  notes: string | null;
+  shopName: string;
+  shopAddress?: string;
+  shopPhone?: string;
+  logoUrl?: string | null;
+}) {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+  const W = 210, ml = 20, mr = W - 20;
+  const number = `ORD-${opts.ordonnanceId.slice(0, 8).toUpperCase()}`;
+
+  let logoData: { dataUrl: string; aspect: number } | null = null;
+  if (opts.logoUrl) logoData = await loadLogoDataUrl(opts.logoUrl);
+
+  if (logoData) {
+    const maxW = 40, maxH = 20;
+    const imgW = logoData.aspect > maxW / maxH ? maxW : maxH * logoData.aspect;
+    const imgH = logoData.aspect > maxW / maxH ? maxW / logoData.aspect : maxH;
+    doc.addImage(logoData.dataUrl, logoData.dataUrl.startsWith("data:image/png") ? "PNG" : "JPEG", ml, 12, imgW, imgH);
+  } else {
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(20, 20, 20);
+    doc.text("DentiCare", ml, 22);
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(20, 20, 20);
+  doc.text(opts.shopName || "DentiCare", mr, 17, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(90, 90, 90);
+  if (opts.shopAddress) doc.text(opts.shopAddress, mr, 23, { align: "right" });
+  if (opts.shopPhone) doc.text(opts.shopPhone, mr, 28, { align: "right" });
+
+  doc.setDrawColor(200, 200, 200);
+  doc.line(ml, 36, mr, 36);
+
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(20, 20, 20);
+  doc.text("ORDONNANCE", ml, 50);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(80, 80, 80);
+  doc.text(`N° ${number}`, ml, 57);
+  doc.text("Date :", mr - 38, 50);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(20, 20, 20);
+  doc.text(fmtDate(opts.date), mr, 50, { align: "right" });
+
+  doc.setDrawColor(200, 200, 200);
+  doc.line(ml, 64, mr, 64);
+
+  let y = 73;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(90, 90, 90);
+  doc.text("PATIENT", ml, y);
+  y += 6;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(20, 20, 20);
+  doc.text(opts.patientName, ml, y);
+  y += 6;
+  if (opts.patientPhone) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(70, 70, 70);
+    doc.text(opts.patientPhone, ml, y);
+    y += 5;
+  }
+  y += 6;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(ml, y, mr, y);
+
+  y += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(90, 90, 90);
+  doc.text("PRESCRIPTION", ml, y);
+  y += 8;
+
+  opts.lines.forEach((l, i) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(20, 20, 20);
+    doc.text(`${i + 1}. ${l.name}`, ml, y);
+    y += 5.5;
+    const meta = [
+      l.posologie ? `Posologie : ${l.posologie}` : null,
+      l.duree ? `Durée : ${l.duree}` : null,
+      l.quantite ? `Quantité : ${l.quantite}` : null,
+    ].filter(Boolean).join("   ·   ");
+    if (meta) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(70, 70, 70);
+      doc.text(doc.splitTextToSize(meta, mr - ml), ml + 4, y);
+      y += 5.5;
+    }
+    if (l.instructions) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(110, 110, 110);
+      const insLines = doc.splitTextToSize(l.instructions, mr - ml - 4) as string[];
+      doc.text(insLines, ml + 4, y);
+      y += insLines.length * 5;
+    }
+    y += 4;
+  });
+
+  if (opts.notes) {
+    y += 4;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Notes :", ml, y);
+    doc.setTextColor(40, 40, 40);
+    const noteLines = doc.splitTextToSize(opts.notes, mr - ml - 28);
+    doc.text(noteLines, ml + 28, y);
+  }
+
+  // Prescriber signature block (bottom-right).
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(90, 90, 90);
+  doc.text(opts.prescriber ? `Dr. ${opts.prescriber}` : "Le praticien", mr, 250, { align: "right" });
+  doc.setDrawColor(200, 200, 200);
+  doc.line(mr - 55, 262, mr, 262);
+  doc.setFontSize(7);
+  doc.setTextColor(160, 160, 160);
+  doc.text("Signature / cachet", mr, 266, { align: "right" });
+
+  doc.setFontSize(7);
+  doc.setTextColor(160, 160, 160);
+  doc.line(ml, 284, mr, 284);
+  doc.text(`Généré par DentiCare · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, { align: "center" });
+
+  doc.save(`ordonnance-${number}-${opts.patientName.replace(/\s+/g, "-")}.pdf`);
+}
+
 // Care plan / treatment plan PDF
 export async function exportCarePlanPdf(opts: {
   patientName: string;

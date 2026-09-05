@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { ConsultationWithPatient, ConsultationMotif } from "@/types/database";
@@ -55,11 +55,17 @@ const emptyForm = {
 };
 
 export default function ConsultationDetailClient({ consultation: initialConsultation, originRdv, facturation, locale }: Props) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
   const dossierRel = initialConsultation.dossiers;
   const dossier = Array.isArray(dossierRel) ? (dossierRel[0] ?? null) : (dossierRel ?? null);
+
+  const [ordonnances, setOrdonnances] = useState<{ id: string; date: string; prescriber: string | null }[]>([]);
+  useEffect(() => {
+    supabase.from("ordonnances").select("id, date, prescriber").eq("consultation_id", initialConsultation.id).is("archived_at", null).order("date", { ascending: false })
+      .then(({ data }) => setOrdonnances((data ?? []) as { id: string; date: string; prescriber: string | null }[]));
+  }, [initialConsultation.id, supabase]);
 
   const [consultation, setConsultation] = useState<ConsultationWithPatient>(initialConsultation);
   const [modalOpen, setModalOpen] = useState(false);
@@ -207,6 +213,26 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
             )}
           </div>
         )}
+
+        {/* Ordonnances issued at this visite */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Ordonnances <span className="text-zinc-300">({ordonnances.length})</span></h2>
+            <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${consultation.patient_id}&consultation_id=${consultation.id}${dossier ? `&dossier_id=${dossier.id}` : ""}`)} className="text-xs px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors">+ Nouvelle ordonnance</button>
+          </div>
+          {ordonnances.length === 0 ? (
+            <p className="text-sm text-zinc-400 py-4 text-center">Aucune ordonnance</p>
+          ) : (
+            <div className="space-y-2">
+              {ordonnances.map((o) => (
+                <div key={o.id} onClick={() => router.push(`/${locale}/dashboard/ordonnances/${o.id}`)} className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2.5 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 transition-all">
+                  <span className="text-sm font-medium text-zinc-900 dark:text-white">💊 Ordonnance</span>
+                  <span className="text-xs text-zinc-400">{fmtDate(o.date)}{o.prescriber ? ` · Dr. ${o.prescriber}` : ""}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
           <button onClick={() => setDeleteOpen(true)}

@@ -346,6 +346,11 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
               <span className="text-lg">🏥</span>
               <span className="text-[11px] font-medium leading-tight">Visite</span>
             </button>
+            <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${patient.id}`)}
+              className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
+              <span className="text-lg">💊</span>
+              <span className="text-[11px] font-medium leading-tight">Ordonnance</span>
+            </button>
             <button onClick={() => router.push(`/${locale}/dashboard/appointments?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
               <span className="text-lg">📅</span>

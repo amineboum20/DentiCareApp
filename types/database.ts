@@ -240,6 +240,41 @@ export interface DossierWithPatient extends Dossier {
   patients: Pick<Patient, 'first_name' | 'last_name'>
 }
 
+// Ordonnance = prescription document, issued during a visite (consultation_id)
+// or standalone at patient level. Lines are free-text for now (medicament_id
+// reserved for a future catalog).
+export interface Ordonnance {
+  id: string
+  practice_id: string
+  patient_id: string
+  consultation_id: string | null
+  dossier_id: string | null
+  user_id: string
+  prescriber: string | null
+  date: string
+  notes: string | null
+  archived_at: string | null
+  created_at: string
+  created_by: string | null
+  updated_by: string | null
+}
+
+export interface OrdonnanceLigne {
+  id: string
+  ordonnance_id: string
+  medicament_id: string | null
+  name: string
+  posologie: string | null
+  duree: string | null
+  quantite: string | null
+  instructions: string | null
+  sort_order: number
+}
+
+export interface OrdonnanceWithPatient extends Ordonnance {
+  patients: Pick<Patient, 'first_name' | 'last_name' | 'phone'>
+}
+
 export interface Consultation {
   id: string
   practice_id: string

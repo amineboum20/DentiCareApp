@@ -159,6 +159,7 @@
       "actes": "Acts",
       "traitements": "Treatments",
       "factures": "Invoices",
+      "ordonnances": "Prescriptions",
       "appointments": "Appointments",
       "reports": "Reports",
       "settings": "Settings",
