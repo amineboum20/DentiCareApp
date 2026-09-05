@@ -435,9 +435,9 @@
     }
   },
   "dossiers": {
-    "title": "Dental records",
-    "searchPlaceholder": "Search by patient or dentist…",
-    "newDossier": "New record",
+    "title": "Cases",
+    "searchPlaceholder": "Search by patient or title…",
+    "newDossier": "New case",
     "noDossiers": "No records yet",
     "noDossiersDesc": "Add the first record for a patient.",
     "noResults": "No results",
@@ -459,7 +459,7 @@
       "addTitle": "New record",
       "editTitle": "Edit record",
       "patient": "Patient",
-      "selectPatient": "Select a patient…",
+      "selectPatient": "— Select a patient —",
       "type": "Visit type",
       "examDate": "Exam date",
       "nextExamDate": "Next check-up",
@@ -477,14 +477,30 @@
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
-      "requiredError": "Patient and exam date are required."
+      "requiredError": "Patient and exam date are required.",
+      "dossierTitle": "Title",
+      "titlePlaceholder": "e.g. Crown on 26, Orthodontic treatment…",
+      "status": "Status",
+      "notes": "Notes",
+      "creating": "Creating…",
+      "create": "Create case"
     },
     "deleteConfirm": {
       "title": "Delete record",
       "message": "Delete record for {name} on {date}?",
       "confirm": "Delete",
       "cancel": "Cancel"
-    }
+    },
+    "errRequired": "Patient and title are required.",
+    "subtitle": "A case groups the visits, invoices and payments of a single treatment.",
+    "empty": "No cases yet",
+    "col": {
+      "patient": "Patient",
+      "title": "Title",
+      "status": "Status",
+      "openedOn": "Opened on"
+    },
+    "addTitle": "New case"
   },
   "patients": {
     "title": "Patients",
@@ -870,6 +886,56 @@
     "deleteDialog": {
       "title": "Delete this procedure?",
       "body": "This action is irreversible."
+    }
+  },
+  "dossierStatus": {
+    "ouvert": "Open",
+    "termine": "Completed"
+  },
+  "ordonnances": {
+    "motif": {
+      "consultation": "Consultation",
+      "controle": "Check-up",
+      "soin": "Treatment",
+      "urgence": "Emergency",
+      "autre": "Other"
+    },
+    "errPatient": "Patient is required.",
+    "errNoMed": "Add at least one medication.",
+    "errGeneric": "Error",
+    "title": "Prescriptions",
+    "catalog": "Catalog",
+    "newOrdonnance": "New prescription",
+    "searchPlaceholder": "Search by patient…",
+    "noResults": "No results",
+    "empty": "No prescriptions",
+    "col": {
+      "patient": "Patient",
+      "date": "Date",
+      "prescriber": "Prescriber"
+    },
+    "cancelled": "Cancelled",
+    "drName": "Dr. {name}",
+    "addTitle": "New prescription",
+    "form": {
+      "patient": "Patient",
+      "selectPatient": "— Select a patient —",
+      "date": "Date",
+      "prescriber": "Prescriber (dentist)",
+      "linkedVisit": "Linked visit (optional)",
+      "none": "— None —",
+      "medications": "Medications",
+      "chooseFromCatalog": "— Choose from the catalog (or type below) —",
+      "medPlaceholder": "Medication (e.g. Amoxicillin 500mg)",
+      "posologie": "Dosage",
+      "duree": "Duration",
+      "quantite": "Quantity",
+      "instructions": "Instructions (e.g. after meals)",
+      "addMed": "Add a medication",
+      "notes": "Notes",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save"
     }
   }
 }

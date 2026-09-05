@@ -435,8 +435,8 @@
     }
   },
   "dossiers": {
-    "title": "الملفات الطبية",
-    "searchPlaceholder": "بحث بالمريض أو الطبيب…",
+    "title": "الملفات",
+    "searchPlaceholder": "ابحث بالمريض أو العنوان…",
     "newDossier": "ملف جديد",
     "noDossiers": "لا ملفات بعد",
     "noDossiersDesc": "أضف أول ملف لمريض.",
@@ -459,7 +459,7 @@
       "addTitle": "ملف جديد",
       "editTitle": "تعديل الملف",
       "patient": "المريض",
-      "selectPatient": "اختر مريضاً…",
+      "selectPatient": "— اختر مريضاً —",
       "type": "نوع الزيارة",
       "examDate": "تاريخ الفحص",
       "nextExamDate": "المراجعة القادمة",
@@ -477,14 +477,30 @@
       "save": "حفظ",
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
-      "requiredError": "المريض وتاريخ الفحص إلزاميان."
+      "requiredError": "المريض وتاريخ الفحص إلزاميان.",
+      "dossierTitle": "العنوان",
+      "titlePlaceholder": "مثال: تاج على السن 26، علاج تقويمي…",
+      "status": "الحالة",
+      "notes": "ملاحظات",
+      "creating": "جارٍ الإنشاء…",
+      "create": "إنشاء الملف"
     },
     "deleteConfirm": {
       "title": "حذف الملف",
       "message": "حذف ملف {name} بتاريخ {date}؟",
       "confirm": "حذف",
       "cancel": "إلغاء"
-    }
+    },
+    "errRequired": "المريض والعنوان مطلوبان.",
+    "subtitle": "يجمع الملف الزيارات والفواتير والمدفوعات لعلاج واحد.",
+    "empty": "لا ملفات بعد",
+    "col": {
+      "patient": "المريض",
+      "title": "العنوان",
+      "status": "الحالة",
+      "openedOn": "فُتح في"
+    },
+    "addTitle": "ملف جديد"
   },
   "patients": {
     "title": "المرضى",
@@ -870,6 +886,56 @@
     "deleteDialog": {
       "title": "حذف هذا الإجراء؟",
       "body": "هذا الإجراء لا رجعة فيه."
+    }
+  },
+  "dossierStatus": {
+    "ouvert": "مفتوح",
+    "termine": "منتهٍ"
+  },
+  "ordonnances": {
+    "motif": {
+      "consultation": "استشارة",
+      "controle": "فحص",
+      "soin": "علاج",
+      "urgence": "طارئ",
+      "autre": "أخرى"
+    },
+    "errPatient": "المريض مطلوب.",
+    "errNoMed": "أضف دواءً واحداً على الأقل.",
+    "errGeneric": "خطأ",
+    "title": "الوصفات الطبية",
+    "catalog": "الكتالوج",
+    "newOrdonnance": "وصفة جديدة",
+    "searchPlaceholder": "ابحث بالمريض…",
+    "noResults": "لا نتائج",
+    "empty": "لا وصفات",
+    "col": {
+      "patient": "المريض",
+      "date": "التاريخ",
+      "prescriber": "الواصف"
+    },
+    "cancelled": "ملغاة",
+    "drName": "د. {name}",
+    "addTitle": "وصفة جديدة",
+    "form": {
+      "patient": "المريض",
+      "selectPatient": "— اختر مريضاً —",
+      "date": "التاريخ",
+      "prescriber": "الواصف (طبيب الأسنان)",
+      "linkedVisit": "الزيارة المرتبطة (اختياري)",
+      "none": "— لا شيء —",
+      "medications": "الأدوية",
+      "chooseFromCatalog": "— اختر من الكتالوج (أو اكتب أدناه) —",
+      "medPlaceholder": "الدواء (مثال: أموكسيسيلين 500 ملغ)",
+      "posologie": "الجرعة",
+      "duree": "المدة",
+      "quantite": "الكمية",
+      "instructions": "التعليمات (مثال: بعد الوجبات)",
+      "addMed": "إضافة دواء",
+      "notes": "ملاحظات",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ…",
+      "save": "حفظ"
     }
   }
 }

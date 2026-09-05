@@ -477,8 +477,8 @@
     }
   },
   "dossiers": {
-    "title": "Dossiers dentaires",
-    "searchPlaceholder": "Rechercher par patient ou dentiste…",
+    "title": "Dossiers",
+    "searchPlaceholder": "Rechercher par patient ou intitulé…",
     "newDossier": "Nouveau dossier",
     "noDossiers": "Aucun dossier pour l'instant",
     "noDossiersDesc": "Ajoutez le premier dossier d'un patient.",
@@ -501,7 +501,7 @@
       "addTitle": "Nouveau dossier",
       "editTitle": "Modifier le dossier",
       "patient": "Patient",
-      "selectPatient": "Choisir un patient…",
+      "selectPatient": "— Sélectionner un patient —",
       "type": "Type de visite",
       "examDate": "Date d'examen",
       "nextExamDate": "Prochain contrôle",
@@ -519,14 +519,30 @@
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "cancel": "Annuler",
-      "requiredError": "Le patient et la date d'examen sont obligatoires."
+      "requiredError": "Le patient et la date d'examen sont obligatoires.",
+      "dossierTitle": "Intitulé",
+      "titlePlaceholder": "Ex. Couronne sur 26, Traitement orthodontique…",
+      "status": "Statut",
+      "notes": "Notes",
+      "creating": "Création…",
+      "create": "Créer le dossier"
     },
     "deleteConfirm": {
       "title": "Supprimer le dossier",
       "message": "Supprimer le dossier de {name} du {date} ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
-    }
+    },
+    "errRequired": "Le patient et l'intitulé sont obligatoires.",
+    "subtitle": "Un dossier regroupe les visites, les factures et les paiements d'un même traitement.",
+    "empty": "Aucun dossier pour l'instant",
+    "col": {
+      "patient": "Patient",
+      "title": "Intitulé",
+      "status": "Statut",
+      "openedOn": "Ouvert le"
+    },
+    "addTitle": "Nouveau dossier"
   },
   "patients": {
     "title": "Patients",
@@ -912,6 +928,56 @@
     "deleteDialog": {
       "title": "Supprimer cet acte ?",
       "body": "Cette action est irréversible."
+    }
+  },
+  "dossierStatus": {
+    "ouvert": "Ouvert",
+    "termine": "Terminé"
+  },
+  "ordonnances": {
+    "motif": {
+      "consultation": "Consultation",
+      "controle": "Contrôle",
+      "soin": "Soin",
+      "urgence": "Urgence",
+      "autre": "Autre"
+    },
+    "errPatient": "Le patient est requis.",
+    "errNoMed": "Ajoutez au moins un médicament.",
+    "errGeneric": "Erreur",
+    "title": "Ordonnances",
+    "catalog": "Catalogue",
+    "newOrdonnance": "Nouvelle ordonnance",
+    "searchPlaceholder": "Rechercher par patient…",
+    "noResults": "Aucun résultat",
+    "empty": "Aucune ordonnance",
+    "col": {
+      "patient": "Patient",
+      "date": "Date",
+      "prescriber": "Prescripteur"
+    },
+    "cancelled": "Annulée",
+    "drName": "Dr. {name}",
+    "addTitle": "Nouvelle ordonnance",
+    "form": {
+      "patient": "Patient",
+      "selectPatient": "— Sélectionner un patient —",
+      "date": "Date",
+      "prescriber": "Prescripteur (dentiste)",
+      "linkedVisit": "Visite liée (optionnel)",
+      "none": "— Aucune —",
+      "medications": "Médicaments",
+      "chooseFromCatalog": "— Choisir dans le catalogue (ou saisir ci-dessous) —",
+      "medPlaceholder": "Médicament (ex. Amoxicilline 500mg)",
+      "posologie": "Posologie",
+      "duree": "Durée",
+      "quantite": "Quantité",
+      "instructions": "Instructions (ex. après les repas)",
+      "addMed": "Ajouter un médicament",
+      "notes": "Notes",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "save": "Enregistrer"
     }
   }
 }
