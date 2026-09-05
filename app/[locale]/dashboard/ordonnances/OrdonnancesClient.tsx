@@ -11,8 +11,9 @@ interface Props {
   patients: Pick<Patient, "id" | "first_name" | "last_name">[];
 }
 
-type Line = { name: string; posologie: string; duree: string; quantite: string; instructions: string };
-const emptyLine: Line = { name: "", posologie: "", duree: "", quantite: "", instructions: "" };
+type Line = { medicament_id: string | null; name: string; posologie: string; duree: string; quantite: string; instructions: string };
+const emptyLine: Line = { medicament_id: null, name: "", posologie: "", duree: "", quantite: "", instructions: "" };
+type MedLite = { id: string; name: string; default_posologie: string | null; default_duree: string | null; default_quantite: string | null; default_instructions: string | null };
 
 const MOTIF_LABEL: Record<string, string> = {
   consultation: "Consultation", controle: "Contrôle", soin: "Soin", urgence: "Urgence", autre: "Autre",
@@ -39,6 +40,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
   const [dossierId, setDossierId] = useState("");
   const [lines, setLines] = useState<Line[]>([{ ...emptyLine }]);
   const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string }[]>([]);
+  const [medications, setMedications] = useState<MedLite[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -61,6 +63,12 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
     supabase.from("consultations").select("id, exam_date, motif").eq("patient_id", form.patient_id).order("exam_date", { ascending: false })
       .then(({ data }) => setPatientVisites((data ?? []) as { id: string; exam_date: string; motif: string }[]));
   }, [modalOpen, form.patient_id, supabase]);
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    supabase.from("medicaments").select("id, name, default_posologie, default_duree, default_quantite, default_instructions").is("archived_at", null).order("name")
+      .then(({ data }) => setMedications((data ?? []) as MedLite[]));
+  }, [modalOpen, supabase]);
 
   const filtered = useMemo(() =>
     ordonnances.filter((o) => `${o.patients.first_name} ${o.patients.last_name}`.toLowerCase().includes(search.toLowerCase())),
@@ -92,7 +100,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
     if (e || !ord) { setError(e?.message ?? "Erreur"); setSaving(false); return; }
 
     await supabase.from("ordonnance_lignes").insert(validLines.map((l, i) => ({
-      ordonnance_id: (ord as { id: string }).id, name: l.name.trim(),
+      ordonnance_id: (ord as { id: string }).id, medicament_id: l.medicament_id ?? null, name: l.name.trim(),
       posologie: l.posologie.trim() || null, duree: l.duree.trim() || null,
       quantite: l.quantite.trim() || null, instructions: l.instructions.trim() || null, sort_order: i,
     })));
@@ -107,9 +115,10 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
     <>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Ordonnances</h1>
-        <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-          + Nouvelle ordonnance
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => router.push(`/${locale}/dashboard/medicaments`)} className="px-4 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors">💊 Catalogue</button>
+          <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">+ Nouvelle ordonnance</button>
+        </div>
       </div>
 
       <div className="relative mb-5">
@@ -139,7 +148,10 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
                 {filtered.map((o) => (
                   <tr key={o.id} onClick={() => router.push(`/${locale}/dashboard/ordonnances/${o.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer">
-                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{o.patients.first_name} {o.patients.last_name}</td>
+                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
+                      {o.patients.first_name} {o.patients.last_name}
+                      {o.status === "annulee" && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">Annulée</span>}
+                    </td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{fmtDate(o.date)}</td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{o.prescriber ? `Dr. ${o.prescriber}` : "—"}</td>
                   </tr>
@@ -191,6 +203,15 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
                 <div className="space-y-3">
                   {lines.map((l, i) => (
                     <div key={i} className="rounded-xl border border-zinc-200 dark:border-zinc-700 p-3 space-y-2 bg-zinc-50/60 dark:bg-zinc-800/30">
+                      {medications.length > 0 && (
+                        <select value={l.medicament_id ?? ""} onChange={(e) => {
+                          const m = medications.find((x) => x.id === e.target.value);
+                          setLines((xs) => xs.map((x, j) => j === i ? (m ? { medicament_id: m.id, name: m.name, posologie: m.default_posologie ?? "", duree: m.default_duree ?? "", quantite: m.default_quantite ?? "", instructions: m.default_instructions ?? "" } : { ...x, medicament_id: null }) : x));
+                        }} className={inputCls}>
+                          <option value="">— Choisir dans le catalogue (ou saisir ci-dessous) —</option>
+                          {medications.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                        </select>
+                      )}
                       <div className="flex gap-2 items-center">
                         <input placeholder="Médicament (ex. Amoxicilline 500mg)" value={l.name} onChange={(e) => setLines((xs) => xs.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} className={`flex-1 ${inputCls}`} />
                         <button type="button" onClick={() => setLines((xs) => xs.length > 1 ? xs.filter((_, j) => j !== i) : xs)} className="text-zinc-300 hover:text-red-500 text-sm shrink-0">✕</button>

@@ -243,6 +243,8 @@ export interface DossierWithPatient extends Dossier {
 // Ordonnance = prescription document, issued during a visite (consultation_id)
 // or standalone at patient level. Lines are free-text for now (medicament_id
 // reserved for a future catalog).
+export type OrdonnanceStatus = 'active' | 'annulee'
+
 export interface Ordonnance {
   id: string
   practice_id: string
@@ -252,6 +254,25 @@ export interface Ordonnance {
   user_id: string
   prescriber: string | null
   date: string
+  status: OrdonnanceStatus
+  notes: string | null
+  archived_at: string | null
+  created_at: string
+  created_by: string | null
+  updated_by: string | null
+}
+
+// Médicament = reusable drug catalog entry with default prescription values.
+export interface Medicament {
+  id: string
+  practice_id: string
+  user_id: string
+  name: string
+  form: string | null
+  default_posologie: string | null
+  default_duree: string | null
+  default_quantite: string | null
+  default_instructions: string | null
   notes: string | null
   archived_at: string | null
   created_at: string
