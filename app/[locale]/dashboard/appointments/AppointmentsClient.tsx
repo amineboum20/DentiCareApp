@@ -159,6 +159,10 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       setError("Un rendez-vous ne peut pas être dans le passé — enregistrez plutôt une visite.");
       return;
     }
+    if (form.scheduled_at.slice(0, 10) > new Date().toLocaleDateString("en-CA") && (form.status === "termine" || form.status === "absent")) {
+      setError("Un rendez-vous à venir ne peut être que « Planifié » ou « Annulé ».");
+      return;
+    }
     setSaving(true);
     setError("");
 
@@ -374,7 +378,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                       onChange={(e) => handleStatusChange(a, e.target.value as AppointmentStatus)}
                       className={`text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 ${STATUS_STYLE[a.status] ?? ""}`}
                     >
-                      {STATUSES.map((s) => (
+                      {STATUSES.filter((s) => !nowRef || a.scheduled_at.slice(0, 10) <= nowRef.today || s === "planifie" || s === "annule" || s === a.status).map((s) => (
                         <option key={s} value={s} className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white">
                           {t(`statuses.${s}`)}
                         </option>
@@ -490,7 +494,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                   onChange={(e) => setField("status", e.target.value)}
                   className={inputCls}
                 >
-                  {STATUSES.map((s) => (
+                  {STATUSES.filter((s) => !form.scheduled_at || !nowRef || form.scheduled_at.slice(0, 10) <= nowRef.today || s === "planifie" || s === "annule" || s === form.status).map((s) => (
                     <option key={s} value={s}>
                       {t(`statuses.${s}`)}
                     </option>

@@ -158,6 +158,7 @@ export interface Appointment {
   practice_id: string
   patient_id: string | null
   dossier_id: string | null
+  consultation_id: string | null
   title: string
   scheduled_at: string
   duration_minutes: number
