@@ -144,6 +144,7 @@ export default function PatientsClient({ initialPatients }: Props) {
       supabase.from("consultations").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
       supabase.from("factures").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
       supabase.from("appointments").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
+      supabase.from("ordonnances").update({ archived_at: now }).eq("patient_id", archiveTarget.id),
     ]);
     setPatients((prev) => prev.filter((p) => p.id !== archiveTarget.id));
     setArchiveTarget(null);

@@ -184,6 +184,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       supabase.from("consultations").update({ archived_at: now }).eq("patient_id", patient.id),
       supabase.from("factures").update({ archived_at: now }).eq("patient_id", patient.id),
       supabase.from("appointments").update({ archived_at: now }).eq("patient_id", patient.id),
+      supabase.from("ordonnances").update({ archived_at: now }).eq("patient_id", patient.id),
     ]);
     setArchiveLoading(false);
     router.push(`/${locale}/dashboard/patients`);
@@ -196,6 +197,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       supabase.from("consultations").update({ archived_at: null }).eq("patient_id", patient.id),
       supabase.from("factures").update({ archived_at: null }).eq("patient_id", patient.id),
       supabase.from("appointments").update({ archived_at: null }).eq("patient_id", patient.id),
+      supabase.from("ordonnances").update({ archived_at: null }).eq("patient_id", patient.id),
     ]);
     setPatient((p) => ({ ...p, archived_at: null }));
     setArchiveLoading(false);
