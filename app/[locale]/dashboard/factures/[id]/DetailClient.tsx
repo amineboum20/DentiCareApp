@@ -23,13 +23,6 @@ const FACTURE_STATUS_STYLE: Record<string, string> = {
   annulee:    "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
 };
 
-const FACTURE_STATUS_LABEL: Record<string, string> = {
-  en_attente: "En attente",
-  en_cours:   "En cours",
-  payee:      "Payée",
-  annulee:    "Annulée",
-};
-
 const FACTURE_STATUSES: FactureStatus[] = ["en_attente", "en_cours", "payee", "annulee"];
 
 function fmtDate(iso: string | null) {
@@ -44,6 +37,8 @@ const emptyForm = {
 
 export default function FactureDetailClient({ facture: initialFacture, patients, locale }: Props) {
   const t = useTranslations("factures");
+  const tc = useTranslations("common");
+  const tfac = useTranslations("factureStatus");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const { shopName, shopAddress, shopPhone, logoUrl, currentUserId } = useAppContext();
@@ -101,7 +96,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
   }
 
   async function handleSave() {
-    if (!form.patient_id) { setFormError("Le patient est requis."); return; }
+    if (!form.patient_id) { setFormError(t("form.patientRequired")); return; }
     setSaving(true); setFormError("");
     const payload = {
       patient_id: form.patient_id,
@@ -135,7 +130,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
   }
   async function saveLines() {
     const valid = lineDraft.filter((l) => l.description.trim() && parseFloat(l.unit_price) >= 0);
-    if (valid.length === 0) { setFormError("Ajoutez au moins une ligne."); return; }
+    if (valid.length === 0) { setFormError(t("detail.errNoLine")); return; }
     setSavingLines(true); setFormError("");
     const rows = valid.map((l) => ({ facture_id: facture.id, description: l.description.trim(), quantity: parseInt(l.quantity) || 1, unit_price: parseFloat(l.unit_price) || 0, acte_id: null }));
     await supabase.from("facture_items").delete().eq("facture_id", facture.id);
@@ -184,7 +179,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       patientPhone: null,
       patientAddress: null,
       createdAt: facture.created_at,
-      statusLabel: FACTURE_STATUS_LABEL[facture.status] ?? facture.status,
+      statusLabel: tfac(facture.status),
       items: items.map(i => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price })),
       totalPrice: facture.total_price,
       depositPaid,
@@ -205,12 +200,12 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 12L6 8l4-4" />
           </svg>
-          Retour
+          {tc("back")}
         </button>
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-2xl shrink-0">🧾</div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Facture</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("detail.title")}</h1>
             {patientName && (
               <button
                 onClick={() => router.push(`/${locale}/dashboard/patients/${facture.patient_id}`)}
@@ -227,23 +222,23 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
         {/* Info card */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Informations</h2>
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{t("detail.informations")}</h2>
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${FACTURE_STATUS_STYLE[facture.status] ?? ""}`}>
-              {FACTURE_STATUS_LABEL[facture.status] ?? facture.status}
+              {tfac(facture.status)}
             </span>
           </div>
           <div className="space-y-1">
-            <DR label="Patient" value={patientName} />
-            <DR label="Date" value={fmtDate(facture.created_at)} />
-            <DR label="Total" value={`${facture.total_price.toFixed(2)} MAD`} />
-            <DR label="Acompte versé" value={`${facture.deposit_paid.toFixed(2)} MAD`} />
-            <DR label="Reste à payer" value={`${(facture.total_price - facture.deposit_paid).toFixed(2)} MAD`} />
-            <DR label="Notes" value={facture.notes} />
+            <DR label={t("detail.patient")} value={patientName} />
+            <DR label={t("detail.date")} value={fmtDate(facture.created_at)} />
+            <DR label={t("detail.total")} value={`${facture.total_price.toFixed(2)} MAD`} />
+            <DR label={t("detail.depositPaid")} value={`${facture.deposit_paid.toFixed(2)} MAD`} />
+            <DR label={t("detail.reste")} value={`${(facture.total_price - facture.deposit_paid).toFixed(2)} MAD`} />
+            <DR label={t("detail.notes")} value={facture.notes} />
           </div>
 
           {/* Inline status change */}
           <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-            <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">Changer le statut</label>
+            <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">{t("detail.changeStatus")}</label>
             <div className="flex flex-wrap gap-2">
               {FACTURE_STATUSES.map(s => (
                 <button key={s}
@@ -253,7 +248,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
                       ? `${FACTURE_STATUS_STYLE[s]} border-transparent ring-2 ring-offset-1 ring-teal-400`
                       : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-600"
                   }`}>
-                  {FACTURE_STATUS_LABEL[s]}
+                  {tfac(s)}
                 </button>
               ))}
             </div>
@@ -264,13 +259,13 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
-              Lignes de facture
+              {t("detail.factureLines")}
               {!itemsLoading && (
                 <span className="ml-2 text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{items.length}</span>
               )}
             </h2>
             {isDraft && !editLines && !itemsLoading && (
-              <button onClick={startEditLines} className="text-xs px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 font-medium transition-colors">✏️ Modifier les lignes</button>
+              <button onClick={startEditLines} className="text-xs px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 font-medium transition-colors">✏️ {t("detail.editLinesBtn")}</button>
             )}
           </div>
           {itemsLoading ? (
@@ -284,32 +279,32 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
             <div className="space-y-2">
               {lineDraft.map((l, i) => (
                 <div key={i} className="flex gap-2 items-center">
-                  <input placeholder="Description" value={l.description} onChange={(e) => setLineDraft((xs) => xs.map((x, j) => j === i ? { ...x, description: e.target.value } : x))} className={`flex-1 ${inputCls}`} />
+                  <input placeholder={t("detail.descriptionPlaceholder")} value={l.description} onChange={(e) => setLineDraft((xs) => xs.map((x, j) => j === i ? { ...x, description: e.target.value } : x))} className={`flex-1 ${inputCls}`} />
                   <input type="number" min="1" value={l.quantity} onChange={(e) => setLineDraft((xs) => xs.map((x, j) => j === i ? { ...x, quantity: e.target.value } : x))} className="w-16 px-2 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
                   <input type="number" min="0" step="0.01" value={l.unit_price} onChange={(e) => setLineDraft((xs) => xs.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} className="w-24 px-2 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
                   <button type="button" onClick={() => setLineDraft((xs) => xs.length > 1 ? xs.filter((_, j) => j !== i) : xs)} className="text-zinc-300 hover:text-red-500 text-sm shrink-0">✕</button>
                 </div>
               ))}
-              <button type="button" onClick={() => setLineDraft((xs) => [...xs, { description: "", quantity: "1", unit_price: "" }])} className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium">+ Ajouter une ligne</button>
+              <button type="button" onClick={() => setLineDraft((xs) => [...xs, { description: "", quantity: "1", unit_price: "" }])} className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium">+ {t("detail.addLine")}</button>
               <div className="flex justify-between items-center pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                <span className="text-sm text-zinc-500">Total</span>
+                <span className="text-sm text-zinc-500">{t("detail.totalLabel")}</span>
                 <span className="text-base font-bold text-zinc-900 dark:text-white">{lineDraft.reduce((s, l) => s + (parseFloat(l.quantity) || 0) * (parseFloat(l.unit_price) || 0), 0).toFixed(2)} MAD</span>
               </div>
               {formError && <p className="text-xs text-red-500">{formError}</p>}
               <div className="flex items-center gap-3 justify-end pt-1">
-                <button onClick={() => { setEditLines(false); setFormError(""); }} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">Annuler</button>
-                <button onClick={saveLines} disabled={savingLines} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{savingLines ? "Enregistrement…" : "Enregistrer les lignes"}</button>
+                <button onClick={() => { setEditLines(false); setFormError(""); }} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">{tc("cancel")}</button>
+                <button onClick={saveLines} disabled={savingLines} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{savingLines ? t("detail.savingLines") : t("detail.saveLines")}</button>
               </div>
             </div>
           ) : items.length === 0 ? (
-            <p className="text-sm text-zinc-400 py-4 text-center">Aucune ligne de facture</p>
+            <p className="text-sm text-zinc-400 py-4 text-center">{t("detail.noLines")}</p>
           ) : (
             <div className="space-y-2">
               {items.map(item => (
                 <div key={item.id} className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-zinc-900 dark:text-white">{item.description}</p>
-                    <p className="text-xs text-zinc-400">Qté {item.quantity} × {item.unit_price.toFixed(2)} MAD</p>
+                    <p className="text-xs text-zinc-400">{t("detail.qtyLine", { q: item.quantity, p: item.unit_price.toFixed(2) })}</p>
                   </div>
                   <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ms-4 shrink-0">
                     {(item.quantity * item.unit_price).toFixed(2)} MAD
@@ -318,7 +313,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
               ))}
               <div className="flex justify-end pt-2">
                 <div className="text-right">
-                  <p className="text-xs text-zinc-400">Total</p>
+                  <p className="text-xs text-zinc-400">{t("detail.totalLabel")}</p>
                   <p className="text-lg font-bold text-zinc-900 dark:text-white">{facture.total_price.toFixed(2)} MAD</p>
                 </div>
               </div>
@@ -331,19 +326,19 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
           {facture.status !== "annulee" && (
             <button onClick={() => setDeleteOpen(true)}
               className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-              Annuler la facture
+              {t("cancelDialog.confirm")}
             </button>
           )}
           {(facture.status === "en_cours" || facture.status === "payee") && (
             <button onClick={() => reissue(true)} disabled={reissuing}
               className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-              {reissuing ? "…" : "Corriger (annuler + recréer)"}
+              {reissuing ? "…" : t("detail.correctBtn")}
             </button>
           )}
           {facture.status === "annulee" && (
             <button onClick={() => reissue(false)} disabled={reissuing}
               className="px-4 py-2 rounded-lg border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 text-sm font-medium transition-colors disabled:opacity-60">
-              {reissuing ? "…" : "Recréer une facture"}
+              {reissuing ? "…" : t("detail.recreateBtn")}
             </button>
           )}
           <button onClick={exportPdf}
@@ -353,7 +348,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
           <div className="ms-auto">
             <button onClick={openEdit}
               className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-              ✏️ Modifier
+              ✏️ {t("detail.edit")}
             </button>
           </div>
         </div>
@@ -371,14 +366,14 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.patient")} <span className="text-red-500">*</span></label>
                 <select {...field("patient_id")} className={inputCls}>
-                  <option value="">Sélectionner un patient</option>
+                  <option value="">{t("detail.selectPatient")}</option>
                   {patients.map(p => <option key={p.id} value={p.id}>{p.last_name} {p.first_name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.status")}</label>
                 <select {...field("status")} className={inputCls}>
-                  {FACTURE_STATUSES.map(s => <option key={s} value={s}>{FACTURE_STATUS_LABEL[s]}</option>)}
+                  {FACTURE_STATUSES.map(s => <option key={s} value={s}>{tfac(s)}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -415,16 +410,16 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Annuler cette facture ?</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">La facture sera marquée « Annulée » et exclue des totaux. Elle reste conservée pour l&apos;historique — réactivez-la via les boutons de statut.</p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("cancelDialog.title")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("detail.cancelBody")}</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteOpen(false)}
                 className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                Retour
+                {tc("back")}
               </button>
               <button onClick={handleCancel} disabled={deleting}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                {deleting ? "Annulation…" : "Annuler la facture"}
+                {deleting ? t("detail.cancelling") : t("cancelDialog.confirm")}
               </button>
             </div>
           </div>

@@ -472,6 +472,33 @@
       "body": "La facture sera marquée « Annulée » et exclue des totaux. Elle reste conservée pour l'historique — vous pourrez la réactiver en changeant son statut.",
       "back": "Retour",
       "confirm": "Annuler la facture"
+    },
+    "detail": {
+      "errNoLine": "Ajoutez au moins une ligne.",
+      "title": "Facture",
+      "informations": "Informations",
+      "patient": "Patient",
+      "date": "Date",
+      "total": "Total",
+      "depositPaid": "Acompte versé",
+      "reste": "Reste à payer",
+      "notes": "Notes",
+      "changeStatus": "Changer le statut",
+      "factureLines": "Lignes de facture",
+      "editLinesBtn": "Modifier les lignes",
+      "descriptionPlaceholder": "Description",
+      "addLine": "Ajouter une ligne",
+      "totalLabel": "Total",
+      "savingLines": "Enregistrement…",
+      "saveLines": "Enregistrer les lignes",
+      "noLines": "Aucune ligne de facture",
+      "qtyLine": "Qté {q} × {p} MAD",
+      "correctBtn": "Corriger (annuler + recréer)",
+      "recreateBtn": "Recréer une facture",
+      "edit": "Modifier",
+      "selectPatient": "Sélectionner un patient",
+      "cancelBody": "La facture sera marquée « Annulée » et exclue des totaux. Elle reste conservée pour l'historique — réactivez-la via les boutons de statut.",
+      "cancelling": "Annulation…"
     }
   },
   "consultations": {

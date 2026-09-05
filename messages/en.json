@@ -472,6 +472,33 @@
       "body": "The invoice will be marked \"Cancelled\" and excluded from totals. It is kept for history — you can reactivate it by changing its status.",
       "back": "Back",
       "confirm": "Cancel invoice"
+    },
+    "detail": {
+      "errNoLine": "Add at least one line.",
+      "title": "Invoice",
+      "informations": "Information",
+      "patient": "Patient",
+      "date": "Date",
+      "total": "Total",
+      "depositPaid": "Deposit paid",
+      "reste": "Amount due",
+      "notes": "Notes",
+      "changeStatus": "Change status",
+      "factureLines": "Invoice lines",
+      "editLinesBtn": "Edit lines",
+      "descriptionPlaceholder": "Description",
+      "addLine": "Add a line",
+      "totalLabel": "Total",
+      "savingLines": "Saving…",
+      "saveLines": "Save lines",
+      "noLines": "No invoice line",
+      "qtyLine": "Qty {q} × {p} MAD",
+      "correctBtn": "Correct (cancel + recreate)",
+      "recreateBtn": "Recreate an invoice",
+      "edit": "Edit",
+      "selectPatient": "Select a patient",
+      "cancelBody": "The invoice will be marked \"Cancelled\" and excluded from totals. It is kept for history — reactivate it via the status buttons.",
+      "cancelling": "Cancelling…"
     }
   },
   "dossiers": {
