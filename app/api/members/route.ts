@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   // but they join the owner's existing practice instead of creating a new one.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://denticareapp.com";
   const lang = typeof locale === "string" && locale ? locale : "fr";
-  const redirectTo = `${appUrl}/${lang}/auth/callback?next=/reset-password`;
+  const redirectTo = `${appUrl}/${lang}/reset-password/callback`;
 
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { first_name: firstName, last_name: lastName ?? "" },
