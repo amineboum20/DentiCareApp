@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import { getMemberWithPractice } from "@/utils/supabase/queries";
+import LocalInstant from "@/components/LocalInstant";
 import { Link } from "@/i18n/navigation";
 
 export default async function Dashboard() {
@@ -147,7 +148,6 @@ export default async function Dashboard() {
             <div className="space-y-3">
               {((upcomingAppointments ?? []) as unknown as { id: string; title: string; type: string; scheduled_at: string; patients: { first_name: string; last_name: string } | null }[]).map((a) => {
                 const patient = a.patients;
-                const d = new Date(a.scheduled_at);
                 return (
                   <div key={a.id} className="flex items-center gap-3 py-2 border-b border-zinc-50 dark:border-zinc-800 last:border-0">
                     <span className="text-lg">{typeIcon[a.type] ?? "📅"}</span>
@@ -155,7 +155,7 @@ export default async function Dashboard() {
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">{a.title}</p>
                       <p className="text-xs text-zinc-400">
                         {patient ? `${patient.first_name} ${patient.last_name} · ` : ""}
-                        {d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} à {d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                        <LocalInstant iso={a.scheduled_at} options={{ day: "numeric", month: "short" }} /> à <LocalInstant iso={a.scheduled_at} options={{ hour: "2-digit", minute: "2-digit" }} />
                       </p>
                     </div>
                   </div>

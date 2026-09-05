@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import LocalInstant from "@/components/LocalInstant";
 
 
 interface Props {
@@ -35,10 +36,6 @@ function fmtDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function fmtDateTime(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-}
 
 const FACTURE_STATUS_STYLE: Record<string, string> = {
   en_attente: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
@@ -294,7 +291,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                     <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Prochain RDV</p>
                     <p className="text-[11px] text-zinc-400">
                       {snapshot?.nextAppointment
-                        ? fmtDateTime(snapshot.nextAppointment.scheduled_at)
+                        ? <LocalInstant iso={snapshot.nextAppointment.scheduled_at} options={{ weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }} />
                         : "Aucun planifié"}
                     </p>
                   </div>

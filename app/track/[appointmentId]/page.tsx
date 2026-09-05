@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import LocalInstant from "@/components/LocalInstant";
 
 const STATUS_LABELS: Record<string, string> = {
   planifie: "Planifié",
@@ -54,17 +55,6 @@ export default async function TrackAppointmentPage({
   const shopPhone: string = userdata?.user?.user_metadata?.shop_phone ?? "";
   const shopAddress: string = userdata?.user?.user_metadata?.shop_address ?? "";
 
-  const scheduledDate = new Date(appt.scheduled_at);
-  const dateStr = scheduledDate.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const timeStr = scheduledDate.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
   // supabase-js types a to-one embed as an array, though at runtime it's a single object.
   const patient = appt.patients as unknown as { first_name: string; last_name: string } | null;
   const patientName = patient
@@ -105,12 +95,12 @@ export default async function TrackAppointmentPage({
             <div className="rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3 space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-zinc-400">📅</span>
-                <span className="font-medium text-zinc-900 capitalize">{dateStr}</span>
+                <span className="font-medium text-zinc-900 capitalize"><LocalInstant iso={appt.scheduled_at} options={{ weekday: "long", year: "numeric", month: "long", day: "numeric" }} /></span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-zinc-400">🕐</span>
                 <span className="text-zinc-700">
-                  {timeStr}
+                  <LocalInstant iso={appt.scheduled_at} options={{ hour: "2-digit", minute: "2-digit" }} />
                   {appt.duration_minutes ? ` · ${appt.duration_minutes} min` : ""}
                 </span>
               </div>

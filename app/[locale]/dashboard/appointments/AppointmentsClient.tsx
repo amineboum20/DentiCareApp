@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { AppointmentWithPatient, Patient, AppointmentType, AppointmentStatus } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import LocalInstant from "@/components/LocalInstant";
 
 interface Props {
   initialAppointments: AppointmentWithPatient[];
@@ -249,10 +250,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     });
   }, []);
 
-  function formatTime(iso: string) {
-    return new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-  }
-
   function formatDayHeader(iso: string) {
     const d = new Date(iso + "T00:00:00");
     if (nowRef && iso === nowRef.today) return t("today");
@@ -350,7 +347,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                     {/* Time */}
                     <div className="w-14 text-center shrink-0">
                       <p className="text-sm font-semibold text-zinc-900 dark:text-white">
-                        {formatTime(a.scheduled_at)}
+                        <LocalInstant iso={a.scheduled_at} options={{ hour: "2-digit", minute: "2-digit" }} />
                       </p>
                       {a.duration_minutes != null && (
                         <p className="text-xs text-zinc-400">{a.duration_minutes} min</p>

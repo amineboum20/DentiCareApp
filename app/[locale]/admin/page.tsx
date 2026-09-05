@@ -4,6 +4,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { approvePractice, revokePractice, approveMember } from "./actions";
 import RejectButton from "./RejectButton";
 import MemberRejectButton from "./MemberRejectButton";
+import LocalInstant from "@/components/LocalInstant";
 
 export const dynamic = "force-dynamic";
 
@@ -88,9 +89,6 @@ export default async function AdminPage() {
     }))
     .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 
-  const fmtDate = (s: string) =>
-    new Date(s).toLocaleString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
-
   return (
     <div className="px-6 py-8 sm:py-10">
       <div className="mx-auto max-w-4xl">
@@ -118,7 +116,7 @@ export default async function AdminPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-zinc-900 dark:text-white truncate">{r.name || "(sans nom)"}</p>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{r.ownerName} · {r.ownerEmail}</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Inscrit le {fmtDate(r.created_at)}</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Inscrit le <LocalInstant iso={r.created_at} /></p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <form action={approvePractice}>

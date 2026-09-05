@@ -12,6 +12,7 @@ import { DR } from "@/components/DetailRow";
 import { exportFacturePdf, exportFeuilleSoinsPdf } from "@/utils/pdf-export";
 import { billActesToDossier } from "@/utils/billing";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import LocalInstant from "@/components/LocalInstant";
 
 interface Props {
   dossier: DossierWithPatient;
@@ -70,9 +71,6 @@ const APPT_STATUS_STYLE: Record<string, string> = {
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
-}
-function fmtDateTime(iso: string) {
-  return new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 function money(n: number) { return `${n.toFixed(2)} MAD`; }
 
@@ -543,7 +541,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                       <span className="text-sm font-medium text-zinc-900 dark:text-white truncate">{r.title}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 ${APPT_STATUS_STYLE[r.status] ?? ""}`}>{APPT_STATUS_LABEL[r.status] ?? r.status}</span>
                     </div>
-                    <p className="text-[11px] text-zinc-400 mt-1">{fmtDateTime(r.scheduled_at)}{r.duration_minutes ? ` · ${r.duration_minutes} min` : ""} · {APPT_TYPE_LABEL[r.type] ?? r.type}</p>
+                    <p className="text-[11px] text-zinc-400 mt-1"><LocalInstant iso={r.scheduled_at} options={{ day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }} />{r.duration_minutes ? ` · ${r.duration_minutes} min` : ""} · {APPT_TYPE_LABEL[r.type] ?? r.type}</p>
                   </div>
                 ))}
               </div>

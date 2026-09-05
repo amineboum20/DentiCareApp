@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { ConsultationWithPatient, ConsultationMotif } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import LocalInstant from "@/components/LocalInstant";
 
 interface Props {
   consultation: ConsultationWithPatient & { dossiers?: { id: string; title: string; statut: string } | { id: string; title: string; statut: string }[] | null };
@@ -17,9 +18,6 @@ interface Props {
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
-}
-function fmtDateTime(iso: string) {
-  return new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 // Like DR but always renders (empty shows "—"), so the clinical structure stays visible.
@@ -191,7 +189,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
               {originRdv && (
                 <div className="flex gap-3 py-0.5">
                   <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Rendez-vous d&apos;origine</span>
-                  <button onClick={() => router.push(`/${locale}/dashboard/appointments/${originRdv.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{fmtDateTime(originRdv.scheduled_at)} →</button>
+                  <button onClick={() => router.push(`/${locale}/dashboard/appointments/${originRdv.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left"><LocalInstant iso={originRdv.scheduled_at} options={{ day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }} /> →</button>
                 </div>
               )}
             </div>

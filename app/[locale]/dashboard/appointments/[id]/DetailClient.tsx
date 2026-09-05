@@ -9,6 +9,7 @@ import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import LocalInstant from "@/components/LocalInstant";
 
 // Map an appointment type onto a visite motif (covers both type vocabularies).
 const TYPE_TO_MOTIF: Record<string, ConsultationMotif> = {
@@ -55,11 +56,6 @@ const TYPE_LABEL: Record<string, string> = {
   urgence: "Urgence",
   autre: "Autre",
 };
-
-function fmtDateTime(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
-}
 
 const emptyForm = {
   patient_id: "", title: "",
@@ -288,7 +284,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
               </div>
             )}
             <DR label="Type" value={TYPE_LABEL[appointment.type] ?? appointment.type} />
-            <DR label="Date &amp; heure" value={fmtDateTime(appointment.scheduled_at)} />
+            <DR label="Date &amp; heure" value={<LocalInstant iso={appointment.scheduled_at} options={{ weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }} />} />
             <DR label="Durée" value={appointment.duration_minutes != null ? `${appointment.duration_minutes} min` : null} />
             <DR label="Notes" value={appointment.notes} />
           </div>
@@ -400,7 +396,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
           <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
             <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Terminer le rendez-vous</h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              Ce rendez-vous du {fmtDateTime(appointment.scheduled_at)} sera marqué « Terminé » et rattaché à une visite.
+              Ce rendez-vous du <LocalInstant iso={appointment.scheduled_at} options={{ weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }} /> sera marqué « Terminé » et rattaché à une visite.
             </p>
             <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg mb-4">
               <button type="button" onClick={() => setLinkMode("new")} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${linkMode === "new" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 dark:text-zinc-400"}`}>Nouvelle visite</button>
