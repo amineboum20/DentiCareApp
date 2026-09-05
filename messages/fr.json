@@ -199,7 +199,9 @@
       "suppliers": "Fournisseurs",
       "supplierOrders": "Cmd. fournisseurs"
     },
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "noUpcomingAppts": "Aucun rendez-vous à venir",
+    "at": "à"
   },
   "appointments": {
     "title": "Rendez-vous",
@@ -656,6 +658,21 @@
     "noItems": "Aucun élément",
     "deleteShort": "Suppr.",
     "newCategory": "Nouvelle catégorie…",
-    "newOptionCat": "Nouvelle option…"
+    "newOptionCat": "Nouvelle option…",
+    "pageTitle": "Paramètres"
+  },
+  "factureStatus": {
+    "en_attente": "En attente",
+    "en_cours": "En cours",
+    "payee": "Payée",
+    "annulee": "Annulée"
+  },
+  "dashboardLayout": {
+    "deactivatedTitle": "Accès désactivé",
+    "deactivatedBody": "Votre accès au cabinet <b>{name}</b> a été désactivé. Contactez le propriétaire du cabinet pour le réactiver.",
+    "pendingTitle": "Compte en attente d'approbation",
+    "pendingMember": "Votre accès au cabinet <b>{name}</b> est en cours de validation. Vous pourrez vous connecter dès qu'il sera approuvé.",
+    "pendingPractice": "Votre cabinet <b>{name}</b> est en cours de vérification. Vous recevrez un accès dès qu'il sera approuvé.",
+    "questionsContact": "Des questions ? Contactez"
   }
 }

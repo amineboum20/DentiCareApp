@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 export default async function Dashboard() {
   const supabase = await createClient();
   const t = await getTranslations("dashboard");
+  const ts = await getTranslations("factureStatus");
 
   const result = await getMemberWithPractice();
   const firstName = result?.member?.first_name ?? "";
@@ -51,7 +52,7 @@ export default async function Dashboard() {
   };
 
   const statusLabel: Record<string, string> = {
-    en_attente: "En attente", en_cours: "En cours", payee: "Payée", annulee: "Annulée",
+    en_attente: ts("en_attente"), en_cours: ts("en_cours"), payee: ts("payee"), annulee: ts("annulee"),
   };
 
   const typeIcon: Record<string, string> = {
@@ -142,7 +143,7 @@ export default async function Dashboard() {
           {(upcomingAppointments ?? []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <span className="text-3xl mb-2">📅</span>
-              <p className="text-sm text-zinc-400">Aucun rendez-vous à venir</p>
+              <p className="text-sm text-zinc-400">{t("noUpcomingAppts")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -155,7 +156,7 @@ export default async function Dashboard() {
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">{a.title}</p>
                       <p className="text-xs text-zinc-400">
                         {patient ? `${patient.first_name} ${patient.last_name} · ` : ""}
-                        <LocalInstant iso={a.scheduled_at} options={{ day: "numeric", month: "short" }} /> à <LocalInstant iso={a.scheduled_at} options={{ hour: "2-digit", minute: "2-digit" }} />
+                        <LocalInstant iso={a.scheduled_at} options={{ day: "numeric", month: "short" }} /> {t("at")} <LocalInstant iso={a.scheduled_at} options={{ hour: "2-digit", minute: "2-digit" }} />
                       </p>
                     </div>
                   </div>

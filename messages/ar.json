@@ -199,7 +199,9 @@
       "suppliers": "الموردون",
       "supplierOrders": "طلبات الموردين"
     },
-    "signOut": "تسجيل الخروج"
+    "signOut": "تسجيل الخروج",
+    "noUpcomingAppts": "لا مواعيد قادمة",
+    "at": "على"
   },
   "appointments": {
     "title": "المواعيد",
@@ -614,6 +616,21 @@
     "noItems": "لا عناصر",
     "deleteShort": "حذف",
     "newCategory": "فئة جديدة…",
-    "newOptionCat": "خيار جديد…"
+    "newOptionCat": "خيار جديد…",
+    "pageTitle": "الإعدادات"
+  },
+  "factureStatus": {
+    "en_attente": "قيد الانتظار",
+    "en_cours": "قيد التنفيذ",
+    "payee": "مدفوعة",
+    "annulee": "ملغاة"
+  },
+  "dashboardLayout": {
+    "deactivatedTitle": "تم تعطيل الوصول",
+    "deactivatedBody": "تم تعطيل وصولك إلى <b>{name}</b>. تواصل مع مالك العيادة لإعادة تفعيله.",
+    "pendingTitle": "الحساب في انتظار الموافقة",
+    "pendingMember": "جارٍ مراجعة وصولك إلى <b>{name}</b>. ستتمكن من تسجيل الدخول بمجرد الموافقة عليه.",
+    "pendingPractice": "جارٍ التحقق من عيادتك <b>{name}</b>. ستحصل على الوصول بمجرد الموافقة عليها.",
+    "questionsContact": "أسئلة؟ تواصل مع"
   }
 }
