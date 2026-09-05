@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { OrdonnanceWithPatient, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
+import { PraticienSelect } from "@/components/PraticienSelect";
 
 interface Props {
   initialOrdonnances: OrdonnanceWithPatient[];
@@ -36,7 +37,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
   const [ordonnances, setOrdonnances] = useState<OrdonnanceWithPatient[]>(initialOrdonnances);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState({ patient_id: "", date: today, prescriber: "", notes: "", consultation_id: "" });
+  const [form, setForm] = useState({ patient_id: "", date: today, prescriber: "", praticien_id: "", notes: "", consultation_id: "" });
   const [dossierId, setDossierId] = useState("");
   const [lines, setLines] = useState<Line[]>([{ ...emptyLine }]);
   const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string }[]>([]);
@@ -51,7 +52,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
 
   useEffect(() => {
     if (searchParams.get("new") !== "1") return;
-    setForm({ patient_id: searchParams.get("patient_id") ?? "", date: today, prescriber: "", notes: "", consultation_id: searchParams.get("consultation_id") ?? "" });
+    setForm({ patient_id: searchParams.get("patient_id") ?? "", date: today, prescriber: "", praticien_id: "", notes: "", consultation_id: searchParams.get("consultation_id") ?? "" });
     setDossierId(searchParams.get("dossier_id") ?? "");
     setLines([{ ...emptyLine }]);
     setError("");
@@ -75,7 +76,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
     [ordonnances, search]);
 
   function openAdd() {
-    setForm({ patient_id: "", date: today, prescriber: "", notes: "", consultation_id: "" });
+    setForm({ patient_id: "", date: today, prescriber: "", praticien_id: "", notes: "", consultation_id: "" });
     setDossierId(""); setLines([{ ...emptyLine }]); setError(""); setModalOpen(true);
   }
 
@@ -95,7 +96,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
     const { data: ord, error: e } = await supabase.from("ordonnances").insert({
       practice_id: practiceId, user_id: currentUserId, created_by: currentUserId,
       patient_id: form.patient_id, consultation_id: form.consultation_id || null, dossier_id: dossier || null,
-      prescriber: form.prescriber.trim() || null, date: form.date, notes: form.notes.trim() || null,
+      prescriber: form.prescriber.trim() || null, praticien_id: form.praticien_id || null, date: form.date, notes: form.notes.trim() || null,
     }).select("*, patients(first_name, last_name, phone)").single();
     if (e || !ord) { setError(e?.message ?? "Erreur"); setSaving(false); return; }
 
@@ -187,7 +188,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Prescripteur (dentiste)</label>
-                  <input value={form.prescriber} onChange={(e) => setForm((f) => ({ ...f, prescriber: e.target.value }))} placeholder="Nom" className={inputCls} />
+                  <PraticienSelect value={form.praticien_id} onChange={(id, name) => setForm((f) => ({ ...f, praticien_id: id, prescriber: name }))} className={inputCls} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">🦷 Visite liée (optionnel)</label>

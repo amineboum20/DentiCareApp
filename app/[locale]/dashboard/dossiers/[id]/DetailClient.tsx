@@ -9,8 +9,9 @@ import type {
 } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { DR } from "@/components/DetailRow";
-import { exportFacturePdf } from "@/utils/pdf-export";
+import { exportFacturePdf, exportFeuilleSoinsPdf } from "@/utils/pdf-export";
 import { billActesToDossier } from "@/utils/billing";
+import { PraticienSelect } from "@/components/PraticienSelect";
 
 interface Props {
   dossier: DossierWithPatient;
@@ -99,6 +100,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [rdvOpen, setRdvOpen] = useState(false);
   const [cancelTarget, setCancelTarget] = useState<Doc | null>(null);
   const [busy, setBusy] = useState(false);
+  const [feuilleBusy, setFeuilleBusy] = useState(false);
   const [err, setErr] = useState("");
 
   const patient = dossier.patients as { first_name: string; last_name: string; phone?: string | null; address?: string | null };
@@ -272,8 +274,46 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     });
   }
 
+  // ─── feuille de soins (mutuelle) ───
+  async function generateFeuille() {
+    setFeuilleBusy(true);
+    try {
+      const { data: pat } = await supabase.from("patients").select("mutuelle_organisme, mutuelle_numero, mutuelle_lien, phone").eq("id", dossier.patient_id).single();
+      const { data: facs } = await supabase.from("factures").select("status, type, facture_items(description, quantity, unit_price, acte_date, actes(code))").eq("dossier_id", dossier.id);
+      type FI = { description: string; quantity: number; unit_price: number; acte_date: string | null; actes: { code: string | null } | { code: string | null }[] | null };
+      const acts: { date: string | null; code: string | null; designation: string; quantity: number; honoraires: number }[] = [];
+      ((facs ?? []) as { status: string; type: string; facture_items: FI[] | null }[])
+        .filter((f) => f.type === "facture" && f.status !== "annulee")
+        .forEach((f) => (f.facture_items ?? []).forEach((it) => {
+          const acteRel = it.actes;
+          const code = Array.isArray(acteRel) ? (acteRel[0]?.code ?? null) : (acteRel?.code ?? null);
+          acts.push({ date: it.acte_date, code, designation: it.description, quantity: it.quantity, honoraires: Number(it.quantity) * Number(it.unit_price) });
+        }));
+      const total = acts.reduce((s, a) => s + a.honoraires, 0);
+
+      const { data: cons } = await supabase.from("consultations").select("praticien_id").eq("dossier_id", dossier.id).not("praticien_id", "is", null).limit(1);
+      let prat: { name: string; inpe: string | null; numero_ordre: string | null } | null = null;
+      const pid = (cons ?? [])[0]?.praticien_id as string | undefined;
+      if (pid) {
+        const { data: p } = await supabase.from("praticiens").select("name, inpe, numero_ordre").eq("id", pid).single();
+        prat = (p as { name: string; inpe: string | null; numero_ordre: string | null } | null) ?? null;
+      }
+
+      const patM = pat as { mutuelle_organisme: string | null; mutuelle_numero: string | null; mutuelle_lien: string | null; phone: string | null } | null;
+      await exportFeuilleSoinsPdf({
+        dossierId: dossier.id, dossierTitle: dossier.title, date: today,
+        patientName, patientPhone: patM?.phone ?? patient.phone ?? null,
+        mutuelleOrganisme: patM?.mutuelle_organisme ?? null, mutuelleNumero: patM?.mutuelle_numero ?? null, mutuelleLien: patM?.mutuelle_lien ?? null,
+        praticienName: prat?.name ?? null, praticienInpe: prat?.inpe ?? null, praticienNumeroOrdre: prat?.numero_ordre ?? null,
+        acts, total, shopName, shopAddress, shopPhone, logoUrl,
+      });
+    } finally {
+      setFeuilleBusy(false);
+    }
+  }
+
   // ─── add visite ───
-  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), treated_by: "", clinical_notes: "", bill: true };
+  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), treated_by: "", praticien_id: "", clinical_notes: "", bill: true };
   const [visiteForm, setVisiteForm] = useState(emptyVisite);
   const [visiteBillActes, setVisiteBillActes] = useState<ActeLite[]>([]);
   function openVisite() {
@@ -290,7 +330,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
       patient_id: dossier.patient_id, dossier_id: dossier.id,
       motif: visiteForm.motif, exam_date: visiteForm.exam_date,
-      treated_by: visiteForm.treated_by.trim() || null,
+      treated_by: visiteForm.treated_by.trim() || null, praticien_id: visiteForm.praticien_id || null,
       clinical_notes: visiteForm.clinical_notes.trim() || null,
     }).select("id, motif, exam_date, teeth, treated_by, clinical_notes").single();
     if (error) { setErr(error.message); setBusy(false); return; }
@@ -298,7 +338,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
 
     // Bill the selected actes into the dossier, then refresh the documents list.
     if (visiteForm.bill && visiteBillActes.length > 0) {
-      await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: dossier.patient_id, dossierId: dossier.id, actes: visiteBillActes });
+      await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: dossier.patient_id, dossierId: dossier.id, actes: visiteBillActes, acteDate: visiteForm.exam_date });
       const { data: dd } = await supabase.from("factures").select("id, type, status, total_price, created_at, notes").eq("dossier_id", dossier.id).order("created_at", { ascending: false });
       setDocs((dd ?? []) as Doc[]);
     }
@@ -372,6 +412,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               </div>
             </div>
             {totalDevis > 0 && <p className="text-[11px] text-zinc-400 mt-1">Devis estimé : {money(totalDevis)}</p>}
+            <button onClick={generateFeuille} disabled={feuilleBusy} className="mt-3 w-full px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-sm font-medium transition-colors disabled:opacity-60">{feuilleBusy ? "Génération…" : "🧾 Feuille de soins (mutuelle)"}</button>
           </div>
 
           {/* Documents */}
@@ -670,7 +711,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
-              <input value={visiteForm.treated_by} onChange={(e) => setVisiteForm((f) => ({ ...f, treated_by: e.target.value }))} className={inputCls} />
+              <PraticienSelect value={visiteForm.praticien_id} onChange={(id, name) => setVisiteForm((f) => ({ ...f, praticien_id: id, treated_by: name }))} className={inputCls} />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Notes cliniques</label>

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { AppointmentWithPatient, Patient, AppointmentType, AppointmentStatus } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
+import { PraticienSelect } from "@/components/PraticienSelect";
 
 interface Props {
   initialAppointments: AppointmentWithPatient[];
@@ -39,6 +40,7 @@ const emptyForm = {
   duration_minutes: "30",
   type: "consultation" as AppointmentType,
   status: "planifie" as AppointmentStatus,
+  praticien_id: "",
   notes: "",
 };
 
@@ -178,6 +180,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
       type: form.type,
       status: form.status,
+      praticien_id: form.praticien_id || null,
       notes: form.notes.trim() || null,
     };
 
@@ -500,6 +503,10 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                     </option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
+                <PraticienSelect value={form.praticien_id} onChange={(id) => setField("praticien_id", id)} className={inputCls} />
               </div>
               {/* Rattacher à un dossier (nouveau RDV uniquement) */}
               {!editing && (

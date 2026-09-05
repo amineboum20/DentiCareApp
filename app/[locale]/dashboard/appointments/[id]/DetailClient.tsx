@@ -8,6 +8,7 @@ import type { AppointmentWithPatient, Patient, ConsultationMotif } from "@/types
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
+import { PraticienSelect } from "@/components/PraticienSelect";
 
 // Map an appointment type onto a visite motif (covers both type vocabularies).
 const TYPE_TO_MOTIF: Record<string, ConsultationMotif> = {
@@ -64,7 +65,7 @@ const emptyForm = {
   patient_id: "", title: "",
   type: "controle" as AppointmentType,
   status: "planifie" as AppointmentStatus,
-  scheduled_at: "", duration_minutes: "", notes: "",
+  scheduled_at: "", duration_minutes: "", praticien_id: "", notes: "",
 };
 
 export default function AppointmentDetailClient({ appointment: initialAppointment, patients, locale }: Props) {
@@ -187,6 +188,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       status: appointment.status as AppointmentStatus,
       scheduled_at: localDt,
       duration_minutes: String(appointment.duration_minutes ?? ""),
+      praticien_id: appointment.praticien_id ?? "",
       notes: appointment.notes ?? "",
     });
     setFormError("");
@@ -218,6 +220,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       status: form.status,
       scheduled_at: new Date(form.scheduled_at).toISOString(),
       duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
+      praticien_id: form.praticien_id || null,
       notes: form.notes.trim() || null,
     };
     const { data, error } = await supabase.from("appointments").update(payload).eq("id", appointment.id).select("*, patients(first_name, last_name)").single();
@@ -366,6 +369,10 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.duration")}</label>
                   <input type="number" min="0" {...field("duration_minutes")} className={inputCls} />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
+                <PraticienSelect value={form.praticien_id} onChange={(id) => setForm((f) => ({ ...f, praticien_id: id }))} className={inputCls} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>

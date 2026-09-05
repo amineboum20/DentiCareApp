@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { OrdonnanceWithPatient, OrdonnanceLigne, OrdonnanceStatus } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
+import { PraticienSelect } from "@/components/PraticienSelect";
 
 interface Props {
   ordonnance: OrdonnanceWithPatient & {
@@ -41,7 +42,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
   const [cancelOpen, setCancelOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editForm, setEditForm] = useState({ date: "", prescriber: "", notes: "" });
+  const [editForm, setEditForm] = useState({ date: "", prescriber: "", praticien_id: "", notes: "" });
   const [editLines, setEditLines] = useState<EditLine[]>([]);
   const [medications, setMedications] = useState<MedLite[]>([]);
   const [saving, setSaving] = useState(false);
@@ -60,7 +61,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
   }, [editOpen, supabase]);
 
   function openEdit() {
-    setEditForm({ date: ordo.date, prescriber: ordo.prescriber ?? "", notes: ordo.notes ?? "" });
+    setEditForm({ date: ordo.date, prescriber: ordo.prescriber ?? "", praticien_id: ordo.praticien_id ?? "", notes: ordo.notes ?? "" });
     setEditLines(lignes.length
       ? lignes.map((l) => ({ medicament_id: l.medicament_id, name: l.name, posologie: l.posologie ?? "", duree: l.duree ?? "", quantite: l.quantite ?? "", instructions: l.instructions ?? "" }))
       : [{ medicament_id: null, name: "", posologie: "", duree: "", quantite: "", instructions: "" }]);
@@ -72,7 +73,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
     if (valid.length === 0) { setError("Ajoutez au moins un médicament."); return; }
     setSaving(true); setError("");
     const { data, error: e } = await supabase.from("ordonnances").update({
-      date: editForm.date, prescriber: editForm.prescriber.trim() || null, notes: editForm.notes.trim() || null,
+      date: editForm.date, prescriber: editForm.prescriber.trim() || null, praticien_id: editForm.praticien_id || null, notes: editForm.notes.trim() || null,
     }).eq("id", ordo.id).select("*, patients(first_name, last_name, phone)").single();
     if (e || !data) { setError(e?.message ?? "Erreur"); setSaving(false); return; }
     await supabase.from("ordonnance_lignes").delete().eq("ordonnance_id", ordo.id);
@@ -212,7 +213,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Prescripteur (dentiste)</label>
-                  <input value={editForm.prescriber} onChange={(e) => setEditForm((f) => ({ ...f, prescriber: e.target.value }))} className={inputCls} />
+                  <PraticienSelect value={editForm.praticien_id} onChange={(id, name) => setEditForm((f) => ({ ...f, praticien_id: id, prescriber: name }))} className={inputCls} />
                 </div>
               </div>
 

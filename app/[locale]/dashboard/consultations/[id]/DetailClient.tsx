@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { ConsultationWithPatient, ConsultationMotif } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import { PraticienSelect } from "@/components/PraticienSelect";
 
 interface Props {
   consultation: ConsultationWithPatient & { dossiers?: { id: string; title: string; statut: string } | { id: string; title: string; statut: string }[] | null };
@@ -51,7 +52,7 @@ const MOTIFS: ConsultationMotif[] = ["consultation", "controle", "soin", "urgenc
 
 const emptyForm = {
   motif: "consultation" as ConsultationMotif,
-  exam_date: "", next_exam_date: "", treated_by: "", teeth: "", clinical_notes: "", exams: "",
+  exam_date: "", next_exam_date: "", treated_by: "", praticien_id: "", teeth: "", clinical_notes: "", exams: "",
 };
 
 export default function ConsultationDetailClient({ consultation: initialConsultation, originRdv, facturation, locale }: Props) {
@@ -85,6 +86,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
       exam_date: consultation.exam_date ?? "",
       next_exam_date: consultation.next_exam_date ?? "",
       treated_by: consultation.treated_by ?? "",
+      praticien_id: consultation.praticien_id ?? "",
       teeth: consultation.teeth ?? "",
       clinical_notes: consultation.clinical_notes ?? "",
       exams: consultation.exams ?? "",
@@ -109,6 +111,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
       exam_date: form.exam_date,
       next_exam_date: form.next_exam_date || null,
       treated_by: form.treated_by.trim() || null,
+      praticien_id: form.praticien_id || null,
       teeth: form.teeth.trim() || null,
       clinical_notes: form.clinical_notes.trim() || null,
       exams: form.exams.trim() || null,
@@ -276,7 +279,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
-                  <input {...field("treated_by")} className={inputCls} />
+                  <PraticienSelect value={form.praticien_id} onChange={(id, name) => setForm((f) => ({ ...f, praticien_id: id, treated_by: name }))} className={inputCls} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dents concernées</label>

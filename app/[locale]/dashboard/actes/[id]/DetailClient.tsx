@@ -29,7 +29,7 @@ const CATEGORIES: TreatmentCategory[] = [
 ];
 
 const emptyForm = {
-  name: "", category: "autre", price: "", duration_minutes: "",
+  name: "", category: "autre", price: "", code: "", duration_minutes: "",
   description: "", notes: "",
 };
 
@@ -64,6 +64,7 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
       name: acte.name,
       category: acte.category ?? "autre",
       price: String(acte.price ?? ""),
+      code: acte.code ?? "",
       duration_minutes: String(acte.duration_minutes ?? ""),
       description: acte.description ?? "",
       notes: acte.notes ?? "",
@@ -87,6 +88,7 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
       name: form.name.trim(),
       category: form.category || "autre",
       price: form.price ? parseFloat(form.price) : 0,
+      code: form.code.trim() || null,
       duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
       description: form.description.trim() || null,
       notes: form.notes.trim() || null,
@@ -219,6 +221,10 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Durée (min)</label>
                   <input type="number" min="0" {...field("duration_minutes")} className={inputCls} />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Code / cotation (mutuelle)</label>
+                <input {...field("code")} placeholder="Code nomenclature" className={inputCls} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Description</label>

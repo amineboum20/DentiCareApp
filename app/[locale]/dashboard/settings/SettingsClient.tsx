@@ -455,6 +455,15 @@ export default function SettingsClient({
         )}
       </div>
 
+      {/* Praticiens */}
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Praticiens</h2>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 flex items-center justify-between">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Gérez les dentistes du cabinet et leur INPE (pour les feuilles de soins).</p>
+          <button onClick={() => router.push(`/${locale}/dashboard/praticiens`)} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors shrink-0 ms-4">Gérer les praticiens →</button>
+        </div>
+      </div>
+
       {/* Treatment catalog */}
       <div className="mt-8">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Catalogue des soins</h2>

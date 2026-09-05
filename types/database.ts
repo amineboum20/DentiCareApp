@@ -47,9 +47,28 @@ export interface Patient {
   date_of_birth: string | null
   address: string | null
   notes: string | null
+  mutuelle_organisme: string | null
+  mutuelle_numero: string | null
+  mutuelle_lien: string | null
   created_at: string
   updated_at: string
   archived_at: string | null
+  created_by: string | null
+  updated_by: string | null
+}
+
+// Praticien = a dentist of the cabinet (may not have a login), with their INPE.
+export interface Praticien {
+  id: string
+  practice_id: string
+  user_id: string
+  name: string
+  inpe: string | null
+  numero_ordre: string | null
+  speciality: string | null
+  phone: string | null
+  archived_at: string | null
+  created_at: string
   created_by: string | null
   updated_by: string | null
 }
@@ -90,6 +109,7 @@ export interface Acte {
   name: string
   category: TreatmentCategory
   price: number
+  code: string | null
   duration_minutes: number
   description: string | null
   notes: string | null
@@ -151,6 +171,7 @@ export interface FactureItem {
   description: string
   quantity: number
   unit_price: number
+  acte_date: string | null
 }
 
 export interface Appointment {
@@ -159,6 +180,7 @@ export interface Appointment {
   patient_id: string | null
   dossier_id: string | null
   consultation_id: string | null
+  praticien_id: string | null
   title: string
   scheduled_at: string
   duration_minutes: number
@@ -253,6 +275,7 @@ export interface Ordonnance {
   dossier_id: string | null
   user_id: string
   prescriber: string | null
+  praticien_id: string | null
   date: string
   status: OrdonnanceStatus
   notes: string | null
@@ -306,6 +329,7 @@ export interface Consultation {
   exam_date: string
   next_exam_date: string | null
   treated_by: string | null
+  praticien_id: string | null
   teeth: string | null
   clinical_notes: string | null
   exams: string | null

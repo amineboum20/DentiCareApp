@@ -10,9 +10,9 @@ export type BillableActe = { id: string; name: string; price: number; quantity?:
  */
 export async function billActesToDossier(
   supabase: SupabaseClient,
-  opts: { practiceId: string; userId: string; patientId: string; dossierId: string; actes: BillableActe[] },
+  opts: { practiceId: string; userId: string; patientId: string; dossierId: string; actes: BillableActe[]; acteDate?: string | null },
 ): Promise<void> {
-  const { practiceId, userId, patientId, dossierId, actes } = opts;
+  const { practiceId, userId, patientId, dossierId, actes, acteDate } = opts;
   const lines = actes.filter((a) => a && a.id);
   if (lines.length === 0) return;
 
@@ -40,7 +40,7 @@ export async function billActesToDossier(
 
   const rows = lines.map((a) => ({
     facture_id: target!.id, acte_id: a.id, description: a.name,
-    quantity: a.quantity ?? 1, unit_price: a.price,
+    quantity: a.quantity ?? 1, unit_price: a.price, acte_date: acteDate ?? null,
   }));
   await supabase.from("facture_items").insert(rows);
   const added = rows.reduce((s, r) => s + r.quantity * r.unit_price, 0);

@@ -14,6 +14,7 @@ const emptyForm = {
   name: "",
   category: "autre" as TreatmentCategory,
   price: "",
+  code: "",
   duration_minutes: "",
   description: "",
   notes: "",
@@ -107,6 +108,7 @@ export default function ActesClient({ initialActes }: Props) {
       name: form.name.trim(),
       category: form.category,
       price: parseFloat(form.price),
+      code: form.code.trim() || null,
       duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes, 10) : null,
       description: form.description.trim() || null,
       notes: form.notes.trim() || null,
@@ -284,6 +286,11 @@ export default function ActesClient({ initialActes }: Props) {
                   </label>
                   <input type="number" min="0" step="1" {...field("duration_minutes")} placeholder="minutes" className={inputCls} />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Code / cotation (mutuelle)</label>
+                <input {...field("code")} placeholder="Code nomenclature" className={inputCls} />
               </div>
 
               <div>

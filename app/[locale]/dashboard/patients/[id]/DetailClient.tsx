@@ -57,6 +57,7 @@ const FACTURE_STATUS_LABEL: Record<string, string> = {
 const emptyForm = {
   first_name: "", last_name: "", email: "",
   phone: "", date_of_birth: "", address: "", notes: "",
+  mutuelle_organisme: "", mutuelle_numero: "", mutuelle_lien: "",
 };
 
 export default function PatientDetailClient({ patient: initialPatient, locale }: Props) {
@@ -129,6 +130,9 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       date_of_birth: patient.date_of_birth ?? "",
       address: patient.address ?? "",
       notes: patient.notes ?? "",
+      mutuelle_organisme: patient.mutuelle_organisme ?? "",
+      mutuelle_numero: patient.mutuelle_numero ?? "",
+      mutuelle_lien: patient.mutuelle_lien ?? "",
     });
     setFormError("");
     setModalOpen(true);
@@ -153,6 +157,9 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
       email: form.email.trim() || null, phone: form.phone.trim() || null,
       date_of_birth: form.date_of_birth || null, address: form.address.trim() || null,
       notes: form.notes.trim() || null,
+      mutuelle_organisme: form.mutuelle_organisme.trim() || null,
+      mutuelle_numero: form.mutuelle_numero.trim() || null,
+      mutuelle_lien: form.mutuelle_lien.trim() || null,
     };
     const { data, error: err } = await supabase.from("patients").update(payload).eq("id", patient.id).select().single();
     if (err) { setFormError(err.message); setSaving(false); return; }
@@ -241,6 +248,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             <DR label={t("columns.email")} value={patient.email} />
             <DR label={t("columns.dob")} value={fmtDate(patient.date_of_birth)} />
             <DR label="Adresse" value={patient.address} />
+            <DR label="Mutuelle" value={patient.mutuelle_organisme} />
+            <DR label="N° assuré" value={patient.mutuelle_numero ? `${patient.mutuelle_numero}${patient.mutuelle_lien ? ` (${patient.mutuelle_lien})` : ""}` : null} />
             <DR label="Notes" value={patient.notes} />
             <DR label={t("columns.added")} value={fmtDate(patient.created_at)} />
           </div>
@@ -552,6 +561,20 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Mutuelle / organisme</label>
+                  <input {...field("mutuelle_organisme")} placeholder="CNSS, CNOPS…" className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">N° immatriculation</label>
+                  <input {...field("mutuelle_numero")} className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Lien</label>
+                  <input {...field("mutuelle_lien")} placeholder="Assuré, conjoint…" className={inputCls} />
+                </div>
               </div>
               {formError && <p className="text-xs text-red-500">{formError}</p>}
             </div>

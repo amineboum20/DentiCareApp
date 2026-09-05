@@ -14,6 +14,7 @@ interface Props {
 const emptyForm = {
   first_name: "", last_name: "", email: "",
   phone: "", date_of_birth: "", address: "", notes: "",
+  mutuelle_organisme: "", mutuelle_numero: "", mutuelle_lien: "",
 };
 
 function fmtDate(iso: string | null) {
@@ -94,6 +95,9 @@ export default function PatientsClient({ initialPatients }: Props) {
       date_of_birth: form.date_of_birth || null,
       address: form.address.trim() || null,
       notes: form.notes.trim() || null,
+      mutuelle_organisme: form.mutuelle_organisme.trim() || null,
+      mutuelle_numero: form.mutuelle_numero.trim() || null,
+      mutuelle_lien: form.mutuelle_lien.trim() || null,
     };
 
     if (editingPatient) {
@@ -274,6 +278,21 @@ export default function PatientsClient({ initialPatients }: Props) {
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Mutuelle / organisme</label>
+                  <input {...field("mutuelle_organisme")} placeholder="CNSS, CNOPS…" className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">N° immatriculation</label>
+                  <input {...field("mutuelle_numero")} className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Lien</label>
+                  <input {...field("mutuelle_lien")} placeholder="Assuré, conjoint…" className={inputCls} />
+                </div>
               </div>
 
               {error && <p className="text-xs text-red-500">{error}</p>}

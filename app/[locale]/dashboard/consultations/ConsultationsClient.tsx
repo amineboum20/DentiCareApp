@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { ConsultationWithPatient, ConsultationMotif, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
+import { PraticienSelect } from "@/components/PraticienSelect";
 
 interface Props {
   initialConsultations: ConsultationWithPatient[];
@@ -18,6 +19,7 @@ const emptyForm = {
   exam_date: "",
   next_exam_date: "",
   treated_by: "",
+  praticien_id: "",
   clinical_notes: "",
   exams: "",
 };
@@ -157,6 +159,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
       exam_date: form.exam_date,
       next_exam_date: form.next_exam_date || null,
       treated_by: form.treated_by.trim() || null,
+      praticien_id: form.praticien_id || null,
       clinical_notes: form.clinical_notes.trim() || null,
       exams: form.exams.trim() || null,
     };
@@ -194,7 +197,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
           }
         }
         if (targetDossierId) {
-          await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: form.patient_id, dossierId: targetDossierId, actes: billActes });
+          await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: form.patient_id, dossierId: targetDossierId, actes: billActes, acteDate: form.exam_date });
         }
       }
     }
@@ -354,7 +357,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
 
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
-                <input type="text" placeholder="Dr. Nom" {...field("treated_by")} className={inputCls} />
+                <PraticienSelect value={form.praticien_id} onChange={(id, name) => setForm((f) => ({ ...f, praticien_id: id, treated_by: name }))} className={inputCls} />
               </div>
 
               <div>
