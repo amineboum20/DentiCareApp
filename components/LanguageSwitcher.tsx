@@ -6,9 +6,9 @@ import { useTransition } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 const LANGS = [
-  { code: "fr", label: "FR", flag: "🇫🇷" },
-  { code: "en", label: "EN", flag: "🇬🇧" },
-  { code: "ar", label: "AR", flag: "🇲🇦" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "ar", label: "العربية", flag: "🇲🇦" },
 ];
 
 export default function LanguageSwitcher({ saveToAccount = false }: { saveToAccount?: boolean }) {
