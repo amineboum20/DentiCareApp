@@ -786,6 +786,34 @@
     "deleteDialog": {
       "title": "Delete this visit?",
       "body": "This action is irreversible."
+    },
+    "detail": {
+      "errDate": "Date is required.",
+      "title": "Visit",
+      "informations": "Information",
+      "patient": "Patient",
+      "date": "Date",
+      "nextExam": "Next check-up",
+      "dentist": "Dentist",
+      "drName": "Dr. {name}",
+      "teeth": "Teeth involved",
+      "teethPlaceholder": "e.g. 11, 12, 21…",
+      "clinicalNotes": "Clinical notes",
+      "exams": "Additional exams",
+      "createdAt": "Created on",
+      "attachBilling": "Attachment & billing",
+      "dossier": "Case",
+      "originRdv": "Original appointment",
+      "billed": "Billed",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "billingNote": "Billing is managed at the case level (MAD).",
+      "ordonnances": "Prescriptions",
+      "newOrdonnance": "New prescription",
+      "noOrdonnance": "No prescription",
+      "ordonnanceLabel": "Prescription",
+      "edit": "Edit",
+      "deleting": "Deleting…"
     }
   },
   "praticiens": {

@@ -786,6 +786,34 @@
     "deleteDialog": {
       "title": "حذف هذه الزيارة؟",
       "body": "هذا الإجراء لا رجعة فيه."
+    },
+    "detail": {
+      "errDate": "التاريخ مطلوب.",
+      "title": "زيارة",
+      "informations": "معلومات",
+      "patient": "المريض",
+      "date": "التاريخ",
+      "nextExam": "الفحص القادم",
+      "dentist": "طبيب الأسنان",
+      "drName": "د. {name}",
+      "teeth": "الأسنان المعنية",
+      "teethPlaceholder": "مثال: 11، 12، 21…",
+      "clinicalNotes": "ملاحظات سريرية",
+      "exams": "فحوصات إضافية",
+      "createdAt": "أُنشئ في",
+      "attachBilling": "الربط والفوترة",
+      "dossier": "الملف",
+      "originRdv": "الموعد الأصلي",
+      "billed": "مفوتر",
+      "paid": "مدفوع",
+      "remaining": "المتبقي",
+      "billingNote": "تُدار الفوترة على مستوى الملف (درهم).",
+      "ordonnances": "الوصفات الطبية",
+      "newOrdonnance": "وصفة جديدة",
+      "noOrdonnance": "لا وصفة",
+      "ordonnanceLabel": "وصفة",
+      "edit": "تعديل",
+      "deleting": "جارٍ الحذف…"
     }
   },
   "praticiens": {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { ConsultationWithPatient, ConsultationMotif } from "@/types/database";
@@ -38,14 +39,6 @@ const MOTIF_STYLE: Record<string, string> = {
   autre:        "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
-const MOTIF_LABEL: Record<string, string> = {
-  consultation: "Consultation",
-  controle:     "Contrôle",
-  soin:         "Soin",
-  urgence:      "Urgence",
-  autre:        "Autre",
-};
-
 const MOTIFS: ConsultationMotif[] = ["consultation", "controle", "soin", "urgence", "autre"];
 
 const emptyForm = {
@@ -56,6 +49,8 @@ const emptyForm = {
 export default function ConsultationDetailClient({ consultation: initialConsultation, originRdv, facturation, locale }: Props) {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const t = useTranslations("visites");
+  const tc = useTranslations("common");
 
   const dossierRel = initialConsultation.dossiers;
   const dossier = Array.isArray(dossierRel) ? (dossierRel[0] ?? null) : (dossierRel ?? null);
@@ -102,7 +97,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
   }
 
   async function handleSave() {
-    if (!form.exam_date) { setFormError("La date est requise."); return; }
+    if (!form.exam_date) { setFormError(t("detail.errDate")); return; }
     setSaving(true); setFormError("");
     const payload = {
       motif: form.motif,
@@ -138,12 +133,12 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 12L6 8l4-4" />
           </svg>
-          Retour
+          {tc("back")}
         </button>
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-2xl shrink-0">🏥</div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Visite — {MOTIF_LABEL[consultation.motif] ?? consultation.motif}</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("detail.title")} — {t.has(`motif.${consultation.motif}`) ? t(`motif.${consultation.motif}`) : consultation.motif}</h1>
             {patientName && (
               <button
                 onClick={() => router.push(`/${locale}/dashboard/patients/${consultation.patient_id}`)}
@@ -159,36 +154,36 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
       <div className="space-y-6">
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Informations</h2>
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{t("detail.informations")}</h2>
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${MOTIF_STYLE[consultation.motif] ?? MOTIF_STYLE.autre}`}>
-              {MOTIF_LABEL[consultation.motif] ?? consultation.motif}
+              {t.has(`motif.${consultation.motif}`) ? t(`motif.${consultation.motif}`) : consultation.motif}
             </span>
           </div>
           <div className="space-y-1">
-            <DR label="Patient" value={patientName} />
-            <AlwaysRow label="Date" value={fmtDate(consultation.exam_date)} />
-            <AlwaysRow label="Prochain contrôle" value={consultation.next_exam_date ? fmtDate(consultation.next_exam_date) : null} />
-            <AlwaysRow label="Dentiste" value={consultation.treated_by ? `Dr. ${consultation.treated_by}` : null} />
-            {consultation.teeth && <DR label="Dents concernées" value={consultation.teeth} />}
-            <AlwaysRow label="Notes cliniques" value={consultation.clinical_notes} />
-            <AlwaysRow label="Examens complémentaires" value={consultation.exams} />
-            <DR label="Créé le" value={fmtDate(consultation.created_at)} />
+            <DR label={t("detail.patient")} value={patientName} />
+            <AlwaysRow label={t("detail.date")} value={fmtDate(consultation.exam_date)} />
+            <AlwaysRow label={t("detail.nextExam")} value={consultation.next_exam_date ? fmtDate(consultation.next_exam_date) : null} />
+            <AlwaysRow label={t("detail.dentist")} value={consultation.treated_by ? t("detail.drName", { name: consultation.treated_by }) : null} />
+            {consultation.teeth && <DR label={t("detail.teeth")} value={consultation.teeth} />}
+            <AlwaysRow label={t("detail.clinicalNotes")} value={consultation.clinical_notes} />
+            <AlwaysRow label={t("detail.exams")} value={consultation.exams} />
+            <DR label={t("detail.createdAt")} value={fmtDate(consultation.created_at)} />
           </div>
         </div>
 
         {(dossier || originRdv || facturation) && (
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">Rattachement &amp; facturation</h2>
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">{t("detail.attachBilling")}</h2>
             <div className="space-y-1">
               {dossier && (
                 <div className="flex gap-3 py-0.5">
-                  <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Dossier</span>
+                  <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{t("detail.dossier")}</span>
                   <button onClick={() => router.push(`/${locale}/dashboard/dossiers/${dossier.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{dossier.title} →</button>
                 </div>
               )}
               {originRdv && (
                 <div className="flex gap-3 py-0.5">
-                  <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">Rendez-vous d&apos;origine</span>
+                  <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{t("detail.originRdv")}</span>
                   <button onClick={() => router.push(`/${locale}/dashboard/appointments/${originRdv.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left"><LocalInstant iso={originRdv.scheduled_at} options={{ day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }} /> →</button>
                 </div>
               )}
@@ -197,19 +192,19 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
               <>
                 <div className="grid grid-cols-3 gap-2 mt-4">
                   <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/60 px-3 py-2.5 text-center">
-                    <p className="text-[10px] text-zinc-400 uppercase">Facturé</p>
+                    <p className="text-[10px] text-zinc-400 uppercase">{t("detail.billed")}</p>
                     <p className="text-sm font-bold text-zinc-900 dark:text-white">{facturation.facture.toFixed(0)}</p>
                   </div>
                   <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/10 px-3 py-2.5 text-center">
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase">Payé</p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase">{t("detail.paid")}</p>
                     <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{facturation.paye.toFixed(0)}</p>
                   </div>
                   <div className={`rounded-xl px-3 py-2.5 text-center ${facturation.reste > 0 ? "bg-amber-50 dark:bg-amber-900/10" : "bg-zinc-50 dark:bg-zinc-800/60"}`}>
-                    <p className={`text-[10px] uppercase ${facturation.reste > 0 ? "text-amber-600 dark:text-amber-400" : "text-zinc-400"}`}>Reste</p>
+                    <p className={`text-[10px] uppercase ${facturation.reste > 0 ? "text-amber-600 dark:text-amber-400" : "text-zinc-400"}`}>{t("detail.remaining")}</p>
                     <p className={`text-sm font-bold ${facturation.reste > 0 ? "text-amber-600 dark:text-amber-400" : "text-zinc-500"}`}>{facturation.reste.toFixed(0)}</p>
                   </div>
                 </div>
-                <p className="text-[11px] text-zinc-400 mt-2">Facturation gérée au niveau du dossier (MAD).</p>
+                <p className="text-[11px] text-zinc-400 mt-2">{t("detail.billingNote")}</p>
               </>
             )}
           </div>
@@ -218,17 +213,17 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
         {/* Ordonnances issued at this visite */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Ordonnances <span className="text-zinc-300">({ordonnances.length})</span></h2>
-            <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${consultation.patient_id}&consultation_id=${consultation.id}${dossier ? `&dossier_id=${dossier.id}` : ""}`)} className="text-xs px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors">+ Nouvelle ordonnance</button>
+            <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{t("detail.ordonnances")} <span className="text-zinc-300">({ordonnances.length})</span></h2>
+            <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${consultation.patient_id}&consultation_id=${consultation.id}${dossier ? `&dossier_id=${dossier.id}` : ""}`)} className="text-xs px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors">+ {t("detail.newOrdonnance")}</button>
           </div>
           {ordonnances.length === 0 ? (
-            <p className="text-sm text-zinc-400 py-4 text-center">Aucune ordonnance</p>
+            <p className="text-sm text-zinc-400 py-4 text-center">{t("detail.noOrdonnance")}</p>
           ) : (
             <div className="space-y-2">
               {ordonnances.map((o) => (
                 <div key={o.id} onClick={() => router.push(`/${locale}/dashboard/ordonnances/${o.id}`)} className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2.5 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 transition-all">
-                  <span className="text-sm font-medium text-zinc-900 dark:text-white">💊 Ordonnance</span>
-                  <span className="text-xs text-zinc-400">{fmtDate(o.date)}{o.prescriber ? ` · Dr. ${o.prescriber}` : ""}</span>
+                  <span className="text-sm font-medium text-zinc-900 dark:text-white">💊 {t("detail.ordonnanceLabel")}</span>
+                  <span className="text-xs text-zinc-400">{fmtDate(o.date)}{o.prescriber ? ` · ${t("detail.drName", { name: o.prescriber })}` : ""}</span>
                 </div>
               ))}
             </div>
@@ -238,12 +233,12 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">
           <button onClick={() => setDeleteOpen(true)}
             className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">
-            Supprimer
+            {t("form.delete")}
           </button>
           <div className="ms-auto">
             <button onClick={openEdit}
               className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-              ✏️ Modifier
+              ✏️ {t("detail.edit")}
             </button>
           </div>
         </div>
@@ -254,53 +249,53 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <h2 className="font-semibold text-zinc-900 dark:text-white">Modifier la visite</h2>
+              <h2 className="font-semibold text-zinc-900 dark:text-white">{t("editTitle")}</h2>
               <button onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Motif</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.motif")}</label>
                 <select {...field("motif")} className={inputCls}>
-                  {MOTIFS.map(m => <option key={m} value={m}>{MOTIF_LABEL[m]}</option>)}
+                  {MOTIFS.map(m => <option key={m} value={m}>{t(`motif.${m}`)}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Date <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.date")} <span className="text-red-500">*</span></label>
                   <input type="date" {...field("exam_date")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Prochain contrôle</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.nextExam")}</label>
                   <input type="date" {...field("next_exam_date")} className={inputCls} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dentiste</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.dentist")}</label>
                   <PraticienSelect value={form.praticien_id} onChange={(id, name) => setForm((f) => ({ ...f, praticien_id: id, treated_by: name }))} className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Dents concernées</label>
-                  <input placeholder="Ex. 11, 12, 21…" {...field("teeth")} className={inputCls} />
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("detail.teeth")}</label>
+                  <input placeholder={t("detail.teethPlaceholder")} {...field("teeth")} className={inputCls} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Notes cliniques</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.clinicalNotes")}</label>
                 <textarea {...field("clinical_notes")} rows={3} className={`${inputCls} resize-none`} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Examens complémentaires</label>
-                <textarea {...field("exams")} rows={2} placeholder="Radio, scanner, test…" className={`${inputCls} resize-none`} />
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.exams")}</label>
+                <textarea {...field("exams")} rows={2} placeholder={t("form.examsPlaceholder")} className={`${inputCls} resize-none`} />
               </div>
               {formError && <p className="text-xs text-red-500">{formError}</p>}
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <div className="ms-auto flex items-center gap-3">
                 <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                  Annuler
+                  {t("form.cancel")}
                 </button>
                 <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                  {saving ? "Enregistrement…" : "Enregistrer"}
+                  {saving ? t("form.saving") : t("form.save")}
                 </button>
               </div>
             </div>
@@ -312,16 +307,16 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">Supprimer cette visite ?</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Cette action est irréversible.</p>
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("deleteDialog.title")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("deleteDialog.body")}</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setDeleteOpen(false)}
                 className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                Annuler
+                {t("form.cancel")}
               </button>
               <button onClick={handleDelete} disabled={deleting}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                {deleting ? "Suppression…" : "Supprimer"}
+                {deleting ? t("detail.deleting") : t("form.delete")}
               </button>
             </div>
           </div>

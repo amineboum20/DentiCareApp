@@ -828,6 +828,34 @@
     "deleteDialog": {
       "title": "Supprimer cette visite ?",
       "body": "Cette action est irréversible."
+    },
+    "detail": {
+      "errDate": "La date est requise.",
+      "title": "Visite",
+      "informations": "Informations",
+      "patient": "Patient",
+      "date": "Date",
+      "nextExam": "Prochain contrôle",
+      "dentist": "Dentiste",
+      "drName": "Dr. {name}",
+      "teeth": "Dents concernées",
+      "teethPlaceholder": "Ex. 11, 12, 21…",
+      "clinicalNotes": "Notes cliniques",
+      "exams": "Examens complémentaires",
+      "createdAt": "Créé le",
+      "attachBilling": "Rattachement & facturation",
+      "dossier": "Dossier",
+      "originRdv": "Rendez-vous d'origine",
+      "billed": "Facturé",
+      "paid": "Payé",
+      "remaining": "Reste",
+      "billingNote": "Facturation gérée au niveau du dossier (MAD).",
+      "ordonnances": "Ordonnances",
+      "newOrdonnance": "Nouvelle ordonnance",
+      "noOrdonnance": "Aucune ordonnance",
+      "ordonnanceLabel": "Ordonnance",
+      "edit": "Modifier",
+      "deleting": "Suppression…"
     }
   },
   "praticiens": {
