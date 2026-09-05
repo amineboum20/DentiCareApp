@@ -10,7 +10,8 @@ import type {
 } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { DR } from "@/components/DetailRow";
-import { exportFacturePdf, exportFeuilleSoinsPdf } from "@/utils/pdf-export";
+import { exportFacturePdf } from "@/utils/pdf-export";
+import { generateFeuilleSoins } from "@/utils/feuille-overlay";
 import { billActesToDossier } from "@/utils/billing";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
@@ -265,37 +266,33 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   async function generateFeuille(insurer: "CNOPS" | "CNSS") {
     setFeuilleBusy(insurer);
     try {
-      const { data: pat } = await supabase.from("patients").select("mutuelle_numero, mutuelle_lien, phone, cin, sexe, date_of_birth, address").eq("id", dossier.patient_id).single();
-      const { data: facs } = await supabase.from("factures").select("status, type, facture_items(description, quantity, unit_price, acte_date, actes(code))").eq("dossier_id", dossier.id);
-      type FI = { description: string; quantity: number; unit_price: number; acte_date: string | null; actes: { code: string | null } | { code: string | null }[] | null };
-      const acts: { date: string | null; code: string | null; designation: string; quantity: number; honoraires: number }[] = [];
+      const { data: pat } = await supabase.from("patients").select("mutuelle_numero, mutuelle_lien, cin, sexe, date_of_birth, address").eq("id", dossier.patient_id).single();
+      const { data: facs } = await supabase.from("factures").select("status, type, facture_items(quantity, unit_price)").eq("dossier_id", dossier.id);
+      type FI = { quantity: number; unit_price: number };
+      let total = 0;
       ((facs ?? []) as { status: string; type: string; facture_items: FI[] | null }[])
         .filter((f) => f.type === "facture" && f.status !== "annulee")
-        .forEach((f) => (f.facture_items ?? []).forEach((it) => {
-          const acteRel = it.actes;
-          const code = Array.isArray(acteRel) ? (acteRel[0]?.code ?? null) : (acteRel?.code ?? null);
-          acts.push({ date: it.acte_date, code, designation: it.description, quantity: it.quantity, honoraires: Number(it.quantity) * Number(it.unit_price) });
-        }));
-      const total = acts.reduce((s, a) => s + a.honoraires, 0);
+        .forEach((f) => (f.facture_items ?? []).forEach((it) => { total += Number(it.quantity) * Number(it.unit_price); }));
 
       const { data: cons } = await supabase.from("consultations").select("praticien_id").eq("dossier_id", dossier.id).not("praticien_id", "is", null).limit(1);
-      let prat: { name: string; inpe: string | null; numero_ordre: string | null } | null = null;
+      let praticienInpe: string | null = null;
       const pid = (cons ?? [])[0]?.praticien_id as string | undefined;
       if (pid) {
-        const { data: p } = await supabase.from("praticiens").select("name, inpe, numero_ordre").eq("id", pid).single();
-        prat = (p as { name: string; inpe: string | null; numero_ordre: string | null } | null) ?? null;
+        const { data: p } = await supabase.from("praticiens").select("inpe").eq("id", pid).single();
+        praticienInpe = (p as { inpe: string | null } | null)?.inpe ?? null;
       }
 
-      const patM = pat as { mutuelle_numero: string | null; mutuelle_lien: string | null; phone: string | null; cin: string | null; sexe: string | null; date_of_birth: string | null; address: string | null } | null;
-      await exportFeuilleSoinsPdf({
-        insurer,
-        dossierId: dossier.id, dossierTitle: dossier.title, date: today,
-        patientName, patientPhone: patM?.phone ?? patient.phone ?? null,
-        patientCin: patM?.cin ?? null, patientSexe: patM?.sexe ?? null,
-        patientBirthDate: patM?.date_of_birth ?? null, patientAddress: patM?.address ?? null,
-        mutuelleNumero: patM?.mutuelle_numero ?? null, mutuelleLien: patM?.mutuelle_lien ?? null,
-        praticienName: prat?.name ?? null, praticienInpe: prat?.inpe ?? null, praticienNumeroOrdre: prat?.numero_ordre ?? null,
-        acts, total, shopName, shopAddress, shopPhone, logoUrl,
+      const patM = pat as { mutuelle_numero: string | null; mutuelle_lien: string | null; cin: string | null; sexe: string | null; date_of_birth: string | null; address: string | null } | null;
+      await generateFeuilleSoins(insurer, {
+        patientName,
+        mutuelleNumero: patM?.mutuelle_numero ?? null,
+        patientCin: patM?.cin ?? null,
+        patientSexe: patM?.sexe ?? null,
+        patientBirthDate: patM?.date_of_birth ?? null,
+        patientAddress: patM?.address ?? null,
+        mutuelleLien: patM?.mutuelle_lien ?? null,
+        praticienInpe,
+        montant: total,
       });
     } finally {
       setFeuilleBusy(null);
