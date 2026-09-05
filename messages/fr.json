@@ -513,6 +513,25 @@
       "message": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible.",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    },
+    "mutuelle": {
+      "organisme": "Mutuelle / organisme",
+      "organismePlaceholder": "CNSS, CNOPS…",
+      "numero": "N° immatriculation",
+      "lien": "Lien",
+      "lienPlaceholder": "Assuré, conjoint…"
+    },
+    "archive": {
+      "title": "Archiver ce patient ?",
+      "subtitle": "{name} et toutes ses données seront masquées :",
+      "visites": "{count, plural, one {# visite} other {# visites}}",
+      "factures": "{count, plural, one {# facture} other {# factures}}",
+      "rdv": "{count} rendez-vous",
+      "ordonnances": "{count, plural, one {# ordonnance} other {# ordonnances}}",
+      "noData": "Aucune donnée liée.",
+      "kept": "Les données sont conservées et récupérables depuis les archives.",
+      "archive": "Archiver",
+      "archiving": "Archivage…"
     }
   },
   "suppliers": {

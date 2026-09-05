@@ -471,6 +471,25 @@
       "message": "Are you sure you want to delete {name}? This cannot be undone.",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "mutuelle": {
+      "organisme": "Insurance / provider",
+      "organismePlaceholder": "CNSS, CNOPS…",
+      "numero": "Registration no.",
+      "lien": "Relationship",
+      "lienPlaceholder": "Insured, spouse…"
+    },
+    "archive": {
+      "title": "Archive this patient?",
+      "subtitle": "{name} and all their data will be hidden:",
+      "visites": "{count, plural, one {# visit} other {# visits}}",
+      "factures": "{count, plural, one {# invoice} other {# invoices}}",
+      "rdv": "{count, plural, one {# appointment} other {# appointments}}",
+      "ordonnances": "{count, plural, one {# prescription} other {# prescriptions}}",
+      "noData": "No linked data.",
+      "kept": "Data is kept and recoverable from the archives.",
+      "archive": "Archive",
+      "archiving": "Archiving…"
     }
   },
   "suppliers": {

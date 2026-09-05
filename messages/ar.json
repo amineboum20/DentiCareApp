@@ -471,6 +471,25 @@
       "message": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع.",
       "confirm": "حذف",
       "cancel": "إلغاء"
+    },
+    "mutuelle": {
+      "organisme": "التأمين / الجهة",
+      "organismePlaceholder": "CNSS، CNOPS…",
+      "numero": "رقم التسجيل",
+      "lien": "الصلة",
+      "lienPlaceholder": "المؤمَّن، الزوج…"
+    },
+    "archive": {
+      "title": "أرشفة هذا المريض؟",
+      "subtitle": "سيتم إخفاء {name} وجميع بياناته:",
+      "visites": "{count} زيارة",
+      "factures": "{count} فاتورة",
+      "rdv": "{count} موعد",
+      "ordonnances": "{count} وصفة",
+      "noData": "لا بيانات مرتبطة.",
+      "kept": "تُحفظ البيانات ويمكن استرجاعها من الأرشيف.",
+      "archive": "أرشفة",
+      "archiving": "جارٍ الأرشفة…"
     }
   },
   "suppliers": {

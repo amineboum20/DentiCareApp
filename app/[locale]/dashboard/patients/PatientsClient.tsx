@@ -187,7 +187,7 @@ export default function PatientsClient({ initialPatients }: Props) {
               {search ? t("noResults") : t("noPatients")}
             </p>
             <p className="text-xs text-zinc-400 mt-1">
-              {search ? t("noResultsDesc", { query: search }) : t("noClientsDesc")}
+              {search ? t("noResultsDesc", { query: search }) : t("noPatientsDesc")}
             </p>
             {!search && (
               <button onClick={openAdd}
@@ -284,16 +284,16 @@ export default function PatientsClient({ initialPatients }: Props) {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Mutuelle / organisme</label>
-                  <input {...field("mutuelle_organisme")} placeholder="CNSS, CNOPS…" className={inputCls} />
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("mutuelle.organisme")}</label>
+                  <input {...field("mutuelle_organisme")} placeholder={t("mutuelle.organismePlaceholder")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">N° immatriculation</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("mutuelle.numero")}</label>
                   <input {...field("mutuelle_numero")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Lien</label>
-                  <input {...field("mutuelle_lien")} placeholder="Assuré, conjoint…" className={inputCls} />
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("mutuelle.lien")}</label>
+                  <input {...field("mutuelle_lien")} placeholder={t("mutuelle.lienPlaceholder")} className={inputCls} />
                 </div>
               </div>
 
@@ -304,7 +304,7 @@ export default function PatientsClient({ initialPatients }: Props) {
               {editingPatient && (
                 <button type="button" onClick={() => { handleArchiveStart(editingPatient); setModalOpen(false); }}
                   className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors">
-                  Archiver
+                  {t("archive.archive")}
                 </button>
               )}
               <div className="ms-auto flex items-center gap-3">
@@ -326,30 +326,30 @@ export default function PatientsClient({ initialPatients }: Props) {
       {archiveTarget && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
-            <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">Archiver ce patient ?</h3>
+            <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("archive.title")}</h3>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              {archiveTarget.first_name} {archiveTarget.last_name} et toutes ses données seront masquées :
+              {t("archive.subtitle", { name: `${archiveTarget.first_name} ${archiveTarget.last_name}` })}
             </p>
             {archivePreview && (
               <ul className="text-sm text-zinc-600 dark:text-zinc-300 mb-5 space-y-1">
-                {archivePreview.consultations > 0 && <li>• {archivePreview.consultations} visite{archivePreview.consultations > 1 ? "s" : ""}</li>}
-                {archivePreview.factures > 0 && <li>• {archivePreview.factures} facture{archivePreview.factures > 1 ? "s" : ""}</li>}
-                {archivePreview.appointments > 0 && <li>• {archivePreview.appointments} rendez-vous</li>}
-                {archivePreview.ordonnances > 0 && <li>• {archivePreview.ordonnances} ordonnance{archivePreview.ordonnances > 1 ? "s" : ""}</li>}
+                {archivePreview.consultations > 0 && <li>• {t("archive.visites", { count: archivePreview.consultations })}</li>}
+                {archivePreview.factures > 0 && <li>• {t("archive.factures", { count: archivePreview.factures })}</li>}
+                {archivePreview.appointments > 0 && <li>• {t("archive.rdv", { count: archivePreview.appointments })}</li>}
+                {archivePreview.ordonnances > 0 && <li>• {t("archive.ordonnances", { count: archivePreview.ordonnances })}</li>}
                 {archivePreview.consultations === 0 && archivePreview.factures === 0 && archivePreview.appointments === 0 && archivePreview.ordonnances === 0 && (
-                  <li className="text-zinc-400">Aucune donnée liée.</li>
+                  <li className="text-zinc-400">{t("archive.noData")}</li>
                 )}
               </ul>
             )}
-            <p className="text-xs text-zinc-400 mb-5">Les données sont conservées et récupérables depuis les archives.</p>
+            <p className="text-xs text-zinc-400 mb-5">{t("archive.kept")}</p>
             <div className="flex gap-2 justify-end">
               <button onClick={() => { setArchiveTarget(null); setArchivePreview(null); }}
                 className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                Annuler
+                {t("form.cancel")}
               </button>
               <button onClick={handleArchiveConfirm} disabled={archiveLoading}
                 className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-                {archiveLoading ? "Archivage…" : "Archiver"}
+                {archiveLoading ? t("archive.archiving") : t("archive.archive")}
               </button>
             </div>
           </div>
