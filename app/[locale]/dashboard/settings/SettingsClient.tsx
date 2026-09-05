@@ -15,6 +15,7 @@ interface Member {
   last_name: string;
   created_at: string;
   is_approved: boolean;
+  deactivated_at: string | null;
 }
 
 interface Props {
@@ -238,11 +239,15 @@ export default function SettingsClient({
     }
   }
 
-  async function handleRemoveMember(id: string) {
-    if (!confirm("Supprimer ce membre ? Cette action est irréversible.")) return;
-    const res = await fetch(`/api/members?id=${id}`, { method: "DELETE" });
+  async function setMemberActive(id: string, action: "deactivate" | "reactivate") {
+    if (action === "deactivate" && !confirm("Désactiver ce membre ? Il ne pourra plus se connecter, mais son compte et ses données (patients, factures…) sont conservés. Vous pourrez le réactiver à tout moment.")) return;
+    const res = await fetch("/api/members", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ memberId: id, action }),
+    });
     if (res.ok) {
-      setMembers(prev => prev.filter(m => m.id !== id));
+      setMembers(prev => prev.map(m => m.id === id ? { ...m, deactivated_at: action === "deactivate" ? new Date().toISOString() : null } : m));
     }
   }
 
@@ -436,18 +441,25 @@ export default function SettingsClient({
                   <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
                     {m.first_name} {m.last_name}
                     {m.role !== "owner" && (
-                      m.is_approved
-                        ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">Actif</span>
-                        : <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">En attente</span>
+                      m.deactivated_at
+                        ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400">Désactivé</span>
+                        : m.is_approved
+                          ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">Actif</span>
+                          : <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">En attente</span>
                     )}
                   </p>
                   <p className="text-xs text-zinc-400">{ROLE_LABEL[m.role]}</p>
                 </div>
                 {isOwner && m.role !== "owner" && (
-                  <button onClick={() => handleRemoveMember(m.id)}
-                    className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded transition-colors">
-                    Supprimer
-                  </button>
+                  m.deactivated_at
+                    ? <button onClick={() => setMemberActive(m.id, "reactivate")}
+                        className="text-xs text-emerald-500 hover:text-emerald-600 px-2 py-1 rounded transition-colors">
+                        Réactiver
+                      </button>
+                    : <button onClick={() => setMemberActive(m.id, "deactivate")}
+                        className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded transition-colors">
+                        Désactiver
+                      </button>
                 )}
               </div>
             ))}

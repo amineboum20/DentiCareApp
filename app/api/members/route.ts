@@ -62,10 +62,18 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true, userId: invited.user.id });
 }
 
-export async function DELETE(req: NextRequest) {
+// Deactivate / reactivate a member. We deliberately do NOT hard-delete: the
+// auth account and everything the member authored (patients, factures…) are
+// kept. A deactivated member simply can't sign in (the dashboard blocks them).
+export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { memberId, action } = await req.json();
+  if (action !== "deactivate" && action !== "reactivate") {
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+  }
 
   const { data: caller } = await supabase
     .from("practice_members")
@@ -74,28 +82,24 @@ export async function DELETE(req: NextRequest) {
     .single();
 
   if (caller?.role !== "owner") {
-    return NextResponse.json({ error: "Only owners can remove members" }, { status: 403 });
+    return NextResponse.json({ error: "Only owners can manage members" }, { status: 403 });
   }
-
-  const memberId = new URL(req.url).searchParams.get("id");
-  if (!memberId) return NextResponse.json({ error: "Missing member id" }, { status: 400 });
 
   const { data: target } = await supabase
     .from("practice_members")
-    .select("user_id, role")
+    .select("role")
     .eq("id", memberId)
     .single();
 
-  if (target?.role === "owner") {
-    return NextResponse.json({ error: "Cannot remove the practice owner" }, { status: 400 });
-  }
+  if (!target) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+  if (target.role === "owner") return NextResponse.json({ error: "Cannot deactivate the owner" }, { status: 400 });
 
-  await supabase.from("practice_members").delete().eq("id", memberId);
+  const deactivated_at = action === "deactivate" ? new Date().toISOString() : null;
+  const { error } = await supabase
+    .from("practice_members")
+    .update({ deactivated_at })
+    .eq("id", memberId);
 
-  if (target?.user_id) {
-    const admin = createAdminClient();
-    await admin.auth.admin.deleteUser(target.user_id);
-  }
-
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }

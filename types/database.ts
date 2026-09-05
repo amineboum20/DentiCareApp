@@ -34,6 +34,8 @@ export interface PracticeMember {
   role: MemberRole
   first_name: string
   last_name: string
+  is_approved: boolean | null
+  deactivated_at: string | null
   created_at: string
 }
 

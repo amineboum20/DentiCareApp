@@ -15,6 +15,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { member, user } = result;
   const practice = member.practices;
 
+  // Deactivated members keep their account and data but lose dashboard access.
+  if (member.deactivated_at) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center px-6">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-10 text-center max-w-md w-full">
+          <span className="text-5xl">🔒</span>
+          <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">Accès désactivé</h1>
+          <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            Votre accès au cabinet <strong>{practice?.name}</strong> a été désactivé. Contactez le propriétaire du cabinet pour le réactiver.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Two gates: the practice must be approved (owner signup) and the individual
   // member must be approved (owner-invited members await admin validation).
   const memberApproved = member.is_approved !== false;
