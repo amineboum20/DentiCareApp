@@ -19,7 +19,21 @@ export default function ResetPassword() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
+    (async () => {
+      // Invite links (implicit flow) deliver the session in the URL #fragment;
+      // establish it before reading the user. Recovery (PKCE) already has a
+      // cookie session from the server callback, so there's no fragment.
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+      if (hash.includes("access_token")) {
+        const p = new URLSearchParams(hash.slice(1));
+        const access_token = p.get("access_token");
+        const refresh_token = p.get("refresh_token");
+        if (access_token && refresh_token) {
+          await supabase.auth.setSession({ access_token, refresh_token });
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
+      }
+      const { data } = await supabase.auth.getUser();
       const u = data.user;
       if (u) {
         setAccount({
@@ -28,7 +42,7 @@ export default function ResetPassword() {
           lastName: (u.user_metadata?.last_name as string) ?? "",
         });
       }
-    });
+    })();
   }, []);
 
   // An invited member has their name in metadata; a plain password reset does not.

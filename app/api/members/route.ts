@@ -29,7 +29,11 @@ export async function POST(req: NextRequest) {
   // but they join the owner's existing practice instead of creating a new one.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://denticareapp.com";
   const lang = typeof locale === "string" && locale ? locale : "fr";
-  const redirectTo = `${appUrl}/${lang}/reset-password/callback`;
+  // Invites use the implicit flow — the verify endpoint returns the session in
+  // the URL #fragment, which the server callback can't read. Point straight at
+  // the client reset-password page, which consumes the fragment. (Password
+  // recovery keeps the PKCE /reset-password/callback route, which reads ?code.)
+  const redirectTo = `${appUrl}/${lang}/reset-password`;
 
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { first_name: firstName, last_name: lastName ?? "" },
