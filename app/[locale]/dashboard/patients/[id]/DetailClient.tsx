@@ -144,6 +144,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
         shopName,
         shopAddress,
         shopPhone,
+        patientToken: patient.public_token,
       });
     } finally {
       setPrinting(false);

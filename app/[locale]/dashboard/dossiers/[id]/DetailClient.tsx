@@ -252,6 +252,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
 
   async function downloadFacture(d: Doc) {
     const { data: fitems } = await supabase.from("facture_items").select("description, quantity, unit_price").eq("facture_id", d.id);
+    const { data: pt } = await supabase.from("patients").select("public_token").eq("id", dossier.patient_id).single();
     await exportFacturePdf({
       factureId: d.id, docType: "facture", appointmentId: null, patientName,
       patientPhone: patient.phone ?? null, patientAddress: patient.address ?? null,
@@ -259,6 +260,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       items: (fitems ?? []) as { description: string; quantity: number; unit_price: number }[],
       totalPrice: Number(d.total_price), depositPaid: Math.min(totalPaid, Number(d.total_price)),
       notes: d.notes, shopName, shopAddress, shopPhone, logoUrl,
+      patientToken: (pt as { public_token: string } | null)?.public_token ?? null,
     });
   }
 

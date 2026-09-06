@@ -171,13 +171,15 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       const paid = (acs ?? []).reduce((s, a) => s + Number(a.montant), 0);
       depositPaid = Math.min(paid, Number(facture.total_price));
     }
+    const { data: pat } = await supabase.from("patients").select("public_token, phone, address").eq("id", facture.patient_id).single();
+    const patM = pat as { public_token: string; phone: string | null; address: string | null } | null;
     exportFacturePdf({
       factureId: facture.id,
       docType: facture.type,
       appointmentId: facture.appointment_id,
       patientName: patientName ?? "",
-      patientPhone: null,
-      patientAddress: null,
+      patientPhone: patM?.phone ?? null,
+      patientAddress: patM?.address ?? null,
       createdAt: facture.created_at,
       statusLabel: tfac(facture.status),
       items: items.map(i => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price })),
@@ -185,6 +187,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       depositPaid,
       notes: facture.notes,
       shopName, shopAddress, shopPhone, logoUrl,
+      patientToken: patM?.public_token ?? null,
     });
   }
 

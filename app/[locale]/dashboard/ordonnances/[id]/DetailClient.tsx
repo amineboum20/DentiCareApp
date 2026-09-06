@@ -101,6 +101,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
 
   async function exportPdf() {
     const { exportOrdonnancePdf } = await import("@/utils/pdf-export");
+    const { data: pat } = await supabase.from("patients").select("public_token").eq("id", ordo.patient_id).single();
     await exportOrdonnancePdf({
       ordonnanceId: ordo.id,
       patientName,
@@ -110,6 +111,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
       lines: lignes.map((l) => ({ name: l.name, posologie: l.posologie, duree: l.duree, quantite: l.quantite, instructions: l.instructions })),
       notes: ordo.notes,
       shopName, shopAddress, shopPhone, logoUrl,
+      patientToken: (pat as { public_token: string } | null)?.public_token ?? null,
     });
   }
 

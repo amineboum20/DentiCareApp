@@ -18,6 +18,28 @@
       "absente": "Absente"
     }
   },
+  "portal": {
+    "title": "Espace patient",
+    "dobPrompt": "Entrez votre date de naissance pour accéder à votre dossier.",
+    "dobLabel": "Date de naissance",
+    "unlock": "Accéder",
+    "wrongDob": "Date de naissance incorrecte.",
+    "info": "Mes informations",
+    "schema": "Mon schéma dentaire",
+    "factures": "Factures",
+    "ordonnances": "Ordonnances",
+    "visites": "Visites",
+    "none": "Aucun",
+    "download": "Télécharger",
+    "downloadSheet": "Ma fiche",
+    "footer": "Document fourni par votre cabinet dentaire.",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "cin": "N° CIN",
+    "address": "Adresse",
+    "mutuelle": "Mutuelle",
+    "teeth": "Dents"
+  },
   "nav": {
     "features": "Fonctionnalités",
     "howItWorks": "Comment ça marche",

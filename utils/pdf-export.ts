@@ -1,6 +1,25 @@
+import type { jsPDF } from "jspdf";
+import { patientPortalUrl } from "@/utils/site";
+
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR");
+}
+
+// Patient-portal QR, bottom-right. Scans to the DOB-gated patient page.
+async function drawPortalQr(doc: jsPDF, token: string | null | undefined, W: number) {
+  if (!token) return;
+  try {
+    const QRCode = (await import("qrcode")).default;
+    const dataUrl = await QRCode.toDataURL(patientPortalUrl(token), { width: 160, margin: 1 });
+    const size = 20, x = W - 20 - size, y = 258;
+    doc.addImage(dataUrl, "PNG", x, y, size, size);
+    doc.setFontSize(6);
+    doc.setTextColor(150, 150, 150);
+    doc.text("Mon espace patient", x + size / 2, y + size + 3, { align: "center" });
+  } catch {
+    /* QR is best-effort */
+  }
 }
 
 async function loadLogoDataUrl(
@@ -46,6 +65,7 @@ export async function exportFacturePdf(opts: {
   shopAddress: string;
   shopPhone: string;
   logoUrl: string | null;
+  patientToken?: string | null;
 }) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -198,7 +218,8 @@ export async function exportFacturePdf(opts: {
     doc.text(noteLines, ml + 28, y);
   }
 
-  // QR code linking to appointment track page
+  // QR code linking to appointment track page (bottom-left, to leave the
+  // bottom-right corner for the patient-portal QR).
   try {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     if (origin && opts.appointmentId) {
@@ -207,12 +228,14 @@ export async function exportFacturePdf(opts: {
         width: 120,
         margin: 1,
       });
-      doc.addImage(qrDataUrl, "PNG", mr - 24, 254, 24, 24);
+      doc.addImage(qrDataUrl, "PNG", ml, 258, 20, 20);
       doc.setFontSize(6);
       doc.setTextColor(160, 160, 160);
-      doc.text("Suivi du RDV", mr - 12, 280, { align: "center" });
+      doc.text("Suivi du RDV", ml + 10, 281, { align: "center" });
     }
   } catch { /* skip */ }
+
+  await drawPortalQr(doc, opts.patientToken, W);
 
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);
@@ -240,6 +263,7 @@ export async function exportOrdonnancePdf(opts: {
   shopAddress?: string;
   shopPhone?: string;
   logoUrl?: string | null;
+  patientToken?: string | null;
 }) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -370,6 +394,8 @@ export async function exportOrdonnancePdf(opts: {
   doc.setTextColor(160, 160, 160);
   doc.text("Signature / cachet", mr, 266, { align: "right" });
 
+  await drawPortalQr(doc, opts.patientToken, W);
+
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
@@ -390,6 +416,7 @@ export async function exportCarePlanPdf(opts: {
   shopAddress?: string;
   shopPhone?: string;
   logoUrl?: string | null;
+  patientToken?: string | null;
 }) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -510,6 +537,8 @@ export async function exportCarePlanPdf(opts: {
     const noteLines = doc.splitTextToSize(opts.notes, mr - ml - 28);
     doc.text(noteLines, ml + 28, y);
   }
+
+  await drawPortalQr(doc, opts.patientToken, W);
 
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);

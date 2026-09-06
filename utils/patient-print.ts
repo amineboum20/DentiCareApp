@@ -1,6 +1,7 @@
 // Printable patient sheet: patient info + the odontogram, as a one-page PDF.
 
 import { STATUS_COLORS, STATUS_KEYS, buildOdontogramSvg } from "@/components/odontogram-data";
+import { patientPortalUrl } from "@/utils/site";
 
 const STATUS_FR: Record<string, string> = {
   carie: "Carie", obturee: "Obturée", couronne: "Couronne", a_traiter: "À traiter",
@@ -22,6 +23,7 @@ export interface PatientPrintOpts {
   shopName: string;
   shopAddress?: string;
   shopPhone?: string;
+  patientToken?: string | null;
 }
 
 function fmtDate(iso: string): string {
@@ -109,6 +111,17 @@ export async function exportPatientInfoPdf(o: PatientPrintOpts): Promise<void> {
     doc.text(STATUS_FR[key], lx + 4.5, ly);
     lx += 46;
     if (lx > mr - 30) { lx = ml; ly += 6; }
+  }
+
+  if (o.patientToken) {
+    try {
+      const QRCode = (await import("qrcode")).default;
+      const qr = await QRCode.toDataURL(patientPortalUrl(o.patientToken), { width: 160, margin: 1 });
+      const size = 20, qx = W - 18 - size, qy = 262;
+      doc.addImage(qr, "PNG", qx, qy, size, size);
+      doc.setFontSize(6); doc.setTextColor(150, 150, 150);
+      doc.text("Mon espace patient", qx + size / 2, qy + size + 3, { align: "center" });
+    } catch { /* best-effort */ }
   }
 
   doc.setFontSize(7); doc.setTextColor(160, 160, 160);

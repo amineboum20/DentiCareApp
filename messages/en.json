@@ -18,6 +18,28 @@
       "absente": "Missing"
     }
   },
+  "portal": {
+    "title": "Patient portal",
+    "dobPrompt": "Enter your date of birth to access your record.",
+    "dobLabel": "Date of birth",
+    "unlock": "Access",
+    "wrongDob": "Incorrect date of birth.",
+    "info": "My information",
+    "schema": "My dental chart",
+    "factures": "Invoices",
+    "ordonnances": "Prescriptions",
+    "visites": "Visits",
+    "none": "None",
+    "download": "Download",
+    "downloadSheet": "My sheet",
+    "footer": "Document provided by your dental practice.",
+    "phone": "Phone",
+    "email": "Email",
+    "cin": "CIN no.",
+    "address": "Address",
+    "mutuelle": "Insurance",
+    "teeth": "Teeth"
+  },
   "nav": {
     "features": "Features",
     "howItWorks": "How it works",
