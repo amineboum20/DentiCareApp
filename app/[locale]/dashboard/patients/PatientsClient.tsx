@@ -270,7 +270,7 @@ export default function PatientsClient({ initialPatients }: Props) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.dob")}</label>
                   <input type="date" {...field("date_of_birth")} className={inputCls} />
@@ -299,7 +299,7 @@ export default function PatientsClient({ initialPatients }: Props) {
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("mutuelle.organisme")}</label>
                   <input {...field("mutuelle_organisme")} placeholder={t("mutuelle.organismePlaceholder")} className={inputCls} />

@@ -236,7 +236,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
                         <input placeholder={t("detail.medShort")} value={l.name} onChange={(e) => setEditLines((xs) => xs.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} className={`flex-1 ${inputCls}`} />
                         <button type="button" onClick={() => setEditLines((xs) => xs.length > 1 ? xs.filter((_, j) => j !== i) : xs)} className="text-zinc-300 hover:text-red-500 text-sm shrink-0">✕</button>
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <input placeholder={t("form.posologie")} value={l.posologie} onChange={(e) => setEditLines((xs) => xs.map((x, j) => j === i ? { ...x, posologie: e.target.value } : x))} className={inputCls} />
                         <input placeholder={t("form.duree")} value={l.duree} onChange={(e) => setEditLines((xs) => xs.map((x, j) => j === i ? { ...x, duree: e.target.value } : x))} className={inputCls} />
                         <input placeholder={t("form.quantite")} value={l.quantite} onChange={(e) => setEditLines((xs) => xs.map((x, j) => j === i ? { ...x, quantite: e.target.value } : x))} className={inputCls} />

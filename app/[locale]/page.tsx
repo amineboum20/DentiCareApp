@@ -144,7 +144,7 @@ function ModalContent({ featureKey }: { featureKey: string }) {
       const max = Math.max(...values);
       return (
         <div>
-          <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
             {[
               { label: "CA (Août)", value: "42 800 MAD", trend: "+14%", up: true },
               { label: "Factures", value: "47", trend: "+8%", up: true },
