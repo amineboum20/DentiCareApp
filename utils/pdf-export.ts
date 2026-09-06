@@ -22,7 +22,7 @@ async function drawPortalQr(doc: jsPDF, token: string | null | undefined, W: num
   }
 }
 
-async function loadLogoDataUrl(
+export async function loadLogoDataUrl(
   url: string
 ): Promise<{ dataUrl: string; aspect: number } | null> {
   try {
@@ -44,6 +44,54 @@ async function loadLogoDataUrl(
     return { dataUrl, aspect };
   } catch {
     return null;
+  }
+}
+
+// Brand mark shown in the footer of every generated document.
+// No real DentiCare logo yet → use the tooth emoji (same as the favicon).
+// Swap this for an image data URL when a real logo exists.
+export const APP_EMOJI = "🦷";
+
+// jsPDF's built-in fonts can't render emoji glyphs, so rasterise the emoji to a
+// transparent PNG via canvas and embed that image instead.
+export function emojiPngDataUrl(emoji: string, px = 96): string | null {
+  if (typeof document === "undefined") return null;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = px;
+    canvas.height = px;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.font = `${Math.floor(px * 0.8)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(emoji, px / 2, px / 2 + px * 0.06);
+    return canvas.toDataURL("image/png");
+  } catch {
+    return null;
+  }
+}
+
+// Draw "[brand] <text>" as one centered or right-aligned footer group. Assumes
+// the caller has already set the footer font size and colour.
+export function drawBrandedFooter(
+  doc: jsPDF,
+  brandImg: string | null,
+  text: string,
+  anchorX: number,
+  y: number,
+  align: "center" | "right",
+  markSize = 3.2
+) {
+  const gap = 1.2;
+  const textW = doc.getTextWidth(text);
+  const totalW = (brandImg ? markSize + gap : 0) + textW;
+  const startX = align === "center" ? anchorX - totalW / 2 : anchorX - totalW;
+  if (brandImg) {
+    doc.addImage(brandImg, "PNG", startX, y - markSize + 0.7, markSize, markSize);
+    doc.text(text, startX + markSize + gap, y);
+  } else {
+    doc.text(text, startX, y);
   }
 }
 
@@ -85,17 +133,12 @@ export async function exportFacturePdf(opts: {
       logoData.dataUrl.startsWith("data:image/png") ? "PNG" : "JPEG",
       ml, 12, imgW, imgH
     );
-  } else {
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(20, 20, 20);
-    doc.text("DentiCare", ml, 22);
   }
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(20, 20, 20);
-  doc.text(opts.shopName || "DentiCare", mr, 17, { align: "right" });
+  if (opts.shopName) doc.text(opts.shopName, mr, 17, { align: "right" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(90, 90, 90);
@@ -240,9 +283,10 @@ export async function exportFacturePdf(opts: {
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
-  doc.text(
+  drawBrandedFooter(
+    doc, emojiPngDataUrl(APP_EMOJI),
     `Généré par DentiCare · ${invoiceNumber} · ${fmtDate(opts.createdAt)}`,
-    W / 2, 289, { align: "center" }
+    W / 2, 289, "center", 3.2
   );
 
   doc.save(
@@ -278,17 +322,12 @@ export async function exportOrdonnancePdf(opts: {
     const imgW = logoData.aspect > maxW / maxH ? maxW : maxH * logoData.aspect;
     const imgH = logoData.aspect > maxW / maxH ? maxW / logoData.aspect : maxH;
     doc.addImage(logoData.dataUrl, logoData.dataUrl.startsWith("data:image/png") ? "PNG" : "JPEG", ml, 12, imgW, imgH);
-  } else {
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(20, 20, 20);
-    doc.text("DentiCare", ml, 22);
   }
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(20, 20, 20);
-  doc.text(opts.shopName || "DentiCare", mr, 17, { align: "right" });
+  if (opts.shopName) doc.text(opts.shopName, mr, 17, { align: "right" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(90, 90, 90);
@@ -399,7 +438,7 @@ export async function exportOrdonnancePdf(opts: {
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
-  doc.text(`Généré par DentiCare · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, { align: "center" });
+  drawBrandedFooter(doc, emojiPngDataUrl(APP_EMOJI), `Généré par DentiCare · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, "center", 3.2);
 
   doc.save(`ordonnance-${number}-${opts.patientName.replace(/\s+/g, "-")}.pdf`);
 }
@@ -434,17 +473,12 @@ export async function exportCarePlanPdf(opts: {
       logoData.dataUrl.startsWith("data:image/png") ? "PNG" : "JPEG",
       ml, 12, imgW, imgH
     );
-  } else {
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(20, 20, 20);
-    doc.text("DentiCare", ml, 22);
   }
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(20, 20, 20);
-  doc.text(opts.shopName || "DentiCare", mr, 17, { align: "right" });
+  if (opts.shopName) doc.text(opts.shopName, mr, 17, { align: "right" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(90, 90, 90);
@@ -543,9 +577,10 @@ export async function exportCarePlanPdf(opts: {
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
-  doc.text(
+  drawBrandedFooter(
+    doc, emojiPngDataUrl(APP_EMOJI),
     `Généré par DentiCare · ${fmtDate(opts.createdAt)}`,
-    W / 2, 289, { align: "center" }
+    W / 2, 289, "center", 3.2
   );
 
   doc.save(

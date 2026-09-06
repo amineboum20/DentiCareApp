@@ -95,7 +95,7 @@ export default function PortalClient({ token }: { token: string }) {
       phone: data!.patient.phone, address: data!.patient.address,
       mutuelleOrganisme: data!.patient.mutuelleOrganisme, mutuelleNumero: data!.patient.mutuelleNumero, mutuelleLien: data!.patient.mutuelleLien,
       chart, isChild: isChildAge(data!.patient.dob),
-      shopName: cabinet.shopName, shopAddress: cabinet.shopAddress, shopPhone: cabinet.shopPhone,
+      shopName: cabinet.shopName, shopAddress: cabinet.shopAddress, shopPhone: cabinet.shopPhone, logoUrl: cabinet.logoUrl,
       patientToken: token,
     });
   }

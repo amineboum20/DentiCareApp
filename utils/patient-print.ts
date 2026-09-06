@@ -2,6 +2,7 @@
 
 import { STATUS_COLORS, STATUS_KEYS, buildOdontogramSvg } from "@/components/odontogram-data";
 import { patientPortalUrl } from "@/utils/site";
+import { APP_EMOJI, drawBrandedFooter, emojiPngDataUrl, loadLogoDataUrl } from "@/utils/pdf-export";
 
 const STATUS_FR: Record<string, string> = {
   carie: "Carie", obturee: "Obturée", couronne: "Couronne", a_traiter: "À traiter",
@@ -23,6 +24,7 @@ export interface PatientPrintOpts {
   shopName: string;
   shopAddress?: string;
   shopPhone?: string;
+  logoUrl?: string | null;
   patientToken?: string | null;
 }
 
@@ -58,12 +60,20 @@ export async function exportPatientInfoPdf(o: PatientPrintOpts): Promise<void> {
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const W = 210, ml = 18, mr = W - 18;
 
+  let logoData: { dataUrl: string; aspect: number } | null = null;
+  if (o.logoUrl) logoData = await loadLogoDataUrl(o.logoUrl);
+  if (logoData) {
+    const maxW = 34, maxH = 16;
+    const imgW = logoData.aspect > maxW / maxH ? maxW : maxH * logoData.aspect;
+    const imgH = logoData.aspect > maxW / maxH ? maxW / logoData.aspect : maxH;
+    doc.addImage(logoData.dataUrl, logoData.dataUrl.startsWith("data:image/png") ? "PNG" : "JPEG", ml, 9, imgW, imgH);
+  }
   doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(20, 20, 20);
-  doc.text(o.shopName || "DentiCare", ml, 18);
+  if (o.shopName) doc.text(o.shopName, mr, 16, { align: "right" });
   doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(110, 110, 110);
-  let hy = 23;
-  if (o.shopAddress) { doc.text(o.shopAddress, ml, hy); hy += 4; }
-  if (o.shopPhone) { doc.text(o.shopPhone, ml, hy); hy += 4; }
+  let hy = 21;
+  if (o.shopAddress) { doc.text(o.shopAddress, mr, hy, { align: "right" }); hy += 4; }
+  if (o.shopPhone) { doc.text(o.shopPhone, mr, hy, { align: "right" }); hy += 4; }
   doc.setDrawColor(200, 200, 200); doc.line(ml, 30, mr, 30);
 
   doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(20, 20, 20);
@@ -125,6 +135,6 @@ export async function exportPatientInfoPdf(o: PatientPrintOpts): Promise<void> {
   }
 
   doc.setFontSize(7); doc.setTextColor(160, 160, 160);
-  doc.text(`Généré par DentiCare · ${fmtDate(new Date().toISOString())}`, W / 2, 291, { align: "center" });
+  drawBrandedFooter(doc, emojiPngDataUrl(APP_EMOJI), `Généré par DentiCare · ${fmtDate(new Date().toISOString())}`, W / 2, 291, "center", 3.2);
   doc.save(`fiche-${o.patientName.replace(/\s+/g, "-")}.pdf`);
 }

@@ -63,7 +63,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   const tv = useTranslations("visites");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
-  const { shopName, shopAddress, shopPhone } = useAppContext();
+  const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
   const [patient, setPatient] = useState<Patient>(initialPatient);
   const [isMobile, setIsMobile] = useState(false);
   const [printing, setPrinting] = useState(false);
@@ -144,6 +144,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
         shopName,
         shopAddress,
         shopPhone,
+        logoUrl,
         patientToken: patient.public_token,
       });
     } finally {
