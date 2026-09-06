@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { TreatmentCategory } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
@@ -67,6 +67,9 @@ function computedPrice(pkg: Package): number {
 export default function TraitementsClient({ initialTraitements, actes }: Props) {
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split("/")[1];
   const { practiceId, currentUserId } = useAppContext();
   const t = useTranslations("traitements");
   const tcat = useTranslations("categories");
@@ -99,23 +102,6 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
     setEditing(null);
     setForm(emptyForm);
     setLines([{ acte_id: actes[0]?.id ?? "", quantity: "1" }]);
-    setError("");
-    setModalOpen(true);
-  }
-
-  function openEdit(p: Package) {
-    setEditing(p);
-    setForm({
-      name: p.name,
-      category: p.category,
-      description: p.description ?? "",
-      notes: p.notes ?? "",
-      price_override: p.price_override != null ? String(p.price_override) : "",
-    });
-    const sorted = [...p.traitement_actes].sort((a, b) => a.sort_order - b.sort_order);
-    setLines(sorted.length
-      ? sorted.map(l => ({ acte_id: l.acte_id, quantity: String(l.quantity) }))
-      : [{ acte_id: actes[0]?.id ?? "", quantity: "1" }]);
     setError("");
     setModalOpen(true);
   }
@@ -262,7 +248,7 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
                 {filtered.map((p) => (
                   <tr
                     key={p.id}
-                    onClick={() => openEdit(p)}
+                    onClick={() => router.push(`/${locale}/dashboard/traitements/${p.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{p.name}</td>

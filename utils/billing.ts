@@ -1,6 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type BillableActe = { id: string; name: string; price: number; quantity?: number };
+export type BillableActe = { id: string; name: string; price: number; quantity?: number; teeth?: string[] | null; category?: string | null; tooth_status?: string | null };
+
+// A tooth-scoped acte reflects its result on the odontogram (tooth_chart).
+// Only structural categories map to a tooth state; cleaning/whitening/ortho don't.
+const CATEGORY_TO_TOOTH_STATUS: Record<string, string> = {
+  obturation: "obturee",
+  extraction: "absente",
+  couronne: "couronne",
+  implant: "implant",
+  prothese: "prothese",
+};
 
 /**
  * Bill one or more actes into a dossier: append them as lines to the dossier's
@@ -38,11 +48,30 @@ export async function billActesToDossier(
   }
   if (!target) return;
 
-  const rows = lines.map((a) => ({
-    facture_id: target!.id, acte_id: a.id, description: a.name,
-    quantity: a.quantity ?? 1, unit_price: a.price, acte_date: acteDate ?? null,
-  }));
+  const rows = lines.map((a) => {
+    const teeth = a.teeth && a.teeth.length ? a.teeth : null;
+    return {
+      facture_id: target!.id, acte_id: a.id, description: a.name,
+      quantity: teeth ? teeth.length : (a.quantity ?? 1),
+      unit_price: a.price, acte_date: acteDate ?? null, teeth,
+    };
+  });
   await supabase.from("facture_items").insert(rows);
   const added = rows.reduce((s, r) => s + r.quantity * r.unit_price, 0);
   await supabase.from("factures").update({ total_price: Number(target.total_price) + added }).eq("id", target.id);
+
+  // Reflect tooth-scoped structural actes on the patient's odontogram.
+  const now = new Date().toISOString();
+  const toothRows = lines.flatMap((a) => {
+    const status = a.tooth_status || (a.category ? CATEGORY_TO_TOOTH_STATUS[a.category] : undefined);
+    const teeth = a.teeth && a.teeth.length ? a.teeth : null;
+    if (!status || !teeth) return [];
+    return teeth.map((tooth) => ({
+      practice_id: practiceId, patient_id: patientId, tooth, status,
+      user_id: userId, created_by: userId, updated_by: userId, updated_at: now,
+    }));
+  });
+  if (toothRows.length > 0) {
+    await supabase.from("tooth_chart").upsert(toothRows, { onConflict: "patient_id,tooth" });
+  }
 }

@@ -107,12 +107,17 @@ export interface Acompte {
   created_by: string | null
 }
 
+// Whole-mouth acte (détartrage, radio pano…) vs tooth-specific (obturation, extraction…).
+export type ActeScope = "mouth" | "tooth"
+
 // Acte = atomic billable procedure (radio, détartrage, extraction…). Was "Traitement".
 export interface Acte {
   id: string
   practice_id: string
   name: string
   category: TreatmentCategory
+  scope: ActeScope
+  tooth_status: string | null
   price: number
   code: string | null
   duration_minutes: number
@@ -177,6 +182,7 @@ export interface FactureItem {
   quantity: number
   unit_price: number
   acte_date: string | null
+  teeth: string[] | null
 }
 
 export interface Appointment {

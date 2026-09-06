@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type {
   DossierWithPatient, DossierStatut, ConsultationMotif,
-  FactureDocType, FactureStatus, AcompteMoyen, AppointmentType,
+  FactureDocType, FactureStatus, AcompteMoyen, AppointmentType, ActeScope,
 } from "@/types/database";
+import ToothPicker from "@/components/ToothPicker";
 import { useAppContext } from "@/components/AppContext";
 import { DR } from "@/components/DetailRow";
 import { exportFacturePdf } from "@/utils/pdf-export";
@@ -36,7 +37,8 @@ type Rdv = {
   id: string; title: string; scheduled_at: string; duration_minutes: number | null; type: string; status: string; notes: string | null;
 };
 type LineItem = { description: string; quantity: string; unit_price: string; acte_id?: string | null };
-type ActeLite = { id: string; name: string; price: number };
+type ActeLite = { id: string; name: string; price: number; scope?: ActeScope; category?: string; tooth_status?: string | null };
+type BillActe = ActeLite & { teeth?: string[] };
 type PackageLite = { id: string; name: string; price_override: number | null; lines: { quantity: number; name: string; price: number; acte_id: string }[] };
 
 const STATUT_STYLE: Record<string, string> = {
@@ -99,7 +101,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       supabase.from("consultations").select("id, motif, exam_date, teeth, treated_by, clinical_notes").eq("dossier_id", dossier.id).order("exam_date", { ascending: false }),
       supabase.from("factures").select("id, type, status, total_price, created_at, notes").eq("dossier_id", dossier.id).order("created_at", { ascending: false }),
       supabase.from("acomptes").select("id, montant, date_paiement, moyen, note").eq("dossier_id", dossier.id).order("date_paiement", { ascending: false }),
-      supabase.from("actes").select("id, name, price").order("name", { ascending: true }),
+      supabase.from("actes").select("id, name, price, scope, category, tooth_status").order("name", { ascending: true }),
       supabase.from("traitements").select("id, name, price_override, traitement_actes(quantity, acte_id, actes(name, price))").order("name", { ascending: true }),
       supabase.from("appointments").select("id, title, scheduled_at, duration_minutes, type, status, notes").eq("dossier_id", dossier.id).order("scheduled_at", { ascending: false }),
       supabase.from("ordonnances").select("id, date, prescriber").eq("dossier_id", dossier.id).is("archived_at", null).order("date", { ascending: false }),
@@ -304,7 +306,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   // ─── add visite ───
   const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), treated_by: "", praticien_id: "", clinical_notes: "", bill: true };
   const [visiteForm, setVisiteForm] = useState(emptyVisite);
-  const [visiteBillActes, setVisiteBillActes] = useState<ActeLite[]>([]);
+  const [visiteBillActes, setVisiteBillActes] = useState<BillActe[]>([]);
   function openVisite() {
     const cons = actes.find((a) => a.name.toLowerCase() === "consultation") ?? actes[0];
     setVisiteForm({ ...emptyVisite });
@@ -721,17 +723,27 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                     {visiteBillActes.length > 0 && (
                       <div className="space-y-1">
                         {visiteBillActes.map((a, i) => (
-                          <div key={i} className="flex items-center justify-between rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1.5">
-                            <span className="text-sm text-zinc-800 dark:text-zinc-200 truncate">{a.name}</span>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-xs text-zinc-500">{a.price.toFixed(2)} MAD</span>
-                              <button type="button" onClick={() => setVisiteBillActes((xs) => xs.filter((_, j) => j !== i))} className="text-zinc-300 hover:text-red-500 text-sm">✕</button>
+                          <div key={i} className="rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-zinc-800 dark:text-zinc-200 truncate">{a.name}</span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-xs text-zinc-500">{a.price.toFixed(2)} MAD</span>
+                                <button type="button" onClick={() => setVisiteBillActes((xs) => xs.filter((_, j) => j !== i))} className="text-zinc-300 hover:text-red-500 text-sm">✕</button>
+                              </div>
                             </div>
+                            {a.scope === "tooth" && (
+                              <div className="mt-2">
+                                <ToothPicker value={a.teeth ?? []} onChange={(teeth) => setVisiteBillActes((xs) => xs.map((x, j) => (j === i ? { ...x, teeth } : x)))} />
+                                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 text-center">
+                                  {a.teeth && a.teeth.length ? a.teeth.join(", ") : t("teethPlaceholder")}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
                     )}
-                    <select value="" onChange={(e) => { const a = actes.find((x) => x.id === e.target.value); if (a) setVisiteBillActes((xs) => [...xs, a]); }} className={inputCls}>
+                    <select value="" onChange={(e) => { const a = actes.find((x) => x.id === e.target.value); if (a) setVisiteBillActes((xs) => [...xs, { ...a, teeth: [] }]); }} className={inputCls}>
                       <option value="">+ {t("addActeShort")}</option>
                       {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                     </select>

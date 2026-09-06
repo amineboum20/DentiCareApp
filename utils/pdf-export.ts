@@ -105,7 +105,7 @@ export async function exportFacturePdf(opts: {
   patientAddress: string | null;
   createdAt: string;
   statusLabel: string;
-  items: Array<{ description: string; quantity: number; unit_price: number }>;
+  items: Array<{ description: string; quantity: number; unit_price: number; teeth?: string[] | null }>;
   totalPrice: number;
   depositPaid: number;
   notes: string | null;
@@ -220,6 +220,13 @@ export async function exportFacturePdf(opts: {
     doc.text(item.unit_price.toFixed(2), colUnit, y, { align: "right" });
     doc.text(lineTotal.toFixed(2), colTot, y, { align: "right" });
     y += 7;
+    if (item.teeth && item.teeth.length > 0) {
+      doc.setFontSize(7.5);
+      doc.setTextColor(120, 120, 120);
+      doc.text(`Dents : ${item.teeth.join(", ")}`, colDesc + 2, y - 2.5);
+      doc.setFontSize(9);
+      y += 4;
+    }
     doc.setDrawColor(235, 235, 235);
     doc.line(ml, y - 2, mr, y - 2);
   }

@@ -4,10 +4,13 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import type { ConsultationWithPatient, ConsultationMotif } from "@/types/database";
+import type { ConsultationWithPatient, ConsultationMotif, ActeScope } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
+import { useAppContext } from "@/components/AppContext";
+import { billActesToDossier } from "@/utils/billing";
+import ToothPicker from "@/components/ToothPicker";
 
 interface Props {
   consultation: ConsultationWithPatient & { dossiers?: { id: string; title: string; statut: string } | { id: string; title: string; statut: string }[] | null };
@@ -51,6 +54,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
   const router = useRouter();
   const t = useTranslations("visites");
   const tc = useTranslations("common");
+  const { practiceId, currentUserId } = useAppContext();
 
   const dossierRel = initialConsultation.dossiers;
   const dossier = Array.isArray(dossierRel) ? (dossierRel[0] ?? null) : (dossierRel ?? null);
@@ -60,6 +64,26 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
     supabase.from("ordonnances").select("id, date, prescriber").eq("consultation_id", initialConsultation.id).is("archived_at", null).order("date", { ascending: false })
       .then(({ data }) => setOrdonnances((data ?? []) as { id: string; date: string; prescriber: string | null }[]));
   }, [initialConsultation.id, supabase]);
+
+  // Actes billed for this visite (its dossier's facture lines stamped with the exam date).
+  const [acteItems, setActeItems] = useState<{ id: string; description: string; quantity: number; unit_price: number; teeth: string[] | null }[]>([]);
+  useEffect(() => {
+    const dId = Array.isArray(initialConsultation.dossiers) ? initialConsultation.dossiers[0]?.id : initialConsultation.dossiers?.id;
+    if (!dId) return;
+    supabase.from("facture_items")
+      .select("id, description, quantity, unit_price, teeth, factures!inner(dossier_id)")
+      .eq("factures.dossier_id", dId)
+      .eq("acte_date", initialConsultation.exam_date)
+      .then(({ data }) => setActeItems((data ?? []) as unknown as { id: string; description: string; quantity: number; unit_price: number; teeth: string[] | null }[]));
+  }, [initialConsultation.dossiers, initialConsultation.exam_date, supabase]);
+
+  // Acte catalogue + extra actes to append on edit (only newly-added ones are billed).
+  const [actesCatalog, setActesCatalog] = useState<{ id: string; name: string; price: number; scope: ActeScope; category: string; tooth_status: string | null }[]>([]);
+  const [billExtra, setBillExtra] = useState<{ id: string; name: string; price: number; scope?: ActeScope; teeth?: string[]; category?: string; tooth_status?: string | null }[]>([]);
+  useEffect(() => {
+    supabase.from("actes").select("id, name, price, scope, category, tooth_status").order("name")
+      .then(({ data }) => setActesCatalog((data ?? []) as { id: string; name: string; price: number; scope: ActeScope; category: string; tooth_status: string | null }[]));
+  }, [supabase]);
 
   const [consultation, setConsultation] = useState<ConsultationWithPatient>(initialConsultation);
   const [modalOpen, setModalOpen] = useState(false);
@@ -113,6 +137,21 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
     if (error) { setFormError(error.message); setSaving(false); return; }
     setConsultation(data as ConsultationWithPatient);
     setSaving(false); setModalOpen(false);
+  }
+
+  const [addActesOpen, setAddActesOpen] = useState(false);
+  const [savingActes, setSavingActes] = useState(false);
+  async function saveNewActes() {
+    if (!dossier || billExtra.length === 0) { setAddActesOpen(false); return; }
+    setSavingActes(true);
+    await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: consultation.patient_id, dossierId: dossier.id, actes: billExtra, acteDate: consultation.exam_date });
+    const { data: items } = await supabase.from("facture_items")
+      .select("id, description, quantity, unit_price, teeth, factures!inner(dossier_id)")
+      .eq("factures.dossier_id", dossier.id).eq("acte_date", consultation.exam_date);
+    setActeItems((items ?? []) as unknown as { id: string; description: string; quantity: number; unit_price: number; teeth: string[] | null }[]);
+    setBillExtra([]);
+    setSavingActes(false);
+    setAddActesOpen(false);
   }
 
   async function handleDelete() {
@@ -210,6 +249,34 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
           </div>
         )}
 
+        {/* Actes billed at this visite */}
+        {dossier && (
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{t("detail.actesRealises")} <span className="text-zinc-300">({acteItems.length})</span></h2>
+              <button onClick={() => { setBillExtra([]); setAddActesOpen(true); }} className="text-xs px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors">+ {t("detail.addActe")}</button>
+            </div>
+            {acteItems.length === 0 ? (
+              <p className="text-sm text-zinc-400 py-4 text-center">{t("detail.noActe")}</p>
+            ) : (
+              <div className="space-y-2">
+                {acteItems.map((it) => (
+                  <div key={it.id} className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{it.description}</p>
+                      {it.teeth && it.teeth.length > 0 && (
+                        <p className="text-[11px] text-teal-600 dark:text-teal-400">{t("detail.teeth")} : {it.teeth.join(", ")}</p>
+                      )}
+                      <p className="text-xs text-zinc-400">× {it.quantity}</p>
+                    </div>
+                    <span className="text-sm font-medium text-zinc-900 dark:text-white shrink-0">{(it.quantity * it.unit_price).toFixed(2)} MAD</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Ordonnances issued at this visite */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -298,6 +365,46 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
                   {saving ? t("form.saving") : t("form.save")}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add actes modal */}
+      {addActesOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+              <h2 className="font-semibold text-zinc-900 dark:text-white">{t("detail.addActesLabel")}</h2>
+              <button onClick={() => setAddActesOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
+            </div>
+            <div className="px-6 py-5 space-y-2 max-h-[70vh] overflow-y-auto">
+              {billExtra.map((a, i) => (
+                <div key={i} className="rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-zinc-800 dark:text-zinc-200 truncate">{a.name}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs text-zinc-500">{a.price.toFixed(2)} MAD</span>
+                      <button type="button" onClick={() => setBillExtra((xs) => xs.filter((_, j) => j !== i))} className="text-zinc-300 hover:text-red-500 text-sm">✕</button>
+                    </div>
+                  </div>
+                  {a.scope === "tooth" && (
+                    <div className="mt-2">
+                      <ToothPicker value={a.teeth ?? []} onChange={(teeth) => setBillExtra((xs) => xs.map((x, j) => (j === i ? { ...x, teeth } : x)))} />
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 text-center">{a.teeth && a.teeth.length ? a.teeth.join(", ") : t("form.teethPlaceholder")}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <select value="" onChange={(e) => { const a = actesCatalog.find((x) => x.id === e.target.value); if (a) setBillExtra((xs) => [...xs, { id: a.id, name: a.name, price: a.price, scope: a.scope, category: a.category, tooth_status: a.tooth_status, teeth: [] }]); }} className={inputCls}>
+                <option value="">+ {t("detail.addActe")}</option>
+                {actesCatalog.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
+              </select>
+              <p className="text-[11px] text-zinc-400">{t("detail.addActesNote")}</p>
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
+              <button onClick={() => setAddActesOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">{t("form.cancel")}</button>
+              <button onClick={saveNewActes} disabled={savingActes || billExtra.length === 0} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{savingActes ? t("form.saving") : t("form.save")}</button>
             </div>
           </div>
         </div>

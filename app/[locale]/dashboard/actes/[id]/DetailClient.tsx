@@ -4,8 +4,9 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import type { Acte, Supplier, TreatmentCategory } from "@/types/database";
+import type { Acte, ActeScope, Supplier, TreatmentCategory } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import { STATUS_KEYS } from "@/components/odontogram-data";
 
 interface Props {
   acte: Acte;
@@ -30,7 +31,7 @@ const CATEGORIES: TreatmentCategory[] = [
 ];
 
 const emptyForm = {
-  name: "", category: "autre", price: "", code: "", duration_minutes: "",
+  name: "", category: "autre", scope: "mouth" as ActeScope, tooth_status: "", price: "", code: "", duration_minutes: "",
   description: "", notes: "",
 };
 
@@ -40,6 +41,7 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
   const t = useTranslations("actes");
   const tcat = useTranslations("categories");
   const tc = useTranslations("common");
+  const tstatus = useTranslations("toothChart");
 
   const [acte, setActe] = useState<Acte>(initialActe);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -67,6 +69,8 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
     setForm({
       name: acte.name,
       category: acte.category ?? "autre",
+      scope: acte.scope ?? "mouth",
+      tooth_status: acte.tooth_status ?? "",
       price: String(acte.price ?? ""),
       code: acte.code ?? "",
       duration_minutes: String(acte.duration_minutes ?? ""),
@@ -91,6 +95,8 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
     const payload = {
       name: form.name.trim(),
       category: form.category || "autre",
+      scope: form.scope,
+      tooth_status: form.scope === "tooth" ? (form.tooth_status || null) : null,
       price: form.price ? parseFloat(form.price) : 0,
       code: form.code.trim() || null,
       duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
@@ -141,6 +147,8 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
           <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">{t("informations")}</h2>
           <div className="space-y-1">
             <DR label={t("dr.price")} value={acte.price != null ? `${Number(acte.price).toFixed(2)} MAD` : null} />
+            <DR label={t("dr.scope")} value={t(`form.scope_${acte.scope ?? "mouth"}`)} />
+            {acte.scope === "tooth" && acte.tooth_status && <DR label={t("dr.toothResult")} value={tstatus(`status.${acte.tooth_status}`)} />}
             <DR label={t("dr.duration")} value={acte.duration_minutes != null ? `${acte.duration_minutes} min` : null} />
             <DR label={t("dr.description")} value={acte.description} />
             <DR label={t("dr.notes")} value={acte.notes} />
@@ -216,6 +224,31 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
                   {CATEGORIES.map(c => <option key={c} value={c}>{tcat(c)}</option>)}
                 </select>
               </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.scope")}</label>
+                <div className="flex gap-1 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+                  {(["mouth", "tooth"] as ActeScope[]).map((s) => (
+                    <button key={s} type="button" onClick={() => setForm((f) => ({ ...f, scope: s }))}
+                      className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        form.scope === s
+                          ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
+                          : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                      }`}>
+                      {t(`form.scope_${s}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {form.scope === "tooth" && (
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.toothResult")}</label>
+                  <select value={form.tooth_status} onChange={(e) => setForm((f) => ({ ...f, tooth_status: e.target.value }))} className={inputCls}>
+                    <option value="">{t("form.toothResultNone")}</option>
+                    {STATUS_KEYS.map((k) => <option key={k} value={k}>{tstatus(`status.${k}`)}</option>)}
+                  </select>
+                  <p className="text-[11px] text-zinc-400 mt-1">{t("form.toothResultHint")}</p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.price")}</label>

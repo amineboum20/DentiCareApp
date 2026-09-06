@@ -4,10 +4,11 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { AppointmentWithPatient, Patient, ConsultationMotif } from "@/types/database";
+import type { AppointmentWithPatient, Patient, ConsultationMotif, ActeScope } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
+import ToothPicker from "@/components/ToothPicker";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
 
@@ -68,8 +69,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [existingVisiteId, setExistingVisiteId] = useState("");
   const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string }[]>([]);
   const [billOn, setBillOn] = useState(true);
-  const [billActes, setBillActes] = useState<{ id: string; name: string; price: number }[]>([]);
-  const [actes, setActes] = useState<{ id: string; name: string; price: number }[]>([]);
+  const [billActes, setBillActes] = useState<{ id: string; name: string; price: number; scope?: ActeScope; teeth?: string[]; category?: string; tooth_status?: string | null }[]>([]);
+  const [actes, setActes] = useState<{ id: string; name: string; price: number; scope: ActeScope; category: string; tooth_status: string | null }[]>([]);
   const [linkedVisite, setLinkedVisite] = useState<{ id: string; exam_date: string; motif: string } | null>(null);
   const today = new Date().toLocaleDateString("en-CA");
   const isPastOrNow = appointment.scheduled_at.slice(0, 10) <= today;
@@ -94,8 +95,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   // When the terminer dialog opens: load the acte catalogue and the patient's visites.
   useEffect(() => {
     if (!terminerOpen) return;
-    supabase.from("actes").select("id, name, price").order("name").then(({ data }) => {
-      const list = (data ?? []) as { id: string; name: string; price: number }[];
+    supabase.from("actes").select("id, name, price, scope, category, tooth_status").order("name").then(({ data }) => {
+      const list = (data ?? []) as { id: string; name: string; price: number; scope: ActeScope; category: string; tooth_status: string | null }[];
       setActes(list);
       const cons = list.find((a) => a.name.toLowerCase() === "consultation") ?? list[0];
       setBillActes(cons ? [cons] : []);
@@ -408,17 +409,27 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                       {billActes.length > 0 && (
                         <div className="space-y-1">
                           {billActes.map((a, i) => (
-                            <div key={i} className="flex items-center justify-between rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1.5">
-                              <span className="text-sm text-zinc-800 dark:text-zinc-200 truncate">{a.name}</span>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-xs text-zinc-500">{a.price.toFixed(2)} MAD</span>
-                                <button type="button" onClick={() => setBillActes((xs) => xs.filter((_, j) => j !== i))} className="text-zinc-300 hover:text-red-500 text-sm">✕</button>
+                            <div key={i} className="rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-zinc-800 dark:text-zinc-200 truncate">{a.name}</span>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-xs text-zinc-500">{a.price.toFixed(2)} MAD</span>
+                                  <button type="button" onClick={() => setBillActes((xs) => xs.filter((_, j) => j !== i))} className="text-zinc-300 hover:text-red-500 text-sm">✕</button>
+                                </div>
                               </div>
+                              {a.scope === "tooth" && (
+                                <div className="mt-2">
+                                  <ToothPicker value={a.teeth ?? []} onChange={(teeth) => setBillActes((xs) => xs.map((x, j) => (j === i ? { ...x, teeth } : x)))} />
+                                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 text-center">
+                                    {a.teeth && a.teeth.length ? a.teeth.join(", ") : t("detail.teethPlaceholder")}
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
                       )}
-                      <select value="" onChange={(e) => { const a = actes.find((x) => x.id === e.target.value); if (a) setBillActes((xs) => [...xs, a]); }} className={inputCls}>
+                      <select value="" onChange={(e) => { const a = actes.find((x) => x.id === e.target.value); if (a) setBillActes((xs) => [...xs, { id: a.id, name: a.name, price: a.price, scope: a.scope, category: a.category, tooth_status: a.tooth_status, teeth: [] }]); }} className={inputCls}>
                         <option value="">+ {t("detail.addActe")}</option>
                         {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                       </select>

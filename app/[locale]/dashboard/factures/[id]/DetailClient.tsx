@@ -156,7 +156,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
     }).select("id").single();
     if (error || !fac) { setReissuing(false); return; }
     if (items.length > 0) {
-      await supabase.from("facture_items").insert(items.map((i) => ({ facture_id: (fac as { id: string }).id, description: i.description, quantity: i.quantity, unit_price: i.unit_price, acte_id: i.acte_id ?? null })));
+      await supabase.from("facture_items").insert(items.map((i) => ({ facture_id: (fac as { id: string }).id, description: i.description, quantity: i.quantity, unit_price: i.unit_price, acte_id: i.acte_id ?? null, teeth: i.teeth ?? null })));
     }
     router.push(`/${locale}/dashboard/factures/${(fac as { id: string }).id}`);
   }
@@ -182,7 +182,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
       patientAddress: patM?.address ?? null,
       createdAt: facture.created_at,
       statusLabel: tfac(facture.status),
-      items: items.map(i => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price })),
+      items: items.map(i => ({ description: i.description, quantity: i.quantity, unit_price: i.unit_price, teeth: i.teeth })),
       totalPrice: facture.total_price,
       depositPaid,
       notes: facture.notes,
@@ -307,6 +307,9 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
                 <div key={item.id} className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-zinc-900 dark:text-white">{item.description}</p>
+                    {item.teeth && item.teeth.length > 0 && (
+                      <p className="text-[11px] text-teal-600 dark:text-teal-400">{t("detail.teethLabel")} {item.teeth.join(", ")}</p>
+                    )}
                     <p className="text-xs text-zinc-400">{t("detail.qtyLine", { q: item.quantity, p: item.unit_price.toFixed(2) })}</p>
                   </div>
                   <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ms-4 shrink-0">
