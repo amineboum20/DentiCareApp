@@ -12,6 +12,8 @@ export default async function Dashboard() {
   const result = await getMemberWithPractice();
   const firstName = result?.member?.first_name ?? "";
   const shopName  = result?.member?.practices?.name ?? "votre cabinet";
+  // Assistants are front-desk only: no billing figures or clinical shortcuts.
+  const isAssistant = result?.member?.role === "assistant";
   const now = new Date();
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
@@ -42,7 +44,7 @@ export default async function Dashboard() {
       trend: (appointmentsToday ?? 0) > 0 ? `${appointmentsToday} aujourd'hui` : t("stats.noAppointments") },
     { label: t("stats.pendingPayments"),  value: pendingPayments ?? 0,     icon: "⏳",
       trend: (pendingPayments ?? 0) > 0 ? `${pendingPayments} en attente` : t("stats.allPaid") },
-  ];
+  ].filter((s) => !isAssistant || (s.label !== t("stats.facturesMonth") && s.label !== t("stats.pendingPayments")));
 
   const statusColors: Record<string, string> = {
     en_attente: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
@@ -86,11 +88,11 @@ export default async function Dashboard() {
         <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">{t("quickActions")}</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { icon: "👤", label: t("newPatient"),      href: "patients?new=1" },
-            { icon: "🧾", label: t("newFacture"),      href: "factures?new=1" },
-            { icon: "📅", label: t("bookAppointment"), href: "appointments?new=1" },
-            { icon: "🏥", label: t("newConsultation"), href: "consultations?new=1" },
-          ].map((a) => (
+            { icon: "👤", label: t("newPatient"),      href: "patients?new=1",     restricted: false },
+            { icon: "🧾", label: t("newFacture"),      href: "factures?new=1",     restricted: true },
+            { icon: "📅", label: t("bookAppointment"), href: "appointments?new=1", restricted: false },
+            { icon: "🏥", label: t("newConsultation"), href: "consultations?new=1", restricted: true },
+          ].filter((a) => !isAssistant || !a.restricted).map((a) => (
             <Link key={a.label} href={`/dashboard/${a.href}`}
               className="flex items-center gap-2 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
               <span>{a.icon}</span> {a.label}
@@ -99,7 +101,8 @@ export default async function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid grid-cols-1 gap-6 ${isAssistant ? "" : "lg:grid-cols-2"}`}>
+        {!isAssistant && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{t("recentActivity")}</h2>
@@ -134,6 +137,7 @@ export default async function Dashboard() {
             </div>
           )}
         </div>
+        )}
 
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <div className="flex items-center justify-between mb-4">

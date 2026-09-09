@@ -52,7 +52,9 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const tv = useTranslations("visites");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
-  const { practiceId, currentUserId } = useAppContext();
+  const { practiceId, currentUserId, memberRole } = useAppContext();
+  // Assistants schedule/cancel RDV only — never mark "Terminé" (that creates a clinical visite).
+  const isAssistant = memberRole === "assistant";
 
   const [appointment, setAppointment] = useState<AppointmentWithPatient>(initialAppointment);
   const [modalOpen, setModalOpen] = useState(false);
@@ -76,7 +78,10 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const isPastOrNow = appointment.scheduled_at.slice(0, 10) <= today;
   // A future RDV can only be Planifié or Annulé; Terminé/Absent need it to have
   // happened. Keep the current status selectable even if it breaks the rule.
-  const allowedStatuses = STATUSES.filter(s => isPastOrNow || s === "planifie" || s === "annule" || s === appointment.status);
+  const allowedStatuses = STATUSES.filter(s =>
+    isAssistant
+      ? (s === "planifie" || s === "annule" || s === appointment.status)
+      : (isPastOrNow || s === "planifie" || s === "annule" || s === appointment.status));
 
   const patientData = appointment.patients as { first_name: string; last_name: string } | null;
   const patientName = patientData ? `${patientData.first_name} ${patientData.last_name}` : null;
@@ -109,7 +114,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
 
   async function handleStatusChange(newStatus: AppointmentStatus) {
     // Marking a now/past RDV "Terminé" (not yet linked) prompts linking a visite.
-    if (newStatus === "termine" && isPastOrNow && !appointment.consultation_id && appointment.patient_id) {
+    if (newStatus === "termine" && !isAssistant && isPastOrNow && !appointment.consultation_id && appointment.patient_id) {
       setLinkMode("new"); setExistingVisiteId(""); setBillOn(true); setTerminerOpen(true);
       return;
     }
@@ -261,7 +266,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 <button onClick={() => router.push(`/${locale}/dashboard/dossiers/${appointment.dossier_id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{dossierTitle} →</button>
               </div>
             )}
-            {linkedVisite && (
+            {linkedVisite && !isAssistant && (
               <div className="flex gap-3 py-0.5">
                 <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{t("detail.linkedVisit")}</span>
                 <button onClick={() => router.push(`/${locale}/dashboard/consultations/${linkedVisite.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{new Date(linkedVisite.exam_date).toLocaleDateString("fr-FR")} — {tv.has(`motif.${linkedVisite.motif}`) ? tv(`motif.${linkedVisite.motif}`) : linkedVisite.motif} →</button>

@@ -5,14 +5,17 @@ import { useTranslations } from "next-intl";
 import SignOutButton from "./SignOutButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useState, useEffect } from "react";
+import type { MemberRole } from "@/types/database";
+import { canAccessPath } from "@/utils/permissions";
 
 interface Props {
   firstName: string;
   shopName: string;
   email: string;
+  role: MemberRole;
 }
 
-export default function Sidebar({ firstName, shopName, email }: Props) {
+export default function Sidebar({ firstName, shopName, email, role }: Props) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -38,7 +41,7 @@ export default function Sidebar({ firstName, shopName, email }: Props) {
     { icon: "🏭", label: t("nav.suppliers"),       href: "/dashboard/suppliers" },
     { icon: "📋", label: t("nav.supplierOrders"), href: "/dashboard/supplier-orders" },
     { icon: "⚙️", label: t("nav.settings"),       href: "/dashboard/settings" },
-  ];
+  ].filter((item) => canAccessPath(role, item.href));
 
   const navContent = (
     <>

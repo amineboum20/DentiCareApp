@@ -42,7 +42,9 @@ export default function ToothChart({
 }) {
   const t = useTranslations("toothChart");
   const supabase = useMemo(() => createClient(), []);
-  const { practiceId, currentUserId } = useAppContext();
+  const { practiceId, currentUserId, memberRole } = useAppContext();
+  // Assistants (front-desk) may view the dental chart but not edit it — clinical.
+  const readOnly = memberRole === "assistant";
 
   const [chart, setChart] = useState<Record<string, ToothRow>>(() =>
     Object.fromEntries(initial.map((r) => [r.tooth, r]))
@@ -65,7 +67,7 @@ export default function ToothChart({
   }
 
   async function apply(status: string | null) {
-    if (!sel) return;
+    if (!sel || readOnly) return;
     const tooth = sel;
     setBusy(true);
     try {
@@ -166,6 +168,22 @@ export default function ToothChart({
                 <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{t("toothLabel", { tooth: sel })}</p>
                 <button onClick={() => setSel(null)} className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">✕</button>
               </div>
+              {readOnly ? (
+                chart[sel] ? (
+                  <div>
+                    <span
+                      className="inline-block px-2.5 py-1 rounded-lg border-2 text-xs font-medium"
+                      style={{ borderColor: STATUS_COLORS[chart[sel].status], backgroundColor: STATUS_COLORS[chart[sel].status], color: "#fff" }}
+                    >
+                      {t(`status.${chart[sel].status}`)}
+                    </span>
+                    {chart[sel].note && <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">{chart[sel].note}</p>}
+                  </div>
+                ) : (
+                  <p className="text-sm text-zinc-400">—</p>
+                )
+              ) : (
+              <>
               <div className="flex flex-wrap gap-2 mb-3">
                 {STATUS_KEYS.map((key) => {
                   const color = STATUS_COLORS[key];
@@ -200,6 +218,8 @@ export default function ToothChart({
                   </button>
                 )}
               </div>
+              </>
+              )}
             </div>
           ) : (
             <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-4">{t("selectHint")}</p>

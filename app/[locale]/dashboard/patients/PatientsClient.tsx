@@ -30,7 +30,9 @@ export default function PatientsClient({ initialPatients }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
-  const { practiceId, currentUserId } = useAppContext();
+  const { practiceId, currentUserId, memberRole } = useAppContext();
+  // Archiving cascades into clinical/billing records — dentist-only.
+  const isAssistant = memberRole === "assistant";
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -318,7 +320,7 @@ export default function PatientsClient({ initialPatients }: Props) {
             </div>
 
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
-              {editingPatient && (
+              {editingPatient && !isAssistant && (
                 <button type="button" onClick={() => { handleArchiveStart(editingPatient); setModalOpen(false); }}
                   className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors">
                   {t("archive.archive")}

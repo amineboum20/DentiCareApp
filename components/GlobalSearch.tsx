@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { useAppContext } from "@/components/AppContext";
 
 type PatientR = { id: string; first_name: string; last_name: string; phone: string | null; archived_at: string | null };
 type TraitementR = { id: string; name: string; category: string };
@@ -20,6 +21,9 @@ export default function GlobalSearch() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const t = useTranslations("search");
+  const { memberRole } = useAppContext();
+  // Assistants can't reach actes or factures — keep them out of search too.
+  const isAssistant = memberRole === "assistant";
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -49,8 +53,9 @@ export default function GlobalSearch() {
       const [p, tr, a] = await Promise.all([
         supabase.from("patients").select("id, first_name, last_name, phone, archived_at")
           .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%`).limit(5),
-        supabase.from("actes").select("id, name, category")
-          .ilike("name", `%${q}%`).limit(3),
+        isAssistant
+          ? Promise.resolve({ data: [] as TraitementR[] })
+          : supabase.from("actes").select("id, name, category").ilike("name", `%${q}%`).limit(3),
         supabase.from("appointments").select("id, title, scheduled_at")
           .ilike("title", `%${q}%`).limit(3),
       ]);
@@ -143,10 +148,10 @@ export default function GlobalSearch() {
             </>
           )}
           <div className="border-t border-zinc-100 dark:border-zinc-800 px-4 py-2 flex gap-4">
-            {([
+            {[
               { href: "/dashboard/patients", label: t("patients"), icon: "👤" },
-              { href: "/dashboard/factures", label: t("factures"), icon: "🧾" },
-            ] as const).map((l) => (
+              ...(isAssistant ? [] : [{ href: "/dashboard/factures", label: t("factures"), icon: "🧾" }]),
+            ].map((l) => (
               <button key={l.href} onClick={() => go(l.href)}
                 className="text-[10px] text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-1">
                 {l.icon} {l.label}

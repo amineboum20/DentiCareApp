@@ -65,7 +65,9 @@ function money(n: number) { return `${n.toFixed(2)} MAD`; }
 export default function DossierDetailClient({ dossier: initialDossier, locale }: Props) {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
-  const { practiceId, currentUserId, shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
+  const { practiceId, currentUserId, shopName, shopAddress, shopPhone, logoUrl, memberRole } = useAppContext();
+  // Assistants (front-desk) open a case and manage its RDV — no billing, payments or clinical visites.
+  const isAssistant = memberRole === "assistant";
   const t = useTranslations("dossierDetail");
   const tc = useTranslations("common");
   const tst = useTranslations("dossierStatus");
@@ -382,8 +384,9 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start max-w-6xl pb-8">
-        {/* LEFT: facturation + acomptes */}
+      <div className={`grid grid-cols-1 gap-6 items-start max-w-6xl pb-8 ${isAssistant ? "" : "xl:grid-cols-2"}`}>
+        {/* LEFT: facturation + acomptes — billing is dentist-only */}
+        {!isAssistant && (
         <div className="space-y-6">
           {/* Facturation summary */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
@@ -478,6 +481,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
             )}
           </div>
         </div>
+        )}
 
         {/* RIGHT: infos + visites */}
         <div className="space-y-6">
@@ -490,14 +494,18 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               <DR label={t("openedOn")} value={fmtDate(dossier.created_at)} />
             </div>
             <div className="flex items-center gap-2 pt-4 mt-3 border-t border-zinc-100 dark:border-zinc-800">
-              <button onClick={() => setDeleteOpen(true)} className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">{tc("delete")}</button>
+              {/* Deleting a case is supervisory — assistants create/edit only. */}
+              {!isAssistant && (
+                <button onClick={() => setDeleteOpen(true)} className="px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">{tc("delete")}</button>
+              )}
               <div className="ms-auto">
                 <button onClick={openEdit} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">✏️ {t("edit")}</button>
               </div>
             </div>
           </div>
 
-          {/* Visites */}
+          {/* Visites — clinical, dentist-only */}
+          {!isAssistant && (
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">{t("visites")} <span className="text-zinc-300">({visites.length})</span></p>
@@ -520,6 +528,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               </div>
             )}
           </div>
+          )}
 
           {/* Rendez-vous */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
@@ -544,7 +553,8 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
             )}
           </div>
 
-          {/* Ordonnances */}
+          {/* Ordonnances — clinical, dentist-only */}
+          {!isAssistant && (
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-6 py-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">{t("ordonnances")} <span className="text-zinc-300">({ordos.length})</span></p>
@@ -563,6 +573,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               </div>
             )}
           </div>
+          )}
         </div>
       </div>
 

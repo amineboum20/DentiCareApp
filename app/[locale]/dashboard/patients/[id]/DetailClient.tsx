@@ -63,7 +63,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   const tv = useTranslations("visites");
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
-  const { shopName, shopAddress, shopPhone, logoUrl } = useAppContext();
+  const { shopName, shopAddress, shopPhone, logoUrl, memberRole } = useAppContext();
+  const isAssistant = memberRole === "assistant";
   const [patient, setPatient] = useState<Patient>(initialPatient);
   const [isMobile, setIsMobile] = useState(false);
   const [printing, setPrinting] = useState(false);
@@ -319,7 +320,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                     </p>
                   </div>
                 </div>
-                {snapshot?.lastConsultation && (
+                {snapshot?.lastConsultation && !isAssistant && (
                   <button
                     onClick={() => router.push(`/${locale}/dashboard/consultations/${snapshot.lastConsultation!.id}`)}
                     className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-medium shrink-0 ms-2">
@@ -347,7 +348,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                   </button>
                 )}
               </div>
-              {snapshot && snapshot.activeFactures.length > 0 && (
+              {snapshot && snapshot.activeFactures.length > 0 && !isAssistant && (
                 <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 px-3 py-2 space-y-1.5">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-sm">🧾</span>
@@ -419,7 +420,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                 )}
               </div>
 
-              {/* Consultations */}
+              {/* Consultations — clinical, dentist-only */}
+              {!isAssistant && (
               <div>
                 <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3 flex items-center gap-2">
                   🏥 {t("detail.visites")}
@@ -447,8 +449,10 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                   </div>
                 )}
               </div>
+              )}
 
-              {/* Factures */}
+              {/* Factures — money, dentist-only */}
+              {!isAssistant && (
               <div>
                 <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3 flex items-center gap-2">
                   🧾 {t("detail.factures")}
@@ -481,6 +485,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                   </div>
                 )}
               </div>
+              )}
             </div>
           )}
         </div>
@@ -497,16 +502,20 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
               <span className="text-lg">📁</span>
               <span className="text-[11px] font-medium leading-tight">{t("detail.dossier")}</span>
             </button>
+            {!isAssistant && (
             <button onClick={() => router.push(`/${locale}/dashboard/consultations?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
               <span className="text-lg">🏥</span>
               <span className="text-[11px] font-medium leading-tight">{t("detail.visite")}</span>
             </button>
+            )}
+            {!isAssistant && (
             <button onClick={() => router.push(`/${locale}/dashboard/ordonnances?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
               <span className="text-lg">💊</span>
               <span className="text-[11px] font-medium leading-tight">{t("detail.ordonnance")}</span>
             </button>
+            )}
             <button onClick={() => router.push(`/${locale}/dashboard/appointments?new=1&patient_id=${patient.id}`)}
               className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-teal-600 dark:text-teal-400">
               <span className="text-lg">📅</span>
@@ -546,7 +555,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             </div>
           )}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-            {patient.archived_at ? (
+            {/* Archive cascades into clinical/billing records — dentist-only. */}
+            {!isAssistant && (patient.archived_at ? (
               <button onClick={handleUnarchive} disabled={archiveLoading}
                 className="px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-colors disabled:opacity-60">
                 {archiveLoading ? tc("loading") : t("detail.unarchive")}
@@ -556,7 +566,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                 className="px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium transition-colors disabled:opacity-60">
                 {archiveLoading ? tc("loading") : t("archive.archive")}
               </button>
-            )}
+            ))}
             <div className="ms-auto">
               <button onClick={openEdit}
                 className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
