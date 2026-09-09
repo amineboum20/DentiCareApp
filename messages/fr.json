@@ -191,6 +191,7 @@
     "google": "Continuer avec Google",
     "passwordMismatch": "Les mots de passe ne correspondent pas.",
     "passwordTooShort": "Le mot de passe doit comporter au moins 8 caractères.",
+    "emailAlreadyExists": "Un compte existe déjà avec cette adresse e-mail. Connectez-vous ou réinitialisez votre mot de passe.",
     "checkEmail": "Vérifiez votre e-mail",
     "checkEmailDesc": "Nous avons envoyé un lien de confirmation à {email}. Cliquez dessus pour activer votre compte, puis connectez-vous.",
     "goToSignIn": "Aller à la connexion",

@@ -191,6 +191,7 @@
     "google": "Continue with Google",
     "passwordMismatch": "Passwords do not match.",
     "passwordTooShort": "Password must be at least 8 characters.",
+    "emailAlreadyExists": "An account with this email already exists. Sign in or reset your password.",
     "checkEmail": "Check your email",
     "checkEmailDesc": "We sent a confirmation link to {email}. Click it to activate your account, then sign in.",
     "goToSignIn": "Go to sign in",

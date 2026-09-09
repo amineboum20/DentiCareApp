@@ -24,7 +24,7 @@ export default function SignUp() {
     if (password.length < 6) { setError(t("passwordTooShort")); return; }
     setLoading(true);
     const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -33,6 +33,15 @@ export default function SignUp() {
       },
     });
     if (signUpError) { setError(signUpError.message); setLoading(false); return; }
+
+    // Supabase does not error on a duplicate email (anti-enumeration); it returns
+    // a user with an empty identities array. Detect that and surface it instead
+    // of showing the "check your email" screen.
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      setError(t("emailAlreadyExists"));
+      setLoading(false);
+      return;
+    }
 
     setSent(true);
   }
