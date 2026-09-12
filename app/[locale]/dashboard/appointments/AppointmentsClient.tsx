@@ -497,66 +497,21 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                   </select>
                 </div>
               </div>
-              {/* Date/time + Duration */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                    {t("form.scheduledAt")} <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={form.scheduled_at}
-                    min={!editing && nowRef ? `${nowRef.today}T00:00` : undefined}
-                    onChange={(e) => setField("scheduled_at", e.target.value)}
-                    className={inputCls}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                    {t("form.duration")}
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder="30"
-                    value={form.duration_minutes}
-                    onChange={(e) => setField("duration_minutes", e.target.value)}
-                    className={inputCls}
-                  />
-                </div>
-              </div>
-              {/* Status */}
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                  {t("form.status")}
-                </label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setField("status", e.target.value)}
-                  className={inputCls}
-                >
-                  {STATUSES.filter((s) => !form.scheduled_at || !nowRef || form.scheduled_at.slice(0, 10) <= nowRef.today || s === "planifie" || s === "annule" || s === form.status).map((s) => (
-                    <option key={s} value={s}>
-                      {t(`statuses.${s}`)}
-                    </option>
-                  ))}
-                </select>
-              </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("dentist")}</label>
                 <PraticienSelect value={form.praticien_id} onChange={(id) => setField("praticien_id", id)} className={inputCls} />
               </div>
-              {/* Slot picker — the chosen dentist's week agenda; two-click a range. */}
-              {form.praticien_id && (
-                <WeekSlotPicker
-                  praticienId={form.praticien_id}
-                  appointments={appointments}
-                  excludeId={editing?.id ?? null}
-                  valueLocal={form.scheduled_at}
-                  durationMinutes={parseInt(form.duration_minutes || "30") || 30}
-                  onChange={(at, dur) => setForm((f) => ({ ...f, scheduled_at: at, duration_minutes: String(dur) }))}
-                />
-              )}
+              {/* Slot picker — pick the date + duration by two-clicking a range.
+                  Shows the chosen dentist's booked slots (if any). Replaces the
+                  date/heure + durée inputs; a new RDV is always "Planifié". */}
+              <WeekSlotPicker
+                praticienId={form.praticien_id}
+                appointments={appointments}
+                excludeId={editing?.id ?? null}
+                valueLocal={form.scheduled_at}
+                durationMinutes={parseInt(form.duration_minutes || "30") || 30}
+                onChange={(at, dur) => setForm((f) => ({ ...f, scheduled_at: at, duration_minutes: String(dur) }))}
+              />
               {/* Rattacher à un dossier (nouveau RDV uniquement) */}
               {!editing && (
                 <div>

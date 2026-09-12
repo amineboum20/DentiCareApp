@@ -10,6 +10,7 @@ import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
 import ToothPicker from "@/components/ToothPicker";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import WeekSlotPicker, { type SlotAppointment } from "@/components/WeekSlotPicker";
 import LocalInstant from "@/components/LocalInstant";
 import SearchableSelect from "@/components/SearchableSelect";
 
@@ -36,7 +37,6 @@ const STATUS_STYLE: Record<string, string> = {
   absent:   "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
-const STATUSES: AppointmentStatus[] = ["planifie", "termine", "annule", "absent"];
 
 const TYPES: AppointmentType[] = ["premiere_visite", "controle", "soin", "urgence", "autre"];
 
@@ -68,6 +68,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [newPatientMode, setNewPatientMode] = useState(false);
   const [np, setNp] = useState({ first_name: "", last_name: "", phone: "" });
   const [creatingPatient, setCreatingPatient] = useState(false);
+  const [allAppts, setAllAppts] = useState<SlotAppointment[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   // Terminer + link a visite: a RDV is not a visite; once its time has passed and
@@ -97,6 +98,13 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   // Supabase). Kept from the initial prop since edits don't change dossier_id.
   const dossierRel = (initialAppointment as { dossiers?: { title: string } | { title: string }[] | null }).dossiers;
   const dossierTitle = Array.isArray(dossierRel) ? (dossierRel[0]?.title ?? null) : (dossierRel?.title ?? null);
+
+  // Load the practice's appointments so the edit slot picker can show busy blocks.
+  useEffect(() => {
+    if (!modalOpen) return;
+    supabase.from("appointments").select("id, scheduled_at, duration_minutes, status, praticien_id, patients(first_name, last_name)").is("archived_at", null)
+      .then(({ data }) => setAllAppts((data ?? []) as unknown as SlotAppointment[]));
+  }, [modalOpen, supabase]);
 
   // Load the linked visite (if any) for display on the RDV.
   useEffect(() => {
@@ -381,34 +389,26 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.title")} <span className="text-red-500">*</span></label>
                 <input {...field("title")} className={inputCls} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.type")}</label>
-                  <select {...field("type")} className={inputCls}>
-                    {TYPES.map(tp => <option key={tp} value={tp}>{t(`types.${tp}`)}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.status")}</label>
-                  <select {...field("status")} className={inputCls}>
-                    {STATUSES.filter(s => !form.scheduled_at || form.scheduled_at.slice(0, 10) <= today || s === "planifie" || s === "annule" || s === form.status).map(s => <option key={s} value={s}>{t(`statuses.${s}`)}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.scheduledAt")} <span className="text-red-500">*</span></label>
-                  <input type="datetime-local" {...field("scheduled_at")} className={inputCls} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.duration")}</label>
-                  <input type="number" min="0" {...field("duration_minutes")} className={inputCls} />
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.type")}</label>
+                <select {...field("type")} className={inputCls}>
+                  {TYPES.map(tp => <option key={tp} value={tp}>{t(`types.${tp}`)}</option>)}
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("detail.dentist")}</label>
                 <PraticienSelect value={form.praticien_id} onChange={(id) => setForm((f) => ({ ...f, praticien_id: id }))} className={inputCls} />
               </div>
+              {/* Reschedule via the same week picker as create; status is changed
+                  through the "Changer le statut" chips on the RDV page. */}
+              <WeekSlotPicker
+                praticienId={form.praticien_id}
+                appointments={allAppts}
+                excludeId={appointment.id}
+                valueLocal={form.scheduled_at}
+                durationMinutes={parseInt(form.duration_minutes || "30") || 30}
+                onChange={(at, dur) => setForm((f) => ({ ...f, scheduled_at: at, duration_minutes: String(dur) }))}
+              />
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
