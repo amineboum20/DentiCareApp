@@ -104,6 +104,27 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
       quantite: l.quantite.trim() || null, instructions: l.instructions.trim() || null, sort_order: i,
     })));
 
+    // Grow the catalogue: any freehand medicine (not picked from it) that isn't
+    // already there is added, carrying this line's fields as its defaults.
+    // Best-effort — a failure here never blocks the prescription.
+    const existingNames = new Set(medications.map((m) => m.name.trim().toLowerCase()));
+    const seen = new Set<string>();
+    const newMeds = validLines.filter((l) => {
+      if (l.medicament_id) return false;
+      const key = l.name.trim().toLowerCase();
+      if (!key || existingNames.has(key) || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    if (newMeds.length > 0) {
+      const { data: added } = await supabase.from("medicaments").insert(newMeds.map((l) => ({
+        practice_id: practiceId, user_id: currentUserId, created_by: currentUserId, name: l.name.trim(),
+        default_posologie: l.posologie.trim() || null, default_duree: l.duree.trim() || null,
+        default_quantite: l.quantite.trim() || null, default_instructions: l.instructions.trim() || null,
+      }))).select("id, name, default_posologie, default_duree, default_quantite, default_instructions");
+      if (added) setMedications((xs) => [...xs, ...(added as MedLite[])].sort((a, b) => a.name.localeCompare(b.name)));
+    }
+
     setOrdonnances((xs) => [ord as OrdonnanceWithPatient, ...xs]);
     setSaving(false); setModalOpen(false);
   }

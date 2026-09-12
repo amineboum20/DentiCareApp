@@ -292,7 +292,13 @@
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
       "requiredError": "العنوان والتاريخ إلزاميان.",
-      "scheduledAt": "التاريخ والوقت"
+      "scheduledAt": "التاريخ والوقت",
+      "newPatient": "+ مريض جديد",
+      "cancelNewPatient": "اختيار مريض موجود",
+      "createPatient": "إنشاء المريض",
+      "npFirstName": "الاسم الشخصي",
+      "npLastName": "الاسم العائلي",
+      "npPhone": "الهاتف"
     },
     "deleteConfirm": {
       "title": "حذف الموعد",
@@ -309,6 +315,9 @@
     "dossierTitlePlaceholder": "عنوان الملف",
     "create": "إنشاء",
     "selectPatientFirst": "اختر مريضاً أولاً.",
+    "searchPatientPlaceholder": "ابحث عن مريض…",
+    "searchDossierPlaceholder": "ابحث عن ملف…",
+    "noResults": "لا نتائج",
     "detail": {
       "autoDossierTitle": "زيارة {date}",
       "errRequired": "المريض والعنوان والتاريخ مطلوبة.",
@@ -1044,7 +1053,7 @@
   "medicaments": {
     "errNameRequired": "الاسم مطلوب.",
     "backToOrdonnances": "الوصفات الطبية",
-    "title": "كتالوج الأدوية",
+    "title": "الأدوية",
     "newMedicament": "دواء جديد",
     "searchPlaceholder": "ابحث عن دواء…",
     "noResults": "لا نتائج",
@@ -1160,7 +1169,7 @@
     "errNoMed": "أضف دواءً واحداً على الأقل.",
     "errGeneric": "خطأ",
     "title": "الوصفات الطبية",
-    "catalog": "الكتالوج",
+    "catalog": "الأدوية",
     "newOrdonnance": "وصفة جديدة",
     "searchPlaceholder": "ابحث بالمريض…",
     "noResults": "لا نتائج",

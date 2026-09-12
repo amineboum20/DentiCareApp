@@ -292,7 +292,13 @@
       "saving": "Enregistrement…",
       "cancel": "Annuler",
       "requiredError": "Le titre et la date sont obligatoires.",
-      "scheduledAt": "Date et heure"
+      "scheduledAt": "Date et heure",
+      "newPatient": "+ Nouveau patient",
+      "cancelNewPatient": "Choisir un patient existant",
+      "createPatient": "Créer le patient",
+      "npFirstName": "Prénom",
+      "npLastName": "Nom",
+      "npPhone": "Téléphone"
     },
     "deleteConfirm": {
       "title": "Supprimer le rendez-vous",
@@ -309,6 +315,9 @@
     "dossierTitlePlaceholder": "Intitulé du dossier",
     "create": "Créer",
     "selectPatientFirst": "Sélectionnez d'abord un patient.",
+    "searchPatientPlaceholder": "Rechercher un patient…",
+    "searchDossierPlaceholder": "Rechercher un dossier…",
+    "noResults": "Aucun résultat",
     "detail": {
       "autoDossierTitle": "Visite du {date}",
       "errRequired": "Le patient, le titre et la date sont requis.",
@@ -1086,7 +1095,7 @@
   "medicaments": {
     "errNameRequired": "Le nom est requis.",
     "backToOrdonnances": "Ordonnances",
-    "title": "Catalogue des médicaments",
+    "title": "Médicaments",
     "newMedicament": "Nouveau médicament",
     "searchPlaceholder": "Rechercher un médicament…",
     "noResults": "Aucun résultat",
@@ -1202,7 +1211,7 @@
     "errNoMed": "Ajoutez au moins un médicament.",
     "errGeneric": "Erreur",
     "title": "Ordonnances",
-    "catalog": "Catalogue",
+    "catalog": "Médicaments",
     "newOrdonnance": "Nouvelle ordonnance",
     "searchPlaceholder": "Rechercher par patient…",
     "noResults": "Aucun résultat",

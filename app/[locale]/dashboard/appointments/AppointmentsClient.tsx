@@ -8,6 +8,7 @@ import type { AppointmentWithPatient, Patient, AppointmentType, AppointmentStatu
 import { useAppContext } from "@/components/AppContext";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
+import SearchableSelect from "@/components/SearchableSelect";
 
 interface Props {
   initialAppointments: AppointmentWithPatient[];
@@ -74,6 +75,11 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
   const [rdvNewDossierMode, setRdvNewDossierMode] = useState(false);
   const [rdvNewDossierTitle, setRdvNewDossierTitle] = useState("");
   const [rdvCreatingDossier, setRdvCreatingDossier] = useState(false);
+  // Inline patient create for a cold-call RDV (attach a client without a full fiche).
+  const [patientList, setPatientList] = useState(patients);
+  const [newPatientMode, setNewPatientMode] = useState(false);
+  const [np, setNp] = useState({ first_name: "", last_name: "", phone: "" });
+  const [creatingPatient, setCreatingPatient] = useState(false);
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -89,6 +95,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     setForm({ ...emptyForm, patient_id: patientId, scheduled_at: local });
     setRdvDossierId(""); setRdvNewDossierMode(false); setRdvNewDossierTitle("");
+    setNewPatientMode(false); setNp({ first_name: "", last_name: "", phone: "" });
     setError("");
     setModalOpen(true);
   }, [searchParams]);
@@ -134,6 +141,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       .slice(0, 16);
     setForm({ ...emptyForm, scheduled_at: local });
     setRdvDossierId(""); setRdvNewDossierMode(false); setRdvNewDossierTitle("");
+    setNewPatientMode(false); setNp({ first_name: "", last_name: "", phone: "" });
     setError("");
     setModalOpen(true);
   }
@@ -149,6 +157,22 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     setRdvOpenDossiers((xs) => [{ id: data.id as string, title: data.title as string }, ...xs]);
     setRdvDossierId(data.id as string);
     setRdvNewDossierMode(false); setRdvNewDossierTitle("");
+  }
+  async function createInlinePatient() {
+    if (!np.first_name.trim() || !np.last_name.trim()) return;
+    setCreatingPatient(true);
+    const { data, error: e } = await supabase.from("patients").insert({
+      practice_id: practiceId, user_id: currentUserId, created_by: currentUserId,
+      first_name: np.first_name.trim(), last_name: np.last_name.trim(),
+      phone: np.phone.trim() || null,
+    }).select("id, first_name, last_name").single();
+    setCreatingPatient(false);
+    if (e || !data) { setError(e?.message ?? ""); return; }
+    const p = data as Pick<Patient, "id" | "first_name" | "last_name">;
+    setPatientList((xs) => [...xs, p]);
+    setField("patient_id", p.id);
+    setNewPatientMode(false);
+    setNp({ first_name: "", last_name: "", phone: "" });
   }
 
   async function handleSave() {
@@ -169,7 +193,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     setSaving(true);
     setError("");
 
-    const patient = patients.find((p) => p.id === form.patient_id);
+    const patient = patientList.find((p) => p.id === form.patient_id);
     const patientSnap = patient
       ? { first_name: patient.first_name, last_name: patient.last_name }
       : null;
@@ -423,21 +447,33 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
               {/* Patient + Type */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
-                    {t("form.patient")}
-                  </label>
-                  <select
-                    value={form.patient_id}
-                    onChange={(e) => setField("patient_id", e.target.value)}
-                    className={inputCls}
-                  >
-                    <option value="">{t("form.noPatient")}</option>
-                    {patients.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.first_name} {p.last_name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">{t("form.patient")}</label>
+                    <button type="button" onClick={() => { setNewPatientMode((v) => !v); setError(""); }} className="text-xs text-teal-600 dark:text-teal-400 hover:underline">
+                      {newPatientMode ? t("form.cancelNewPatient") : t("form.newPatient")}
+                    </button>
+                  </div>
+                  {newPatientMode ? (
+                    <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 space-y-2 bg-zinc-50/60 dark:bg-zinc-800/30">
+                      <input value={np.first_name} onChange={(e) => setNp((n) => ({ ...n, first_name: e.target.value }))} placeholder={t("form.npFirstName")} className={inputCls} />
+                      <input value={np.last_name} onChange={(e) => setNp((n) => ({ ...n, last_name: e.target.value }))} placeholder={t("form.npLastName")} className={inputCls} />
+                      <input value={np.phone} onChange={(e) => setNp((n) => ({ ...n, phone: e.target.value }))} placeholder={t("form.npPhone")} className={inputCls} />
+                      <button type="button" onClick={createInlinePatient} disabled={creatingPatient || !np.first_name.trim() || !np.last_name.trim()} className="w-full px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-xs font-medium transition-colors">
+                        {creatingPatient ? t("form.saving") : t("form.createPatient")}
+                      </button>
+                    </div>
+                  ) : (
+                    <SearchableSelect
+                      value={form.patient_id}
+                      onChange={(v) => setField("patient_id", v)}
+                      options={patientList.map((p) => ({ value: p.id, label: `${p.first_name} ${p.last_name}` }))}
+                      noneLabel={t("form.noPatient")}
+                      placeholder={t("form.noPatient")}
+                      searchPlaceholder={t("searchPatientPlaceholder")}
+                      emptyLabel={t("noResults")}
+                      className={inputCls}
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
@@ -511,10 +547,19 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("linkDossier")}</label>
                   {!rdvNewDossierMode ? (
                     <div className="flex gap-1">
-                      <select value={rdvDossierId} onChange={(e) => setRdvDossierId(e.target.value)} className={`flex-1 ${inputCls}`} disabled={!form.patient_id}>
-                        <option value="">{t("none")}</option>
-                        {rdvOpenDossiers.map((d) => <option key={d.id} value={d.id}>{d.title}</option>)}
-                      </select>
+                      <div className="flex-1">
+                        <SearchableSelect
+                          value={rdvDossierId}
+                          onChange={setRdvDossierId}
+                          options={rdvOpenDossiers.map((d) => ({ value: d.id, label: d.title }))}
+                          noneLabel={t("none")}
+                          placeholder={t("none")}
+                          searchPlaceholder={t("searchDossierPlaceholder")}
+                          emptyLabel={t("noResults")}
+                          disabled={!form.patient_id}
+                          className={inputCls}
+                        />
+                      </div>
                       <button type="button" onClick={() => { setRdvNewDossierMode(true); setRdvNewDossierTitle(""); }} disabled={!form.patient_id} title={t("newDossier")} className="px-2.5 py-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 hover:bg-teal-100 text-sm font-bold transition-colors disabled:opacity-40 shrink-0">+</button>
                     </div>
                   ) : (

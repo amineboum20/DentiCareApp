@@ -11,6 +11,7 @@ import { billActesToDossier } from "@/utils/billing";
 import ToothPicker from "@/components/ToothPicker";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
+import SearchableSelect from "@/components/SearchableSelect";
 
 // Map an appointment type onto a visite motif (covers both type vocabularies).
 const TYPE_TO_MOTIF: Record<string, ConsultationMotif> = {
@@ -61,6 +62,12 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  // Inline patient create: attach a client to a RDV taken by cold call, without
+  // leaving the edit form to build a full fiche (completed later).
+  const [patientList, setPatientList] = useState(patients);
+  const [newPatientMode, setNewPatientMode] = useState(false);
+  const [np, setNp] = useState({ first_name: "", last_name: "", phone: "" });
+  const [creatingPatient, setCreatingPatient] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   // Terminer + link a visite: a RDV is not a visite; once its time has passed and
@@ -78,10 +85,11 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const isPastOrNow = appointment.scheduled_at.slice(0, 10) <= today;
   // A future RDV can only be Planifié or Annulé; Terminé/Absent need it to have
   // happened. Keep the current status selectable even if it breaks the rule.
-  const allowedStatuses = STATUSES.filter(s =>
-    isAssistant
-      ? (s === "planifie" || s === "annule" || s === appointment.status)
-      : (isPastOrNow || s === "planifie" || s === "annule" || s === appointment.status));
+  // Status options are time-based and the same for every role: a past/today RDV
+  // can only be marked Terminé or Absent (it has happened), a future one only
+  // Planifié or Annulé (it hasn't). An assistant's "Terminé" just records
+  // attendance — the visite/billing dialog stays dentist-only (see handleStatusChange).
+  const allowedStatuses: AppointmentStatus[] = isPastOrNow ? ["termine", "absent"] : ["planifie", "annule"];
 
   const patientData = appointment.patients as { first_name: string; last_name: string } | null;
   const patientName = patientData ? `${patientData.first_name} ${patientData.last_name}` : null;
@@ -176,6 +184,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       praticien_id: appointment.praticien_id ?? "",
       notes: appointment.notes ?? "",
     });
+    setNewPatientMode(false);
+    setNp({ first_name: "", last_name: "", phone: "" });
     setFormError("");
     setModalOpen(true);
   }
@@ -186,6 +196,23 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
         setForm(f => ({ ...f, [key]: e.target.value })),
     };
+  }
+
+  async function createInlinePatient() {
+    if (!np.first_name.trim() || !np.last_name.trim()) return;
+    setCreatingPatient(true);
+    const { data, error } = await supabase.from("patients").insert({
+      practice_id: practiceId, user_id: currentUserId, created_by: currentUserId,
+      first_name: np.first_name.trim(), last_name: np.last_name.trim(),
+      phone: np.phone.trim() || null,
+    }).select("id, first_name, last_name").single();
+    setCreatingPatient(false);
+    if (error || !data) { setFormError(error?.message ?? ""); return; }
+    const p = data as Pick<Patient, "id" | "first_name" | "last_name">;
+    setPatientList(xs => [...xs, p].sort((a, b) => a.last_name.localeCompare(b.last_name)));
+    setForm(f => ({ ...f, patient_id: p.id }));
+    setNewPatientMode(false);
+    setNp({ first_name: "", last_name: "", phone: "" });
   }
 
   async function handleSave() {
@@ -321,11 +348,34 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
             </div>
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.patient")} <span className="text-red-500">*</span></label>
-                <select {...field("patient_id")} className={inputCls}>
-                  <option value="">{t("detail.selectPatient")}</option>
-                  {patients.map(p => <option key={p.id} value={p.id}>{p.last_name} {p.first_name}</option>)}
-                </select>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">{t("form.patient")} <span className="text-red-500">*</span></label>
+                  <button type="button" onClick={() => { setNewPatientMode(v => !v); setFormError(""); }} className="text-xs text-teal-600 dark:text-teal-400 hover:underline">
+                    {newPatientMode ? t("form.cancelNewPatient") : t("form.newPatient")}
+                  </button>
+                </div>
+                {newPatientMode ? (
+                  <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 space-y-2 bg-zinc-50/60 dark:bg-zinc-800/30">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input value={np.first_name} onChange={(e) => setNp(n => ({ ...n, first_name: e.target.value }))} placeholder={t("form.npFirstName")} className={inputCls} />
+                      <input value={np.last_name} onChange={(e) => setNp(n => ({ ...n, last_name: e.target.value }))} placeholder={t("form.npLastName")} className={inputCls} />
+                    </div>
+                    <input value={np.phone} onChange={(e) => setNp(n => ({ ...n, phone: e.target.value }))} placeholder={t("form.npPhone")} className={inputCls} />
+                    <button type="button" onClick={createInlinePatient} disabled={creatingPatient || !np.first_name.trim() || !np.last_name.trim()} className="w-full px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-xs font-medium transition-colors">
+                      {creatingPatient ? t("form.saving") : t("form.createPatient")}
+                    </button>
+                  </div>
+                ) : (
+                  <SearchableSelect
+                    value={form.patient_id}
+                    onChange={(v) => setForm(f => ({ ...f, patient_id: v }))}
+                    options={patientList.map(p => ({ value: p.id, label: `${p.last_name} ${p.first_name}` }))}
+                    placeholder={t("detail.selectPatient")}
+                    searchPlaceholder={t("searchPatientPlaceholder")}
+                    emptyLabel={t("noResults")}
+                    className={inputCls}
+                  />
+                )}
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.title")} <span className="text-red-500">*</span></label>

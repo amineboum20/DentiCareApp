@@ -292,7 +292,13 @@
       "saving": "Saving…",
       "cancel": "Cancel",
       "requiredError": "Title and date are required.",
-      "scheduledAt": "Date & time"
+      "scheduledAt": "Date & time",
+      "newPatient": "+ New patient",
+      "cancelNewPatient": "Choose an existing patient",
+      "createPatient": "Create patient",
+      "npFirstName": "First name",
+      "npLastName": "Last name",
+      "npPhone": "Phone"
     },
     "deleteConfirm": {
       "title": "Delete appointment",
@@ -309,6 +315,9 @@
     "dossierTitlePlaceholder": "Case title",
     "create": "Create",
     "selectPatientFirst": "Select a patient first.",
+    "searchPatientPlaceholder": "Search a patient…",
+    "searchDossierPlaceholder": "Search a case…",
+    "noResults": "No results",
     "detail": {
       "autoDossierTitle": "Visit of {date}",
       "errRequired": "Patient, title and date are required.",
@@ -1044,7 +1053,7 @@
   "medicaments": {
     "errNameRequired": "Name is required.",
     "backToOrdonnances": "Prescriptions",
-    "title": "Medication catalog",
+    "title": "Medications",
     "newMedicament": "New medication",
     "searchPlaceholder": "Search for a medication…",
     "noResults": "No results",
@@ -1160,7 +1169,7 @@
     "errNoMed": "Add at least one medication.",
     "errGeneric": "Error",
     "title": "Prescriptions",
-    "catalog": "Catalog",
+    "catalog": "Medications",
     "newOrdonnance": "New prescription",
     "searchPlaceholder": "Search by patient…",
     "noResults": "No results",
