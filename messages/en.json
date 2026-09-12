@@ -236,6 +236,7 @@
       "factures": "Invoices",
       "ordonnances": "Prescriptions",
       "appointments": "Appointments",
+      "agenda": "Agenda",
       "reports": "Reports",
       "settings": "Settings",
       "suppliers": "Suppliers",
@@ -246,6 +247,16 @@
     "at": "at",
     "seeAll": "See all →",
     "upcomingAppointments": "Upcoming appointments"
+  },
+  "agenda": {
+    "title": "Agenda",
+    "week": "Week",
+    "day": "Day",
+    "today": "Today",
+    "allPractitioners": "All dentists",
+    "noPractitioner": "No dentist",
+    "chooseSlot": "Pick a slot (dentist's agenda)",
+    "conflict": "This dentist already has an appointment in that slot."
   },
   "appointments": {
     "title": "Appointments",
@@ -882,6 +893,10 @@
       "dentist": "Dentist",
       "assistant": "Assistant"
     },
+    "myPractitioner": "Your practitioner profile",
+    "myPractitionerHint": "Link your account to a dentist so your agenda shows your appointments by default.",
+    "myPractitionerNone": "— None —",
+    "myPractitionerSaved": "Saved ✓",
     "practiceInfo": "Practice information",
     "practiceName": "Practice name",
     "practiceNamePlaceholder": "e.g. Benali Dental Practice",

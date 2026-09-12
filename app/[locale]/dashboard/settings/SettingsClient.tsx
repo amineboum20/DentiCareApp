@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { MemberRole } from "@/types/database";
+import { setMyPraticien } from "./actions";
 
 interface Member {
   id: string;
@@ -25,6 +26,8 @@ interface Props {
   initialAddress: string;
   initialPhone: string;
   initialLogoUrl: string | null;
+  praticiens: { id: string; name: string }[];
+  myPraticienId: string | null;
 }
 
 export default function SettingsClient({
@@ -34,6 +37,8 @@ export default function SettingsClient({
   initialAddress,
   initialPhone,
   initialLogoUrl,
+  praticiens,
+  myPraticienId,
 }: Props) {
   const router = useRouter();
   const locale = useLocale();
@@ -42,6 +47,16 @@ export default function SettingsClient({
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const isOwner = memberRole === "owner";
+
+  // — Which praticien this account is (drives "my agenda") —
+  const [myPrat, setMyPrat] = useState(myPraticienId ?? "");
+  const [myPratSaved, setMyPratSaved] = useState(false);
+  async function handleMyPratChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const v = e.target.value;
+    setMyPrat(v);
+    setMyPratSaved(false);
+    try { await setMyPraticien(v || null); setMyPratSaved(true); setTimeout(() => setMyPratSaved(false), 2500); } catch { /* keep silent; select reflects attempt */ }
+  }
 
   // — Practice info —
   const [shopName, setShopName] = useState(initialShopName);
@@ -273,6 +288,19 @@ export default function SettingsClient({
 
   return (
     <div className="space-y-6">
+      {/* Your praticien identity — links this account to a dentist for "my agenda" */}
+      {memberRole !== "assistant" && praticiens.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">{t("myPractitioner")}</h2>
+          <p className="text-xs text-zinc-400 mb-4">{t("myPractitionerHint")}</p>
+          <select value={myPrat} onChange={handleMyPratChange} className={inputCls}>
+            <option value="">{t("myPractitionerNone")}</option>
+            {praticiens.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          {myPratSaved && <p className="text-xs text-teal-600 mt-2">{t("myPractitionerSaved")}</p>}
+        </div>
+      )}
+
       {/* Practice info — owner only */}
       {isOwner && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">

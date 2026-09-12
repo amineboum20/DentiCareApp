@@ -36,6 +36,7 @@ export interface PracticeMember {
   last_name: string
   is_approved: boolean | null
   deactivated_at: string | null
+  praticien_id: string | null
   created_at: string
 }
 

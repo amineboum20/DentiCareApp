@@ -236,6 +236,7 @@
       "factures": "Factures",
       "ordonnances": "Ordonnances",
       "appointments": "Rendez-vous",
+      "agenda": "Agenda",
       "reports": "Rapports",
       "settings": "Paramètres",
       "suppliers": "Fournisseurs",
@@ -246,6 +247,16 @@
     "at": "à",
     "seeAll": "Tout voir →",
     "upcomingAppointments": "Prochains rendez-vous"
+  },
+  "agenda": {
+    "title": "Agenda",
+    "week": "Semaine",
+    "day": "Jour",
+    "today": "Aujourd'hui",
+    "allPractitioners": "Tous les dentistes",
+    "noPractitioner": "Sans dentiste",
+    "chooseSlot": "Choisir un créneau (agenda du dentiste)",
+    "conflict": "Ce dentiste a déjà un rendez-vous sur ce créneau."
   },
   "appointments": {
     "title": "Rendez-vous",
@@ -924,6 +935,10 @@
       "dentist": "Dentiste",
       "assistant": "Assistant(e)"
     },
+    "myPractitioner": "Votre profil praticien",
+    "myPractitionerHint": "Reliez votre compte à un dentiste pour que votre agenda affiche vos rendez-vous par défaut.",
+    "myPractitionerNone": "— Aucun —",
+    "myPractitionerSaved": "Enregistré ✓",
     "practiceInfo": "Informations du cabinet",
     "practiceName": "Nom du cabinet",
     "practiceNamePlaceholder": "Ex. Cabinet Dentaire Benali",

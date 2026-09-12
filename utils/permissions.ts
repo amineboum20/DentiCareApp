@@ -18,6 +18,7 @@ export const ASSISTANT_SECTIONS = [
   "/dashboard/patients",
   "/dashboard/dossiers",
   "/dashboard/appointments",
+  "/dashboard/agenda",
 ] as const;
 
 /** Where a blocked assistant is sent when they hit a restricted route. */

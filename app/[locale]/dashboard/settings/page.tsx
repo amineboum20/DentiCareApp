@@ -19,6 +19,12 @@ export default async function SettingsPage() {
 
   const practice = member.practices;
 
+  const { data: praticiens } = await supabase
+    .from("praticiens")
+    .select("id, name")
+    .is("archived_at", null)
+    .order("name", { ascending: true });
+
   return (
     <div className="p-4 sm:p-8 max-w-xl">
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-8">{t("pageTitle")}</h1>
@@ -29,6 +35,8 @@ export default async function SettingsPage() {
         initialAddress={practice?.address ?? ""}
         initialPhone={practice?.phone ?? ""}
         initialLogoUrl={practice?.logo_url ?? null}
+        praticiens={(praticiens ?? []) as { id: string; name: string }[]}
+        myPraticienId={(member as { praticien_id?: string | null }).praticien_id ?? null}
       />
     </div>
   );

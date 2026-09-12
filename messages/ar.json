@@ -236,6 +236,7 @@
       "factures": "الفواتير",
       "ordonnances": "الوصفات الطبية",
       "appointments": "المواعيد",
+      "agenda": "الأجندة",
       "reports": "التقارير",
       "settings": "الإعدادات",
       "suppliers": "الموردون",
@@ -246,6 +247,16 @@
     "at": "على",
     "seeAll": "عرض الكل ←",
     "upcomingAppointments": "المواعيد القادمة"
+  },
+  "agenda": {
+    "title": "الأجندة",
+    "week": "أسبوع",
+    "day": "يوم",
+    "today": "اليوم",
+    "allPractitioners": "كل الأطباء",
+    "noPractitioner": "بدون طبيب",
+    "chooseSlot": "اختر فترة (أجندة الطبيب)",
+    "conflict": "لدى هذا الطبيب موعد في هذه الفترة بالفعل."
   },
   "appointments": {
     "title": "المواعيد",
@@ -882,6 +893,10 @@
       "dentist": "طبيب أسنان",
       "assistant": "مساعد(ة)"
     },
+    "myPractitioner": "ملفك كطبيب",
+    "myPractitionerHint": "اربط حسابك بطبيب لكي تعرض أجندتك مواعيدك افتراضياً.",
+    "myPractitionerNone": "— بدون —",
+    "myPractitionerSaved": "تم الحفظ ✓",
     "practiceInfo": "معلومات العيادة",
     "practiceName": "اسم العيادة",
     "practiceNamePlaceholder": "مثال: عيادة بنعلي لطب الأسنان",
