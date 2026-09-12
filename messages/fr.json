@@ -255,7 +255,7 @@
     "today": "Aujourd'hui",
     "allPractitioners": "Tous les dentistes",
     "noPractitioner": "Sans dentiste",
-    "chooseSlot": "Choisir un créneau (agenda du dentiste)",
+    "chooseSlot": "Choisir un créneau",
     "slotHint": "Cliquez le début du créneau, puis la fin.",
     "conflict": "Ce dentiste a déjà un rendez-vous sur ce créneau."
   },
@@ -1111,6 +1111,11 @@
   "medicaments": {
     "errNameRequired": "Le nom est requis.",
     "backToOrdonnances": "Ordonnances",
+    "backToList": "Médicaments",
+    "informations": "Informations",
+    "edit": "Modifier",
+    "archiveQ": "Archiver ce médicament ?",
+    "archiveBody": "Il sera retiré du catalogue mais restera sur les ordonnances existantes.",
     "title": "Médicaments",
     "newMedicament": "Nouveau médicament",
     "searchPlaceholder": "Rechercher un médicament…",

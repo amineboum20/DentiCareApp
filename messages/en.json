@@ -255,7 +255,7 @@
     "today": "Today",
     "allPractitioners": "All dentists",
     "noPractitioner": "No dentist",
-    "chooseSlot": "Pick a slot (dentist's agenda)",
+    "chooseSlot": "Pick a slot",
     "slotHint": "Click the slot start, then the end.",
     "conflict": "This dentist already has an appointment in that slot."
   },
@@ -1069,6 +1069,11 @@
   "medicaments": {
     "errNameRequired": "Name is required.",
     "backToOrdonnances": "Prescriptions",
+    "backToList": "Medications",
+    "informations": "Information",
+    "edit": "Edit",
+    "archiveQ": "Archive this medication?",
+    "archiveBody": "It will be removed from the catalogue but kept on existing prescriptions.",
     "title": "Medications",
     "newMedicament": "New medication",
     "searchPlaceholder": "Search for a medication…",

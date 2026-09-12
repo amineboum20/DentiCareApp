@@ -255,7 +255,7 @@
     "today": "اليوم",
     "allPractitioners": "كل الأطباء",
     "noPractitioner": "بدون طبيب",
-    "chooseSlot": "اختر فترة (أجندة الطبيب)",
+    "chooseSlot": "اختر فترة",
     "slotHint": "انقر بداية الفترة ثم نهايتها.",
     "conflict": "لدى هذا الطبيب موعد في هذه الفترة بالفعل."
   },
@@ -1069,6 +1069,11 @@
   "medicaments": {
     "errNameRequired": "الاسم مطلوب.",
     "backToOrdonnances": "الوصفات الطبية",
+    "backToList": "الأدوية",
+    "informations": "معلومات",
+    "edit": "تعديل",
+    "archiveQ": "أرشفة هذا الدواء؟",
+    "archiveBody": "سيُزال من القائمة لكنه يبقى على الوصفات الحالية.",
     "title": "الأدوية",
     "newMedicament": "دواء جديد",
     "searchPlaceholder": "ابحث عن دواء…",

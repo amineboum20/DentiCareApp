@@ -1,41 +1,41 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { Medicament } from "@/types/database";
-import { useAppContext } from "@/components/AppContext";
+import { DR } from "@/components/DetailRow";
 
 interface Props {
-  initial: Medicament[];
+  medicament: Medicament;
+  locale: string;
 }
 
-const emptyForm = {
-  name: "", form: "", default_posologie: "", default_duree: "", default_quantite: "", default_instructions: "", notes: "",
-};
-
-export default function MedicamentsClient({ initial }: Props) {
-  const supabase = useMemo(() => createClient(), []);
-  const router = useRouter();
-  const pathname = usePathname();
-  const locale = pathname.split("/")[1];
-  const { practiceId, currentUserId } = useAppContext();
+export default function MedicamentDetailClient({ medicament, locale }: Props) {
   const t = useTranslations("medicaments");
+  const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
 
-  const [meds, setMeds] = useState<Medicament[]>(initial);
-  const [search, setSearch] = useState("");
+  const [med, setMed] = useState<Medicament>(medicament);
   const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: med.name, form: med.form ?? "", default_posologie: med.default_posologie ?? "",
+    default_duree: med.default_duree ?? "", default_quantite: med.default_quantite ?? "",
+    default_instructions: med.default_instructions ?? "", notes: med.notes ?? "",
+  });
 
-  const filtered = useMemo(() =>
-    meds.filter((m) => m.name.toLowerCase().includes(search.toLowerCase())),
-    [meds, search]);
-
-  function openAdd() {
-    setForm(emptyForm); setError(""); setModalOpen(true);
+  function openEdit() {
+    setForm({
+      name: med.name, form: med.form ?? "", default_posologie: med.default_posologie ?? "",
+      default_duree: med.default_duree ?? "", default_quantite: med.default_quantite ?? "",
+      default_instructions: med.default_instructions ?? "", notes: med.notes ?? "",
+    });
+    setError(""); setModalOpen(true);
   }
 
   async function handleSave() {
@@ -49,67 +49,59 @@ export default function MedicamentsClient({ initial }: Props) {
       default_instructions: form.default_instructions.trim() || null,
       notes: form.notes.trim() || null,
     };
-    const { data, error: e } = await supabase.from("medicaments").insert({ ...payload, practice_id: practiceId, user_id: currentUserId, created_by: currentUserId }).select("*").single();
+    const { data, error: e } = await supabase.from("medicaments").update(payload).eq("id", med.id).select("*").single();
     if (e) { setError(e.message); setSaving(false); return; }
-    setMeds((xs) => [...xs, data as Medicament].sort((a, b) => a.name.localeCompare(b.name)));
-    setSaving(false); setModalOpen(false);
+    setMed(data as Medicament); setSaving(false); setModalOpen(false);
+  }
+
+  async function handleArchive() {
+    setArchiving(true);
+    await supabase.from("medicaments").update({ archived_at: new Date().toISOString() }).eq("id", med.id);
+    router.push(`/${locale}/dashboard/medicaments`);
   }
 
   const inputCls = "w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
 
   return (
     <>
-      <button onClick={() => router.push(`/${locale}/dashboard/ordonnances`)} className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors mb-4">
+      <button onClick={() => router.push(`/${locale}/dashboard/medicaments`)} className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors mb-4">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 12L6 8l4-4" /></svg>
-        {t("backToOrdonnances")}
+        {t("backToList")}
       </button>
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
-        <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">+ {t("newMedicament")}</button>
+      <div className="flex items-start gap-4 mb-6">
+        <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-2xl shrink-0">💊</div>
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{med.name}</h1>
+          {med.form && <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{med.form}</p>}
+        </div>
       </div>
 
-      <div className="relative mb-5">
-        <span className="absolute inset-y-0 start-3 flex items-center text-zinc-400 text-sm">🔍</span>
-        <input type="text" placeholder={t("searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)}
-          className="w-full ps-9 pe-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">{t("informations")}</h2>
+        <div className="space-y-1">
+          <DR label={t("form.form")} value={med.form} />
+          <DR label={t("form.posologie")} value={med.default_posologie} />
+          <DR label={t("form.duree")} value={med.default_duree} />
+          <DR label={t("form.quantite")} value={med.default_quantite} />
+          <DR label={t("form.instructions")} value={med.default_instructions} />
+          <DR label={t("form.notes")} value={med.notes} />
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <span className="text-4xl mb-3">{search ? "🔍" : "💊"}</span>
-            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">{search ? t("noResults") : t("empty")}</p>
-            {!search && <button onClick={openAdd} className="mt-4 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium">+ {t("newMedicament")}</button>}
-          </div>
-        ) : (
-          <div className="divide-y divide-zinc-50 dark:divide-zinc-800/60">
-            {filtered.map((m) => (
-              <div key={m.id} onClick={() => router.push(`/${locale}/dashboard/medicaments/${m.id}`)} className="flex items-center justify-between px-5 py-3.5 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white">{m.name}{m.form ? <span className="text-zinc-400 font-normal"> · {m.form}</span> : null}</p>
-                  {(m.default_posologie || m.default_duree || m.default_quantite) && (
-                    <p className="text-xs text-zinc-400 mt-0.5 truncate">
-                      {[
-                        m.default_posologie && `${t("form.posologie")}: ${m.default_posologie}`,
-                        m.default_duree && `${t("form.duree")}: ${m.default_duree}`,
-                        m.default_quantite && `${t("form.quantite")}: ${m.default_quantite}`,
-                      ].filter(Boolean).join(", ")}
-                    </p>
-                  )}
-                </div>
-                <span className="text-xs text-zinc-300 shrink-0 ms-2">→</span>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="flex flex-wrap items-center gap-3 pt-6">
+        <button onClick={() => setArchiveOpen(true)} className="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors">{t("archive")}</button>
+        <div className="ms-auto">
+          <button onClick={openEdit} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">✏️ {t("edit")}</button>
+        </div>
       </div>
 
+      {/* Edit modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-              <h2 className="font-semibold text-zinc-900 dark:text-white">{t("addTitle")}</h2>
+              <h2 className="font-semibold text-zinc-900 dark:text-white">{t("editTitle")}</h2>
               <button onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -153,6 +145,20 @@ export default function MedicamentsClient({ initial }: Props) {
                 <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">{t("cancel")}</button>
                 <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{saving ? t("saving") : t("save")}</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive confirmation */}
+      {archiveOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("archiveQ")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("archiveBody")}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setArchiveOpen(false)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">{t("cancel")}</button>
+              <button onClick={handleArchive} disabled={archiving} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{archiving ? "…" : t("archive")}</button>
             </div>
           </div>
         </div>
