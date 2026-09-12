@@ -256,6 +256,7 @@
     "allPractitioners": "كل الأطباء",
     "noPractitioner": "بدون طبيب",
     "chooseSlot": "اختر فترة (أجندة الطبيب)",
+    "slotHint": "انقر بداية الفترة ثم نهايتها.",
     "conflict": "لدى هذا الطبيب موعد في هذه الفترة بالفعل."
   },
   "appointments": {

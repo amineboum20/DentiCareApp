@@ -256,6 +256,7 @@
     "allPractitioners": "All dentists",
     "noPractitioner": "No dentist",
     "chooseSlot": "Pick a slot (dentist's agenda)",
+    "slotHint": "Click the slot start, then the end.",
     "conflict": "This dentist already has an appointment in that slot."
   },
   "appointments": {

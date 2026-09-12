@@ -9,6 +9,7 @@ import { useAppContext } from "@/components/AppContext";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
 import SearchableSelect from "@/components/SearchableSelect";
+import WeekSlotPicker from "@/components/WeekSlotPicker";
 
 interface Props {
   initialAppointments: AppointmentWithPatient[];
@@ -46,12 +47,6 @@ const emptyForm = {
   notes: "",
 };
 
-// In-form day timeline (slot picker) constants.
-const TL_START = 8, TL_END = 20, TL_PXH = 32;
-const TL_HOURS = Array.from({ length: TL_END - TL_START }, (_, i) => TL_START + i);
-const pad2 = (n: number) => String(n).padStart(2, "0");
-const localDateStr = (iso: string) => { const d = new Date(iso); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
-
 function patientName(appt: AppointmentWithPatient) {
   if (!appt.patients) return "—";
   return `${appt.patients.first_name} ${appt.patients.last_name}`;
@@ -59,7 +54,6 @@ function patientName(appt: AppointmentWithPatient) {
 
 export default function AppointmentsClient({ initialAppointments, patients }: Props) {
   const t = useTranslations("appointments");
-  const tAgenda = useTranslations("agenda");
   const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -142,34 +136,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
 
   function setField(key: keyof typeof emptyForm, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
-  }
-
-  // Slot picker: the chosen dentist's booked slots on the chosen day (from the
-  // in-memory list — no extra fetch), and whether the current time overlaps one.
-  const selDate = form.scheduled_at ? form.scheduled_at.slice(0, 10) : "";
-  const slotAppts = useMemo(() => {
-    if (!form.praticien_id || !selDate) return [];
-    return appointments.filter((a) =>
-      a.praticien_id === form.praticien_id &&
-      a.status !== "annule" &&
-      (editing ? a.id !== editing.id : true) &&
-      !!a.scheduled_at && localDateStr(a.scheduled_at) === selDate);
-  }, [appointments, form.praticien_id, selDate, editing]);
-  const slotConflict = useMemo(() => {
-    if (!form.scheduled_at || !form.praticien_id) return false;
-    const s = new Date(form.scheduled_at).getTime();
-    const e = s + (parseInt(form.duration_minutes || "30") || 30) * 60000;
-    return slotAppts.some((a) => {
-      const as = new Date(a.scheduled_at).getTime();
-      const ae = as + ((a.duration_minutes ?? 30) * 60000);
-      return s < ae && as < e;
-    });
-  }, [form.scheduled_at, form.duration_minutes, form.praticien_id, slotAppts]);
-  function pickSlot(e: React.MouseEvent<HTMLDivElement>) {
-    if (!selDate) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const snapped = Math.max(0, Math.round(((e.clientY - rect.top) / TL_PXH * 60) / 15) * 15);
-    setField("scheduled_at", `${selDate}T${pad2(TL_START + Math.floor(snapped / 60))}:${pad2(snapped % 60)}`);
   }
 
   function openAdd() {
@@ -580,39 +546,16 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("dentist")}</label>
                 <PraticienSelect value={form.praticien_id} onChange={(id) => setField("praticien_id", id)} className={inputCls} />
               </div>
-              {/* Slot picker — the chosen dentist's agenda for the selected day. */}
-              {form.praticien_id && selDate && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">{tAgenda("chooseSlot")}</label>
-                    {slotConflict && <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400">⚠️ {tAgenda("conflict")}</span>}
-                  </div>
-                  <div onClick={pickSlot} className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-zinc-50/60 dark:bg-zinc-800/30 cursor-copy" style={{ height: (TL_END - TL_START) * TL_PXH }}>
-                    {TL_HOURS.map((h) => (
-                      <div key={h} style={{ height: TL_PXH }} className="relative border-b border-zinc-100 dark:border-zinc-800/60">
-                        <span className="absolute top-0.5 start-1 text-[9px] text-zinc-400">{pad2(h)}:00</span>
-                      </div>
-                    ))}
-                    <div className="absolute inset-y-0 end-1 start-10">
-                      {slotAppts.map((a) => {
-                        const s = new Date(a.scheduled_at);
-                        const top = Math.max(0, ((s.getHours() - TL_START) * 60 + s.getMinutes()) / 60 * TL_PXH);
-                        const height = Math.max(14, ((a.duration_minutes ?? 30) / 60) * TL_PXH);
-                        return (
-                          <div key={a.id} style={{ top, height }} className="absolute inset-x-0 rounded bg-zinc-300/80 dark:bg-zinc-600/70 border border-zinc-400/40 px-1 overflow-hidden pointer-events-none">
-                            <span className="block text-[9px] leading-tight text-zinc-700 dark:text-zinc-200 truncate">{s.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })} {patientName(a)}</span>
-                          </div>
-                        );
-                      })}
-                      {form.scheduled_at && (() => {
-                        const s = new Date(form.scheduled_at);
-                        const top = Math.max(0, ((s.getHours() - TL_START) * 60 + s.getMinutes()) / 60 * TL_PXH);
-                        const height = Math.max(14, ((parseInt(form.duration_minutes || "30") || 30) / 60) * TL_PXH);
-                        return <div style={{ top, height }} className={`absolute inset-x-0 rounded border pointer-events-none ${slotConflict ? "bg-amber-500/60 border-amber-600" : "bg-teal-500/70 border-teal-600"}`} />;
-                      })()}
-                    </div>
-                  </div>
-                </div>
+              {/* Slot picker — the chosen dentist's week agenda; two-click a range. */}
+              {form.praticien_id && (
+                <WeekSlotPicker
+                  praticienId={form.praticien_id}
+                  appointments={appointments}
+                  excludeId={editing?.id ?? null}
+                  valueLocal={form.scheduled_at}
+                  durationMinutes={parseInt(form.duration_minutes || "30") || 30}
+                  onChange={(at, dur) => setForm((f) => ({ ...f, scheduled_at: at, duration_minutes: String(dur) }))}
+                />
               )}
               {/* Rattacher à un dossier (nouveau RDV uniquement) */}
               {!editing && (

@@ -256,6 +256,7 @@
     "allPractitioners": "Tous les dentistes",
     "noPractitioner": "Sans dentiste",
     "chooseSlot": "Choisir un créneau (agenda du dentiste)",
+    "slotHint": "Cliquez le début du créneau, puis la fin.",
     "conflict": "Ce dentiste a déjà un rendez-vous sur ce créneau."
   },
   "appointments": {
