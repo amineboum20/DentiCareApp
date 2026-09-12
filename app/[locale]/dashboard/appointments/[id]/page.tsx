@@ -14,7 +14,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
   const [{ data: appointment }, { data: patients }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("*, patients(first_name, last_name), dossiers(title)")
+      .select("*, patients(first_name, last_name, phone), dossiers(title)")
       .eq("id", id)
       .single(),
     supabase
