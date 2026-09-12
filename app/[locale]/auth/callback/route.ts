@@ -115,8 +115,21 @@ export async function GET(request: Request) {
   }
 
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      const user = data.user;
+      if (user) {
+        const shopName = user.user_metadata?.shop_name as string | undefined;
+        if (shopName) {
+          await notifyApproval(
+            user.id,
+            user.email ?? "",
+            shopName,
+            user.user_metadata?.first_name ?? "",
+            user.user_metadata?.last_name ?? "",
+          ).catch(console.error);
+        }
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
