@@ -398,7 +398,12 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                       onChange={(e) => handleStatusChange(a, e.target.value as AppointmentStatus)}
                       className={`text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 ${STATUS_STYLE[a.status] ?? ""}`}
                     >
-                      {STATUSES.filter((s) => !nowRef || a.scheduled_at.slice(0, 10) <= nowRef.today || s === "planifie" || s === "annule" || s === a.status).map((s) => (
+                      {STATUSES.filter((s) => {
+                        if (s === a.status) return true;               // always show the current status
+                        if (s === "termine") return false;             // completed via the RDV detail (visite flow)
+                        if (s === "absent") return !!nowRef && a.scheduled_at.slice(0, 10) <= nowRef.today; // no-show: past only
+                        return true;                                   // planifié, annulé
+                      }).map((s) => (
                         <option key={s} value={s} className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white">
                           {t(`statuses.${s}`)}
                         </option>

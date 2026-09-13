@@ -84,13 +84,12 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [linkedVisite, setLinkedVisite] = useState<{ id: string; exam_date: string; motif: string } | null>(null);
   const today = new Date().toLocaleDateString("en-CA");
   const isPastOrNow = appointment.scheduled_at.slice(0, 10) <= today;
-  // A future RDV can only be Planifié or Annulé; Terminé/Absent need it to have
-  // happened. Keep the current status selectable even if it breaks the rule.
-  // Status options are time-based and the same for every role: a past/today RDV
-  // can only be marked Terminé or Absent (it has happened), a future one only
-  // Planifié or Annulé (it hasn't). An assistant's "Terminé" just records
-  // attendance — the visite/billing dialog stays dentist-only (see handleStatusChange).
-  const allowedStatuses: AppointmentStatus[] = isPastOrNow ? ["termine", "absent"] : ["planifie", "annule"];
+  // Status options are time-based; a future RDV can only be Planifié/Annulé.
+  // "Terminé" creates a clinical visite, so it is DENTIST-ONLY — an assistant
+  // gets Annulé/Absent on a past RDV instead (never Terminé).
+  const allowedStatuses: AppointmentStatus[] = isAssistant
+    ? (isPastOrNow ? ["annule", "absent"] : ["planifie", "annule"])
+    : (isPastOrNow ? ["termine", "absent"] : ["planifie", "annule"]);
 
   const patientData = appointment.patients as { first_name: string; last_name: string; phone?: string | null } | null;
   const contactName = `${appointment.contact_first_name ?? ""} ${appointment.contact_last_name ?? ""}`.trim();
