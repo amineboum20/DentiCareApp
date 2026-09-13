@@ -169,10 +169,10 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     setRdvNewDossierMode(false); setRdvNewDossierTitle("");
   }
   async function handleSave() {
-    if (!form.title.trim() || !form.scheduled_at) {
-      setError(t("form.requiredError"));
-      return;
-    }
+    const missing: string[] = [];
+    if (!form.title.trim()) missing.push(t("form.title"));
+    if (!form.scheduled_at) missing.push(t("form.scheduledAt"));
+    if (missing.length) { setError(t("form.missingFields", { fields: missing.join(", ") })); return; }
     // A RDV is a future plan — block creating one in the past (editing an
     // already-past RDV stays allowed, since it simply aged).
     if (!editing && form.scheduled_at.slice(0, 10) < new Date().toLocaleDateString("en-CA")) {

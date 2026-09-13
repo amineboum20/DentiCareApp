@@ -257,6 +257,7 @@
     "noPractitioner": "No dentist",
     "chooseSlot": "Pick a slot",
     "slotHint": "Click the slot start, then the end.",
+    "selected": "Selected",
     "conflict": "This dentist already has an appointment in that slot."
   },
   "appointments": {
@@ -312,6 +313,7 @@
       "npLastName": "Last name",
       "npPhone": "Phone",
       "quickContact": "+ Quick patient",
+      "missingFields": "Required: {fields}",
       "contactHint": "Saved on the appointment; create the patient file when they come in."
     },
     "deleteConfirm": {

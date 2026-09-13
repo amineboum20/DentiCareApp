@@ -257,6 +257,7 @@
     "noPractitioner": "Sans dentiste",
     "chooseSlot": "Choisir un créneau",
     "slotHint": "Cliquez le début du créneau, puis la fin.",
+    "selected": "Sélectionné",
     "conflict": "Ce dentiste a déjà un rendez-vous sur ce créneau."
   },
   "appointments": {
@@ -312,6 +313,7 @@
       "npLastName": "Nom",
       "npPhone": "Téléphone",
       "quickContact": "+ Patient rapide",
+      "missingFields": "Champs requis : {fields}",
       "contactHint": "Enregistré sur le rendez-vous ; créez la fiche patient quand il vient."
     },
     "deleteConfirm": {

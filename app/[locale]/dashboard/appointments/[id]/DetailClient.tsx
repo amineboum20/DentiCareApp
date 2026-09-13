@@ -233,10 +233,10 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   }
 
   async function handleSave() {
-    if (!form.title.trim() || !form.scheduled_at) {
-      setFormError(t("detail.errRequired"));
-      return;
-    }
+    const missing: string[] = [];
+    if (!form.title.trim()) missing.push(t("form.title"));
+    if (!form.scheduled_at) missing.push(t("form.scheduledAt"));
+    if (missing.length) { setFormError(t("form.missingFields", { fields: missing.join(", ") })); return; }
     if (form.scheduled_at.slice(0, 10) > today && (form.status === "termine" || form.status === "absent")) {
       setFormError(t("errFutureStatus"));
       return;

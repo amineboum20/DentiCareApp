@@ -126,6 +126,12 @@ export default function WeekSlotPicker({ praticienId, appointments, excludeId, v
         </span>
       </div>
       <p className="text-[10px] text-zinc-400 mb-1">{t("slotHint")}</p>
+      {valueLocal && (() => {
+        const s = new Date(valueLocal);
+        const e = new Date(s.getTime() + (durationMinutes || 30) * 60000);
+        const fmt = (d: Date) => d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+        return <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">✓ {t("selected")} : {s.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "short" })} · {fmt(s)} – {fmt(e)}</p>;
+      })()}
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
         <div className="flex bg-zinc-50 dark:bg-zinc-800/40 border-b border-zinc-100 dark:border-zinc-800">
           <div className="w-10 shrink-0" />
@@ -134,7 +140,7 @@ export default function WeekSlotPicker({ praticienId, appointments, excludeId, v
             return <div key={+d} className={`flex-1 text-center py-1 text-[10px] ${today ? "text-teal-600 dark:text-teal-400 font-semibold" : "text-zinc-500 dark:text-zinc-400"}`}>{d.toLocaleDateString(locale, { weekday: "short" })} {d.getDate()}</div>;
           })}
         </div>
-        <div className="flex max-h-64 overflow-y-auto">
+        <div className="flex items-start max-h-64 overflow-y-auto">
           <div className="w-10 shrink-0">
             {SLOTS.map((s) => <div key={s} style={{ height: ROW_H }} className="text-[9px] text-zinc-400 text-end pe-1">{s % 2 === 0 ? `${pad(DAY_START + s / 2)}:00` : ""}</div>)}
           </div>
@@ -155,7 +161,7 @@ export default function WeekSlotPicker({ praticienId, appointments, excludeId, v
                       onClick={() => onCell(day, slot)}
                       style={{ height: ROW_H }}
                       title={label || ""}
-                      className={`w-full block text-[8px] leading-none px-0.5 truncate text-start border-b ${slot % 2 === 0 ? "border-zinc-200 dark:border-zinc-700" : "border-zinc-100 dark:border-zinc-800/60"} ${
+                      className={`w-full block text-[8px] leading-none px-0.5 truncate text-start border-t ${slot % 2 === 0 ? "border-zinc-200 dark:border-zinc-700" : "border-zinc-100 dark:border-zinc-800/60"} ${
                         isSel ? (conflict ? "bg-amber-400/80 text-white" : "bg-teal-500/80 text-white")
                           : isBusy ? "bg-zinc-300/70 dark:bg-zinc-600/60 text-zinc-600 dark:text-zinc-200"
                             : "hover:bg-teal-50 dark:hover:bg-teal-900/20"

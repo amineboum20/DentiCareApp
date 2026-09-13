@@ -257,6 +257,7 @@
     "noPractitioner": "بدون طبيب",
     "chooseSlot": "اختر فترة",
     "slotHint": "انقر بداية الفترة ثم نهايتها.",
+    "selected": "محدد",
     "conflict": "لدى هذا الطبيب موعد في هذه الفترة بالفعل."
   },
   "appointments": {
@@ -312,6 +313,7 @@
       "npLastName": "الاسم العائلي",
       "npPhone": "الهاتف",
       "quickContact": "+ مريض سريع",
+      "missingFields": "حقول مطلوبة: {fields}",
       "contactHint": "يُحفظ على الموعد؛ أنشئ ملف المريض عند حضوره."
     },
     "deleteConfirm": {
