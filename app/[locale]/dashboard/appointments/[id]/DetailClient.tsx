@@ -146,38 +146,37 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     setTerminering(true);
     let visiteId = existingVisiteId;
 
+    let linkDossierId = appointment.dossier_id;
+
     if (linkMode === "new") {
       const motif = TYPE_TO_MOTIF[appointment.type] ?? "consultation";
+      // Every visite belongs to a dossier — create one if the RDV has none,
+      // regardless of whether it's being billed.
+      if (!linkDossierId) {
+        const { data: dz } = await supabase.from("dossiers").insert({
+          practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
+          patient_id: appointment.patient_id as string,
+          title: t("detail.autoDossierTitle", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") }),
+          statut: "ouvert",
+        }).select("id").single();
+        if (dz) linkDossierId = (dz as { id: string }).id;
+      }
       const { data: cons, error } = await supabase.from("consultations").insert({
         practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
-        patient_id: appointment.patient_id, dossier_id: appointment.dossier_id,
+        patient_id: appointment.patient_id, dossier_id: linkDossierId,
         motif, exam_date: appointment.scheduled_at.slice(0, 10),
         clinical_notes: appointment.notes?.trim() || null,
       }).select("id").single();
       if (error || !cons) { setTerminering(false); return; }
       visiteId = (cons as { id: string }).id;
-      // Bill actes; if the RDV had no dossier, auto-create one and attach the visite.
-      if (billOn && billActes.length > 0) {
-        let targetDossierId = appointment.dossier_id;
-        if (!targetDossierId) {
-          const { data: dz } = await supabase.from("dossiers").insert({
-            practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
-            patient_id: appointment.patient_id as string, title: t("detail.autoDossierTitle", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") }), statut: "ouvert",
-          }).select("id").single();
-          if (dz) {
-            targetDossierId = (dz as { id: string }).id;
-            await supabase.from("consultations").update({ dossier_id: targetDossierId }).eq("id", visiteId);
-          }
-        }
-        if (targetDossierId) {
-          await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: appointment.patient_id as string, dossierId: targetDossierId, actes: billActes });
-        }
+      if (billOn && billActes.length > 0 && linkDossierId) {
+        await billActesToDossier(supabase, { practiceId, userId: currentUserId, patientId: appointment.patient_id as string, dossierId: linkDossierId, actes: billActes });
       }
     }
 
     if (!visiteId) { setTerminering(false); return; } // "existing" mode needs a selection
-    await supabase.from("appointments").update({ status: "termine", consultation_id: visiteId }).eq("id", appointment.id);
-    setAppointment((a) => ({ ...a, status: "termine", consultation_id: visiteId }));
+    await supabase.from("appointments").update({ status: "termine", consultation_id: visiteId, dossier_id: linkDossierId }).eq("id", appointment.id);
+    setAppointment((a) => ({ ...a, status: "termine", consultation_id: visiteId, dossier_id: linkDossierId }));
     setTerminering(false); setTerminerOpen(false);
   }
 
@@ -501,6 +500,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                   <input type="checkbox" checked={billOn} onChange={(e) => setBillOn(e.target.checked)} className="w-4 h-4 accent-teal-600" />
                   {t("detail.billVisit")}
                 </label>
+                {!appointment.dossier_id && <p className="text-[11px] text-zinc-400">{t("detail.autoDossierNote", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") })}</p>}
                 {billOn && (
                   actes.length > 0 ? (
                     <div className="space-y-2">
@@ -531,7 +531,6 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                         <option value="">+ {t("detail.addActe")}</option>
                         {actes.map((a) => <option key={a.id} value={a.id}>{a.name} — {a.price.toFixed(2)} MAD</option>)}
                       </select>
-                      {!appointment.dossier_id && <p className="text-[11px] text-zinc-400">{t("detail.autoDossierNote", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") })}</p>}
                     </div>
                   ) : (
                     <p className="text-[11px] text-amber-600 dark:text-amber-400">{t("detail.noActes")}</p>
