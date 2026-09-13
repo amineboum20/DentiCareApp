@@ -11,7 +11,7 @@ export default async function AgendaPage() {
   const [{ data: appointments }, { data: praticiens }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("id, title, scheduled_at, duration_minutes, type, status, praticien_id, patient_id, patients(first_name, last_name)")
+      .select("id, title, scheduled_at, duration_minutes, type, status, praticien_id, patient_id, contact_first_name, contact_last_name, patients(first_name, last_name)")
       .is("archived_at", null)
       .order("scheduled_at", { ascending: true }),
     supabase

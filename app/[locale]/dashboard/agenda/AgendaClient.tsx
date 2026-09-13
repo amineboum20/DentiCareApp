@@ -14,6 +14,8 @@ export type AgendaAppointment = {
   praticien_id: string | null;
   patient_id: string | null;
   patients: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
+  contact_first_name: string | null;
+  contact_last_name: string | null;
 };
 
 interface Props {
@@ -24,25 +26,35 @@ interface Props {
 
 const HOUR_START = 7;
 const HOUR_END = 21;
-const PX_PER_HOUR = 48;
+const PX_PER_HOUR = 56;
 const GRID_H = (HOUR_END - HOUR_START) * PX_PER_HOUR;
 const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i);
 
-const STATUS_BLOCK: Record<string, string> = {
-  planifie: "bg-teal-500/90 border-teal-600 text-white",
-  termine: "bg-emerald-500/90 border-emerald-600 text-white",
-  annule: "bg-red-400/80 border-red-500 text-white line-through",
-  absent: "bg-amber-500/90 border-amber-600 text-white",
-};
+// Blocks are coloured per dentist (assigned by order); a RDV with no dentist is
+// grey, and a cancelled one is muted + struck through.
+const DENTIST_COLORS = [
+  "bg-teal-500/90 border-teal-600",
+  "bg-indigo-500/90 border-indigo-600",
+  "bg-violet-500/90 border-violet-600",
+  "bg-amber-500/90 border-amber-600",
+  "bg-rose-500/90 border-rose-600",
+  "bg-cyan-500/90 border-cyan-600",
+  "bg-fuchsia-500/90 border-fuchsia-600",
+  "bg-lime-600/90 border-lime-700",
+];
+const NO_DENTIST_COLOR = "bg-zinc-400/80 border-zinc-500";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 function startOfWeek(d: Date) { const x = startOfDay(d); const w = (x.getDay() + 6) % 7; return addDays(x, -w); }
-const patName = (p: AgendaAppointment["patients"]) => {
-  const o = Array.isArray(p) ? p[0] : p;
-  return o ? `${o.first_name} ${o.last_name}` : "";
+// A block's label: the patient, else the quick contact, else the RDV title.
+const apptLabel = (a: AgendaAppointment) => {
+  const o = Array.isArray(a.patients) ? a.patients[0] : a.patients;
+  if (o) return `${o.first_name} ${o.last_name}`;
+  const c = `${a.contact_first_name ?? ""} ${a.contact_last_name ?? ""}`.trim();
+  return c || a.title;
 };
 
 export default function AgendaClient({ initialAppointments, praticiens, defaultPraticienId }: Props) {
@@ -61,6 +73,10 @@ export default function AgendaClient({ initialAppointments, praticiens, defaultP
     const m = new Map(praticiens.map((p) => [p.id, p.name]));
     return (id: string | null) => (id ? m.get(id) ?? t("noPractitioner") : t("noPractitioner"));
   }, [praticiens, t]);
+  const dentistColor = useMemo(() => {
+    const idx = new Map(praticiens.map((p, i) => [p.id, i]));
+    return (id: string | null) => (id == null ? NO_DENTIST_COLOR : DENTIST_COLORS[(idx.get(id) ?? 0) % DENTIST_COLORS.length]);
+  }, [praticiens]);
 
   const days = useMemo(() => {
     if (!anchor) return [];
@@ -163,18 +179,28 @@ export default function AgendaClient({ initialAppointments, praticiens, defaultP
                   const mins = (s.getHours() - HOUR_START) * 60 + s.getMinutes();
                   const dur = a.duration_minutes ?? 30;
                   const top = Math.max(0, (mins / 60) * PX_PER_HOUR);
-                  const height = Math.max(18, (dur / 60) * PX_PER_HOUR);
+                  const height = Math.max(16, (dur / 60) * PX_PER_HOUR);
+                  const time = s.toLocaleTimeString(intlLocale, { hour: "2-digit", minute: "2-digit" });
+                  const label = apptLabel(a);
+                  const short = height < 44;
+                  const cancelled = a.status === "annule";
                   return (
                     <button
                       key={a.id}
                       onClick={(e) => { e.stopPropagation(); router.push(`/${locale}/dashboard/appointments/${a.id}`); }}
                       style={{ top, height }}
-                      className={`absolute inset-x-0.5 rounded-md border px-1.5 py-0.5 text-start overflow-hidden ${STATUS_BLOCK[a.status] ?? "bg-zinc-500 border-zinc-600 text-white"}`}
-                      title={`${s.toLocaleTimeString(intlLocale, { hour: "2-digit", minute: "2-digit" })} · ${patName(a.patients) || a.title}`}
+                      className={`absolute inset-x-0.5 rounded-md border px-1 text-start overflow-hidden leading-none text-white ${dentistColor(a.praticien_id)} ${cancelled ? "opacity-60 line-through" : ""}`}
+                      title={`${time} · ${label}${prat === "all" && a.praticien_id ? " · " + pratName(a.praticien_id) : ""}`}
                     >
-                      <div className="text-[10px] leading-tight opacity-90">{s.toLocaleTimeString(intlLocale, { hour: "2-digit", minute: "2-digit" })}</div>
-                      <div className="text-[11px] font-medium leading-tight truncate">{patName(a.patients) || a.title}</div>
-                      {prat === "all" && <div className="text-[9px] leading-tight opacity-80 truncate">{pratName(a.praticien_id)}</div>}
+                      {short ? (
+                        <div className="text-[10px] truncate pt-0.5"><span className="opacity-90">{time}</span> {label}</div>
+                      ) : (
+                        <>
+                          <div className="text-[10px] opacity-90 pt-0.5">{time}</div>
+                          <div className="text-[11px] font-medium truncate">{label}</div>
+                          {prat === "all" && <div className="text-[9px] opacity-80 truncate">{pratName(a.praticien_id)}</div>}
+                        </>
+                      )}
                     </button>
                   );
                 })}
