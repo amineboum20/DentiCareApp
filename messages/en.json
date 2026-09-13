@@ -310,7 +310,9 @@
       "createPatient": "Create patient",
       "npFirstName": "First name",
       "npLastName": "Last name",
-      "npPhone": "Phone"
+      "npPhone": "Phone",
+      "quickContact": "+ Quick contact",
+      "contactHint": "Saved on the appointment; create the patient file when they come in."
     },
     "deleteConfirm": {
       "title": "Delete appointment",
@@ -338,6 +340,8 @@
       "call": "Call",
       "whatsapp": "WhatsApp",
       "viewProfile": "View profile →",
+      "contactBadge": "Contact",
+      "createPatientFile": "Create patient file",
       "patient": "Patient",
       "dossier": "Case",
       "linkedVisit": "Linked visit",

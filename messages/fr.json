@@ -310,7 +310,9 @@
       "createPatient": "Créer le patient",
       "npFirstName": "Prénom",
       "npLastName": "Nom",
-      "npPhone": "Téléphone"
+      "npPhone": "Téléphone",
+      "quickContact": "+ Contact rapide",
+      "contactHint": "Enregistré sur le rendez-vous ; créez la fiche patient quand il vient."
     },
     "deleteConfirm": {
       "title": "Supprimer le rendez-vous",
@@ -338,6 +340,8 @@
       "call": "Appeler",
       "whatsapp": "WhatsApp",
       "viewProfile": "Voir le profil →",
+      "contactBadge": "Contact",
+      "createPatientFile": "Créer la fiche patient",
       "patient": "Patient",
       "dossier": "Dossier",
       "linkedVisit": "Visite liée",

@@ -199,6 +199,9 @@ export interface Appointment {
   type: AppointmentType
   status: AppointmentStatus
   notes: string | null
+  contact_first_name: string | null
+  contact_last_name: string | null
+  contact_phone: string | null
   created_at: string
   archived_at: string | null
   created_by: string | null

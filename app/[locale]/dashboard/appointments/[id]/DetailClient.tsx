@@ -45,6 +45,7 @@ const emptyForm = {
   type: "controle" as AppointmentType,
   status: "planifie" as AppointmentStatus,
   scheduled_at: "", duration_minutes: "", praticien_id: "", notes: "",
+  contact_first_name: "", contact_last_name: "", contact_phone: "",
 };
 
 export default function AppointmentDetailClient({ appointment: initialAppointment, patients, locale }: Props) {
@@ -62,12 +63,11 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
-  // Inline patient create: attach a client to a RDV taken by cold call, without
-  // leaving the edit form to build a full fiche (completed later).
+  // Existing patients for the picker; contactMode edits the RDV's quick contact
+  // (form.contact_*). promoting = turning that contact into a real patient.
   const [patientList, setPatientList] = useState(patients);
-  const [newPatientMode, setNewPatientMode] = useState(false);
-  const [np, setNp] = useState({ first_name: "", last_name: "", phone: "" });
-  const [creatingPatient, setCreatingPatient] = useState(false);
+  const [contactMode, setContactMode] = useState(false);
+  const [promoting, setPromoting] = useState(false);
   const [allAppts, setAllAppts] = useState<SlotAppointment[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -93,8 +93,10 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const allowedStatuses: AppointmentStatus[] = isPastOrNow ? ["termine", "absent"] : ["planifie", "annule"];
 
   const patientData = appointment.patients as { first_name: string; last_name: string; phone?: string | null } | null;
-  const patientName = patientData ? `${patientData.first_name} ${patientData.last_name}` : null;
-  const patientPhone = patientData?.phone ?? null;
+  const contactName = `${appointment.contact_first_name ?? ""} ${appointment.contact_last_name ?? ""}`.trim();
+  const isContact = !appointment.patient_id && !!contactName; // a quick contact, not a real patient yet
+  const patientName = patientData ? `${patientData.first_name} ${patientData.last_name}` : (contactName || null);
+  const patientPhone = patientData?.phone ?? appointment.contact_phone ?? null;
   // Linked dossier comes from the server prop (a to-one embed; array-guarded per
   // Supabase). Kept from the initial prop since edits don't change dossier_id.
   const dossierRel = (initialAppointment as { dossiers?: { title: string } | { title: string }[] | null }).dossiers;
@@ -192,9 +194,11 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       duration_minutes: String(appointment.duration_minutes ?? ""),
       praticien_id: appointment.praticien_id ?? "",
       notes: appointment.notes ?? "",
+      contact_first_name: appointment.contact_first_name ?? "",
+      contact_last_name: appointment.contact_last_name ?? "",
+      contact_phone: appointment.contact_phone ?? "",
     });
-    setNewPatientMode(false);
-    setNp({ first_name: "", last_name: "", phone: "" });
+    setContactMode(!appointment.patient_id && !!(appointment.contact_first_name || appointment.contact_last_name));
     setFormError("");
     setModalOpen(true);
   }
@@ -207,25 +211,28 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     };
   }
 
-  async function createInlinePatient() {
-    if (!np.first_name.trim() || !np.last_name.trim()) return;
-    setCreatingPatient(true);
-    const { data, error } = await supabase.from("patients").insert({
+  // Promote the RDV's quick contact into a real patient (when they show up).
+  async function promoteToPatient() {
+    if (!appointment.contact_first_name && !appointment.contact_last_name) return;
+    setPromoting(true);
+    const { data: p, error } = await supabase.from("patients").insert({
       practice_id: practiceId, user_id: currentUserId, created_by: currentUserId,
-      first_name: np.first_name.trim(), last_name: np.last_name.trim(),
-      phone: np.phone.trim() || null,
+      first_name: (appointment.contact_first_name ?? "").trim() || (appointment.contact_last_name ?? "").trim(),
+      last_name: (appointment.contact_last_name ?? "").trim(),
+      phone: appointment.contact_phone ?? null,
     }).select("id, first_name, last_name").single();
-    setCreatingPatient(false);
-    if (error || !data) { setFormError(error?.message ?? ""); return; }
-    const p = data as Pick<Patient, "id" | "first_name" | "last_name">;
-    setPatientList(xs => [...xs, p].sort((a, b) => a.last_name.localeCompare(b.last_name)));
-    setForm(f => ({ ...f, patient_id: p.id }));
-    setNewPatientMode(false);
-    setNp({ first_name: "", last_name: "", phone: "" });
+    if (error || !p) { setPromoting(false); return; }
+    const pid = (p as { id: string }).id;
+    const { data: appt } = await supabase.from("appointments")
+      .update({ patient_id: pid, contact_first_name: null, contact_last_name: null, contact_phone: null })
+      .eq("id", appointment.id).select("*, patients(first_name, last_name, phone)").single();
+    if (appt) setAppointment(appt as AppointmentWithPatient);
+    setPatientList(xs => [...xs, p as Pick<Patient, "id" | "first_name" | "last_name">].sort((a, b) => a.last_name.localeCompare(b.last_name)));
+    setPromoting(false);
   }
 
   async function handleSave() {
-    if (!form.patient_id || !form.title.trim() || !form.scheduled_at) {
+    if (!form.title.trim() || !form.scheduled_at) {
       setFormError(t("detail.errRequired"));
       return;
     }
@@ -235,7 +242,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     }
     setSaving(true); setFormError("");
     const payload = {
-      patient_id: form.patient_id,
+      patient_id: form.patient_id || null,
       title: form.title.trim(),
       type: form.type,
       status: form.status,
@@ -243,8 +250,11 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
       praticien_id: form.praticien_id || null,
       notes: form.notes.trim() || null,
+      contact_first_name: form.patient_id ? null : (form.contact_first_name.trim() || null),
+      contact_last_name: form.patient_id ? null : (form.contact_last_name.trim() || null),
+      contact_phone: form.patient_id ? null : (form.contact_phone.trim() || null),
     };
-    const { data, error } = await supabase.from("appointments").update(payload).eq("id", appointment.id).select("*, patients(first_name, last_name)").single();
+    const { data, error } = await supabase.from("appointments").update(payload).eq("id", appointment.id).select("*, patients(first_name, last_name, phone)").single();
     if (error) { setFormError(error.message); setSaving(false); return; }
     setAppointment(data as AppointmentWithPatient);
     setSaving(false); setModalOpen(false);
@@ -333,11 +343,18 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
           </div>
         </div>
 
-        {/* Patient quick actions (like the patient profile) */}
-        {appointment.patient_id && (
+        {/* Patient / contact quick actions (like the patient profile) */}
+        {(appointment.patient_id || isContact) && (
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 h-fit">
             <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-4">{t("detail.patientCard")}</h2>
-            <button onClick={() => router.push(`/${locale}/dashboard/patients/${appointment.patient_id}`)} className="text-base font-semibold text-zinc-900 dark:text-white hover:text-teal-600 dark:hover:text-teal-400 transition-colors block text-left">{patientName}</button>
+            {appointment.patient_id ? (
+              <button onClick={() => router.push(`/${locale}/dashboard/patients/${appointment.patient_id}`)} className="text-base font-semibold text-zinc-900 dark:text-white hover:text-teal-600 dark:hover:text-teal-400 transition-colors block text-left">{patientName}</button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-base font-semibold text-zinc-900 dark:text-white">{patientName}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">{t("detail.contactBadge")}</span>
+              </div>
+            )}
             {patientPhone && <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{patientPhone}</p>}
             {patientPhone && (
               <div className="grid grid-cols-2 gap-2 mt-4">
@@ -351,7 +368,11 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 </a>
               </div>
             )}
-            <button onClick={() => router.push(`/${locale}/dashboard/patients/${appointment.patient_id}`)} className="w-full mt-2 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">{t("detail.viewProfile")}</button>
+            {appointment.patient_id ? (
+              <button onClick={() => router.push(`/${locale}/dashboard/patients/${appointment.patient_id}`)} className="w-full mt-2 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">{t("detail.viewProfile")}</button>
+            ) : (
+              <button onClick={promoteToPatient} disabled={promoting} className="w-full mt-3 px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{promoting ? "…" : t("detail.createPatientFile")}</button>
+            )}
           </div>
         )}
       </div>
@@ -380,26 +401,24 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">{t("form.patient")} <span className="text-red-500">*</span></label>
-                  <button type="button" onClick={() => { setNewPatientMode(v => !v); setFormError(""); }} className="text-xs text-teal-600 dark:text-teal-400 hover:underline">
-                    {newPatientMode ? t("form.cancelNewPatient") : t("form.newPatient")}
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">{t("form.patient")}</label>
+                  <button type="button" onClick={() => { setContactMode(v => !v); if (!contactMode) setForm(f => ({ ...f, patient_id: "" })); setFormError(""); }} className="text-xs text-teal-600 dark:text-teal-400 hover:underline">
+                    {contactMode ? t("form.cancelNewPatient") : t("form.quickContact")}
                   </button>
                 </div>
-                {newPatientMode ? (
+                {contactMode ? (
                   <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 space-y-2 bg-zinc-50/60 dark:bg-zinc-800/30">
                     <div className="grid grid-cols-2 gap-2">
-                      <input value={np.first_name} onChange={(e) => setNp(n => ({ ...n, first_name: e.target.value }))} placeholder={t("form.npFirstName")} className={inputCls} />
-                      <input value={np.last_name} onChange={(e) => setNp(n => ({ ...n, last_name: e.target.value }))} placeholder={t("form.npLastName")} className={inputCls} />
+                      <input {...field("contact_first_name")} placeholder={t("form.npFirstName")} className={inputCls} />
+                      <input {...field("contact_last_name")} placeholder={t("form.npLastName")} className={inputCls} />
                     </div>
-                    <input value={np.phone} onChange={(e) => setNp(n => ({ ...n, phone: e.target.value }))} placeholder={t("form.npPhone")} className={inputCls} />
-                    <button type="button" onClick={createInlinePatient} disabled={creatingPatient || !np.first_name.trim() || !np.last_name.trim()} className="w-full px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-xs font-medium transition-colors">
-                      {creatingPatient ? t("form.saving") : t("form.createPatient")}
-                    </button>
+                    <input {...field("contact_phone")} placeholder={t("form.npPhone")} className={inputCls} />
+                    <p className="text-[10px] text-zinc-400">{t("form.contactHint")}</p>
                   </div>
                 ) : (
                   <SearchableSelect
                     value={form.patient_id}
-                    onChange={(v) => setForm(f => ({ ...f, patient_id: v }))}
+                    onChange={(v) => setForm(f => ({ ...f, patient_id: v, contact_first_name: "", contact_last_name: "", contact_phone: "" }))}
                     options={patientList.map(p => ({ value: p.id, label: `${p.last_name} ${p.first_name}` }))}
                     placeholder={t("detail.selectPatient")}
                     searchPlaceholder={t("searchPatientPlaceholder")}

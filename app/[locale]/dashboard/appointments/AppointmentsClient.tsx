@@ -45,11 +45,17 @@ const emptyForm = {
   status: "planifie" as AppointmentStatus,
   praticien_id: "",
   notes: "",
+  contact_first_name: "",
+  contact_last_name: "",
+  contact_phone: "",
 };
 
+// A RDV shows the linked patient, or the "contact rapide" (a phone booking that
+// isn't a patient yet), or a dash.
 function patientName(appt: AppointmentWithPatient) {
-  if (!appt.patients) return "—";
-  return `${appt.patients.first_name} ${appt.patients.last_name}`;
+  if (appt.patients) return `${appt.patients.first_name} ${appt.patients.last_name}`;
+  const c = `${appt.contact_first_name ?? ""} ${appt.contact_last_name ?? ""}`.trim();
+  return c || "—";
 }
 
 export default function AppointmentsClient({ initialAppointments, patients }: Props) {
@@ -76,11 +82,10 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
   const [rdvNewDossierMode, setRdvNewDossierMode] = useState(false);
   const [rdvNewDossierTitle, setRdvNewDossierTitle] = useState("");
   const [rdvCreatingDossier, setRdvCreatingDossier] = useState(false);
-  // Inline patient create for a cold-call RDV (attach a client without a full fiche).
-  const [patientList, setPatientList] = useState(patients);
-  const [newPatientMode, setNewPatientMode] = useState(false);
-  const [np, setNp] = useState({ first_name: "", last_name: "", phone: "" });
-  const [creatingPatient, setCreatingPatient] = useState(false);
+  // Existing patients for the searchable picker; the "contact rapide" fields
+  // (form.contact_*) hold a phone booking that isn't a patient yet.
+  const [patientList] = useState(patients);
+  const [contactMode, setContactMode] = useState(false);
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -100,7 +105,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       : new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     setForm({ ...emptyForm, patient_id: patientId, praticien_id: praticienId, scheduled_at: local });
     setRdvDossierId(""); setRdvNewDossierMode(false); setRdvNewDossierTitle("");
-    setNewPatientMode(false); setNp({ first_name: "", last_name: "", phone: "" });
+    setContactMode(false);
     setError("");
     setModalOpen(true);
   }, [searchParams]);
@@ -146,7 +151,7 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       .slice(0, 16);
     setForm({ ...emptyForm, scheduled_at: local });
     setRdvDossierId(""); setRdvNewDossierMode(false); setRdvNewDossierTitle("");
-    setNewPatientMode(false); setNp({ first_name: "", last_name: "", phone: "" });
+    setContactMode(false);
     setError("");
     setModalOpen(true);
   }
@@ -163,23 +168,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
     setRdvDossierId(data.id as string);
     setRdvNewDossierMode(false); setRdvNewDossierTitle("");
   }
-  async function createInlinePatient() {
-    if (!np.first_name.trim() || !np.last_name.trim()) return;
-    setCreatingPatient(true);
-    const { data, error: e } = await supabase.from("patients").insert({
-      practice_id: practiceId, user_id: currentUserId, created_by: currentUserId,
-      first_name: np.first_name.trim(), last_name: np.last_name.trim(),
-      phone: np.phone.trim() || null,
-    }).select("id, first_name, last_name").single();
-    setCreatingPatient(false);
-    if (e || !data) { setError(e?.message ?? ""); return; }
-    const p = data as Pick<Patient, "id" | "first_name" | "last_name">;
-    setPatientList((xs) => [...xs, p]);
-    setField("patient_id", p.id);
-    setNewPatientMode(false);
-    setNp({ first_name: "", last_name: "", phone: "" });
-  }
-
   async function handleSave() {
     if (!form.title.trim() || !form.scheduled_at) {
       setError(t("form.requiredError"));
@@ -212,6 +200,9 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
       status: form.status,
       praticien_id: form.praticien_id || null,
       notes: form.notes.trim() || null,
+      contact_first_name: form.patient_id ? null : (form.contact_first_name.trim() || null),
+      contact_last_name: form.patient_id ? null : (form.contact_last_name.trim() || null),
+      contact_phone: form.patient_id ? null : (form.contact_phone.trim() || null),
     };
 
     if (editing) {
@@ -454,23 +445,21 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">{t("form.patient")}</label>
-                    <button type="button" onClick={() => { setNewPatientMode((v) => !v); setError(""); }} className="text-xs text-teal-600 dark:text-teal-400 hover:underline">
-                      {newPatientMode ? t("form.cancelNewPatient") : t("form.newPatient")}
+                    <button type="button" onClick={() => { setContactMode((v) => !v); if (!contactMode) setField("patient_id", ""); setError(""); }} className="text-xs text-teal-600 dark:text-teal-400 hover:underline">
+                      {contactMode ? t("form.cancelNewPatient") : t("form.quickContact")}
                     </button>
                   </div>
-                  {newPatientMode ? (
+                  {contactMode ? (
                     <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 space-y-2 bg-zinc-50/60 dark:bg-zinc-800/30">
-                      <input value={np.first_name} onChange={(e) => setNp((n) => ({ ...n, first_name: e.target.value }))} placeholder={t("form.npFirstName")} className={inputCls} />
-                      <input value={np.last_name} onChange={(e) => setNp((n) => ({ ...n, last_name: e.target.value }))} placeholder={t("form.npLastName")} className={inputCls} />
-                      <input value={np.phone} onChange={(e) => setNp((n) => ({ ...n, phone: e.target.value }))} placeholder={t("form.npPhone")} className={inputCls} />
-                      <button type="button" onClick={createInlinePatient} disabled={creatingPatient || !np.first_name.trim() || !np.last_name.trim()} className="w-full px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-xs font-medium transition-colors">
-                        {creatingPatient ? t("form.saving") : t("form.createPatient")}
-                      </button>
+                      <input value={form.contact_first_name} onChange={(e) => setField("contact_first_name", e.target.value)} placeholder={t("form.npFirstName")} className={inputCls} />
+                      <input value={form.contact_last_name} onChange={(e) => setField("contact_last_name", e.target.value)} placeholder={t("form.npLastName")} className={inputCls} />
+                      <input value={form.contact_phone} onChange={(e) => setField("contact_phone", e.target.value)} placeholder={t("form.npPhone")} className={inputCls} />
+                      <p className="text-[10px] text-zinc-400">{t("form.contactHint")}</p>
                     </div>
                   ) : (
                     <SearchableSelect
                       value={form.patient_id}
-                      onChange={(v) => setField("patient_id", v)}
+                      onChange={(v) => setForm((f) => ({ ...f, patient_id: v, contact_first_name: "", contact_last_name: "", contact_phone: "" }))}
                       options={patientList.map((p) => ({ value: p.id, label: `${p.first_name} ${p.last_name}` }))}
                       noneLabel={t("form.noPatient")}
                       placeholder={t("form.noPatient")}

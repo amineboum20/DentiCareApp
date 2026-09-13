@@ -310,7 +310,9 @@
       "createPatient": "إنشاء المريض",
       "npFirstName": "الاسم الشخصي",
       "npLastName": "الاسم العائلي",
-      "npPhone": "الهاتف"
+      "npPhone": "الهاتف",
+      "quickContact": "+ جهة اتصال سريعة",
+      "contactHint": "يُحفظ على الموعد؛ أنشئ ملف المريض عند حضوره."
     },
     "deleteConfirm": {
       "title": "حذف الموعد",
@@ -338,6 +340,8 @@
       "call": "اتصال",
       "whatsapp": "واتساب",
       "viewProfile": "عرض الملف ←",
+      "contactBadge": "جهة اتصال",
+      "createPatientFile": "إنشاء ملف المريض",
       "patient": "المريض",
       "dossier": "الملف",
       "linkedVisit": "الزيارة المرتبطة",
