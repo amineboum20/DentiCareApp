@@ -182,9 +182,10 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   }
 
   function openEdit() {
-    const localDt = appointment.scheduled_at
-      ? new Date(appointment.scheduled_at).toISOString().slice(0, 16)
-      : "";
+    // scheduled_at is a UTC instant; convert to a LOCAL datetime-local string
+    // (subtract the offset) so the picker/inputs show the wall-clock time, not UTC.
+    const d0 = appointment.scheduled_at ? new Date(appointment.scheduled_at) : null;
+    const localDt = d0 ? new Date(d0.getTime() - d0.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
     setForm({
       patient_id: appointment.patient_id ?? "",
       title: appointment.title,
@@ -455,9 +456,9 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
               </div>
-              {formError && <p className="text-xs text-red-500">{formError}</p>}
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
+              {formError && <span className="text-sm font-medium text-red-500 me-2">{formError}</span>}
               <div className="ms-auto flex items-center gap-3">
                 <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                   {t("form.cancel")}

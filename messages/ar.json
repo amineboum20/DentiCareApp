@@ -311,7 +311,7 @@
       "npFirstName": "الاسم الشخصي",
       "npLastName": "الاسم العائلي",
       "npPhone": "الهاتف",
-      "quickContact": "+ جهة اتصال سريعة",
+      "quickContact": "+ مريض سريع",
       "contactHint": "يُحفظ على الموعد؛ أنشئ ملف المريض عند حضوره."
     },
     "deleteConfirm": {

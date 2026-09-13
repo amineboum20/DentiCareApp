@@ -37,7 +37,7 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
     { icon: "🧾", label: t("nav.factures"),      href: "/dashboard/factures" },
     { icon: "💊", label: t("nav.ordonnances"),   href: "/dashboard/ordonnances" },
     { icon: "📅", label: t("nav.appointments"),  href: "/dashboard/appointments" },
-    { icon: "📆", label: t("nav.agenda"),        href: "/dashboard/agenda" },
+    { icon: "🗓️", label: t("nav.agenda"),        href: "/dashboard/agenda" },
     { icon: "📈", label: t("nav.reports"),       href: "/dashboard/reports" },
     { icon: "🏭", label: t("nav.suppliers"),       href: "/dashboard/suppliers" },
     { icon: "📋", label: t("nav.supplierOrders"), href: "/dashboard/supplier-orders" },

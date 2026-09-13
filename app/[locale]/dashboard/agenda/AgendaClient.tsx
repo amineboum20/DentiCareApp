@@ -32,17 +32,20 @@ const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START
 
 // Blocks are coloured per dentist (assigned by order); a RDV with no dentist is
 // grey, and a cancelled one is muted + struck through.
+// Solid shades so white text stays readable in light mode too.
 const DENTIST_COLORS = [
-  "bg-teal-500/90 border-teal-600",
-  "bg-indigo-500/90 border-indigo-600",
-  "bg-violet-500/90 border-violet-600",
-  "bg-amber-500/90 border-amber-600",
-  "bg-rose-500/90 border-rose-600",
-  "bg-cyan-500/90 border-cyan-600",
-  "bg-fuchsia-500/90 border-fuchsia-600",
-  "bg-lime-600/90 border-lime-700",
+  "bg-teal-600 border-teal-700",
+  "bg-indigo-600 border-indigo-700",
+  "bg-violet-600 border-violet-700",
+  "bg-amber-600 border-amber-700",
+  "bg-rose-600 border-rose-700",
+  "bg-cyan-600 border-cyan-700",
+  "bg-fuchsia-600 border-fuchsia-700",
+  "bg-lime-600 border-lime-700",
 ];
-const NO_DENTIST_COLOR = "bg-zinc-400/80 border-zinc-500";
+const NO_DENTIST_COLOR = "bg-zinc-500 border-zinc-600";
+// Cancelled RDV: red + struck through, readable in both themes.
+const CANCELLED_COLOR = "bg-red-100 border-red-300 text-red-600 line-through dark:bg-red-900/40 dark:border-red-800 dark:text-red-300";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -184,12 +187,13 @@ export default function AgendaClient({ initialAppointments, praticiens, defaultP
                   const label = apptLabel(a);
                   const short = height < 44;
                   const cancelled = a.status === "annule";
+                  const cls = cancelled ? CANCELLED_COLOR : `${dentistColor(a.praticien_id)} text-white`;
                   return (
                     <button
                       key={a.id}
                       onClick={(e) => { e.stopPropagation(); router.push(`/${locale}/dashboard/appointments/${a.id}`); }}
                       style={{ top, height }}
-                      className={`absolute inset-x-0.5 rounded-md border px-1 text-start overflow-hidden leading-none text-white ${dentistColor(a.praticien_id)} ${cancelled ? "opacity-60 line-through" : ""}`}
+                      className={`absolute inset-x-0.5 rounded-md border px-1 text-start overflow-hidden leading-none ${cls}`}
                       title={`${time} · ${label}${prat === "all" && a.praticien_id ? " · " + pratName(a.praticien_id) : ""}`}
                     >
                       {short ? (

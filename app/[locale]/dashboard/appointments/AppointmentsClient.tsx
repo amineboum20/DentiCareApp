@@ -544,9 +544,9 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                   className={`${inputCls} resize-none`}
                 />
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
+              {error && <span className="text-sm font-medium text-red-500 me-2">{error}</span>}
               {editing && (
                 <button
                   type="button"

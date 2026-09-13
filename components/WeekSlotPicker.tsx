@@ -142,7 +142,7 @@ export default function WeekSlotPicker({ praticienId, appointments, excludeId, v
             const { set, labels } = dayBusy(day);
             const key = dayKeyOf(day);
             return (
-              <div key={+day} className="flex-1 border-s border-zinc-100 dark:border-zinc-800">
+              <div key={+day} className="flex-1 border-s border-zinc-200 dark:border-zinc-700">
                 {SLOTS.map((slot) => {
                   const isBusy = set.has(slot);
                   const isSel = !!sel && sameDay(sel.day, day) && slot >= sel.startSlot && slot < sel.startSlot + sel.span;
@@ -155,7 +155,7 @@ export default function WeekSlotPicker({ praticienId, appointments, excludeId, v
                       onClick={() => onCell(day, slot)}
                       style={{ height: ROW_H }}
                       title={label || ""}
-                      className={`w-full block text-[8px] leading-none px-0.5 truncate text-start border-b ${slot % 2 === 0 ? "border-zinc-100 dark:border-zinc-800" : "border-transparent"} ${
+                      className={`w-full block text-[8px] leading-none px-0.5 truncate text-start border-b ${slot % 2 === 0 ? "border-zinc-200 dark:border-zinc-700" : "border-zinc-100 dark:border-zinc-800/60"} ${
                         isSel ? (conflict ? "bg-amber-400/80 text-white" : "bg-teal-500/80 text-white")
                           : isBusy ? "bg-zinc-300/70 dark:bg-zinc-600/60 text-zinc-600 dark:text-zinc-200"
                             : "hover:bg-teal-50 dark:hover:bg-teal-900/20"

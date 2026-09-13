@@ -311,7 +311,7 @@
       "npFirstName": "First name",
       "npLastName": "Last name",
       "npPhone": "Phone",
-      "quickContact": "+ Quick contact",
+      "quickContact": "+ Quick patient",
       "contactHint": "Saved on the appointment; create the patient file when they come in."
     },
     "deleteConfirm": {

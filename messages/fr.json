@@ -311,7 +311,7 @@
       "npFirstName": "Prénom",
       "npLastName": "Nom",
       "npPhone": "Téléphone",
-      "quickContact": "+ Contact rapide",
+      "quickContact": "+ Patient rapide",
       "contactHint": "Enregistré sur le rendez-vous ; créez la fiche patient quand il vient."
     },
     "deleteConfirm": {
