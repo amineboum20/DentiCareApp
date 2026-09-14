@@ -91,6 +91,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [visiteOpen, setVisiteOpen] = useState(false);
   const [rdvOpen, setRdvOpen] = useState(false);
   const [cancelTarget, setCancelTarget] = useState<Doc | null>(null);
+  const [convertTarget, setConvertTarget] = useState<Doc | null>(null);
   const [busy, setBusy] = useState(false);
   const [feuilleBusy, setFeuilleBusy] = useState<"CNOPS" | "CNSS" | null>(null);
   const [err, setErr] = useState("");
@@ -254,18 +255,31 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     setDocs((xs) => xs.filter((d) => d.id !== id));
   }
 
-  async function downloadFacture(d: Doc) {
+  async function downloadDoc(d: Doc) {
+    const isDevis = d.type === "devis";
     const { data: fitems } = await supabase.from("facture_items").select("description, quantity, unit_price").eq("facture_id", d.id);
     const { data: pt } = await supabase.from("patients").select("public_token").eq("id", dossier.patient_id).single();
     await exportFacturePdf({
-      factureId: d.id, docType: "facture", appointmentId: null, patientName,
+      factureId: d.id, docType: d.type, appointmentId: null, patientName,
       patientPhone: patient.phone ?? null, patientAddress: patient.address ?? null,
       createdAt: d.created_at, statusLabel: tfac(d.status),
       items: (fitems ?? []) as { description: string; quantity: number; unit_price: number }[],
-      totalPrice: Number(d.total_price), depositPaid: Math.min(totalPaid, Number(d.total_price)),
+      totalPrice: Number(d.total_price),
+      // A devis is a quote — it carries no payment, so never show a deposit on it.
+      depositPaid: isDevis ? 0 : Math.min(totalPaid, Number(d.total_price)),
       notes: d.notes, shopName, shopAddress, shopPhone, logoUrl,
       patientToken: (pt as { public_token: string } | null)?.public_token ?? null,
     });
+  }
+
+  // A patient accepted the quote: promote the devis in place to a facture.
+  // Same row, so line items carry over automatically; number DV-xxxx → DC-xxxx.
+  async function convertDevis(id: string) {
+    setBusy(true);
+    const { error } = await supabase.from("factures").update({ type: "facture", status: "en_attente" }).eq("id", id);
+    if (error) { setErr(error.message); setBusy(false); setConvertTarget(null); return; }
+    setDocs((xs) => xs.map((d) => d.id === id ? { ...d, type: "facture", status: "en_attente" } : d));
+    setBusy(false); setConvertTarget(null);
   }
 
   // ─── feuille de soins (mutuelle) ───
@@ -438,8 +452,8 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                       <p className={`text-sm font-semibold mt-0.5 ${annulee ? "text-zinc-400 line-through" : "text-zinc-900 dark:text-white"}`}>{money(Number(d.total_price))}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {d.type === "facture" && !annulee && (
-                        <button onClick={() => downloadFacture(d)} title={t("downloadFacture")} className="text-xs px-2 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-teal-400 font-medium transition-colors">⬇ PDF</button>
+                      {!annulee && (
+                        <button onClick={() => downloadDoc(d)} title={d.type === "devis" ? t("downloadDevis") : t("downloadFacture")} className="text-xs px-2 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-teal-400 font-medium transition-colors">⬇ PDF</button>
                       )}
                       {d.type === "facture" ? (
                         annulee ? (
@@ -448,7 +462,10 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                           <button onClick={() => setCancelTarget(d)} title={t("cancelFactureTitle")} className="text-xs text-zinc-300 hover:text-red-500 transition-colors">✕</button>
                         )
                       ) : (
-                        <button onClick={() => deleteDevis(d.id)} title={t("deleteDevis")} className="text-xs text-zinc-300 hover:text-red-500 transition-colors">✕</button>
+                        <>
+                          <button onClick={() => setConvertTarget(d)} title={t("convertToFacture")} className="text-xs px-2 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors">→ {t("facture")}</button>
+                          <button onClick={() => deleteDevis(d.id)} title={t("deleteDevis")} className="text-xs text-zinc-300 hover:text-red-500 transition-colors">✕</button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -819,6 +836,20 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
             <div className="flex gap-3 justify-end">
               <button onClick={() => setCancelTarget(null)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">{tc("back")}</button>
               <button onClick={() => cancelFacture(cancelTarget.id)} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">{t("cancelFactureBtn")}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Convert devis → facture confirmation */}
+      {convertTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6">
+            <h2 className="font-semibold text-zinc-900 dark:text-white mb-2">{t("convertDevisQ")}</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">{t("convertDevisBody", { amount: money(Number(convertTarget.total_price)) })}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConvertTarget(null)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">{tc("back")}</button>
+              <button onClick={() => convertDevis(convertTarget.id)} disabled={busy} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{t("convertDevisBtn")}</button>
             </div>
           </div>
         </div>
