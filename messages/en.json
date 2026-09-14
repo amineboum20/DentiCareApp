@@ -344,6 +344,7 @@
       "viewProfile": "View profile →",
       "contactBadge": "Contact",
       "createPatientFile": "Create patient file",
+      "createPatientFirst": "Create the patient file first to complete this appointment.",
       "patient": "Patient",
       "dossier": "Case",
       "linkedVisit": "Linked visit",

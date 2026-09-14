@@ -344,6 +344,7 @@
       "viewProfile": "عرض الملف ←",
       "contactBadge": "جهة اتصال",
       "createPatientFile": "إنشاء ملف المريض",
+      "createPatientFirst": "أنشئ ملف المريض أولاً لإتمام هذا الموعد.",
       "patient": "المريض",
       "dossier": "الملف",
       "linkedVisit": "الزيارة المرتبطة",

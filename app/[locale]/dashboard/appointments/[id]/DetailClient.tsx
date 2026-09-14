@@ -68,6 +68,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   const [patientList, setPatientList] = useState(patients);
   const [contactMode, setContactMode] = useState(false);
   const [promoting, setPromoting] = useState(false);
+  const [statusHint, setStatusHint] = useState<string | null>(null);
   const [allAppts, setAllAppts] = useState<SlotAppointment[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -131,8 +132,12 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   }, [terminerOpen, appointment.patient_id, supabase]);
 
   async function handleStatusChange(newStatus: AppointmentStatus) {
-    // Marking a now/past RDV "Terminé" (not yet linked) prompts linking a visite.
-    if (newStatus === "termine" && !isAssistant && isPastOrNow && !appointment.consultation_id && appointment.patient_id) {
+    setStatusHint(null);
+    // Completing a RDV creates a visite (dentist only), which needs a real
+    // patient. If none is linked (e.g. a "Patient rapide" contact), ask the
+    // dentist to create the fiche patient first — don't change the status.
+    if (newStatus === "termine" && !isAssistant && isPastOrNow && !appointment.consultation_id) {
+      if (!appointment.patient_id) { setStatusHint(t("detail.createPatientFirst")); return; }
       setLinkMode("new"); setExistingVisiteId(""); setBillOn(true); setTerminerOpen(true);
       return;
     }
@@ -211,8 +216,9 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   }
 
   // Promote the RDV's quick contact into a real patient (when they show up).
-  async function promoteToPatient() {
-    if (!appointment.contact_first_name && !appointment.contact_last_name) return;
+  // Returns true on success so callers can chain (e.g. then open the visite dialog).
+  async function promoteToPatient(): Promise<boolean> {
+    if (!appointment.contact_first_name && !appointment.contact_last_name) return false;
     setPromoting(true);
     const { data: p, error } = await supabase.from("patients").insert({
       practice_id: practiceId, user_id: currentUserId, created_by: currentUserId,
@@ -220,7 +226,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       last_name: (appointment.contact_last_name ?? "").trim(),
       phone: appointment.contact_phone ?? null,
     }).select("id, first_name, last_name").single();
-    if (error || !p) { setPromoting(false); return; }
+    if (error || !p) { setPromoting(false); return false; }
     const pid = (p as { id: string }).id;
     const { data: appt } = await supabase.from("appointments")
       .update({ patient_id: pid, contact_first_name: null, contact_last_name: null, contact_phone: null })
@@ -228,6 +234,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     if (appt) setAppointment(appt as AppointmentWithPatient);
     setPatientList(xs => [...xs, p as Pick<Patient, "id" | "first_name" | "last_name">].sort((a, b) => a.last_name.localeCompare(b.last_name)));
     setPromoting(false);
+    return true;
   }
 
   async function handleSave() {
@@ -339,6 +346,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 </button>
               ))}
             </div>
+            {statusHint && <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mt-2">⚠️ {statusHint}</p>}
           </div>
         </div>
 
