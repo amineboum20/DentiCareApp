@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { Medicament } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   medicament: Medicament;
@@ -87,6 +88,7 @@ export default function MedicamentDetailClient({ medicament, locale }: Props) {
           <DR label={t("form.instructions")} value={med.default_instructions} />
           <DR label={t("form.notes")} value={med.notes} />
         </div>
+        <AuditInfo createdBy={med.created_by} createdAt={med.created_at} updatedBy={med.updated_by} updatedAt={med.updated_at} className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800" />
       </div>
 
       <div className="flex flex-wrap items-center gap-3 pt-6">

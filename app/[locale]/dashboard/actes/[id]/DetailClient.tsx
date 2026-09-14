@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { Acte, ActeScope, Supplier, TreatmentCategory } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { STATUS_KEYS } from "@/components/odontogram-data";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   acte: Acte;
@@ -153,6 +154,7 @@ export default function ActeDetailClient({ acte: initialActe, locale }: Props) {
             <DR label={t("dr.description")} value={acte.description} />
             <DR label={t("dr.notes")} value={acte.notes} />
           </div>
+          <AuditInfo createdBy={acte.created_by} createdAt={acte.created_at} updatedBy={acte.updated_by} updatedAt={acte.updated_at} className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800" />
         </div>
 
         {/* Linked suppliers */}

@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { Acte, TreatmentCategory } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { DR } from "@/components/DetailRow";
+import AuditInfo from "@/components/AuditInfo";
 
 type ActeLite = Pick<Acte, "id" | "name" | "price" | "category">;
 type PackageLine = {
@@ -23,6 +24,10 @@ type Package = {
   description: string | null;
   notes: string | null;
   price_override: number | null;
+  created_by: string | null;
+  created_at: string | null;
+  updated_by: string | null;
+  updated_at: string | null;
   traitement_actes: PackageLine[];
 };
 
@@ -157,6 +162,7 @@ export default function TraitementDetailClient({
             <DR label={t("col.price")} value={`${total.toFixed(2)} MAD${pkg.price_override != null ? ` · ${t("flatRate")}` : ""}`} />
             <DR label={t("form.description")} value={pkg.description} />
           </div>
+          <AuditInfo createdBy={pkg.created_by} createdAt={pkg.created_at} updatedBy={pkg.updated_by} updatedAt={pkg.updated_at} className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800" />
         </div>
 
         {/* Composition */}

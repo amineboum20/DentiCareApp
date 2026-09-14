@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { Supplier, Acte } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   supplier: Supplier;
@@ -138,6 +139,15 @@ export default function SupplierDetailClient({ supplier: initialSupplier, locale
               )}
             </div>
           )}
+
+          <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+            <AuditInfo
+              createdBy={supplier.created_by}
+              createdAt={supplier.created_at}
+              updatedBy={supplier.updated_by}
+              updatedAt={supplier.updated_at}
+            />
+          </div>
         </div>
 
         {/* Linked treatments */}

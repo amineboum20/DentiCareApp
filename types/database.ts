@@ -77,6 +77,7 @@ export interface Praticien {
   created_at: string
   created_by: string | null
   updated_by: string | null
+  updated_at: string | null
 }
 
 // Dossier = treatment case / "dossier de soins": groups visites (consultations),
@@ -106,6 +107,8 @@ export interface Acompte {
   note: string | null
   created_at: string
   created_by: string | null
+  updated_at: string | null
+  updated_by: string | null
 }
 
 // Whole-mouth acte (détartrage, radio pano…) vs tooth-specific (obturation, extraction…).
@@ -206,6 +209,7 @@ export interface Appointment {
   archived_at: string | null
   created_by: string | null
   updated_by: string | null
+  updated_at: string | null
 }
 
 export interface TreatmentAttribute {
@@ -216,6 +220,8 @@ export interface TreatmentAttribute {
   sort_order: number
   created_at: string
   created_by: string | null
+  updated_at: string | null
+  updated_by: string | null
 }
 
 export type SupplierOrderStatus = 'ordered' | 'partial' | 'received' | 'cancelled'
@@ -231,6 +237,8 @@ export interface Supplier {
   notes: string | null
   created_at: string
   created_by: string | null
+  updated_at: string | null
+  updated_by: string | null
 }
 
 export interface SupplierOrder {
@@ -246,6 +254,7 @@ export interface SupplierOrder {
   created_at: string
   created_by: string | null
   updated_by: string | null
+  updated_at: string | null
 }
 
 export interface SupplierOrderItem {
@@ -298,6 +307,7 @@ export interface Ordonnance {
   created_at: string
   created_by: string | null
   updated_by: string | null
+  updated_at: string | null
 }
 
 // Médicament = reusable drug catalog entry with default prescription values.
@@ -316,6 +326,7 @@ export interface Medicament {
   created_at: string
   created_by: string | null
   updated_by: string | null
+  updated_at: string | null
 }
 
 export interface OrdonnanceLigne {
@@ -353,6 +364,7 @@ export interface Consultation {
   created_at: string
   created_by: string | null
   updated_by: string | null
+  updated_at: string | null
 }
 
 export interface ConsultationWithPatient extends Consultation {

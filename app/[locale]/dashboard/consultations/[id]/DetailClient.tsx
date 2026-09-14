@@ -11,6 +11,7 @@ import LocalInstant from "@/components/LocalInstant";
 import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
 import ToothPicker from "@/components/ToothPicker";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   consultation: ConsultationWithPatient & { dossiers?: { id: string; title: string; statut: string } | { id: string; title: string; statut: string }[] | null };
@@ -208,6 +209,8 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
             <AlwaysRow label={t("detail.exams")} value={consultation.exams} />
             <DR label={t("detail.createdAt")} value={fmtDate(consultation.created_at)} />
           </div>
+
+          <AuditInfo createdBy={consultation.created_by} createdAt={consultation.created_at} updatedBy={consultation.updated_by} updatedAt={consultation.updated_at} className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800" />
         </div>
 
         {(dossier || originRdv || facturation) && (

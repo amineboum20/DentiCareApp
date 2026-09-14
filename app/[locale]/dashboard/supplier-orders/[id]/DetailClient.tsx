@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { SupplierOrder, Supplier } from "@/types/database";
 import { DR } from "@/components/DetailRow";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   order: SupplierOrder;
@@ -144,7 +145,14 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
             <DR label={t("detail.notes")} value={order.notes} />
           </div>
 
-
+          <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+            <AuditInfo
+              createdBy={order.created_by}
+              createdAt={order.created_at}
+              updatedBy={order.updated_by}
+              updatedAt={order.updated_at}
+            />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 pt-2 pb-8">

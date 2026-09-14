@@ -8,6 +8,7 @@ import type { OrdonnanceWithPatient, OrdonnanceLigne, OrdonnanceStatus } from "@
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   ordonnance: OrdonnanceWithPatient & {
@@ -157,6 +158,14 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
             )}
             <DR label={t("detail.notes")} value={ordo.notes} />
           </div>
+
+          <AuditInfo
+            createdBy={ordo.created_by}
+            createdAt={ordo.created_at}
+            updatedBy={ordo.updated_by}
+            updatedAt={ordo.updated_at}
+            className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800"
+          />
         </div>
 
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">

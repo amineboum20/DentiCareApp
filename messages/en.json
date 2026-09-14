@@ -875,6 +875,10 @@
     "factures": "Invoices",
     "noResults": "No results for “{query}”"
   },
+  "audit": {
+    "createdByName": "Created by {name}",
+    "modifiedByName": "Modified by {name}"
+  },
   "common": {
     "save": "Save",
     "saving": "Saving…",

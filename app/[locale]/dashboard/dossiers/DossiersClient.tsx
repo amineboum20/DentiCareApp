@@ -6,6 +6,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { DossierWithPatient, DossierStatut, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initialDossiers: DossierWithPatient[];
@@ -167,6 +168,7 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
                   >
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
                       {d.patients.first_name} {d.patients.last_name}
+                      <AuditInfo compact createdBy={d.created_by} />
                     </td>
                     <td className="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">{d.title}</td>
                     <td className="px-5 py-3.5">

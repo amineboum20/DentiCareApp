@@ -875,6 +875,10 @@
     "factures": "الفواتير",
     "noResults": "لا توجد نتائج لـ «{query}»"
   },
+  "audit": {
+    "createdByName": "أنشأه {name}",
+    "modifiedByName": "عدّله {name}"
+  },
   "common": {
     "save": "حفظ",
     "saving": "جارٍ الحفظ…",

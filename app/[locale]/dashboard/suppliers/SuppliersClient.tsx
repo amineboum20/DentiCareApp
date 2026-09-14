@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useAppContext } from "@/components/AppContext";
+import AuditInfo from "@/components/AuditInfo";
 import type { Supplier } from "@/types/database";
 
 interface Props {
@@ -146,6 +147,7 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
                     {s.phone && <span className="text-xs text-zinc-400">📞 {s.phone}</span>}
                     {s.email && <span className="text-xs text-zinc-400">✉️ {s.email}</span>}
                   </div>
+                  <AuditInfo compact createdBy={s.created_by} className="mt-1 ms-7" />
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button onClick={() => openEdit(s)} className="text-xs px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { getMemberWithPractice } from "@/utils/supabase/queries";
+import { getMemberWithPractice, getPracticeMembers } from "@/utils/supabase/queries";
 import { getAdminUser } from "@/utils/admin-auth";
 import { AppProvider } from "@/components/AppContext";
 import RoleGuard from "@/components/RoleGuard";
@@ -17,6 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { member, user } = result;
   const practice = member.practices;
+  const members = await getPracticeMembers(member.practice_id);
 
   // Deactivated members keep their account and data but lose dashboard access.
   if (member.deactivated_at) {
@@ -62,6 +63,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         currentUserId={user.id}
         memberRole={member.role}
         memberName={member.first_name}
+        members={members}
         shopName={practice?.name ?? "DentiCare"}
         shopAddress={practice?.address ?? ""}
         shopPhone={practice?.phone ?? ""}

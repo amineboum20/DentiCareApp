@@ -13,6 +13,7 @@ import { PraticienSelect } from "@/components/PraticienSelect";
 import WeekSlotPicker, { type SlotAppointment } from "@/components/WeekSlotPicker";
 import LocalInstant from "@/components/LocalInstant";
 import SearchableSelect from "@/components/SearchableSelect";
+import AuditInfo from "@/components/AuditInfo";
 
 // Map an appointment type onto a visite motif (covers both type vocabularies).
 const TYPE_TO_MOTIF: Record<string, ConsultationMotif> = {
@@ -348,6 +349,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
             </div>
             {statusHint && <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mt-2">⚠️ {statusHint}</p>}
           </div>
+
+          <AuditInfo createdBy={appointment.created_by} createdAt={appointment.created_at} updatedBy={appointment.updated_by} updatedAt={appointment.updated_at} className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800" />
         </div>
 
         {/* Patient / contact quick actions (like the patient profile) */}

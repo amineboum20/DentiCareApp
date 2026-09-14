@@ -11,6 +11,7 @@ import ToothChart, { type ToothRow } from "@/components/ToothChart";
 import { useAppContext } from "@/components/AppContext";
 import { isChildAge } from "@/components/odontogram-data";
 import { exportPatientInfoPdf } from "@/utils/patient-print";
+import AuditInfo from "@/components/AuditInfo";
 
 
 interface Props {
@@ -294,6 +295,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
             <DR label={t("detail.notes")} value={patient.notes} />
             <DR label={t("columns.added")} value={fmtDate(patient.created_at)} />
           </div>
+          <AuditInfo createdBy={patient.created_by} createdAt={patient.created_at} updatedBy={patient.updated_by} updatedAt={patient.updated_at} className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800" />
         </div>
 
         {/* Section 2: Vue rapide */}

@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { Acte, ActeScope, TreatmentCategory, Supplier } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { STATUS_KEYS } from "@/components/odontogram-data";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initialActes: Acte[];
@@ -229,7 +230,10 @@ export default function ActesClient({ initialActes }: Props) {
                     onClick={() => router.push(`/${locale}/dashboard/actes/${a.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
-                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{a.name}</td>
+                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
+                      {a.name}
+                      <AuditInfo compact createdBy={a.created_by} className="block mt-0.5 font-normal" />
+                    </td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_STYLE[a.category] ?? CATEGORY_STYLE.autre}`}>
                         {tcat(a.category)}

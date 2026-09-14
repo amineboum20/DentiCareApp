@@ -917,6 +917,10 @@
     "factures": "Factures",
     "noResults": "Aucun résultat pour « {query} »"
   },
+  "audit": {
+    "createdByName": "Créé par {name}",
+    "modifiedByName": "Modifié par {name}"
+  },
   "common": {
     "save": "Enregistrer",
     "saving": "Enregistrement…",

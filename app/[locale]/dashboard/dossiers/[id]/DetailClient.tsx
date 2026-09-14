@@ -16,6 +16,7 @@ import { generateFeuilleSoins } from "@/utils/feuille-overlay";
 import { billActesToDossier } from "@/utils/billing";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   dossier: DossierWithPatient;
@@ -510,6 +511,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               <DR label={t("notes")} value={dossier.notes} />
               <DR label={t("openedOn")} value={fmtDate(dossier.created_at)} />
             </div>
+            <AuditInfo createdBy={dossier.created_by} createdAt={dossier.created_at} updatedBy={dossier.updated_by} updatedAt={dossier.updated_at} className="mt-3" />
             <div className="flex items-center gap-2 pt-4 mt-3 border-t border-zinc-100 dark:border-zinc-800">
               {/* Deleting a case is supervisory — assistants create/edit only. */}
               {!isAssistant && (

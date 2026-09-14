@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { FactureWithPatient, FactureItem, Patient } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
+import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   facture: FactureWithPatient;
@@ -256,6 +257,14 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
               ))}
             </div>
           </div>
+
+          <AuditInfo
+            createdBy={facture.created_by}
+            createdAt={facture.created_at}
+            updatedBy={facture.updated_by}
+            updatedAt={facture.updated_at}
+            className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800"
+          />
         </div>
 
         {/* Items */}
