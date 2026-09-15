@@ -6,7 +6,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { Praticien } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
-import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initial: Praticien[];
@@ -90,7 +89,6 @@ export default function PraticiensClient({ initial }: Props) {
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-zinc-900 dark:text-white">{t("drPrefix")} {p.name}{p.speciality ? <span className="text-zinc-400 font-normal"> · {p.speciality}</span> : null}</p>
                   <p className="text-xs text-zinc-400 mt-0.5">{[p.inpe && `INPE ${p.inpe}`, p.numero_ordre && `${t("ordreShort")} ${p.numero_ordre}`].filter(Boolean).join(" · ") || "—"}</p>
-                  <AuditInfo compact createdBy={p.created_by} className="mt-0.5" />
                 </div>
                 <span className="text-xs text-zinc-300 shrink-0 ms-2">{t("editArrow")}</span>
               </div>

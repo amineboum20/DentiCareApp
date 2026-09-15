@@ -5,7 +5,6 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { useAppContext } from "@/components/AppContext";
-import AuditInfo from "@/components/AuditInfo";
 import type { Supplier, SupplierOrder, SupplierOrderStatus } from "@/types/database";
 
 interface Props {
@@ -169,10 +168,7 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
                   return (
                     <tr key={o.id} onClick={() => router.push(`/${locale}/dashboard/supplier-orders/${o.id}`)}
                       className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer">
-                      <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
-                        {sup?.name ?? "—"}
-                        <AuditInfo compact createdBy={o.created_by} className="mt-0.5" />
-                      </td>
+                      <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{sup?.name ?? "—"}</td>
                       <td className="px-5 py-3.5">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[o.status]}`}>
                           {t(`statuses.${o.status}`)}

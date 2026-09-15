@@ -6,7 +6,6 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { TreatmentCategory } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
-import AuditInfo from "@/components/AuditInfo";
 
 type ActeLite = { id: string; name: string; price: number; category?: string };
 
@@ -25,7 +24,6 @@ type Package = {
   description: string | null;
   notes: string | null;
   price_override: number | null;
-  created_by: string | null;
   traitement_actes: PackageLine[];
 };
 
@@ -129,14 +127,12 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
     };
 
     let savedId: string;
-    let savedCreatedBy: string | null = null;
     if (editing) {
       const { data, error: err } = await supabase
         .from("traitements").update({ ...payload, updated_by: currentUserId })
         .eq("id", editing.id).select().single();
       if (err) { setError(err.message); setSaving(false); return; }
       savedId = data.id;
-      savedCreatedBy = data.created_by ?? null;
     } else {
       const { data, error: err } = await supabase
         .from("traitements")
@@ -144,7 +140,6 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
         .select().single();
       if (err) { setError(err.message); setSaving(false); return; }
       savedId = data.id;
-      savedCreatedBy = data.created_by ?? null;
     }
 
     await supabase.from("traitement_actes").delete().eq("traitement_id", savedId);
@@ -166,7 +161,6 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
       description: payload.description,
       notes: payload.notes,
       price_override: payload.price_override,
-      created_by: savedCreatedBy,
       traitement_actes: validLines.map((l, i) => ({
         id: `${savedId}-${i}`,
         acte_id: l.acte_id,
@@ -257,10 +251,7 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
                     onClick={() => router.push(`/${locale}/dashboard/traitements/${p.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
-                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
-                      {p.name}
-                      <AuditInfo compact createdBy={p.created_by} className="block mt-0.5 font-normal" />
-                    </td>
+                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{p.name}</td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_STYLE[p.category] ?? CATEGORY_STYLE.autre}`}>
                         {tcat(p.category)}

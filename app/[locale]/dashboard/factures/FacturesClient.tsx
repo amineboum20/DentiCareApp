@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { FactureWithPatient, FactureStatus, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
-import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initialFactures: FactureWithPatient[];
@@ -229,7 +228,6 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                   >
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
                       {f.patients.first_name} {f.patients.last_name}
-                      <AuditInfo compact createdBy={f.created_by} className="block mt-0.5 font-normal" />
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[f.status] ?? STATUS_STYLE.en_attente}`}>

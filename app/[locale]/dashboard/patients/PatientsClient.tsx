@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
-import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initialPatients: Patient[];
@@ -221,7 +220,6 @@ export default function PatientsClient({ initialPatients }: Props) {
                   className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer">
                   <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
                     {c.first_name} {c.last_name}
-                    <AuditInfo compact createdBy={c.created_by} />
                   </td>
                   <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{c.phone ?? "—"}</td>
                   <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{c.email ?? "—"}</td>

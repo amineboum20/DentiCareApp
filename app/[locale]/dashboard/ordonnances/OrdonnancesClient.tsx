@@ -7,7 +7,6 @@ import { createClient } from "@/utils/supabase/client";
 import type { OrdonnanceWithPatient, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { PraticienSelect } from "@/components/PraticienSelect";
-import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initialOrdonnances: OrdonnanceWithPatient[];
@@ -172,7 +171,6 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
                       {o.patients.first_name} {o.patients.last_name}
                       {o.status === "annulee" && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">{t("cancelled")}</span>}
-                      <AuditInfo compact createdBy={o.created_by} className="block mt-0.5 font-normal" />
                     </td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{fmtDate(o.date)}</td>
                     <td className="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">{o.prescriber ? t("drName", { name: o.prescriber }) : "—"}</td>

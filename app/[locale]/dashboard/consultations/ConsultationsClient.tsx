@@ -9,7 +9,6 @@ import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
 import ToothPicker from "@/components/ToothPicker";
 import { PraticienSelect } from "@/components/PraticienSelect";
-import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initialConsultations: ConsultationWithPatient[];
@@ -274,7 +273,6 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                   >
                     <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
                       {c.patients.first_name} {c.patients.last_name}
-                      <AuditInfo compact createdBy={c.created_by} className="mt-0.5 block font-normal" />
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${MOTIF_STYLE[c.motif] ?? MOTIF_STYLE.autre}`}>

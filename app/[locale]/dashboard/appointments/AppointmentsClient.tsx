@@ -10,7 +10,6 @@ import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
 import SearchableSelect from "@/components/SearchableSelect";
 import WeekSlotPicker from "@/components/WeekSlotPicker";
-import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initialAppointments: AppointmentWithPatient[];
@@ -391,7 +390,6 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
                           {a.patients.first_name} {a.patients.last_name}
                         </p>
                       )}
-                      <AuditInfo compact createdBy={a.created_by} className="mt-0.5 block" />
                     </div>
                     {/* Status badge */}
                     <select

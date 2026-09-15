@@ -6,7 +6,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { Medicament } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
-import AuditInfo from "@/components/AuditInfo";
 
 interface Props {
   initial: Medicament[];
@@ -98,7 +97,6 @@ export default function MedicamentsClient({ initial }: Props) {
                       ].filter(Boolean).join(", ")}
                     </p>
                   )}
-                  <AuditInfo compact createdBy={m.created_by} className="block mt-0.5" />
                 </div>
                 <span className="text-xs text-zinc-300 shrink-0 ms-2">→</span>
               </div>
