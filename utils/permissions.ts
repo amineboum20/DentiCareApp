@@ -32,6 +32,7 @@ export const ASSISTANT_HOME = "/dashboard/patients";
 export function canAccessPath(role: MemberRole, path: string): boolean {
   if (role !== "assistant") return true;
   if (path === "/dashboard") return true; // shared home — its content is role-aware
+  if (path === "/dashboard/support") return true; // support is available to everyone
   return ASSISTANT_SECTIONS.some((s) => path === s || path.startsWith(`${s}/`));
 }
 

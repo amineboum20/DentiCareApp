@@ -42,6 +42,7 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
     { icon: "🏭", label: t("nav.suppliers"),       href: "/dashboard/suppliers" },
     { icon: "📋", label: t("nav.supplierOrders"), href: "/dashboard/supplier-orders" },
     { icon: "⚙️", label: t("nav.settings"),       href: "/dashboard/settings" },
+    { icon: "🛟", label: t("nav.support"),        href: "/dashboard/support" },
   ].filter((item) => canAccessPath(role, item.href));
 
   const navContent = (

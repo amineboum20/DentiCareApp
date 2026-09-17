@@ -66,6 +66,25 @@
     "backHome": "Back to home",
     "signIn": "Sign in"
   },
+  "support": {
+    "title": "Support",
+    "subtitle": "A question or an issue? Send us a request and we’ll reply by email.",
+    "subject": "Subject",
+    "subjectPlaceholder": "Summary of your request",
+    "message": "Message",
+    "messagePlaceholder": "Describe your request…",
+    "attachments": "Attachments",
+    "attachmentsHint": "Up to {max} files, 15 MB total (screenshots, documents…).",
+    "tooManyFiles": "{max} files maximum.",
+    "tooLarge": "Attachments exceed 15 MB in total.",
+    "remove": "Remove",
+    "button": "Send request",
+    "sending": "Sending…",
+    "successTitle": "Request sent!",
+    "successDesc": "Thanks, our team will reply by email as soon as possible.",
+    "newRequest": "New request",
+    "error": "Could not send the request. Please try again."
+  },
   "hero": {
     "badge": "For dental practices",
     "title": "Everything your dental practice needs,",
@@ -259,6 +278,7 @@
       "agenda": "Agenda",
       "reports": "Reports",
       "settings": "Settings",
+      "support": "Support",
       "suppliers": "Suppliers",
       "supplierOrders": "Supplier orders"
     },

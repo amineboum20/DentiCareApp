@@ -66,6 +66,25 @@
     "backHome": "Retour à l’accueil",
     "signIn": "Se connecter"
   },
+  "support": {
+    "title": "Support",
+    "subtitle": "Une question ou un souci ? Envoyez-nous une demande, nous vous répondrons par e-mail.",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Résumé de votre demande",
+    "message": "Message",
+    "messagePlaceholder": "Décrivez votre demande…",
+    "attachments": "Pièces jointes",
+    "attachmentsHint": "Jusqu’à {max} fichiers, 15 Mo au total (captures d’écran, documents…).",
+    "tooManyFiles": "{max} fichiers maximum.",
+    "tooLarge": "Les pièces jointes dépassent 15 Mo au total.",
+    "remove": "Retirer",
+    "button": "Envoyer la demande",
+    "sending": "Envoi…",
+    "successTitle": "Demande envoyée !",
+    "successDesc": "Merci, notre équipe vous répondra par e-mail dès que possible.",
+    "newRequest": "Nouvelle demande",
+    "error": "Impossible d’envoyer la demande. Veuillez réessayer."
+  },
   "hero": {
     "badge": "Pour les cabinets dentaires",
     "title": "Tout ce dont votre cabinet dentaire a besoin,",
@@ -259,6 +278,7 @@
       "agenda": "Agenda",
       "reports": "Rapports",
       "settings": "Paramètres",
+      "support": "Support",
       "suppliers": "Fournisseurs",
       "supplierOrders": "Cmd. fournisseurs"
     },
