@@ -280,8 +280,8 @@ export default function Home() {
       <nav className="sticky top-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800">
         <div className="flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="DentiCare" className="w-7 h-7" />
-            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">DentiCare</span>
+            <img src="/logo.svg" alt="DentiCare" className="w-9 h-9" />
+            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
           </div>
           <div className="hidden sm:flex items-center gap-4">
             <a href="#features" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.features")}</a>
@@ -547,7 +547,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-100 dark:border-zinc-800 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
-        <div className="flex items-center gap-2"><img src="/logo.svg" alt="DentiCare" className="w-7 h-7" /><span className="font-medium text-zinc-500">DentiCare</span></div>
+        <div className="flex items-center gap-2"><img src="/logo.svg" alt="DentiCare" className="w-7 h-7" /><span className="font-medium text-zinc-500">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span></div>
         <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
           <a href="#features" className="hover:text-zinc-600 transition-colors">{t("nav.features")}</a>
           <a href="#how" className="hover:text-zinc-600 transition-colors">{t("nav.howItWorks")}</a>

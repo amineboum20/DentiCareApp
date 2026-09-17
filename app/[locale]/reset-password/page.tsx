@@ -81,7 +81,7 @@ export default function ResetPassword() {
       <nav className="flex items-center justify-between px-8 py-5">
         <Link href="/" className="flex items-center gap-2">
           <img src="/logo.svg" alt="DentiCare" className="w-7 h-7" />
-          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">DentiCare</span>
+          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
         </Link>
         <LanguageSwitcher />
       </nav>
