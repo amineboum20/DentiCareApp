@@ -35,12 +35,12 @@ export default function LanguageSwitcher({ saveToAccount = false }: { saveToAcco
           disabled={isPending}
           className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
             locale === lang.code
-              ? "bg-blue-600 text-white"
+              ? "bg-teal-600 text-white"
               : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
           }`}
         >
           <span>{lang.flag}</span>
-          <span>{lang.label}</span>
+          <span className="hidden sm:inline">{lang.label}</span>
         </button>
       ))}
     </div>

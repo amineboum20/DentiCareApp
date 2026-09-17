@@ -280,15 +280,16 @@ export default function Home() {
       <nav className="sticky top-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800">
         <div className="flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="DentiCare" className="w-9 h-9" />
+            <img src="/logo.svg" alt="DentiCare" className="w-12 h-12" />
             <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
           </div>
           <div className="hidden sm:flex items-center gap-4">
             <a href="#features" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.features")}</a>
             <a href="#how" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.howItWorks")}</a>
-            <Link href="/signin" className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.signIn")}</Link>
+            <a href="mailto:amine@denticareapp.com" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.contact")}</a>
             <LanguageSwitcher />
             <Link href="/signup" className="text-sm font-medium bg-teal-600 text-white px-4 py-2 rounded-full hover:bg-teal-700 transition-colors">{t("nav.getStarted")}</Link>
+            <Link href="/signin" className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.signIn")}</Link>
           </div>
           <div className="flex sm:hidden items-center gap-2">
             <LanguageSwitcher />
@@ -306,6 +307,7 @@ export default function Home() {
           <div className="sm:hidden border-t border-zinc-100 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 px-5 py-4 flex flex-col gap-3">
             <a href="#features" onClick={() => setMobileNavOpen(false)} className="text-sm text-zinc-700 dark:text-zinc-300 py-1">{t("nav.features")}</a>
             <a href="#how" onClick={() => setMobileNavOpen(false)} className="text-sm text-zinc-700 dark:text-zinc-300 py-1">{t("nav.howItWorks")}</a>
+            <a href="mailto:amine@denticareapp.com" onClick={() => setMobileNavOpen(false)} className="text-sm text-zinc-700 dark:text-zinc-300 py-1">{t("nav.contact")}</a>
             <Link href="/signin" onClick={() => setMobileNavOpen(false)} className="text-sm text-zinc-700 dark:text-zinc-300 py-1">{t("nav.signIn")}</Link>
             <Link href="/signup" className="text-sm font-medium bg-teal-600 text-white px-4 py-2.5 rounded-full text-center hover:bg-teal-700 transition-colors">{t("nav.getStarted")}</Link>
           </div>
@@ -320,6 +322,7 @@ export default function Home() {
           backgroundImage: "url('/pexels-shvets-production-8413334.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
+          backgroundAttachment: "fixed",
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/70" />
@@ -504,7 +507,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section id="how" className="relative py-24 px-6" style={{ backgroundImage: "url(/pexels-cottonbro-6502017.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}>
+      <section id="how" className="relative py-24 px-6" style={{ backgroundImage: "url(/pexels-cottonbro-6502017.jpg)", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10">
           <div className="max-w-4xl mx-auto text-center mb-14">
