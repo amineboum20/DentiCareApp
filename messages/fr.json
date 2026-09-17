@@ -47,6 +47,25 @@
     "contact": "Contactez-nous",
     "getStarted": "Commencer gratuitement"
   },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Une question ? Écrivez-nous, nous vous répondrons rapidement.",
+    "name": "Nom",
+    "namePlaceholder": "Votre nom",
+    "email": "E-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Objet de votre message (facultatif)",
+    "message": "Message",
+    "messagePlaceholder": "Votre message…",
+    "button": "Envoyer",
+    "sending": "Envoi…",
+    "successTitle": "Message envoyé !",
+    "successDesc": "Merci, nous vous répondrons dès que possible.",
+    "error": "Impossible d’envoyer le message. Veuillez réessayer.",
+    "backHome": "Retour à l’accueil",
+    "signIn": "Se connecter"
+  },
   "hero": {
     "badge": "Pour les cabinets dentaires",
     "title": "Tout ce dont votre cabinet dentaire a besoin,",

@@ -47,6 +47,25 @@
     "contact": "Contact us",
     "getStarted": "Get started free"
   },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "A question? Write to us, we’ll get back to you quickly.",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "subject": "Subject",
+    "subjectPlaceholder": "What is it about? (optional)",
+    "message": "Message",
+    "messagePlaceholder": "Your message…",
+    "button": "Send",
+    "sending": "Sending…",
+    "successTitle": "Message sent!",
+    "successDesc": "Thanks, we’ll get back to you as soon as possible.",
+    "error": "Could not send the message. Please try again.",
+    "backHome": "Back to home",
+    "signIn": "Sign in"
+  },
   "hero": {
     "badge": "For dental practices",
     "title": "Everything your dental practice needs,",

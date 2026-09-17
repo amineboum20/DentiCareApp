@@ -47,6 +47,25 @@
     "contact": "اتصل بنا",
     "getStarted": "ابدأ مجاناً"
   },
+  "contact": {
+    "title": "اتصل بنا",
+    "subtitle": "لديك سؤال؟ راسلنا وسنرد عليك بسرعة.",
+    "name": "الاسم",
+    "namePlaceholder": "اسمك",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "subject": "الموضوع",
+    "subjectPlaceholder": "موضوع رسالتك (اختياري)",
+    "message": "الرسالة",
+    "messagePlaceholder": "رسالتك…",
+    "button": "إرسال",
+    "sending": "جارٍ الإرسال…",
+    "successTitle": "تم إرسال الرسالة!",
+    "successDesc": "شكراً، سنرد عليك في أقرب وقت ممكن.",
+    "error": "تعذّر إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+    "backHome": "العودة إلى الصفحة الرئيسية",
+    "signIn": "تسجيل الدخول"
+  },
   "hero": {
     "badge": "لعيادات الأسنان",
     "title": "كل ما تحتاجه عيادتك،",
