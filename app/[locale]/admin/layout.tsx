@@ -12,15 +12,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Pending-approval count for the sidebar badge: pending practices + pending
   // owner-invited members.
   const supabase = createAdminClient();
-  const [{ count: pendingPractices }, { count: pendingMembers }] = await Promise.all([
+  const [{ count: pendingPractices }, { count: pendingMembers }, { count: openTickets }] = await Promise.all([
     supabase.from("practices").select("id", { count: "exact", head: true }).eq("is_approved", false),
     supabase.from("practice_members").select("id", { count: "exact", head: true }).eq("is_approved", false).neq("role", "owner"),
+    supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("status", "open"),
   ]);
   const pendingCount = (pendingPractices ?? 0) + (pendingMembers ?? 0);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <AdminSidebar email={admin.email ?? ""} pendingCount={pendingCount} />
+      <AdminSidebar email={admin.email ?? ""} pendingCount={pendingCount} openTickets={openTickets ?? 0} />
       <div className="sm:ms-56 min-h-screen">
         <div className="pt-14 sm:pt-0 min-h-screen">{children}</div>
       </div>

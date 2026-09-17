@@ -6,17 +6,23 @@ import { extractFiles, validateFiles, storeAttachments } from "@/utils/support-a
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://denticareapp.com";
 
-// Create a new support ticket (first message + optional attachments) and notify
-// the admins. Runs with the caller's session, so RLS scopes it to their practice.
-export async function POST(req: Request) {
+// A practice member posts a reply on their own ticket. RLS keeps it scoped.
+export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const { id } = await ctx.params;
   const result = await getMemberWithPractice();
   if (!result) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const { member, user } = result;
 
+  const db = await createClient();
+  const { data: ticket } = await db
+    .from("support_tickets")
+    .select("id, subject")
+    .eq("id", id)
+    .single();
+  if (!ticket) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
   let form: FormData;
   try { form = await req.formData(); } catch { return NextResponse.json({ error: "bad_request" }, { status: 400 }); }
-
-  const subject = String(form.get("subject") ?? "").trim().slice(0, 200);
   const message = String(form.get("message") ?? "").trim().slice(0, 5000);
   if (!message) return NextResponse.json({ error: "missing" }, { status: 400 });
 
@@ -24,30 +30,18 @@ export async function POST(req: Request) {
   const fileError = validateFiles(files);
   if (fileError) return NextResponse.json({ error: fileError }, { status: 400 });
 
-  const db = await createClient();
-
-  const { data: ticket, error: tErr } = await db
-    .from("support_tickets")
-    .insert({ practice_id: member.practice_id, created_by: user.id, subject })
-    .select("id")
-    .single();
-  if (tErr || !ticket) {
-    console.error("support: ticket insert error", tErr?.message);
-    return NextResponse.json({ error: "server" }, { status: 500 });
-  }
-
   const { data: msg, error: mErr } = await db
     .from("support_messages")
-    .insert({ ticket_id: ticket.id, author_id: user.id, author_role: "user", body: message })
+    .insert({ ticket_id: id, author_id: user.id, author_role: "user", body: message })
     .select("id")
     .single();
   if (mErr || !msg) {
-    console.error("support: message insert error", mErr?.message);
+    console.error("support reply: insert error", mErr?.message);
     return NextResponse.json({ error: "server" }, { status: 500 });
   }
 
   const mailAttachments = files.length
-    ? await storeAttachments(db, files, member.practice_id, ticket.id, msg.id)
+    ? await storeAttachments(db, files, member.practice_id, id, msg.id)
     : [];
 
   const requester = `${member.first_name ?? ""} ${member.last_name ?? ""}`.trim() || (user.email ?? "");
@@ -55,19 +49,18 @@ export async function POST(req: Request) {
   await sendSupportMail({
     to: SUPPORT_ADMINS,
     replyTo: user.email,
-    subject: `[Support] ${shop} — ${subject || "nouveau ticket"}`,
-    heading: subject || "Nouvelle demande de support",
+    subject: `[Support] ${shop} — ${ticket.subject || "réponse"}`,
+    heading: `Nouvelle réponse — ${ticket.subject || "ticket"}`,
     rows: [
       { label: "Cabinet", value: shop },
       { label: "Demandeur", value: requester },
       { label: "E-mail", value: user.email ?? "" },
-      { label: "Rôle", value: member.role ?? "" },
     ],
     body: message,
     ctaLabel: "Ouvrir le ticket",
-    ctaUrl: `${APP_URL}/fr/admin/support/${ticket.id}`,
+    ctaUrl: `${APP_URL}/fr/admin/support/${id}`,
     attachments: mailAttachments,
   });
 
-  return NextResponse.json({ ok: true, ticketId: ticket.id });
+  return NextResponse.json({ ok: true });
 }

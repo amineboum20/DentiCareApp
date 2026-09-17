@@ -8,9 +8,10 @@ import ThemeToggle from "@/components/ThemeToggle";
 interface Props {
   email: string;
   pendingCount: number;
+  openTickets: number;
 }
 
-export default function AdminSidebar({ email, pendingCount }: Props) {
+export default function AdminSidebar({ email, pendingCount, openTickets }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -26,6 +27,7 @@ export default function AdminSidebar({ email, pendingCount }: Props) {
     { icon: "🧪", label: "Tests",          href: "/admin/tests" },
     { icon: "📚", label: "Docs",           href: "/admin/docs" },
     { icon: "🏗️", label: "Infrastructure", href: "/admin/infra" },
+    { icon: "🛟", label: "Support",        href: "/admin/support", badge: openTickets },
   ];
 
   const navContent = (
