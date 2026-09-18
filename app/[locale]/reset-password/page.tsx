@@ -16,6 +16,10 @@ export default function ResetPassword() {
   // The invite/recovery callback establishes a session before landing here, so
   // we can read the account it belongs to and pre-fill it read-only.
   const [account, setAccount] = useState<{ email: string; firstName: string; lastName: string } | null>(null);
+  // Invite links (member activation) arrive with an implicit-flow #access_token
+  // fragment; password recovery arrives via the server callback (cookie, no
+  // fragment). That — not the presence of a name — is what tells the two apart.
+  const [isInvite, setIsInvite] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -25,6 +29,7 @@ export default function ResetPassword() {
       // cookie session from the server callback, so there's no fragment.
       const hash = typeof window !== "undefined" ? window.location.hash : "";
       if (hash.includes("access_token")) {
+        setIsInvite(true);
         const p = new URLSearchParams(hash.slice(1));
         const access_token = p.get("access_token");
         const refresh_token = p.get("refresh_token");
@@ -44,9 +49,6 @@ export default function ResetPassword() {
       }
     })();
   }, []);
-
-  // An invited member has their name in metadata; a plain password reset does not.
-  const isInvite = !!(account?.firstName || account?.lastName);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
