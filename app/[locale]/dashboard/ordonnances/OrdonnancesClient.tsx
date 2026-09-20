@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -36,6 +37,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ patient_id: "", date: today, prescriber: "", praticien_id: "", notes: "", consultation_id: "" });
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
   const [dossierId, setDossierId] = useState("");
   const [lines, setLines] = useState<Line[]>([{ ...emptyLine }]);
   const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string }[]>([]);

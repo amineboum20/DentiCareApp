@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -59,6 +60,8 @@ export default function ActesClient({ initialActes }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingActe, setEditingActe] = useState<Acte | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Acte | null>(null);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(!!deleteTarget, () => setDeleteTarget(null));
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");

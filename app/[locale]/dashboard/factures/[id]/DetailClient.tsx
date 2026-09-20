@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -52,6 +53,8 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(deleteOpen, () => setDeleteOpen(false));
   const [deleting, setDeleting] = useState(false);
   // Correction: a draft (en_attente) facture can have its lines edited in place;
   // once en_cours/payée it is locked — correct it by cancel + reissue instead.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -45,6 +46,7 @@ export default function DossiersClient({ initialDossiers, patients }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
 
   useEffect(() => {
     if (searchParams.get("new") !== "1") return;

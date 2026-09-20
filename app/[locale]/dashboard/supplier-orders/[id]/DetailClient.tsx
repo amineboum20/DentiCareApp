@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -48,6 +49,8 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(deleteOpen, () => setDeleteOpen(false));
   const [deleting, setDeleting] = useState(false);
 
   const supplierName = suppliers.find(s => s.id === order.supplier_id)?.name ?? null;

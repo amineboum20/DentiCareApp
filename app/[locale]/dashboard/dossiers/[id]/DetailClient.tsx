@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -93,6 +94,14 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const [rdvOpen, setRdvOpen] = useState(false);
   const [cancelTarget, setCancelTarget] = useState<Doc | null>(null);
   const [convertTarget, setConvertTarget] = useState<Doc | null>(null);
+  useModalKeys(editOpen, { onClose: () => setEditOpen(false), onSubmit: saveEdit });
+  useEscapeKey(deleteOpen, () => setDeleteOpen(false));
+  useModalKeys(acompteOpen, { onClose: () => setAcompteOpen(false), onSubmit: saveAcompte });
+  useModalKeys(docOpen, { onClose: () => setDocOpen(false), onSubmit: saveDoc });
+  useModalKeys(visiteOpen, { onClose: () => setVisiteOpen(false), onSubmit: saveVisite });
+  useModalKeys(rdvOpen, { onClose: () => setRdvOpen(false), onSubmit: saveRdv });
+  useEscapeKey(!!cancelTarget, () => setCancelTarget(null));
+  useEscapeKey(!!convertTarget, () => setConvertTarget(null));
   const [busy, setBusy] = useState(false);
   const [feuilleBusy, setFeuilleBusy] = useState<"CNOPS" | "CNSS" | null>(null);
   const [err, setErr] = useState("");

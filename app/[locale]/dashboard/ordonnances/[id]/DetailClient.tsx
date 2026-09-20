@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -42,6 +43,8 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
   const [cancelOpen, setCancelOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  useModalKeys(editOpen, { onClose: () => setEditOpen(false), onSubmit: saveEdit });
+  useEscapeKey(cancelOpen, () => setCancelOpen(false));
   const [editForm, setEditForm] = useState({ date: "", prescriber: "", praticien_id: "", notes: "" });
   const [editLines, setEditLines] = useState<EditLine[]>([]);
   const [medications, setMedications] = useState<MedLite[]>([]);

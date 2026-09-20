@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -24,6 +25,7 @@ export default function PraticiensClient({ initial }: Props) {
   const [praticiens, setPraticiens] = useState<Praticien[]>(initial);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Praticien | null>(null);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -21,6 +22,8 @@ export default function MedicamentDetailClient({ medicament, locale }: Props) {
   const [med, setMed] = useState<Medicament>(medicament);
   const [modalOpen, setModalOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(archiveOpen, () => setArchiveOpen(false));
   const [saving, setSaving] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [error, setError] = useState("");

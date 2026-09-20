@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -55,6 +56,8 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingConsultation, setEditingConsultation] = useState<ConsultationWithPatient | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ConsultationWithPatient | null>(null);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(!!deleteTarget, () => setDeleteTarget(null));
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");

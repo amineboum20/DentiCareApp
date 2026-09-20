@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -89,6 +90,8 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
   // Archive
   const [archiveOpen, setArchiveOpen] = useState(false);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(archiveOpen, () => setArchiveOpen(false));
   const [archivePreview, setArchivePreview] = useState<{ consultations: number; factures: number; appointments: number; ordonnances: number } | null>(null);
   const [archiveLoading, setArchiveLoading] = useState(false);
 

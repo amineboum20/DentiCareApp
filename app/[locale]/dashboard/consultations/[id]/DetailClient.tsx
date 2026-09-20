@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -142,6 +143,9 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
 
   const [addActesOpen, setAddActesOpen] = useState(false);
   const [savingActes, setSavingActes] = useState(false);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(deleteOpen, () => setDeleteOpen(false));
+  useModalKeys(addActesOpen, { onClose: () => setAddActesOpen(false), onSubmit: saveNewActes });
   async function saveNewActes() {
     if (!dossier || billExtra.length === 0) { setAddActesOpen(false); return; }
     setSavingActes(true);

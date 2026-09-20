@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -29,6 +30,7 @@ export default function MedicamentsClient({ initial }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
 
   const filtered = useMemo(() =>
     meds.filter((m) => m.name.toLowerCase().includes(search.toLowerCase())),

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useEscapeKey, useModalKeys } from "@/utils/useEscapeKey";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
@@ -77,6 +78,9 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   // it is marked "Terminé", it is linked to an existing visite or a new one.
   const [terminerOpen, setTerminerOpen] = useState(false);
   const [terminering, setTerminering] = useState(false);
+  useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
+  useEscapeKey(deleteOpen, () => setDeleteOpen(false));
+  useModalKeys(terminerOpen, { onClose: () => setTerminerOpen(false), onSubmit: doTerminer });
   const [linkMode, setLinkMode] = useState<"new" | "existing">("new");
   const [existingVisiteId, setExistingVisiteId] = useState("");
   const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string }[]>([]);
