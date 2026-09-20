@@ -295,7 +295,11 @@
       "settings": "Paramètres",
       "support": "Support",
       "suppliers": "Fournisseurs",
-      "supplierOrders": "Cmd. fournisseurs"
+      "supplierOrders": "Cmd. fournisseurs",
+      "sectionMain": "Principal",
+      "sectionClinical": "Clinique",
+      "sectionCatalog": "Catalogue",
+      "sectionBilling": "Facturation"
     },
     "signOut": "Se déconnecter",
     "noUpcomingAppts": "Aucun rendez-vous à venir",
@@ -388,7 +392,6 @@
     "selectPatientFirst": "Sélectionnez d'abord un patient.",
     "searchPatientPlaceholder": "Rechercher un patient…",
     "searchDossierPlaceholder": "Rechercher un dossier…",
-    "noResults": "Aucun résultat",
     "detail": {
       "autoDossierTitle": "Visite du {date}",
       "errRequired": "Le patient, le titre et la date sont requis.",

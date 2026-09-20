@@ -288,6 +288,9 @@ export default function SettingsClient({
 
   return (
     <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Left column */}
+        <div className="space-y-6">
       {/* Your praticien identity — links this account to a dentist for "my agenda" */}
       {memberRole !== "assistant" && praticiens.length > 0 && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
@@ -379,7 +382,10 @@ export default function SettingsClient({
         <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4">{t("language")}</h2>
         <LanguageSwitcher saveToAccount />
       </div>
+        </div>
 
+        {/* Right column */}
+        <div className="space-y-6">
       {/* Password change */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
         <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">{t("changePassword")}</h2>
@@ -495,6 +501,8 @@ export default function SettingsClient({
             ))}
           </div>
         )}
+      </div>
+        </div>
       </div>
 
       {/* Praticiens */}

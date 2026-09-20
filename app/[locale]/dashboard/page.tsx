@@ -27,12 +27,12 @@ export default async function Dashboard() {
     { data: recentFactures },
     { data: upcomingAppointments },
   ] = await Promise.all([
-    supabase.from("patients").select("*", { count: "exact", head: true }),
-    supabase.from("factures").select("*", { count: "exact", head: true }).gte("created_at", firstOfMonth).neq("status", "annulee"),
-    supabase.from("appointments").select("*", { count: "exact", head: true }).eq("status", "planifie").gte("scheduled_at", todayStart).lt("scheduled_at", todayEnd),
-    supabase.from("factures").select("*", { count: "exact", head: true }).eq("status", "en_attente"),
-    supabase.from("factures").select("id, created_at, status, total_price, patients(first_name, last_name)").order("created_at", { ascending: false }).limit(5),
-    supabase.from("appointments").select("id, title, scheduled_at, type, patients(first_name, last_name)").eq("status", "planifie").gte("scheduled_at", now.toISOString()).order("scheduled_at").limit(5),
+    supabase.from("patients").select("*", { count: "exact", head: true }).is("archived_at", null),
+    supabase.from("factures").select("*", { count: "exact", head: true }).is("archived_at", null).gte("created_at", firstOfMonth).neq("status", "annulee"),
+    supabase.from("appointments").select("*", { count: "exact", head: true }).is("archived_at", null).eq("status", "planifie").gte("scheduled_at", todayStart).lt("scheduled_at", todayEnd),
+    supabase.from("factures").select("*", { count: "exact", head: true }).is("archived_at", null).eq("status", "en_attente"),
+    supabase.from("factures").select("id, created_at, status, total_price, patients(first_name, last_name)").is("archived_at", null).order("created_at", { ascending: false }).limit(5),
+    supabase.from("appointments").select("id, title, scheduled_at, type, patients(first_name, last_name)").is("archived_at", null).eq("status", "planifie").gte("scheduled_at", now.toISOString()).order("scheduled_at").limit(5),
   ]);
 
   const stats = [

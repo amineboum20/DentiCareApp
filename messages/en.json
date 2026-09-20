@@ -295,7 +295,11 @@
       "settings": "Settings",
       "support": "Support",
       "suppliers": "Suppliers",
-      "supplierOrders": "Supplier orders"
+      "supplierOrders": "Supplier orders",
+      "sectionMain": "Main",
+      "sectionClinical": "Clinical",
+      "sectionCatalog": "Catalog",
+      "sectionBilling": "Billing"
     },
     "signOut": "Sign out",
     "noUpcomingAppts": "No upcoming appointments",
@@ -388,7 +392,6 @@
     "selectPatientFirst": "Select a patient first.",
     "searchPatientPlaceholder": "Search a patient…",
     "searchDossierPlaceholder": "Search a case…",
-    "noResults": "No results",
     "detail": {
       "autoDossierTitle": "Visit of {date}",
       "errRequired": "Patient, title and date are required.",

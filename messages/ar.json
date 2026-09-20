@@ -295,7 +295,11 @@
       "settings": "الإعدادات",
       "support": "الدعم",
       "suppliers": "الموردون",
-      "supplierOrders": "طلبات الموردين"
+      "supplierOrders": "طلبات الموردين",
+      "sectionMain": "الرئيسية",
+      "sectionClinical": "العيادة",
+      "sectionCatalog": "الكتالوج",
+      "sectionBilling": "الفوترة"
     },
     "signOut": "تسجيل الخروج",
     "noUpcomingAppts": "لا مواعيد قادمة",
@@ -388,7 +392,6 @@
     "selectPatientFirst": "اختر مريضاً أولاً.",
     "searchPatientPlaceholder": "ابحث عن مريض…",
     "searchDossierPlaceholder": "ابحث عن ملف…",
-    "noResults": "لا نتائج",
     "detail": {
       "autoDossierTitle": "زيارة {date}",
       "errRequired": "المريض والعنوان والتاريخ مطلوبة.",

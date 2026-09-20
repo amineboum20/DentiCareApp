@@ -339,12 +339,6 @@ export default function Home() {
             <Link href="/signup" className="px-8 py-3.5 rounded-full bg-teal-600 text-white font-semibold hover:bg-teal-500 transition-colors shadow-xl shadow-teal-900/50">{t("hero.cta")}</Link>
             <a href="#features" className="px-8 py-3.5 rounded-full border border-white/25 text-white font-medium hover:bg-white/10 backdrop-blur-sm transition-colors">{t("hero.ctaSecondary")}</a>
           </div>
-          <p className="mt-5 text-sm text-white/40">{t("hero.noCreditCard")}</p>
-        </div>
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <div className="w-6 h-10 rounded-full border-2 border-white/25 flex items-start justify-center pt-2">
-            <div className="w-1 h-2 bg-white/50 rounded-full animate-bounce" />
-          </div>
         </div>
       </section>
 

@@ -26,7 +26,7 @@ export default async function SettingsPage() {
     .order("name", { ascending: true });
 
   return (
-    <div className="p-4 sm:p-8 max-w-xl">
+    <div className="p-4 sm:p-8 max-w-5xl">
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-8">{t("pageTitle")}</h1>
       <SettingsClient
         practiceId={member.practice_id}

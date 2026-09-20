@@ -27,43 +27,65 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  const navItems = [
-    { icon: "📊", label: t("nav.dashboard"),    href: "/dashboard" },
-    { icon: "👤", label: t("nav.patients"),      href: "/dashboard/patients" },
-    { icon: "🏥", label: t("nav.consultations"), href: "/dashboard/consultations" },
-    { icon: "📁", label: t("nav.dossiers"),      href: "/dashboard/dossiers" },
-    { icon: "🦷", label: t("nav.actes"),         href: "/dashboard/actes" },
-    { icon: "📦", label: t("nav.traitements"),   href: "/dashboard/traitements" },
-    { icon: "🧾", label: t("nav.factures"),      href: "/dashboard/factures" },
-    { icon: "💊", label: t("nav.ordonnances"),   href: "/dashboard/ordonnances" },
-    { icon: "🕐", label: t("nav.appointments"),  href: "/dashboard/appointments" },
-    { icon: "📅", label: t("nav.agenda"),        href: "/dashboard/agenda" },
-    { icon: "📈", label: t("nav.reports"),       href: "/dashboard/reports" },
-    { icon: "🏭", label: t("nav.suppliers"),       href: "/dashboard/suppliers" },
-    { icon: "📋", label: t("nav.supplierOrders"), href: "/dashboard/supplier-orders" },
-    { icon: "⚙️", label: t("nav.settings"),       href: "/dashboard/settings" },
-    { icon: "🛟", label: t("nav.support"),        href: "/dashboard/support" },
-  ].filter((item) => canAccessPath(role, item.href));
+  // Grouped into sections so the (long) menu reads as organised, not a flat list.
+  // Role filtering still applies per item; empty sections are dropped.
+  const navSections: { title: string | null; items: { icon: string; label: string; href: string }[] }[] = [
+    { title: t("nav.sectionMain"), items: [
+      { icon: "📊", label: t("nav.dashboard"),     href: "/dashboard" },
+      { icon: "👤", label: t("nav.patients"),      href: "/dashboard/patients" },
+      { icon: "🕐", label: t("nav.appointments"),  href: "/dashboard/appointments" },
+      { icon: "📅", label: t("nav.agenda"),        href: "/dashboard/agenda" },
+    ] },
+    { title: t("nav.sectionClinical"), items: [
+      { icon: "🏥", label: t("nav.consultations"), href: "/dashboard/consultations" },
+      { icon: "📁", label: t("nav.dossiers"),      href: "/dashboard/dossiers" },
+      { icon: "💊", label: t("nav.ordonnances"),   href: "/dashboard/ordonnances" },
+    ] },
+    { title: t("nav.sectionCatalog"), items: [
+      { icon: "🦷", label: t("nav.actes"),          href: "/dashboard/actes" },
+      { icon: "📦", label: t("nav.traitements"),   href: "/dashboard/traitements" },
+      { icon: "🏭", label: t("nav.suppliers"),     href: "/dashboard/suppliers" },
+      { icon: "📋", label: t("nav.supplierOrders"), href: "/dashboard/supplier-orders" },
+    ] },
+    { title: t("nav.sectionBilling"), items: [
+      { icon: "🧾", label: t("nav.factures"),      href: "/dashboard/factures" },
+      { icon: "📈", label: t("nav.reports"),       href: "/dashboard/reports" },
+    ] },
+    { title: null, items: [
+      { icon: "⚙️", label: t("nav.settings"),       href: "/dashboard/settings" },
+      { icon: "🛟", label: t("nav.support"),        href: "/dashboard/support" },
+    ] },
+  ]
+    .map((s) => ({ ...s, items: s.items.filter((item) => canAccessPath(role, item.href)) }))
+    .filter((s) => s.items.length > 0);
+
+  const isActive = (href: string) =>
+    href === "/dashboard" ? pathname === "/dashboard" : pathname === href || pathname.startsWith(href + "/");
 
   const navContent = (
     <>
-      <nav className="flex-1 p-3 flex flex-col gap-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const active =
-            item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link key={item.href} href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm w-full transition-colors ${
-                active
-                  ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 font-medium"
-                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-              }`}>
-              <span>{item.icon}</span>{item.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 p-3 overflow-y-auto">
+        {navSections.map((section, si) => (
+          <div key={si} className={si > 0 ? "mt-5" : ""}>
+            {section.title && (
+              <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                {section.title}
+              </p>
+            )}
+            <div className="flex flex-col gap-1">
+              {section.items.map((item) => (
+                <Link key={item.href} href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm w-full transition-colors ${
+                    isActive(item.href)
+                      ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 font-medium"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  }`}>
+                  <span>{item.icon}</span>{item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="p-3 border-t border-zinc-100 dark:border-zinc-800">
