@@ -11,138 +11,197 @@ export interface TestModule {
   tests: TestCase[];
 }
 
+// TC-001..TC-099 = modules shared with the twin app — keep them IDENTICAL in both
+// apps (generated from one source). TC-101+ = modules specific to this app.
+// Never change what an existing ID means: results are stored per ID (qa_test_results).
 export const MODULES: TestModule[] = [
   {
     id: "auth", icon: "🔐", title: "Authentification", tests: [
-      { id: "TC-001", title: "Connexion avec credentials valides", steps: ["Ouvrir /fr/signin", "Saisir un email + mot de passe corrects", 'Cliquer "Se connecter"'], expected: "Redirection vers /fr/dashboard" },
-      { id: "TC-002", title: "Connexion avec mauvais mot de passe", steps: ["Saisir un email valide", "Mot de passe incorrect", 'Cliquer "Se connecter"', "Recommencer en EN puis en AR"], expected: "Cadre rouge en haut : « Email ou mot de passe incorrect. » dans la langue choisie (jamais le message anglais de Supabase) ; pas de redirection" },
-      { id: "TC-003", title: "Déconnexion", steps: ["Être connecté", "Cliquer sur Se déconnecter (sidebar)"], expected: "Redirection vers /fr/signin, session détruite" },
-      { id: "TC-004", title: "Accès dashboard sans session", steps: ["Sans être connecté, ouvrir /fr/dashboard"], expected: "Redirection automatique vers /fr/signin" },
-      { id: "TC-005", title: "Mot de passe oublié", steps: ["Sur /fr/signin, cliquer « Mot de passe oublié »", "Saisir l'email, envoyer", "Ouvrir le mail, cliquer le lien"], expected: "Le lien s'ouvre dans un nouvel onglet sur « Nouveau mot de passe » (pas « activer votre compte ») ; nouveau mot de passe accepté" },
-      { id: "TC-006", title: "Inscription d'un cabinet + confirmation email", steps: ["Ouvrir /fr/signup, remplir le formulaire", "Avant de confirmer : ouvrir /fr/admin", "Cliquer le lien de confirmation reçu, rouvrir /fr/admin"], expected: "Avant confirmation : rien dans « En attente » (seulement la section repliée « En attente de confirmation de l'email », sans bouton Approuver). Après : l'équipe reçoit l'email « Nouvelle inscription » et le cabinet apparaît dans « En attente » avec Approuver ; le propriétaire voit l'écran d'attente jusqu'à l'approbation" },
+      { id: "TC-001", title: "Connexion avec credentials valides", steps: ["Ouvrir /fr/signin", "Saisir un email + mot de passe corrects", "Cliquer \"Se connecter\""], expected: "Redirection vers /fr/dashboard" },
+      { id: "TC-002", title: "Connexion avec mauvais mot de passe", steps: ["Saisir un email valide", "Mot de passe incorrect", "Cliquer \"Se connecter\"", "Recommencer en EN puis en AR"], expected: "Cadre rouge en haut du formulaire : « Email ou mot de passe incorrect. » dans la langue choisie (jamais le message anglais de Supabase) ; pas de redirection" },
+      { id: "TC-003", title: "Déconnexion", steps: ["Être connecté", "Cliquer sur Se déconnecter (sidebar)"], expected: "Redirection vers /fr/signin, session détruite ; /fr/dashboard renvoie ensuite vers /fr/signin" },
+      { id: "TC-004", title: "Accès dashboard sans session", steps: ["Sans être connecté, ouvrir /fr/dashboard puis /fr/dashboard/settings"], expected: "Redirection automatique vers /fr/signin" },
+      { id: "TC-005", title: "Mot de passe oublié", steps: ["Sur /fr/signin, cliquer « Mot de passe oublié »", "Saisir l'email, envoyer", "Ouvrir le mail, cliquer le lien"], expected: "Le lien s'ouvre dans un nouvel onglet sur « Nouveau mot de passe » (pas « activer votre compte ») ; nouveau mot de passe accepté, connexion possible avec" },
+      { id: "TC-006", title: "Inscription d'un cabinet + confirmation email", steps: ["Ouvrir /fr/signup, remplir le formulaire", "Avant de confirmer : ouvrir /fr/admin", "Cliquer le lien de confirmation reçu, rouvrir /fr/admin"], expected: "Avant confirmation : rien dans « En attente » (seulement la section repliée « En attente de confirmation de l'email », sans bouton Approuver). Après : l'équipe reçoit l'email « Nouvelle inscription » et le cabinet apparaît dans « En attente » avec Approuver" },
       { id: "TC-007", title: "Inscription avec un email déjà utilisé", steps: ["Sur /fr/signup, saisir l'email d'un compte existant"], expected: "Cadre rouge en haut « Un compte existe déjà avec cette adresse e-mail… » (pas l'écran « vérifiez votre email »)" },
-      { id: "TC-075", title: "Afficher / masquer le mot de passe", steps: ["Sur la connexion, l'inscription, la réinitialisation et Paramètres → mot de passe", "Cliquer l'œil dans le champ, puis recliquer"], expected: "Le mot de passe s'affiche en clair puis se masque à nouveau, sur chaque champ mot de passe" },
+      { id: "TC-008", title: "Afficher / masquer le mot de passe", steps: ["Sur la connexion, l'inscription, la réinitialisation et Paramètres → mot de passe", "Cliquer l'œil dans le champ, puis recliquer"], expected: "Le mot de passe s'affiche en clair puis se masque à nouveau, sur chaque champ mot de passe" },
+      { id: "TC-009", title: "Déjà connecté → tableau de bord", steps: ["Être connecté", "Taper denticareapp.com, puis /fr/signin, puis /en/signup, puis /ar"], expected: "Chaque adresse ouvre directement le tableau de bord, dans la langue de l'adresse (fr / en / ar) ; déconnecté, la page d'accueil et la connexion s'affichent normalement" },
+      { id: "TC-010", title: "Mot de passe oublié jamais redirigé", steps: ["Être connecté, ouvrir /fr/forgot-password", "Cliquer un lien de réinitialisation reçu par email"], expected: "La page s'affiche (pas de redirection vers le tableau de bord) ; le lien de réinitialisation mène bien au formulaire « Nouveau mot de passe »" },
+      { id: "TC-011", title: "Connexion avec un email non confirmé", steps: ["S'inscrire sans cliquer le lien de confirmation", "Tenter de se connecter"], expected: "Cadre rouge traduit : « Votre adresse email n'est pas encore confirmée… » ; pas d'accès" },
+      { id: "TC-012", title: "Mot de passe trop court", steps: ["Inscription avec un mot de passe de moins de 8 caractères"], expected: "Message d'erreur traduit, rien n'est créé" },
+      { id: "TC-013", title: "Lien de réinitialisation expiré / déjà utilisé", steps: ["Recliquer un ancien lien de réinitialisation"], expected: "Message traduit « Le lien a expiré… », aucune page blanche ni message anglais" },
+      { id: "TC-014", title: "Écran « Compte en attente d'approbation »", steps: ["Se connecter avec le propriétaire d'un cabinet non encore approuvé"], expected: "Carte ⏳ « Compte en attente d'approbation », texte « …Vous pourrez vous connecter dès qu'il sera approuvé. », ligne « Des questions ? Contactez amine@denticareapp.com » ; aucun accès au tableau de bord" },
     ],
   },
   {
-    id: "members", icon: "👥", title: "Membres & rôles", tests: [
-      { id: "TC-008", title: "Inviter un membre", steps: ["Paramètres → inviter un membre (email + rôle dentiste/assistant)", "Le membre reçoit l'email d'invitation"], expected: "Membre créé en attente d'approbation admin" },
-      { id: "TC-009", title: "Activation du compte invité", steps: ["Admin approuve le membre dans /fr/admin", "Le membre clique le lien d'invitation"], expected: "Formulaire « Activer mon compte » (email/prénom/nom pré-remplis) ; accès au dashboard après mot de passe" },
-      { id: "TC-010", title: "Rôle assistant — navigation limitée", steps: ["Se connecter avec un compte assistant"], expected: "Sidebar limitée à Patients, Dossiers, Rendez-vous, Agenda, Support ; une URL interdite (ex. /fr/dashboard/factures) redirige vers Patients" },
-      { id: "TC-011", title: "Rôle assistant — écritures bloquées en base", steps: ["En assistant, tenter une action de facturation ou de visite (via l'UI ou l'API)"], expected: "Refus (RLS restrictive) ; création/édition patients, dossiers et RDV autorisées" },
-      { id: "TC-012", title: "Désactivation d'un membre", steps: ["Paramètres → désactiver un membre", "Le membre tente de se connecter"], expected: "Écran « Accès désactivé » ; ses données créées sont conservées ; Réactiver rétablit l'accès" },
-      { id: "TC-013", title: "Isolation entre cabinets (RLS)", steps: ["Créer un patient dans le cabinet A", "Se connecter à un cabinet B"], expected: "Le patient du cabinet A est invisible pour B" },
-      { id: "TC-014", title: "Créé par / Modifié par", steps: ["Créer puis modifier un patient avec deux membres différents", "Ouvrir la fiche"], expected: "Pied de carte « Créé par X · date » et « Modifié par Y · date »" },
-      { id: "TC-077", title: "Paramètres pour un assistant", steps: ["Se connecter avec un compte assistant", "Ouvrir Paramètres"], expected: "Onglet visible ; seulement « Changer le mot de passe » et « Langue » (pas d'infos de la boutique/du cabinet, logo, membres ni catalogue) ; changement de mot de passe OK avec « ✓ Mot de passe mis à jour » en vert" },
-    ],
-  },
-  {
-    id: "patients", icon: "👤", title: "Patients", tests: [
-      { id: "TC-015", title: "Création d'un patient", steps: ['Cliquer "Nouveau patient"', "Remplir prénom, nom, téléphone, date de naissance, CIN, sexe, mutuelle", "Soumettre"], expected: "Patient créé, visible dans la liste et la recherche globale" },
-      { id: "TC-016", title: "Fiche patient", steps: ["Ouvrir un patient"], expected: "Contact, vue rapide (dernière visite avec son titre, prochain RDV, factures actives), actions rapides, historique, schéma dentaire" },
-      { id: "TC-017", title: "Édition d'un patient", steps: ["Modifier le téléphone", "Sauvegarder"], expected: "Modification enregistrée et affichée" },
-      { id: "TC-018", title: "Archivage + cascade", steps: ["Archiver un patient ayant visites, factures et RDV"], expected: "Le patient et ses données liées disparaissent des listes ; badge « Archivé » ; Désarchiver restaure" },
-      { id: "TC-019", title: "Fiche patient imprimable", steps: ["Fiche patient → « 🖨️ Imprimer infos »"], expected: "PDF avec logo du cabinet, infos patient, schéma dentaire et QR « Mon espace patient »" },
-      { id: "TC-020", title: "WhatsApp / appel", steps: ["Cliquer WhatsApp ou Appeler sur la fiche"], expected: "Ouvre WhatsApp (numéro normalisé) ou le composeur" },
-    ],
-  },
-  {
-    id: "odontogram", icon: "🦷", title: "Schéma dentaire", tests: [
-      { id: "TC-021", title: "Schéma adulte", steps: ["Ouvrir un patient de 13 ans ou plus"], expected: "Dents permanentes 11–48 (FDI)" },
-      { id: "TC-022", title: "Schéma enfant", steps: ["Ouvrir un patient de moins de 13 ans"], expected: "Dents temporaires 51–85" },
-      { id: "TC-023", title: "Statut d'une dent", steps: ["Cliquer une dent, choisir un statut (carie, obturée…) + note", "Recharger la page"], expected: "Statut et note conservés, couleur appliquée" },
-      { id: "TC-024", title: "Mise à jour par facturation", steps: ["Facturer un acte « par dent » (ex. obturation) sur la dent 16"], expected: "La dent 16 passe au statut de l'acte (obturée) sur le schéma" },
-      { id: "TC-025", title: "Schéma en lecture seule (assistant)", steps: ["Ouvrir une fiche patient en assistant"], expected: "Le schéma, les soins prévus et l'historique s'affichent mais rien n'est modifiable" },
-      { id: "TC-071", title: "Prévoir un soin sur une dent", steps: ["Cliquer une dent → Soins prévus → choisir un acte + note → Prévoir"], expected: "La dent apparaît en pointillés orange ; le soin figure dans « Plan de traitement »" },
-      { id: "TC-072", title: "Soin prévu réalisé par la facturation", steps: ["Prévoir « Obturation » sur la dent 26", "Facturer l'acte Obturation sur la dent 26 (visite ou dossier)"], expected: "Le soin passe à « Réalisé le … », les pointillés disparaissent, la dent devient Obturée" },
-      { id: "TC-073", title: "Historique d'une dent", steps: ["Changer le statut d'une dent à la main, puis via un acte facturé", "Rouvrir la dent"], expected: "Historique daté : ancien → nouveau statut, « via <acte> » pour la facturation, auteur de chaque changement" },
-      { id: "TC-074", title: "Soin prévu sur la fiche imprimée et l'espace patient", steps: ["Imprimer la fiche patient", "Ouvrir l'espace patient (QR)"], expected: "Les dents avec un soin prévu sont en pointillés sur les deux" },
-    ],
-  },
-  {
-    id: "dossiers", icon: "📁", title: "Dossiers & acomptes", tests: [
-      { id: "TC-026", title: "Création d'un dossier", steps: ["Dossiers → nouveau dossier pour un patient"], expected: "Dossier ouvert, visible dans le hub et la fiche patient" },
-      { id: "TC-027", title: "Hub du dossier", steps: ["Ouvrir un dossier"], expected: "Documents (devis/factures), acomptes, visites (avec titre), RDV, ordonnances, reste à payer" },
-      { id: "TC-028", title: "Ajout d'un acompte", steps: ["Hub dossier → ajouter un acompte (montant, moyen, date)"], expected: "Acompte listé ; reste à payer = total factures non annulées − acomptes" },
-      { id: "TC-029", title: "Ajouter une visite depuis le dossier", steps: ["Hub dossier → + Visite", "Laisser le titre vide, enregistrer", "Saisir un titre, enregistrer avec facturation"], expected: "Sans titre : erreur « titre obligatoire » ; avec titre : visite créée et actes ajoutés à la facture ouverte" },
-      { id: "TC-030", title: "Statut clinique", steps: ["Passer un dossier à Terminé"], expected: "Statut mis à jour ; indépendant du statut de paiement" },
-      { id: "TC-031", title: "Dossier en assistant", steps: ["Ouvrir un dossier en assistant"], expected: "Infos + RDV seulement (pas de facturation, visites ni ordonnances)" },
-    ],
-  },
-  {
-    id: "visites", icon: "🏥", title: "Visites", tests: [
-      { id: "TC-032", title: "Nouvelle visite — titre obligatoire", steps: ["Visites → + Nouvelle visite", "Remplir patient + date sans titre, enregistrer"], expected: "Erreur « Le titre de la visite est obligatoire » ; rien n'est créé" },
-      { id: "TC-033", title: "Nouvelle visite facturée sans dossier", steps: ["Saisir titre, patient, date", "Cocher « Facturer », choisir des actes, enregistrer"], expected: "Visite créée, dossier « Visite du <date> » créé automatiquement, facture avec les actes" },
-      { id: "TC-034", title: "Date future refusée", steps: ["Saisir une date de visite dans le futur"], expected: "Erreur : une visite future est un RDV" },
-      { id: "TC-035", title: "Liste & recherche", steps: ["Ouvrir /fr/dashboard/consultations", "Rechercher par titre puis par nom de patient"], expected: "Colonne Titre en premier ; la recherche trouve par titre et par nom" },
-      { id: "TC-036", title: "Détail + actes réalisés", steps: ["Ouvrir une visite", "+ Ajouter un acte"], expected: "En-tête « Visite — <titre> », actes réalisés listés (avec dents), nouvel acte ajouté sans double facturation" },
-      { id: "TC-037", title: "Modification d'une visite", steps: ["Détail visite → Modifier, vider le titre, enregistrer", "Remettre un titre, enregistrer"], expected: "Refus sans titre ; titre modifié affiché ensuite" },
-    ],
-  },
-  {
-    id: "catalog", icon: "📦", title: "Actes & traitements", tests: [
-      { id: "TC-038", title: "Créer un acte", steps: ["Actes → nouvel acte (nom, catégorie, prix, code)"], expected: "Acte disponible dans les sélecteurs de facturation" },
-      { id: "TC-039", title: "Acte « par dent »", steps: ["Créer un acte avec Portée = dent et « Résultat sur la dent »", "Le facturer"], expected: "Le sélecteur de dents s'affiche ; quantité = nombre de dents ; dents imprimées sur la facture" },
-      { id: "TC-040", title: "Traitement (package)", steps: ["Traitements → créer un package de plusieurs actes"], expected: "Prix = somme des actes (ou prix forcé) ; page détail avec les actes cliquables" },
-      { id: "TC-041", title: "Actes « par bouche »", steps: ["Facturer un acte de portée bouche"], expected: "Aucun sélecteur de dents demandé" },
-    ],
-  },
-  {
-    id: "factures", icon: "🧾", title: "Factures & devis", tests: [
-      { id: "TC-042", title: "Créer un devis", steps: ["Factures → nouveau document type devis"], expected: "PDF « DEVIS DENTAIRE » ; exclu des rapports de CA" },
-      { id: "TC-043", title: "Facture en attente modifiable", steps: ["Modifier les lignes d'une facture en attente"], expected: "Lignes et total mis à jour" },
-      { id: "TC-044", title: "Annuler / réactiver une facture", steps: ["Annuler une facture", "La réactiver"], expected: "Jamais supprimée : annulée = exclue des totaux ; réactivation possible" },
-      { id: "TC-045", title: "PDF facture", steps: ["Télécharger le PDF d'une facture"], expected: "Logo du cabinet, lignes (dents incluses), acomptes du dossier, QR espace patient, pied « Généré par DentiCare »" },
-      { id: "TC-046", title: "Feuille de soins CNOPS / CNSS", steps: ["Hub dossier → FDS CNOPS puis FDS CNSS"], expected: "Le vrai formulaire officiel est rempli (assuré, CIN, sexe, naissance, montant, INPE du praticien)" },
-    ],
-  },
-  {
-    id: "ordonnances", icon: "💊", title: "Ordonnances & médicaments", tests: [
-      { id: "TC-047", title: "Créer une ordonnance", steps: ["Ordonnances → nouvelle (patient, visite liée, lignes)"], expected: "Ordonnance créée ; le sélecteur de visite affiche « date — titre »" },
-      { id: "TC-048", title: "Médicament du catalogue", steps: ["Ajouter une ligne depuis le catalogue"], expected: "Posologie / durée / quantité pré-remplies" },
-      { id: "TC-049", title: "Médicament libre auto-ajouté", steps: ["Saisir un médicament absent du catalogue, enregistrer"], expected: "Il est ajouté au catalogue Médicaments (sans doublon)" },
-      { id: "TC-050", title: "PDF + annulation", steps: ["Imprimer l'ordonnance", "L'annuler"], expected: "PDF avec QR espace patient ; annulée = conservée mais marquée annulée" },
-    ],
-  },
-  {
-    id: "rdv", icon: "📅", title: "Rendez-vous & agenda", tests: [
-      { id: "TC-051", title: "Nouveau RDV avec créneau", steps: ["Nouveau RDV → choisir un dentiste", "Sélectionner un créneau (clic début + clic fin) dans la grille"], expected: "Date + durée réglées ; créneaux occupés visibles ; avertissement en cas de chevauchement" },
-      { id: "TC-052", title: "RDV contact rapide", steps: ["Nouveau RDV → + Contact rapide (prénom, nom, téléphone)", "Plus tard : « Créer la fiche patient »"], expected: "RDV enregistré sans patient ; la fiche patient est créée depuis le contact" },
-      { id: "TC-053", title: "Statuts selon la date", steps: ["Ouvrir un RDV futur puis un RDV passé"], expected: "Futur : Planifié/Annulé ; passé : Terminé/Absent (dentiste) ou Annulé/Absent (assistant)" },
-      { id: "TC-054", title: "Terminer un RDV → visite", steps: ["RDV passé → Terminé → nouvelle visite", "Vérifier le titre pré-rempli, le vider puis valider"], expected: "Titre pré-rempli avec celui du RDV ; refus si vide ; sinon visite créée et liée au RDV" },
-      { id: "TC-055", title: "Lier un RDV à une visite existante", steps: ["Terminer un RDV → « visite existante »"], expected: "Liste « date — titre » ; le RDV affiche la visite liée" },
-      { id: "TC-056", title: "Agenda semaine / jour", steps: ["Ouvrir 📆 Agenda, filtrer par praticien", "Cliquer un créneau vide"], expected: "Blocs colorés par dentiste ; clic vide ouvre un nouveau RDV pré-rempli" },
-      { id: "TC-057", title: "Heure locale", steps: ["Créer un RDV à 10:00", "L'afficher dans la liste, l'agenda et le détail"], expected: "10:00 partout, sans décalage ni erreur d'hydratation" },
-    ],
-  },
-  {
-    id: "portal", icon: "🔗", title: "Espace patient (QR)", tests: [
-      { id: "TC-058", title: "Accès par QR", steps: ["Scanner le QR d'une facture ou ordonnance", "Saisir la date de naissance"], expected: "Espace patient : infos, schéma dentaire (lecture seule), visites (titres), documents téléchargeables" },
-      { id: "TC-059", title: "Mauvaise date de naissance", steps: ["Saisir une date de naissance erronée"], expected: "Accès refusé, aucune donnée affichée" },
-    ],
-  },
-  {
-    id: "support", icon: "🛟", title: "Support", tests: [
-      { id: "TC-060", title: "Ouvrir un ticket", steps: ["Dashboard → Support → nouveau ticket avec pièce jointe"], expected: "Ticket créé ; l'équipe reçoit l'email avec la pièce jointe" },
-      { id: "TC-061", title: "Réponse admin", steps: ["Admin → Support → répondre au ticket"], expected: "Statut « répondu » ; le demandeur reçoit l'email ; sa réponse rouvre le ticket" },
-      { id: "TC-062", title: "Formulaire de contact public", steps: ["Ouvrir /fr/contact, envoyer un message"], expected: "Email reçu par l'équipe avec reply-to = l'expéditeur" },
+    id: "approvals", icon: "👥", title: "Approbations & membres", tests: [
+      { id: "TC-015", title: "Approuver un cabinet", steps: ["Admin → Approbations → Approuver", "Le propriétaire se reconnecte"], expected: "Cabinet passe dans « Cabinets approuvés » ; le propriétaire accède au tableau de bord" },
+      { id: "TC-016", title: "Refuser une inscription", steps: ["Admin → Approbations → « Refuser » sur une inscription en attente, confirmer", "Se réinscrire avec le même email"], expected: "Compte + cabinet supprimés ; l'email est réutilisable" },
+      { id: "TC-017", title: "Révoquer un cabinet approuvé", steps: ["Admin → Cabinets approuvés → Révoquer"], expected: "Le propriétaire retombe sur l'écran « Compte en attente d'approbation »" },
+      { id: "TC-018", title: "Badge et compteur admin", steps: ["Avoir une inscription confirmée et une non confirmée", "Regarder le badge Approbations et « En attente »"], expected: "Seuls les comptes à l'email confirmé sont comptés ; les non confirmés sont dans la section repliée « En attente de confirmation de l'email » (bouton « Refuser » seulement, pas d'Approuver)" },
+      { id: "TC-019", title: "Inviter un membre", steps: ["Propriétaire → Paramètres → « + Ajouter un membre »", "Remplir prénom, nom, email, rôle ; Envoyer l'invitation"], expected: "Formulaire avec libellés au-dessus des champs ; cadre « ✅ Invitation envoyée à … » ; le membre apparaît avec le badge « En attente »" },
+      { id: "TC-020", title: "Membre invité : activation du compte", steps: ["Le membre clique le lien d'invitation"], expected: "Formulaire « Activer mon compte » (email / prénom / nom pré-remplis) ; mot de passe défini ; tant qu'il n'a pas activé, il est dans « En attente de confirmation de l'email » côté admin, sans Approuver" },
+      { id: "TC-021", title: "Approuver un membre", steps: ["Admin → Approbations → Membres en attente → Approuver", "Le membre se connecte"], expected: "Le membre accède au tableau de bord ; avant l'approbation il voyait « Compte en attente d'approbation »" },
+      { id: "TC-022", title: "Désactiver un membre (persistance)", steps: ["Propriétaire → Paramètres → Membres → Désactiver, confirmer", "Recharger la page"], expected: "Badge « Désactivé » toujours présent après rechargement ; bouton « Réactiver » affiché" },
+      { id: "TC-023", title: "Membre désactivé", steps: ["Se connecter avec le membre désactivé"], expected: "Écran 🔒 « Accès désactivé » avec la ligne de contact ; ses données créées restent visibles pour le propriétaire" },
+      { id: "TC-024", title: "Réactiver un membre", steps: ["Propriétaire → Réactiver", "Le membre se reconnecte"], expected: "Accès rétabli" },
+      { id: "TC-025", title: "Protection du propriétaire", steps: ["Regarder la ligne du propriétaire dans Membres"], expected: "Aucun bouton Désactiver sur le propriétaire" },
+      { id: "TC-026", title: "Membres : droits selon le rôle", steps: ["Ouvrir Paramètres avec un dentiste (non propriétaire)"], expected: "Liste des membres visible mais sans « + Ajouter un membre » ni Désactiver/Réactiver" },
+      { id: "TC-027", title: "Erreur de désactivation affichée", steps: ["Couper le réseau (mode avion) puis cliquer Désactiver"], expected: "Cadre rouge « L'opération sur ce membre a échoué » au-dessus de la liste ; rien ne change" },
+      { id: "TC-028", title: "Isolation entre cabinets (RLS)", steps: ["Créer un patient dans le cabinet A", "Se connecter à un cabinet B"], expected: "Le patient de A est invisible pour B (listes, recherche, adresse directe → 404)" },
     ],
   },
   {
     id: "settings", icon: "⚙️", title: "Paramètres", tests: [
-      { id: "TC-063", title: "Infos + logo du cabinet", steps: ["Paramètres → modifier nom/adresse, charger un logo (< 2 Mo)", "Charger un logo > 2 Mo"], expected: "Logo affiché dans l'app et les PDF ; > 2 Mo refusé avec message traduit" },
-      { id: "TC-064", title: "Praticiens + INPE", steps: ["Paramètres → ajouter un praticien avec INPE", "« Votre profil praticien » → le lier à son compte"], expected: "Praticien disponible partout où un dentiste est choisi ; l'agenda s'ouvre sur son praticien" },
-      { id: "TC-065", title: "Changement de mot de passe", steps: ["Paramètres → nouveau mot de passe"], expected: "Mot de passe mis à jour, reconnexion possible" },
+      { id: "TC-029", title: "Infos du cabinet (propriétaire)", steps: ["Modifier nom, adresse, téléphone ; Enregistrer", "Recharger"], expected: "« ✓ Enregistré » en vert ; valeurs conservées et reprises sur les PDF" },
+      { id: "TC-030", title: "Logo", steps: ["Charger un logo < 2 Mo, Enregistrer", "Tenter un logo > 2 Mo", "Supprimer le logo"], expected: "Logo affiché (app + PDF) ; > 2 Mo refusé avec un message traduit ; suppression OK" },
+      { id: "TC-031", title: "Changer le mot de passe", steps: ["Nouveau mot de passe + confirmation différents", "Moins de 8 caractères", "Deux mots de passe identiques valides"], expected: "Erreurs traduites en cadre rouge ; succès « ✓ Mot de passe mis à jour » en vert (jamais en rouge) ; reconnexion OK" },
+      { id: "TC-032", title: "Changer la langue", steps: ["Paramètres → Langue → English, puis العربية"], expected: "Toute l'interface bascule ; en arabe la mise en page est RTL ; le choix est conservé à la reconnexion" },
+      { id: "TC-033", title: "Paramètres pour un assistant", steps: ["Se connecter avec un compte assistant", "Ouvrir Paramètres"], expected: "Seulement « Changer le mot de passe » et « Langue » (pas d'infos du cabinet, logo, membres ni catalogue)" },
+      { id: "TC-034", title: "Paramètres pour un dentiste non propriétaire", steps: ["Se connecter avec un dentiste", "Ouvrir Paramètres"], expected: "Pas d'infos du cabinet / logo / Enregistrer ; mot de passe, langue, membres (lecture) et catalogue visibles" },
     ],
   },
   {
-    id: "ui", icon: "🌐", title: "Langues & interface", tests: [
-      { id: "TC-066", title: "Anglais et arabe", steps: ["Changer la langue en EN puis AR", "Parcourir les pages principales"], expected: "Tout est traduit (aucune clé brute) ; en arabe la mise en page est RTL" },
-      { id: "TC-067", title: "Mode sombre", steps: ["Basculer le thème, recharger la page"], expected: "Le thème choisi est conservé après rechargement ; contraste lisible dans les deux thèmes" },
-      { id: "TC-068", title: "Mobile (375 px)", steps: ["Ouvrir l'app sur téléphone"], expected: "Menu en tiroir, tableaux défilables, pas de scroll horizontal de page" },
-      { id: "TC-069", title: "Clavier dans les modales", steps: ["Ouvrir une modale de création", "Entrée pour valider, Échap pour fermer"], expected: "Entrée enregistre, Échap ferme sans rien créer" },
-      { id: "TC-070", title: "Recherche globale", steps: ["Rechercher un patient, un acte, une facture"], expected: "Résultats groupés, clic = page détail ; patients archivés marqués" },
-      { id: "TC-076", title: "Mode clair par défaut", steps: ["Mettre l'ordinateur en thème sombre", "Ouvrir le site dans une fenêtre privée", "Basculer en sombre avec le bouton, recharger"], expected: "Le site s'ouvre en clair malgré le réglage de l'ordinateur ; le sombre n'apparaît que s'il a été choisi, et il est conservé au rechargement" },
+    id: "errors", icon: "🧭", title: "Erreurs & navigation", tests: [
+      { id: "TC-035", title: "404 dans le tableau de bord", steps: ["Connecté, ouvrir /fr/dashboard/nimportequoi"], expected: "Page « 🔍 Page introuvable » avec la barre latérale et « ← Retour à l'accueil »" },
+      { id: "TC-036", title: "404 sur le site (adresse mal tapée)", steps: ["Ouvrir /fr/dashboardp puis /ar/xyz, connecté puis déconnecté"], expected: "Page 404 aux couleurs de l'app (logo, texte traduit) ; code HTTP 404 ; « Retour à l'accueil » → accueil (ou tableau de bord si connecté)" },
+      { id: "TC-037", title: "Fiche inexistante", steps: ["Ouvrir la fiche d'un patient avec un identifiant inventé"], expected: "Page « Page introuvable » (pas d'erreur technique)" },
+      { id: "TC-038", title: "Cadre d'erreur unique", steps: ["Ouvrir une modale de création, enregistrer sans les champs obligatoires"], expected: "Cadre rouge (fond rouge pâle, bordure rouge) visible au-dessus du bouton, la modale défile jusqu'à l'erreur ; aucun petit texte rouge isolé" },
+      { id: "TC-039", title: "Messages de succès et infos jamais en rouge", steps: ["Enregistrer les paramètres, changer le mot de passe, envoyer une invitation", "Ouvrir une fiche avec adresse/téléphone"], expected: "Succès en vert / bleu-teal ; adresse, téléphone et infos en texte normal (jamais dans un cadre rouge)" },
+      { id: "TC-040", title: "Créé par / Modifié par", steps: ["Créer un patient avec un membre A, le modifier avec un membre B", "Ouvrir sa fiche (et les fiches des autres modules)"], expected: "Pied de la carte : « Créé par A · date » et « Modifié par B · date » ; sur une fiche jamais modifiée seul « Créé par » apparaît" },
+      { id: "TC-041", title: "Recherche globale", steps: ["Taper un nom de patient, de produit / acte, un numéro de document", "Cliquer un résultat"], expected: "Résultats groupés par type ; clic = page de détail ; patients archivés marqués « Archivé »" },
+      { id: "TC-042", title: "Détail = page, création = modale", steps: ["Cliquer une ligne dans chaque liste", "Cliquer « + Nouveau … »"], expected: "Une ligne ouvre une page de détail (← Retour) ; la création / édition s'ouvre en modale" },
+    ],
+  },
+  {
+    id: "support", icon: "🛟", title: "Support", tests: [
+      { id: "TC-043", title: "Ouvrir un ticket", steps: ["Tableau de bord → Support → nouveau ticket avec une pièce jointe"], expected: "Ticket « Ouvert » ; l'équipe (amine + yasmine) reçoit l'email avec la pièce jointe" },
+      { id: "TC-044", title: "Limites des pièces jointes", steps: ["Joindre plus de 5 fichiers ou plus de 15 Mo"], expected: "Refus avec un message traduit, rien n'est envoyé" },
+      { id: "TC-045", title: "Réponse admin", steps: ["Admin → Support → répondre"], expected: "Statut « Répondu » ; le demandeur reçoit l'email ; la réponse apparaît dans son fil" },
+      { id: "TC-046", title: "Réponse de l'utilisateur / réouverture", steps: ["L'utilisateur répond à un ticket répondu ou fermé"], expected: "Le ticket repasse « Ouvert » ; l'équipe reçoit l'email" },
+      { id: "TC-047", title: "Fermer un ticket", steps: ["Utilisateur ou admin ferme le ticket"], expected: "Statut « Fermé », filtre admin « Fermés » le montre" },
+      { id: "TC-048", title: "Formulaire de contact public", steps: ["Déconnecté, ouvrir /fr/contact, envoyer un message"], expected: "Email reçu par l'équipe avec « Répondre à » = l'expéditeur ; message de confirmation affiché" },
+      { id: "TC-049", title: "Support pour tous les rôles", steps: ["Ouvrir Support avec un assistant"], expected: "Onglet Support visible et utilisable" },
+    ],
+  },
+  {
+    id: "admin", icon: "🛡️", title: "Panneau admin", tests: [
+      { id: "TC-050", title: "Accès réservé aux admins", steps: ["Se connecter avec un compte non-admin, ouvrir /fr/admin et /fr/admin/tests"], expected: "Redirection /signin ; seuls les emails admin accèdent" },
+      { id: "TC-051", title: "Barre latérale admin", steps: ["Ouvrir /fr/admin"], expected: "Approbations · Support · Tests · Documentation · Infrastructure ; nom de l'admin connecté en bas ; badges approbations et tickets ouverts" },
+      { id: "TC-052", title: "Recette partagée", steps: ["Cocher un cas ✓ / ✕ / ◦", "Recharger, puis se connecter avec l'autre admin"], expected: "Le résultat est conservé, partagé entre admins et tagué au nom de l'admin ; recliquer le même bouton l'efface" },
+      { id: "TC-053", title: "Documentation et Infrastructure", steps: ["Ouvrir les deux pages en clair puis en sombre"], expected: "Contenu lisible dans les deux thèmes, tableaux défilables sur mobile" },
+      { id: "TC-054", title: "Admin sans cabinet", steps: ["Se connecter avec un email admin puis ouvrir /fr/dashboard"], expected: "Redirection vers /fr/admin" },
+    ],
+  },
+  {
+    id: "ui", icon: "🌐", title: "Langues, interface & mobile", tests: [
+      { id: "TC-055", title: "Traductions complètes", steps: ["Parcourir chaque page en FR, EN, AR"], expected: "Aucune clé brute (ex. « settings.role ») ni texte resté en français en EN/AR ; arabe en RTL" },
+      { id: "TC-056", title: "Langue par défaut", steps: ["Ouvrir denticareapp.com/dashboard sans langue"], expected: "Redirection vers la dernière langue choisie, sinon celle du navigateur, sinon /fr/" },
+      { id: "TC-057", title: "Mode clair par défaut", steps: ["Mettre l'ordinateur en thème sombre", "Ouvrir le site dans une fenêtre privée", "Basculer en sombre avec le bouton, recharger"], expected: "Le site s'ouvre en clair malgré le réglage de l'ordinateur ; le sombre n'apparaît que s'il a été choisi et reste au rechargement" },
+      { id: "TC-058", title: "Mobile — page d'accueil", steps: ["Ouvrir l'accueil sur un téléphone, faire défiler", "Ouvrir le menu ☰"], expected: "Les images de fond ne sautent pas ; logo seul avec ☰ en haut ; les langues sont dans le menu ☰ (aucun chevauchement)" },
+      { id: "TC-059", title: "Mobile — pages de connexion / inscription / contact", steps: ["Ouvrir ces pages sur un téléphone"], expected: "Logo et langues côte à côte sans chevauchement ; lien « Se connecter » sur une ligne" },
+      { id: "TC-060", title: "Mobile — tableau de bord et modales", steps: ["Sur téléphone : ouvrir des listes, « Nouvelle commande / visite », un assistant de génération"], expected: "Menu en tiroir ; tableaux défilables ; aucune modale ne dépasse à droite ; pas de défilement horizontal de la page" },
+      { id: "TC-061", title: "Clavier dans les modales", steps: ["Ouvrir une modale de création", "Entrée pour valider, Échap pour fermer"], expected: "Entrée enregistre, Échap ferme sans rien créer" },
+      { id: "TC-062", title: "Favicon lisible", steps: ["Ouvrir le site dans Chrome, Firefox (fenêtre privée) et Safari / iPhone (ajouter à l'écran d'accueil)"], expected: "Onglet : tuile teal avec le dent blanc, lisible ; icône d'écran d'accueil = logo sur fond blanc" },
+      { id: "TC-063", title: "Heures en heure locale", steps: ["Créer un RDV à 10:00, l'afficher dans la liste, le détail (et l'agenda)"], expected: "10:00 partout, sans décalage ni avertissement d'hydratation" },
+    ],
+  },
+  {
+    id: "home", icon: "🏠", title: "Tableau de bord & rôles", tests: [
+      { id: "TC-101", title: "Accueil", steps: ["Ouvrir /fr/dashboard en propriétaire puis en assistant"], expected: "Propriétaire/dentiste : KPIs, factures récentes, raccourcis cliniques ; assistant : pas de chiffres ni raccourcis cliniques" },
+      { id: "TC-102", title: "Navigation d'un assistant", steps: ["Se connecter en assistant"], expected: "Barre latérale : Patients, Dossiers, Rendez-vous, Agenda, Paramètres, Support uniquement" },
+      { id: "TC-103", title: "403 pour un assistant", steps: ["En assistant, taper /fr/dashboard/consultations (puis /factures, /actes)"], expected: "Page « 🚫 Accès non autorisé » avec la barre latérale et « ← Retour à l'accueil » (plus de redirection silencieuse vers Patients)" },
+      { id: "TC-104", title: "Écritures bloquées en base (assistant)", steps: ["En assistant, tenter une action de facturation ou de visite"], expected: "Refus ; création / édition patients, dossiers et RDV autorisées" },
+    ],
+  },
+  {
+    id: "patients", icon: "👤", title: "Patients", tests: [
+      { id: "TC-105", title: "Créer un patient", steps: ["Nouveau patient : prénom, nom, téléphone, naissance, CIN, sexe, mutuelle"], expected: "Patient créé, visible dans la liste et la recherche" },
+      { id: "TC-106", title: "Fiche patient", steps: ["Ouvrir un patient"], expected: "Contact, vue rapide (dernière visite avec son titre, prochain RDV, factures actives), actions, historique, schéma dentaire ; Créé par / Modifié par" },
+      { id: "TC-107", title: "Modifier / archiver / désarchiver", steps: ["Modifier le téléphone ; archiver un patient avec visites, factures, RDV ; désarchiver"], expected: "Enregistré ; archivage en cascade avec badge ; désarchiver restaure (masqué pour un assistant)" },
+      { id: "TC-108", title: "Fiche patient imprimable", steps: ["« 🖨️ Imprimer infos »"], expected: "PDF avec logo, infos, schéma dentaire (soins prévus en pointillés) et QR « Mon espace patient »" },
+      { id: "TC-109", title: "WhatsApp / appel", steps: ["Cliquer WhatsApp ou Appeler"], expected: "Ouvre WhatsApp (numéro normalisé) ou le composeur" },
+    ],
+  },
+  {
+    id: "odontogram", icon: "🦷", title: "Schéma dentaire", tests: [
+      { id: "TC-110", title: "Adulte / enfant", steps: ["Ouvrir un patient ≥ 13 ans puis < 13 ans"], expected: "Dents permanentes 11–48 ; dents temporaires 51–85" },
+      { id: "TC-111", title: "Statut + note d'une dent", steps: ["Cliquer une dent, choisir un statut, ajouter une note, recharger", "Effacer le statut"], expected: "Statut et note conservés ; effacement OK" },
+      { id: "TC-112", title: "Mise à jour par la facturation", steps: ["Facturer un acte « par dent » (ex. obturation) sur la dent 16"], expected: "La dent 16 passe au statut de l'acte" },
+      { id: "TC-113", title: "Prévoir un soin", steps: ["Dent → Soins prévus → choisir un acte + note → Prévoir"], expected: "Dent en pointillés orange ; soin listé dans « Plan de traitement »" },
+      { id: "TC-114", title: "Soin prévu réalisé par la facturation", steps: ["Prévoir « Obturation » sur la 26, puis facturer l'acte Obturation sur la 26"], expected: "Soin « Réalisé le … », pointillés disparus, dent Obturée" },
+      { id: "TC-115", title: "Soin réalisé / annulé à la main", steps: ["Cliquer ✓ Réalisé sur un soin, ✕ sur un autre"], expected: "Réalisé : la dent prend le statut de l'acte ; annulé : barré, plus de pointillés" },
+      { id: "TC-116", title: "Historique d'une dent", steps: ["Changer une dent à la main puis via un acte facturé ; rouvrir la dent"], expected: "Historique daté : ancien → nouveau statut, « via <acte> », auteur" },
+      { id: "TC-117", title: "Lecture seule pour un assistant", steps: ["Ouvrir un patient en assistant"], expected: "Schéma, soins prévus et historique visibles, rien de modifiable" },
+    ],
+  },
+  {
+    id: "dossiers", icon: "📁", title: "Dossiers & acomptes", tests: [
+      { id: "TC-118", title: "Créer un dossier + hub", steps: ["Nouveau dossier, l'ouvrir"], expected: "Hub : documents, acomptes, visites (titres), RDV, ordonnances, reste à payer" },
+      { id: "TC-119", title: "Acomptes", steps: ["Ajouter un acompte (montant, moyen, date)"], expected: "Reste à payer = factures non annulées − acomptes" },
+      { id: "TC-120", title: "Visite depuis le dossier", steps: ["+ Visite sans titre, puis avec titre et facturation"], expected: "Sans titre : erreur ; avec : visite créée, actes ajoutés à la facture ouverte" },
+      { id: "TC-121", title: "Statut clinique", steps: ["Passer un dossier à Terminé"], expected: "Statut mis à jour, indépendant du paiement" },
+      { id: "TC-122", title: "Dossier en assistant", steps: ["Ouvrir un dossier en assistant"], expected: "Infos + RDV seulement" },
+    ],
+  },
+  {
+    id: "visites", icon: "🏥", title: "Visites", tests: [
+      { id: "TC-123", title: "Titre obligatoire", steps: ["Nouvelle visite sans titre"], expected: "Erreur « Le titre de la visite est obligatoire », rien créé" },
+      { id: "TC-124", title: "Visite facturée sans dossier", steps: ["Titre, patient, date, « Facturer » + actes"], expected: "Visite créée, dossier « Visite du <date> » créé, facture avec les actes" },
+      { id: "TC-125", title: "Date future refusée", steps: ["Date de visite dans le futur"], expected: "Erreur : une visite future est un RDV" },
+      { id: "TC-126", title: "Liste, recherche, détail", steps: ["Rechercher par titre / patient, ouvrir une visite, « + Ajouter » un acte"], expected: "Colonne Titre ; en-tête « Visite — <titre> » ; actes réalisés (dents) ; pas de double facturation" },
+      { id: "TC-127", title: "Modifier une visite", steps: ["Vider le titre puis le remettre"], expected: "Refus sans titre ; titre modifié affiché" },
+    ],
+  },
+  {
+    id: "catalog", icon: "📦", title: "Actes & traitements", tests: [
+      { id: "TC-128", title: "Acte", steps: ["Créer un acte (nom, catégorie, prix, code)"], expected: "Disponible dans la facturation" },
+      { id: "TC-129", title: "Acte « par dent »", steps: ["Portée = dent + « Résultat sur la dent », le facturer"], expected: "Sélecteur de dents ; quantité = nb de dents ; dents imprimées" },
+      { id: "TC-130", title: "Traitement (package)", steps: ["Créer un package de plusieurs actes"], expected: "Prix = somme ou prix forcé ; détail avec actes cliquables" },
+    ],
+  },
+  {
+    id: "factures", icon: "🧾", title: "Factures, devis & feuilles de soins", tests: [
+      { id: "TC-131", title: "Devis", steps: ["Créer un devis"], expected: "PDF « DEVIS DENTAIRE » ; exclu du CA" },
+      { id: "TC-132", title: "Facture en attente modifiable", steps: ["Modifier les lignes"], expected: "Lignes et total à jour" },
+      { id: "TC-133", title: "Annuler / réactiver", steps: ["Annuler puis réactiver une facture"], expected: "Jamais supprimée ; annulée exclue des totaux" },
+      { id: "TC-134", title: "PDF facture", steps: ["Télécharger"], expected: "Logo, lignes (dents), acomptes, QR espace patient, « Généré par DentiCare »" },
+      { id: "TC-135", title: "Feuille de soins CNOPS / CNSS", steps: ["Hub dossier → FDS CNOPS puis FDS CNSS"], expected: "Vrai formulaire rempli (assuré, CIN, sexe, naissance, montant, INPE)" },
+    ],
+  },
+  {
+    id: "ordonnances", icon: "💊", title: "Ordonnances & médicaments", tests: [
+      { id: "TC-136", title: "Créer une ordonnance", steps: ["Patient, visite liée, lignes"], expected: "Visite proposée « date — titre »" },
+      { id: "TC-137", title: "Catalogue et médicament libre", steps: ["Ligne depuis le catalogue ; médicament absent du catalogue"], expected: "Défauts pré-remplis ; nouveau médicament ajouté au catalogue sans doublon" },
+      { id: "TC-138", title: "PDF + annulation", steps: ["Imprimer, annuler"], expected: "PDF avec QR ; annulée conservée" },
+    ],
+  },
+  {
+    id: "rdv", icon: "📅", title: "Rendez-vous & agenda", tests: [
+      { id: "TC-139", title: "Nouveau RDV avec créneau", steps: ["Choisir un dentiste, sélectionner un créneau (début + fin)"], expected: "Date + durée réglées ; occupés visibles ; alerte de chevauchement" },
+      { id: "TC-140", title: "Contact rapide", steps: ["+ Contact rapide, puis « Créer la fiche patient »"], expected: "RDV sans patient ; fiche créée depuis le contact" },
+      { id: "TC-141", title: "Statuts selon la date et le rôle", steps: ["RDV futur puis passé, en dentiste puis en assistant"], expected: "Futur : Planifié/Annulé ; passé : Terminé/Absent (dentiste) ou Annulé/Absent (assistant)" },
+      { id: "TC-142", title: "Terminer → visite", steps: ["RDV passé → Terminé → nouvelle visite"], expected: "Titre pré-rempli avec celui du RDV, refus si vide ; visite liée au RDV" },
+      { id: "TC-143", title: "Lier une visite existante", steps: ["Terminer → « visite existante »"], expected: "Liste « date — titre »" },
+      { id: "TC-144", title: "Agenda", steps: ["📆 Agenda, filtre praticien, clic sur un créneau vide"], expected: "Couleurs par dentiste ; clic vide → nouveau RDV pré-rempli" },
+    ],
+  },
+  {
+    id: "praticiens", icon: "🩺", title: "Praticiens & fournisseurs", tests: [
+      { id: "TC-145", title: "Praticiens + INPE", steps: ["Paramètres → Gérer les praticiens ; lier son compte (« Votre profil praticien »)"], expected: "Praticien proposé partout ; l'agenda s'ouvre sur son praticien" },
+      { id: "TC-146", title: "Fournisseurs", steps: ["Créer un fournisseur et une commande fournisseur"], expected: "Créés ; détail avec Créé par / Modifié par" },
+    ],
+  },
+  {
+    id: "portal", icon: "🔗", title: "Pages publiques", tests: [
+      { id: "TC-147", title: "Espace patient (QR)", steps: ["Scanner le QR d'une facture, saisir la date de naissance"], expected: "Infos, schéma (soins prévus en pointillés), visites (titres), documents" },
+      { id: "TC-148", title: "Mauvaise date de naissance", steps: ["Saisir une date erronée"], expected: "Accès refusé, aucune donnée" },
+      { id: "TC-149", title: "Suivi de RDV (/track)", steps: ["Ouvrir le lien de suivi d'un RDV"], expected: "Statut + nom et adresse du cabinet en texte normal (pas de cadre rouge)" },
+    ],
+  },
+  {
+    id: "reports", icon: "📊", title: "Rapports", tests: [
+      { id: "TC-150", title: "Rapports", steps: ["Ouvrir Rapports"], expected: "KPIs et CA ; devis et factures annulées exclus" },
     ],
   },
 ];
