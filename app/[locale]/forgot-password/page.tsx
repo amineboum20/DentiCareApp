@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { authErrorKey } from "@/utils/auth-errors";
@@ -15,6 +15,15 @@ export default function ForgotPassword() {
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // A reused / expired link comes back here with ?error=… — show it translated.
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("error");
+    if (code === "link_expired") {
+      setError(ta("resetLinkExpired"));
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [ta]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

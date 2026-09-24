@@ -238,7 +238,7 @@
     "button": "Réinitialiser le mot de passe",
     "loading": "Réinitialisation en cours…",
     "mismatch": "Les mots de passe ne correspondent pas.",
-    "tooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+    "tooShort": "Le mot de passe doit contenir au moins 8 caractères.",
     "email": "E-mail",
     "firstName": "Prénom",
     "lastName": "Nom",
@@ -993,7 +993,10 @@
     "pageTitle": "Paramètres",
     "logoUploadError": "Erreur lors de l'envoi du logo : {message}",
     "inviteError": "Erreur lors de l'invitation du membre.",
-    "memberActionError": "L'opération sur ce membre a échoué."
+    "memberActionError": "L'opération sur ce membre a échoué.",
+    "changeRole": "Changer le rôle",
+    "promoteOwnerConfirm": "Ce membre deviendra propriétaire : il aura tous les droits, y compris gérer les membres et les autres propriétaires. Continuer ?",
+    "promoteOwnerPending": "Ce membre doit d'abord être approuvé avant de pouvoir devenir propriétaire."
   },
   "factureStatus": {
     "en_attente": "En attente",
@@ -1444,7 +1447,9 @@
     "invalidEmail": "Adresse email invalide.",
     "userBanned": "Ce compte est suspendu. Contactez le support.",
     "sessionExpired": "Le lien a expiré ou la session est terminée. Recommencez la démarche.",
-    "generic": "Une erreur est survenue. Réessayez."
+    "generic": "Une erreur est survenue. Réessayez.",
+    "resetLinkExpired": "Ce lien de réinitialisation a expiré ou a déjà été utilisé. Saisissez votre email pour en recevoir un nouveau.",
+    "confirmLinkExpired": "Ce lien de confirmation a expiré ou a déjà été utilisé. Si votre adresse est déjà confirmée, connectez-vous."
   },
   "accessError": {
     "code": "Erreur {code}",

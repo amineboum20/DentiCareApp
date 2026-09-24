@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
+import { writeThemePref } from "@/utils/theme";
 
 const LABELS: Record<string, { dark: string; light: string }> = {
   fr: { dark: "Mode sombre", light: "Mode clair" },
@@ -24,8 +25,7 @@ export default function ThemeToggle() {
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
     const value = next ? "dark" : "light";
-    try { localStorage.setItem("theme", value); } catch {}
-    document.cookie = `theme=${value};path=/;max-age=31536000;SameSite=Lax`;
+    writeThemePref(value);
     createClient().auth.updateUser({ data: { theme: value } }).catch(() => {});
   }
 

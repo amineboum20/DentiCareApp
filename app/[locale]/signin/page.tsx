@@ -2,12 +2,13 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import PasswordInput from "@/components/PasswordInput";
 import { authErrorKey } from "@/utils/auth-errors";
+import { readThemePref, writeThemePref } from "@/utils/theme";
 
 export default function SignIn() {
   const t = useTranslations("signIn");
@@ -19,6 +20,15 @@ export default function SignIn() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // A reused / expired link comes back here with ?error=… — show it translated.
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("error");
+    if (code === "confirmation_failed") {
+      setError(ta("confirmLinkExpired"));
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [ta]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -29,14 +39,12 @@ export default function SignIn() {
       setError(ta(authErrorKey(error)));
       setLoading(false);
     } else {
+      // Restore this account's saved theme (applied once in the dashboard —
+      // the sign-in page itself stays light); an account with none yet adopts
+      // this browser's choice.
       const meta = data.user?.user_metadata ?? {};
-      const savedTheme = meta.theme as string | undefined;
-      if (savedTheme) {
-        try { localStorage.setItem("theme", savedTheme); } catch {}
-        document.cookie = `theme=${savedTheme};path=/;max-age=31536000;SameSite=Lax`;
-        if (savedTheme === "dark") document.documentElement.classList.add("dark");
-        else document.documentElement.classList.remove("dark");
-      }
+      if (meta.theme === "dark" || meta.theme === "light") writeThemePref(meta.theme);
+      else supabase.auth.updateUser({ data: { theme: readThemePref() } }).catch(() => {});
       const savedLocale = (meta.locale as string | undefined) ?? locale;
       router.push(`/${savedLocale}/dashboard`);
       router.refresh();

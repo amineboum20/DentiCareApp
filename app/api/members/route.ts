@@ -62,52 +62,68 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true, userId: invited.user.id });
 }
 
-// Deactivate / reactivate a member. We deliberately do NOT hard-delete: the
-// auth account and everything the member authored (patients, factures…) are
-// kept. A deactivated member simply can't sign in (the dashboard blocks them).
+// Manage a member (owners only): deactivate / reactivate, or change their role
+// (any role, including owner — a practice can have several owners, and owners
+// can manage everyone, other owners included). We deliberately do NOT
+// hard-delete: the auth account and everything the member authored
+// (patients, factures…) are kept. A deactivated member simply can't sign in.
+// Guard rails: an owner can't modify their own membership (so a practice always
+// keeps at least one active owner — the caller), and a member still awaiting
+// admin approval can't be promoted to owner (owners are not in the admin queue).
+const ROLES = ["owner", "dentist", "assistant"] as const;
+type Role = (typeof ROLES)[number];
+
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { memberId, action } = await req.json();
-  if (action !== "deactivate" && action !== "reactivate") {
+  const { memberId, action, role } = await req.json();
+  if (action !== "deactivate" && action !== "reactivate" && action !== "setRole") {
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+  }
+  if (action === "setRole" && !ROLES.includes(role as Role)) {
+    return NextResponse.json({ error: "Invalid role" }, { status: 400 });
   }
 
   // Checks run with the caller's session (RLS): the target must be visible to
-  // them, not the owner, and the caller must own that same practice.
+  // them and the caller must own that same practice.
   const { data: targetMember } = await supabase
     .from("practice_members")
-    .select("practice_id, role")
+    .select("practice_id, user_id, is_approved")
     .eq("id", memberId)
     .single();
 
   if (!targetMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
-  if (targetMember.role === "owner") return NextResponse.json({ error: "Cannot deactivate the owner" }, { status: 403 });
+  if (targetMember.user_id === user.id) return NextResponse.json({ error: "Cannot modify yourself" }, { status: 403 });
 
   const { data: caller } = await supabase
     .from("practice_members")
-    .select("role")
+    .select("role, deactivated_at")
     .eq("user_id", user.id)
     .eq("practice_id", targetMember.practice_id)
     .single();
 
-  if (caller?.role !== "owner") {
+  if (caller?.role !== "owner" || caller.deactivated_at) {
     return NextResponse.json({ error: "Only the owner can manage members" }, { status: 403 });
+  }
+  if (action === "setRole" && role === "owner" && targetMember.is_approved === false) {
+    return NextResponse.json({ error: "Member awaiting approval" }, { status: 409 });
   }
 
   // practice_members has no UPDATE RLS policy, so a session-client update
   // silently changes 0 rows. Write with the service role, scoped to this
   // member of this practice, and confirm a row was actually updated.
-  const deactivated_at = action === "deactivate" ? new Date().toISOString() : null;
+  const patch = action === "setRole"
+    ? { role }
+    : { deactivated_at: action === "deactivate" ? new Date().toISOString() : null };
   const admin = createAdminClient();
   const { data: updated, error } = await admin
     .from("practice_members")
-    .update({ deactivated_at })
+    .update(patch)
     .eq("id", memberId)
     .eq("practice_id", targetMember.practice_id)
-    .neq("role", "owner")
+    .neq("user_id", user.id)
     .select("id");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

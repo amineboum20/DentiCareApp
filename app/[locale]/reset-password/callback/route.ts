@@ -22,7 +22,10 @@ export async function GET(
 
   const supabase = await createClient();
   const resetUrl = `${origin}/${locale}/reset-password`;
-  const failUrl = `${origin}/${locale}/signin?error=recovery_failed`;
+  // Expired / already-used link: straight to "forgot password" with a translated
+  // message, so the user can ask for a new link (the signin page would bounce a
+  // signed-in user to the dashboard and show nothing).
+  const failUrl = `${origin}/${locale}/forgot-password?error=link_expired`;
 
   // Invite links use the token_hash + type (verifyOtp) flow.
   if (token_hash && type) {

@@ -10,6 +10,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { MemberRole } from "@/types/database";
 import { setMyPraticien } from "./actions";
 import ErrorBanner from "@/components/ErrorBanner";
+import { useAppContext } from "@/components/AppContext";
 
 interface Member {
   id: string;
@@ -48,6 +49,7 @@ export default function SettingsClient({
   const t = useTranslations("settings");
   const ta = useTranslations("authErrors");
   const tc = useTranslations("common");
+  const { currentUserId } = useAppContext();
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const isOwner = memberRole === "owner";
@@ -273,6 +275,21 @@ export default function SettingsClient({
     setMembers(prev => prev.map(m => m.id === memberId ? { ...m, deactivated_at: action === "deactivate" ? new Date().toISOString() : null } : m));
   }
 
+  async function setMemberRole(memberId: string, role: MemberRole) {
+    if (role === "owner" && !confirm(t("promoteOwnerConfirm"))) return;
+    setMemberError("");
+    const res = await fetch("/api/members", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ memberId, action: "setRole", role }),
+    }).catch(() => null);
+    if (!res || !res.ok) {
+      setMemberError(t(res?.status === 409 && role === "owner" ? "promoteOwnerPending" : "memberActionError"));
+      return;
+    }
+    setMembers(prev => prev.map(m => m.id === memberId ? { ...m, role } : m));
+  }
+
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
     setPwError("");
@@ -484,7 +501,7 @@ export default function SettingsClient({
                 <div>
                   <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
                     {m.first_name} {m.last_name}
-                    {m.role !== "owner" && (
+                    {(
                       m.deactivated_at
                         ? <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400">{tc("deactivated")}</span>
                         : m.is_approved
@@ -492,9 +509,19 @@ export default function SettingsClient({
                           : <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">{tc("pending")}</span>
                     )}
                   </p>
-                  <p className="text-xs text-zinc-400">{ROLE_LABEL[m.role]}</p>
+                  {isOwner && m.user_id !== currentUserId ? (
+                    <select value={m.role} onChange={e => setMemberRole(m.id, e.target.value as MemberRole)}
+                      aria-label={t("changeRole")}
+                      className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-teal-500">
+                      <option value="owner">{t("roles.owner")}</option>
+                      <option value="dentist">{t("roles.dentist")}</option>
+                      <option value="assistant">{t("roles.assistant")}</option>
+                    </select>
+                  ) : (
+                    <p className="text-xs text-zinc-400">{ROLE_LABEL[m.role]}</p>
+                  )}
                 </div>
-                {isOwner && m.role !== "owner" && (
+                {isOwner && m.user_id !== currentUserId && (
                   m.deactivated_at
                     ? <button onClick={() => setMemberActive(m.id, "reactivate")}
                         className="text-xs text-emerald-500 hover:text-emerald-600 px-2 py-1 rounded transition-colors">

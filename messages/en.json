@@ -238,7 +238,7 @@
     "button": "Reset password",
     "loading": "Resetting…",
     "mismatch": "Passwords do not match.",
-    "tooShort": "Password must be at least 6 characters.",
+    "tooShort": "Password must be at least 8 characters.",
     "email": "Email",
     "firstName": "First name",
     "lastName": "Last name",
@@ -993,7 +993,10 @@
     "pageTitle": "Settings",
     "logoUploadError": "Logo upload failed: {message}",
     "inviteError": "Could not invite the member.",
-    "memberActionError": "The action on this member failed."
+    "memberActionError": "The action on this member failed.",
+    "changeRole": "Change role",
+    "promoteOwnerConfirm": "This member will become an owner, with full rights, including managing members and other owners. Continue?",
+    "promoteOwnerPending": "This member must be approved before they can become an owner."
   },
   "factureStatus": {
     "en_attente": "Pending",
@@ -1444,7 +1447,9 @@
     "invalidEmail": "Invalid email address.",
     "userBanned": "This account is suspended. Please contact support.",
     "sessionExpired": "The link has expired or the session ended. Please start again.",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "resetLinkExpired": "This reset link has expired or has already been used. Enter your email to get a new one.",
+    "confirmLinkExpired": "This confirmation link has expired or has already been used. If your email is already confirmed, sign in."
   },
   "accessError": {
     "code": "Error {code}",
