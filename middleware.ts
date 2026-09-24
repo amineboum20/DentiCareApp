@@ -21,6 +21,38 @@ export async function middleware(request: NextRequest) {
 
   const isDashboard = /^\/(en|fr|ar)\/dashboard/.test(pathname) || pathname.startsWith("/dashboard");
 
+  // Signed-in users skip the marketing landing and the sign-in / sign-up pages:
+  // they go straight to their dashboard. Only checked when a Supabase auth
+  // cookie is present, so anonymous visitors pay no extra round-trip.
+  // (forgot/reset-password and auth callbacks are deliberately NOT redirected —
+  // a recovery link opens a session and must reach the reset form.)
+  const entry = pathname.match(/^\/(en|fr|ar)(?:\/(?:signin|signup))?\/?$/);
+  if (entry && request.cookies.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("auth-token"))) {
+    const response = intlMiddleware(request);
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return request.cookies.getAll(); },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+            cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+          },
+        },
+      }
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${entry[1]}/dashboard`;
+      const redirect = NextResponse.redirect(url);
+      response.cookies.getAll().forEach((c) => redirect.cookies.set(c)); // keep refreshed session cookies
+      return redirect;
+    }
+    return response;
+  }
+
   if (!isDashboard) {
     return intlMiddleware(request);
   }
