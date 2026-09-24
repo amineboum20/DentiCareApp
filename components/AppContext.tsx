@@ -33,7 +33,6 @@ const AppContext = createContext<AppContextValue>({
   logoUrl: null,
 });
 
-export const useShopName = () => useContext(AppContext).shopName;
 export const useAppContext = () => useContext(AppContext);
 
 // Resolve a created_by / updated_by user id to a display name.

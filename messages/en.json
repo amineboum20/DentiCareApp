@@ -97,7 +97,6 @@
     "sending": "Sending…",
     "successTitle": "Request sent!",
     "successDesc": "Thanks, our team will reply by email as soon as possible.",
-    "newRequest": "New request",
     "error": "Could not send the request. Please try again."
   },
   "hero": {
@@ -106,8 +105,7 @@
     "titleHighlight": "in one place.",
     "subtitle": "Manage patients, dental records, treatments and invoices effortlessly. Say goodbye to paper and spreadsheets — DentiCare keeps your practice organized.",
     "cta": "Get started free",
-    "ctaSecondary": "See all features →",
-    "noCreditCard": "No credit card · Free to start"
+    "ctaSecondary": "See all features →"
   },
   "stats": {
     "totalPatients": "Total patients",
@@ -196,7 +194,6 @@
     "forgotPassword": "Forgot password?",
     "button": "Sign in",
     "loading": "Signing in…",
-    "orContinueWith": "or",
     "google": "Continue with Google",
     "dontHaveAccount": "Don't have an account?",
     "signUpLink": "Sign up free"
@@ -209,8 +206,7 @@
     "loading": "Sending…",
     "backToSignIn": "Back to sign in",
     "sentTitle": "Email sent!",
-    "sentDesc": "A reset link has been sent to {email}. Check your inbox.",
-    "inviteOnly": "Invite-only sign up"
+    "sentDesc": "A reset link has been sent to {email}. Check your inbox."
   },
   "resetPassword": {
     "title": "Set new password",
@@ -238,19 +234,15 @@
     "shopName": "Practice name",
     "email": "Email address",
     "password": "Password",
-    "passwordPlaceholder": "At least 8 characters",
     "confirmPassword": "Confirm password",
     "button": "Create account",
     "loading": "Creating account…",
     "google": "Continue with Google",
-    "passwordMismatch": "Passwords do not match.",
     "passwordTooShort": "Password must be at least 8 characters.",
     "emailAlreadyExists": "An account with this email already exists. Sign in or reset your password.",
     "checkEmail": "Check your email",
     "checkEmailDesc": "We sent a confirmation link to {email}. Click it to activate your account, then sign in.",
-    "goToSignIn": "Go to sign in",
     "inviteTitle": "By Invitation Only",
-    "inviteDesc": "Access to DentiCare is currently available by request only. Contact us to create your free demo account.",
     "cabinetName": "Practice name",
     "cabinetNamePlaceholder": "Dr. Smith Dental",
     "sentTitle": "Check your email!",
@@ -443,16 +435,9 @@
     "appointmentsToday": "Appointments today",
     "thisMonth": "this month",
     "vsLastMonth": "vs last month",
-    "firstMonth": "first month",
     "pending": "pending",
     "paid": "paid",
-    "topItems": "Top treatments",
     "noData": "No data yet.",
-    "revenueSummary": "Revenue summary",
-    "lastMonth": "Last month",
-    "pendingAmount": "Outstanding balance",
-    "pendingAmountDesc": "Total minus deposits paid",
-    "revenueChart": "Revenue (last 6 months)",
     "factureStatus": "Invoice breakdown",
     "revenueYear": "Revenue this year (MAD)",
     "byStatus": "Invoices this month — by status",
@@ -463,11 +448,8 @@
     "title": "Treatments",
     "searchPlaceholder": "Search for a treatment…",
     "newTraitement": "New treatment",
-    "noTraitements": "No treatments yet",
-    "noTraitementsDesc": "Add your dental procedures and services.",
     "noResults": "No results",
     "noResultsDesc": "No treatment matches \"{query}\".",
-    "allCategories": "All",
     "categories": {
       "nettoyage": "Cleaning",
       "obturation": "Filling",
@@ -544,7 +526,6 @@
     "searchPlaceholder": "Search by patient…",
     "newFacture": "New invoice",
     "noFactures": "No invoices yet",
-    "noFacturesDesc": "Create your first invoice.",
     "noResults": "No results",
     "noResultsDesc": "No invoice matches \"{query}\".",
     "allStatuses": "All",
@@ -571,11 +552,9 @@
       "items": "Items",
       "addItem": "Add item",
       "traitement": "Treatment (optional)",
-      "customItem": "Custom item",
       "description": "Description",
       "descriptionPlaceholder": "e.g. Full scaling",
       "qty": "Qty",
-      "unitPrice": "Unit price",
       "total": "Total",
       "deposit": "Deposit",
       "notes": "Notes",
@@ -583,7 +562,6 @@
       "saving": "Saving…",
       "cancel": "Cancel",
       "patientRequired": "Please select a patient.",
-      "itemRequired": "Add at least one item.",
       "linkedVisit": "Linked visit (optional)",
       "none": "— None —",
       "noVisits": "No visits for this patient.",
@@ -645,20 +623,15 @@
     "title": "Cases",
     "searchPlaceholder": "Search by patient or title…",
     "newDossier": "New case",
-    "noDossiers": "No records yet",
-    "noDossiersDesc": "Add the first record for a patient.",
     "noResults": "No results",
     "noResultsDesc": "No record matches \"{query}\".",
     "columns": {
       "patient": "Patient",
       "type": "Type",
-      "examDate": "Exam date",
       "treatedBy": "Treated by"
     },
     "types": {
-      "examen": "Exam",
       "soin": "Treatment",
-      "bilan": "Assessment",
       "urgence": "Emergency",
       "autre": "Other"
     },
@@ -668,19 +641,8 @@
       "patient": "Patient",
       "selectPatient": "— Select a patient —",
       "type": "Visit type",
-      "examDate": "Exam date",
-      "nextExamDate": "Next check-up",
       "treatedBy": "Dentist",
-      "treatedByPlaceholder": "Dr. Name",
-      "dentalNotes": "Clinical notes",
-      "dentalNotesPlaceholder": "Observations, treatments, recommendations…",
       "document": "Document (optional)",
-      "dropOrClick": "Drag and drop a PDF or image, or click to browse",
-      "tapToChoose": "Tap to choose a file",
-      "fileHint": "PDF, JPG, PNG · max 10 MB",
-      "browseFile": "Browse",
-      "removeDocument": "Remove",
-      "fileTooLarge": "File exceeds the 10 MB limit.",
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
@@ -728,10 +690,8 @@
       "subtitle": "Records and invoices",
       "dossiers": "Dental records",
       "factures": "Invoices",
-      "noDossiers": "No records found.",
       "noFactures": "No invoices found.",
-      "consultations": "Visits",
-      "noConsultations": "No visit recorded."
+      "consultations": "Visits"
     },
     "form": {
       "addTitle": "New patient",
@@ -826,7 +786,6 @@
     "noSuppliers": "No suppliers registered",
     "noSuppliersDesc": "Add your first supplier.",
     "noResults": "No results",
-    "treatmentsLinked": "Linked treatments",
     "form": {
       "addTitle": "New supplier",
       "editTitle": "Edit supplier",
@@ -1361,7 +1320,6 @@
     "remaining": "Remaining",
     "devisEstimated": "Estimated quote: {amount}",
     "generating": "Generating…",
-    "feuilleSoins": "Care sheet (insurance)",
     "devisFactures": "Quotes & Invoices",
     "devis": "Quote",
     "facture": "Invoice",
@@ -1443,47 +1401,5 @@
     "deleting": "Deleting…",
     "saving": "Saving…",
     "save": "Save"
-  },
-  "consultations": {
-    "title": "Visits",
-    "searchPlaceholder": "Search by patient…",
-    "newConsultation": "New visit",
-    "noConsultations": "No visit yet",
-    "noResults": "No results",
-    "columns": {
-      "patient": "Patient",
-      "motif": "Reason",
-      "examDate": "Date",
-      "treatedBy": "Treated by"
-    },
-    "motifs": {
-      "consultation": "Consultation",
-      "urgence": "Emergency",
-      "controle": "Check-up",
-      "soin": "Care",
-      "autre": "Other"
-    },
-    "form": {
-      "addTitle": "New visit",
-      "editTitle": "Edit visit",
-      "patientId": "Patient",
-      "motif": "Reason",
-      "examDate": "Visit date",
-      "nextExamDate": "Next check-up",
-      "treatedBy": "Dentist",
-      "teeth": "Teeth involved",
-      "clinicalNotes": "Clinical notes",
-      "exams": "Additional exams",
-      "save": "Save",
-      "saving": "Saving…",
-      "cancel": "Cancel",
-      "requiredError": "Patient and date are required."
-    },
-    "deleteConfirm": {
-      "title": "Delete visit",
-      "message": "Delete {name}'s visit from {date}?",
-      "confirm": "Delete",
-      "cancel": "Cancel"
-    }
   }
 }

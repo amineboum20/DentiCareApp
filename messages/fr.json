@@ -97,7 +97,6 @@
     "sending": "Envoi…",
     "successTitle": "Demande envoyée !",
     "successDesc": "Merci, notre équipe vous répondra par e-mail dès que possible.",
-    "newRequest": "Nouvelle demande",
     "error": "Impossible d’envoyer la demande. Veuillez réessayer."
   },
   "hero": {
@@ -106,8 +105,7 @@
     "titleHighlight": "en un seul endroit.",
     "subtitle": "Gérez vos patients, dossiers dentaires, traitements et factures facilement. Fini les papiers et les tableaux — DentiCare garde votre cabinet organisé et vos patients souriant.",
     "cta": "Commencer gratuitement",
-    "ctaSecondary": "Voir toutes les fonctionnalités →",
-    "noCreditCard": "Sans carte bancaire · Gratuit pour démarrer"
+    "ctaSecondary": "Voir toutes les fonctionnalités →"
   },
   "stats": {
     "totalPatients": "Total patients",
@@ -196,7 +194,6 @@
     "forgotPassword": "Mot de passe oublié ?",
     "button": "Se connecter",
     "loading": "Connexion en cours…",
-    "orContinueWith": "ou",
     "google": "Continuer avec Google",
     "dontHaveAccount": "Vous n'avez pas de compte ?",
     "signUpLink": "S'inscrire gratuitement"
@@ -209,8 +206,7 @@
     "loading": "Envoi en cours…",
     "backToSignIn": "Retour à la connexion",
     "sentTitle": "E-mail envoyé !",
-    "sentDesc": "Un lien de réinitialisation a été envoyé à {email}. Vérifiez votre boîte de réception.",
-    "inviteOnly": "Inscription sur invitation uniquement"
+    "sentDesc": "Un lien de réinitialisation a été envoyé à {email}. Vérifiez votre boîte de réception."
   },
   "resetPassword": {
     "title": "Nouveau mot de passe",
@@ -238,19 +234,15 @@
     "shopName": "Nom du cabinet",
     "email": "Adresse e-mail",
     "password": "Mot de passe",
-    "passwordPlaceholder": "Au moins 8 caractères",
     "confirmPassword": "Confirmer le mot de passe",
     "button": "Créer le compte",
     "loading": "Création du compte…",
     "google": "Continuer avec Google",
-    "passwordMismatch": "Les mots de passe ne correspondent pas.",
     "passwordTooShort": "Le mot de passe doit comporter au moins 8 caractères.",
     "emailAlreadyExists": "Un compte existe déjà avec cette adresse e-mail. Connectez-vous ou réinitialisez votre mot de passe.",
     "checkEmail": "Vérifiez votre e-mail",
     "checkEmailDesc": "Nous avons envoyé un lien de confirmation à {email}. Cliquez dessus pour activer votre compte, puis connectez-vous.",
-    "goToSignIn": "Aller à la connexion",
     "inviteTitle": "Inscription sur invitation",
-    "inviteDesc": "L'accès à DentiCare est actuellement disponible uniquement sur demande. Contactez-nous pour créer votre compte démo gratuit.",
     "cabinetName": "Nom du cabinet",
     "cabinetNamePlaceholder": "Cabinet Dr. Dupont",
     "sentTitle": "Vérifiez votre e-mail !",
@@ -443,16 +435,9 @@
     "appointmentsToday": "RDV aujourd'hui",
     "thisMonth": "ce mois",
     "vsLastMonth": "vs mois dernier",
-    "firstMonth": "premier mois",
     "pending": "en attente",
     "paid": "payées",
-    "topItems": "Traitements les plus réalisés",
     "noData": "Pas encore de données.",
-    "revenueSummary": "Résumé du chiffre d'affaires",
-    "lastMonth": "Mois dernier",
-    "pendingAmount": "Reste à percevoir",
-    "pendingAmountDesc": "Total - acomptes versés",
-    "revenueChart": "Chiffre d'affaires (6 derniers mois)",
     "factureStatus": "Répartition des factures",
     "revenueYear": "CA cette année (MAD)",
     "byStatus": "Factures ce mois — par statut",
@@ -463,11 +448,8 @@
     "title": "Traitements",
     "searchPlaceholder": "Rechercher un traitement…",
     "newTraitement": "Nouveau traitement",
-    "noTraitements": "Aucun traitement pour l'instant",
-    "noTraitementsDesc": "Ajoutez vos soins et actes dentaires.",
     "noResults": "Aucun résultat",
     "noResultsDesc": "Aucun traitement ne correspond à \"{query}\".",
-    "allCategories": "Tous",
     "categories": {
       "nettoyage": "Nettoyage",
       "obturation": "Obturation",
@@ -544,7 +526,6 @@
     "searchPlaceholder": "Rechercher par patient…",
     "newFacture": "Nouvelle facture",
     "noFactures": "Aucune facture pour l'instant",
-    "noFacturesDesc": "Créez votre première facture.",
     "noResults": "Aucun résultat",
     "noResultsDesc": "Aucune facture ne correspond à \"{query}\".",
     "allStatuses": "Toutes",
@@ -571,11 +552,9 @@
       "items": "Actes",
       "addItem": "Ajouter un acte",
       "traitement": "Traitement (optionnel)",
-      "customItem": "Acte personnalisé",
       "description": "Description",
       "descriptionPlaceholder": "Ex. Détartrage complet",
       "qty": "Qté",
-      "unitPrice": "Prix unit.",
       "total": "Total",
       "deposit": "Acompte",
       "notes": "Notes",
@@ -583,7 +562,6 @@
       "saving": "Enregistrement…",
       "cancel": "Annuler",
       "patientRequired": "Veuillez sélectionner un patient.",
-      "itemRequired": "Ajoutez au moins un acte.",
       "linkedVisit": "Visite liée (optionnel)",
       "none": "— Aucune —",
       "noVisits": "Aucune visite pour ce patient.",
@@ -641,66 +619,19 @@
       "cancelling": "Annulation…"
     }
   },
-  "consultations": {
-    "title": "Visites",
-    "searchPlaceholder": "Rechercher par patient…",
-    "newConsultation": "Nouvelle visite",
-    "noConsultations": "Aucune visite pour l'instant",
-    "noResults": "Aucun résultat",
-    "columns": {
-      "patient": "Patient",
-      "motif": "Motif",
-      "examDate": "Date",
-      "treatedBy": "Traité par"
-    },
-    "motifs": {
-      "consultation": "Consultation",
-      "urgence": "Urgence",
-      "controle": "Contrôle",
-      "soin": "Soin",
-      "autre": "Autre"
-    },
-    "form": {
-      "addTitle": "Nouvelle visite",
-      "editTitle": "Modifier la visite",
-      "patientId": "Patient",
-      "motif": "Motif",
-      "examDate": "Date de visite",
-      "nextExamDate": "Prochain contrôle",
-      "treatedBy": "Dentiste",
-      "teeth": "Dents concernées",
-      "clinicalNotes": "Notes cliniques",
-      "exams": "Examens complémentaires",
-      "save": "Enregistrer",
-      "saving": "Enregistrement…",
-      "cancel": "Annuler",
-      "requiredError": "Le patient et la date sont obligatoires."
-    },
-    "deleteConfirm": {
-      "title": "Supprimer la visite",
-      "message": "Supprimer la visite de {name} du {date} ?",
-      "confirm": "Supprimer",
-      "cancel": "Annuler"
-    }
-  },
   "dossiers": {
     "title": "Dossiers",
     "searchPlaceholder": "Rechercher par patient ou intitulé…",
     "newDossier": "Nouveau dossier",
-    "noDossiers": "Aucun dossier pour l'instant",
-    "noDossiersDesc": "Ajoutez le premier dossier d'un patient.",
     "noResults": "Aucun résultat",
     "noResultsDesc": "Aucun dossier ne correspond à \"{query}\".",
     "columns": {
       "patient": "Patient",
       "type": "Type",
-      "examDate": "Date d'examen",
       "treatedBy": "Traité par"
     },
     "types": {
-      "examen": "Examen",
       "soin": "Soin",
-      "bilan": "Bilan",
       "urgence": "Urgence",
       "autre": "Autre"
     },
@@ -710,19 +641,8 @@
       "patient": "Patient",
       "selectPatient": "— Sélectionner un patient —",
       "type": "Type de visite",
-      "examDate": "Date d'examen",
-      "nextExamDate": "Prochain contrôle",
       "treatedBy": "Dentiste",
-      "treatedByPlaceholder": "Dr. Nom",
-      "dentalNotes": "Notes cliniques",
-      "dentalNotesPlaceholder": "Observations, soins réalisés, recommandations…",
       "document": "Document (optionnel)",
-      "dropOrClick": "Glissez-déposez un PDF ou une image, ou cliquez pour parcourir",
-      "tapToChoose": "Appuyez pour choisir un fichier",
-      "fileHint": "PDF, JPG, PNG · max 10 Mo",
-      "browseFile": "Parcourir",
-      "removeDocument": "Supprimer",
-      "fileTooLarge": "Le fichier dépasse la limite de 10 Mo.",
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "cancel": "Annuler",
@@ -770,10 +690,8 @@
       "subtitle": "Dossiers et factures",
       "consultations": "Visites",
       "factures": "Factures",
-      "noConsultations": "Aucune visite enregistrée.",
       "noFactures": "Aucune facture enregistrée.",
-      "dossiers": "Dossiers médicaux",
-      "noDossiers": "Aucun dossier trouvé."
+      "dossiers": "Dossiers médicaux"
     },
     "form": {
       "addTitle": "Nouveau patient",
@@ -868,7 +786,6 @@
     "noSuppliers": "Aucun fournisseur enregistré",
     "noSuppliersDesc": "Ajoutez votre premier fournisseur.",
     "noResults": "Aucun résultat",
-    "treatmentsLinked": "Traitements fournis",
     "form": {
       "addTitle": "Nouveau fournisseur",
       "editTitle": "Modifier le fournisseur",
@@ -1403,7 +1320,6 @@
     "remaining": "Reste",
     "devisEstimated": "Devis estimé : {amount}",
     "generating": "Génération…",
-    "feuilleSoins": "Feuille de soins (mutuelle)",
     "devisFactures": "Devis & Factures",
     "devis": "Devis",
     "facture": "Facture",

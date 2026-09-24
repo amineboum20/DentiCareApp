@@ -97,7 +97,6 @@
     "sending": "جارٍ الإرسال…",
     "successTitle": "تم إرسال الطلب!",
     "successDesc": "شكراً، سيرد فريقنا عبر البريد الإلكتروني في أقرب وقت ممكن.",
-    "newRequest": "طلب جديد",
     "error": "تعذّر إرسال الطلب. يرجى المحاولة مرة أخرى."
   },
   "hero": {
@@ -106,8 +105,7 @@
     "titleHighlight": "في مكان واحد.",
     "subtitle": "أدِر مرضاك، الملفات الطبية، العلاجات والفواتير بسهولة. وداعاً للأوراق والجداول — DentiCare يبقي عيادتك منظمة.",
     "cta": "ابدأ مجاناً",
-    "ctaSecondary": "عرض جميع الميزات →",
-    "noCreditCard": "بدون بطاقة بنكية · مجاني للبدء"
+    "ctaSecondary": "عرض جميع الميزات →"
   },
   "stats": {
     "totalPatients": "إجمالي المرضى",
@@ -196,7 +194,6 @@
     "forgotPassword": "نسيت كلمة المرور؟",
     "button": "تسجيل الدخول",
     "loading": "جارٍ التسجيل…",
-    "orContinueWith": "أو",
     "google": "المتابعة مع Google",
     "dontHaveAccount": "ليس لديك حساب؟",
     "signUpLink": "سجّل مجاناً"
@@ -209,8 +206,7 @@
     "loading": "جارٍ الإرسال…",
     "backToSignIn": "العودة لتسجيل الدخول",
     "sentTitle": "تم إرسال البريد!",
-    "sentDesc": "تم إرسال رابط إعادة التعيين إلى {email}. تحقق من صندوق الوارد.",
-    "inviteOnly": "التسجيل بالدعوة فقط"
+    "sentDesc": "تم إرسال رابط إعادة التعيين إلى {email}. تحقق من صندوق الوارد."
   },
   "resetPassword": {
     "title": "كلمة مرور جديدة",
@@ -238,19 +234,15 @@
     "shopName": "اسم العيادة",
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",
-    "passwordPlaceholder": "8 أحرف على الأقل",
     "confirmPassword": "تأكيد كلمة المرور",
     "button": "إنشاء الحساب",
     "loading": "جارٍ الإنشاء…",
     "google": "المتابعة مع Google",
-    "passwordMismatch": "كلمتا المرور غير متطابقتين.",
     "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
     "emailAlreadyExists": "يوجد حساب بهذا البريد الإلكتروني بالفعل. سجّل الدخول أو أعد تعيين كلمة المرور.",
     "checkEmail": "تحقق من بريدك",
     "checkEmailDesc": "أرسلنا رابط تأكيد إلى {email}. انقر عليه لتفعيل حسابك.",
-    "goToSignIn": "الذهاب إلى تسجيل الدخول",
     "inviteTitle": "التسجيل بدعوة فقط",
-    "inviteDesc": "الوصول إلى DentiCare متاح حاليًا عند الطلب فقط. تواصل معنا لإنشاء حساب تجريبي مجاني.",
     "cabinetName": "اسم العيادة",
     "cabinetNamePlaceholder": "عيادة د. محمد",
     "sentTitle": "تحقق من بريدك!",
@@ -443,16 +435,9 @@
     "appointmentsToday": "مواعيد اليوم",
     "thisMonth": "هذا الشهر",
     "vsLastMonth": "مقارنة بالشهر الماضي",
-    "firstMonth": "أول شهر",
     "pending": "معلقة",
     "paid": "مدفوعة",
-    "topItems": "أكثر العلاجات",
     "noData": "لا بيانات بعد.",
-    "revenueSummary": "ملخص الإيراد",
-    "lastMonth": "الشهر الماضي",
-    "pendingAmount": "المبلغ المستحق",
-    "pendingAmountDesc": "الإجمالي ناقص الدفعات",
-    "revenueChart": "الإيراد (6 أشهر الأخيرة)",
     "factureStatus": "توزيع الفواتير",
     "revenueYear": "الإيرادات هذا العام (درهم)",
     "byStatus": "فواتير هذا الشهر — حسب الحالة",
@@ -463,11 +448,8 @@
     "title": "العلاجات",
     "searchPlaceholder": "ابحث عن علاج…",
     "newTraitement": "علاج جديد",
-    "noTraitements": "لا علاجات بعد",
-    "noTraitementsDesc": "أضف إجراءاتك السنية.",
     "noResults": "لا نتائج",
     "noResultsDesc": "لا يوجد علاج يطابق \"{query}\".",
-    "allCategories": "الكل",
     "categories": {
       "nettoyage": "تنظيف",
       "obturation": "حشو",
@@ -544,7 +526,6 @@
     "searchPlaceholder": "بحث بالمريض…",
     "newFacture": "فاتورة جديدة",
     "noFactures": "لا فواتير بعد",
-    "noFacturesDesc": "أنشئ أول فاتورة.",
     "noResults": "لا نتائج",
     "noResultsDesc": "لا توجد فاتورة تطابق \"{query}\".",
     "allStatuses": "الكل",
@@ -571,11 +552,9 @@
       "items": "العناصر",
       "addItem": "إضافة عنصر",
       "traitement": "العلاج (اختياري)",
-      "customItem": "عنصر مخصص",
       "description": "الوصف",
       "descriptionPlaceholder": "مثال: تنظيف كامل",
       "qty": "الكمية",
-      "unitPrice": "سعر الوحدة",
       "total": "الإجمالي",
       "deposit": "الدفعة",
       "notes": "ملاحظات",
@@ -583,7 +562,6 @@
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
       "patientRequired": "يرجى اختيار مريض.",
-      "itemRequired": "أضف عنصراً واحداً على الأقل.",
       "linkedVisit": "الزيارة المرتبطة (اختياري)",
       "none": "— لا شيء —",
       "noVisits": "لا زيارات لهذا المريض.",
@@ -645,20 +623,15 @@
     "title": "الملفات",
     "searchPlaceholder": "ابحث بالمريض أو العنوان…",
     "newDossier": "ملف جديد",
-    "noDossiers": "لا ملفات بعد",
-    "noDossiersDesc": "أضف أول ملف لمريض.",
     "noResults": "لا نتائج",
     "noResultsDesc": "لا يوجد ملف يطابق \"{query}\".",
     "columns": {
       "patient": "المريض",
       "type": "النوع",
-      "examDate": "تاريخ الفحص",
       "treatedBy": "الطبيب المعالج"
     },
     "types": {
-      "examen": "فحص",
       "soin": "علاج",
-      "bilan": "تقييم",
       "urgence": "طارئ",
       "autre": "أخرى"
     },
@@ -668,19 +641,8 @@
       "patient": "المريض",
       "selectPatient": "— اختر مريضاً —",
       "type": "نوع الزيارة",
-      "examDate": "تاريخ الفحص",
-      "nextExamDate": "المراجعة القادمة",
       "treatedBy": "الطبيب",
-      "treatedByPlaceholder": "د. الاسم",
-      "dentalNotes": "ملاحظات سريرية",
-      "dentalNotesPlaceholder": "ملاحظات، علاجات، توصيات…",
       "document": "مستند (اختياري)",
-      "dropOrClick": "اسحب وأفلت ملف PDF أو صورة",
-      "tapToChoose": "اضغط لاختيار ملف",
-      "fileHint": "PDF، JPG، PNG · 10 ميغابايت كحد أقصى",
-      "browseFile": "تصفح",
-      "removeDocument": "إزالة",
-      "fileTooLarge": "الملف يتجاوز 10 ميغابايت.",
       "save": "حفظ",
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء",
@@ -728,10 +690,8 @@
       "subtitle": "الملفات والفواتير",
       "dossiers": "الملفات الطبية",
       "factures": "الفواتير",
-      "noDossiers": "لا ملفات.",
       "noFactures": "لا فواتير.",
-      "consultations": "الزيارات",
-      "noConsultations": "لا زيارات مسجلة."
+      "consultations": "الزيارات"
     },
     "form": {
       "addTitle": "مريض جديد",
@@ -826,7 +786,6 @@
     "noSuppliers": "لا موردين مسجلين",
     "noSuppliersDesc": "أضف أول مورد.",
     "noResults": "لا نتائج",
-    "treatmentsLinked": "العلاجات المرتبطة",
     "form": {
       "addTitle": "مورد جديد",
       "editTitle": "تعديل المورد",
@@ -1361,7 +1320,6 @@
     "remaining": "المتبقي",
     "devisEstimated": "تقدير: {amount}",
     "generating": "جارٍ الإنشاء…",
-    "feuilleSoins": "ورقة العلاج (التأمين)",
     "devisFactures": "التقديرات والفواتير",
     "devis": "تقدير",
     "facture": "فاتورة",
@@ -1443,47 +1401,5 @@
     "deleting": "جارٍ الحذف…",
     "saving": "جارٍ الحفظ…",
     "save": "حفظ"
-  },
-  "consultations": {
-    "title": "الزيارات",
-    "searchPlaceholder": "ابحث حسب المريض…",
-    "newConsultation": "زيارة جديدة",
-    "noConsultations": "لا زيارات بعد",
-    "noResults": "لا نتائج",
-    "columns": {
-      "patient": "المريض",
-      "motif": "السبب",
-      "examDate": "التاريخ",
-      "treatedBy": "عالجه"
-    },
-    "motifs": {
-      "consultation": "استشارة",
-      "urgence": "طوارئ",
-      "controle": "مراجعة",
-      "soin": "علاج",
-      "autre": "أخرى"
-    },
-    "form": {
-      "addTitle": "زيارة جديدة",
-      "editTitle": "تعديل الزيارة",
-      "patientId": "المريض",
-      "motif": "السبب",
-      "examDate": "تاريخ الزيارة",
-      "nextExamDate": "المراجعة القادمة",
-      "treatedBy": "طبيب الأسنان",
-      "teeth": "الأسنان المعنية",
-      "clinicalNotes": "ملاحظات سريرية",
-      "exams": "فحوصات إضافية",
-      "save": "حفظ",
-      "saving": "جارٍ الحفظ…",
-      "cancel": "إلغاء",
-      "requiredError": "المريض والتاريخ إلزاميان."
-    },
-    "deleteConfirm": {
-      "title": "حذف الزيارة",
-      "message": "حذف زيارة {name} بتاريخ {date}؟",
-      "confirm": "حذف",
-      "cancel": "إلغاء"
-    }
   }
 }
