@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
-  const isDashboard = /^\/(en|fr|ar)\/dashboard/.test(pathname) || pathname.startsWith("/dashboard");
+  const isDashboard = /^\/(en|fr|ar)\/dashboard(\/|$)/.test(pathname) || /^\/dashboard(\/|$)/.test(pathname);
 
   // Signed-in users skip the marketing landing and the sign-in / sign-up pages:
   // they go straight to their dashboard. Only checked when a Supabase auth

@@ -1452,6 +1452,7 @@
     "forbiddenBody": "Votre rôle ne vous permet pas d'ouvrir cette page. Si vous pensez que c'est une erreur, contactez le propriétaire.",
     "notFoundTitle": "Page introuvable",
     "notFoundBody": "Cette page n'existe pas ou l'élément a été supprimé.",
-    "backHome": "Retour à l'accueil"
+    "backHome": "Retour à l'accueil",
+    "siteNotFoundBody": "L'adresse est peut-être mal saisie, ou la page a été déplacée."
   }
 }

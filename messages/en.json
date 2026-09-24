@@ -1452,6 +1452,7 @@
     "forbiddenBody": "Your role doesn't allow you to open this page. If you think this is a mistake, contact the owner.",
     "notFoundTitle": "Page not found",
     "notFoundBody": "This page doesn't exist or the item was removed.",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "siteNotFoundBody": "The address may be mistyped, or the page has moved."
   }
 }
