@@ -4,12 +4,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const withNextIntl = createNextIntlPlugin();
 
-const nextConfig: NextConfig = {
-  // Ship the (now non-public) workspace file with the route handler that serves it.
-  outputFileTracingIncludes: {
-    "/[locale]/admin/workspace/raw": ["./content/workspace.html"],
-  },
-};
+const nextConfig: NextConfig = {};
 
 export default withSentryConfig(withNextIntl(nextConfig), {
   // Org/project slugs + auth token come from env (set in Vercel + .env.local).

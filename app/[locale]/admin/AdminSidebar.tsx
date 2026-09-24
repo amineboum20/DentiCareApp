@@ -11,23 +11,27 @@ interface Props {
   openTickets: number;
 }
 
+function displayName(email: string): string {
+  const local = (email.split("@")[0] || "Admin").replace(/[._-]+/g, " ").trim();
+  return local.replace(/\b\w/g, (c) => c.toUpperCase()) || "Admin";
+}
+
 export default function AdminSidebar({ email, pendingCount, openTickets }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   useEffect(() => { setOpen(false); }, [pathname]);
-
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
   const navItems = [
-    { icon: "📥", label: "Approbations",   href: "/admin",       badge: pendingCount },
-    { icon: "🧪", label: "Tests",          href: "/admin/tests" },
-    { icon: "📚", label: "Docs",           href: "/admin/docs" },
-    { icon: "🏗️", label: "Infrastructure", href: "/admin/infra" },
+    { icon: "📥", label: "Approbations",   href: "/admin",         badge: pendingCount },
     { icon: "🛟", label: "Support",        href: "/admin/support", badge: openTickets },
+    { icon: "🧪", label: "Tests",          href: "/admin/tests" },
+    { icon: "📚", label: "Documentation",  href: "/admin/docs" },
+    { icon: "🏗️", label: "Infrastructure", href: "/admin/infra" },
   ];
 
   const navContent = (
@@ -45,7 +49,7 @@ export default function AdminSidebar({ email, pendingCount, openTickets }: Props
                   ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 font-medium"
                   : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
               }`}>
-              <span>{item.icon}</span>
+              <span className="text-base">{item.icon}</span>
               <span className="flex-1">{item.label}</span>
               {item.badge ? (
                 <span className="min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-teal-600 text-white text-xs font-semibold">
@@ -58,12 +62,12 @@ export default function AdminSidebar({ email, pendingCount, openTickets }: Props
       </nav>
 
       <div className="p-3 border-t border-zinc-100 dark:border-zinc-800">
-        <div className="flex items-center gap-2 px-3 py-2 mb-1">
-          <div className="w-7 h-7 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 text-xs font-bold flex-shrink-0">
-            {email?.[0]?.toUpperCase() ?? "A"}
+        <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
+          <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 dark:text-teal-300 text-xs font-bold flex-shrink-0">
+            {(email?.[0] ?? "A").toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-zinc-900 dark:text-white truncate">Admin</p>
+            <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{displayName(email)}</p>
             <p className="text-xs text-zinc-400 truncate">{email}</p>
           </div>
         </div>
@@ -73,12 +77,21 @@ export default function AdminSidebar({ email, pendingCount, openTickets }: Props
     </>
   );
 
+  const Brand = () => (
+    <div className="flex items-center gap-2">
+      <img src="/logo.svg" alt="DentiCare" className="w-7 h-7" />
+      <div className="leading-tight">
+        <span className="block font-bold text-zinc-900 dark:text-white text-sm">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
+        <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">Administration</span>
+      </div>
+    </div>
+  );
+
   return (
     <>
+      {/* Mobile top bar */}
       <div className="sm:hidden fixed top-0 inset-x-0 z-20 h-14 flex items-center px-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">
-        <button
-          onClick={() => setOpen(true)}
-          aria-label="Ouvrir le menu"
+        <button onClick={() => setOpen(true)} aria-label="Ouvrir le menu"
           className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
             <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
@@ -92,29 +105,19 @@ export default function AdminSidebar({ email, pendingCount, openTickets }: Props
       </div>
 
       {open && (
-        <div
-          className="sm:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
-          onClick={() => setOpen(false)}
-          aria-hidden="true"
-        />
+        <div className="sm:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden="true" />
       )}
 
       <div className={`fixed inset-y-0 start-0 z-40 w-64 sm:w-56 bg-white dark:bg-zinc-900 border-e border-zinc-100 dark:border-zinc-800 flex flex-col transition-transform duration-200 ease-in-out
         ${open ? "translate-x-0" : "max-sm:ltr:-translate-x-full max-sm:rtl:translate-x-full"}`}>
 
-        <div className="hidden sm:flex items-center gap-2 px-5 py-5 border-b border-zinc-100 dark:border-zinc-800">
-          <img src="/logo.svg" alt="DentiCare" className="w-6 h-6" />
-          <span className="font-bold text-zinc-900 dark:text-white">DentiCare Admin</span>
+        <div className="hidden sm:flex items-center px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
+          <Brand />
         </div>
 
         <div className="sm:hidden flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
-          <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="DentiCare" className="w-6 h-6" />
-            <span className="font-bold text-zinc-900 dark:text-white">DentiCare Admin</span>
-          </div>
-          <button
-            onClick={() => setOpen(false)}
-            aria-label="Fermer le menu"
+          <Brand />
+          <button onClick={() => setOpen(false)} aria-label="Fermer le menu"
             className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/>

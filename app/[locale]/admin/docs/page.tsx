@@ -1,11 +1,11 @@
-import { redirect } from "next/navigation";
-import { getAdminUser } from "@/utils/admin-auth";
-import WorkspaceFrame from "../WorkspaceFrame";
+import { DOCS_HTML } from "./content";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminDocsPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  if (!(await getAdminUser())) redirect("/signin");
-  return <WorkspaceFrame locale={locale} tab="docs" title="Documentation" />;
+export default function AdminDocsPage() {
+  return (
+    <div className="p-4 sm:p-8">
+      <div className="admin-prose max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: DOCS_HTML }} />
+    </div>
+  );
 }

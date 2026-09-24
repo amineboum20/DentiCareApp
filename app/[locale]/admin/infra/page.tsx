@@ -1,11 +1,11 @@
-import { redirect } from "next/navigation";
-import { getAdminUser } from "@/utils/admin-auth";
-import WorkspaceFrame from "../WorkspaceFrame";
+import { INFRA_HTML } from "./content";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminInfraPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  if (!(await getAdminUser())) redirect("/signin");
-  return <WorkspaceFrame locale={locale} tab="infra" title="Infrastructure" />;
+export default function AdminInfraPage() {
+  return (
+    <div className="p-4 sm:p-8">
+      <div className="admin-prose max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: INFRA_HTML }} />
+    </div>
+  );
 }
