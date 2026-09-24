@@ -1445,5 +1445,13 @@
     "userBanned": "This account is suspended. Please contact support.",
     "sessionExpired": "The link has expired or the session ended. Please start again.",
     "generic": "Something went wrong. Please try again."
+  },
+  "accessError": {
+    "code": "Error {code}",
+    "forbiddenTitle": "Access denied",
+    "forbiddenBody": "Your role doesn't allow you to open this page. If you think this is a mistake, contact the owner.",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "This page doesn't exist or the item was removed.",
+    "backHome": "Back to home"
   }
 }

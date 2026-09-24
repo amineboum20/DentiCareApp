@@ -1445,5 +1445,13 @@
     "userBanned": "Ce compte est suspendu. Contactez le support.",
     "sessionExpired": "Le lien a expiré ou la session est terminée. Recommencez la démarche.",
     "generic": "Une erreur est survenue. Réessayez."
+  },
+  "accessError": {
+    "code": "Erreur {code}",
+    "forbiddenTitle": "Accès non autorisé",
+    "forbiddenBody": "Votre rôle ne vous permet pas d'ouvrir cette page. Si vous pensez que c'est une erreur, contactez le propriétaire.",
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "Cette page n'existe pas ou l'élément a été supprimé.",
+    "backHome": "Retour à l'accueil"
   }
 }

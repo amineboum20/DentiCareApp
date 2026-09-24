@@ -63,3 +63,9 @@ export default function AuditInfo({
     </div>
   );
 }
+
+/** Audit props straight from a row that carries created_by/_at and updated_by/_at. */
+export function auditProps(row: unknown) {
+  const r = (row ?? {}) as Record<string, string | null | undefined>;
+  return { createdBy: r.created_by, createdAt: r.created_at, updatedBy: r.updated_by, updatedAt: r.updated_at };
+}
