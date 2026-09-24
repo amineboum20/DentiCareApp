@@ -70,7 +70,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         logoUrl={practice?.logo_url ?? null}
       >
         <Sidebar firstName={member.first_name} shopName={practice?.name ?? "DentiCare"} email={user.email ?? ""} role={member.role} />
-        <div className="sm:ms-56 min-h-screen">
+        <div className="sm:ms-56 min-h-screen min-w-0 overflow-x-clip">
           <div className="hidden sm:flex sticky top-0 z-10 h-14 items-center justify-center px-6 bg-white/80 dark:bg-zinc-950/80 backdrop-blur border-b border-zinc-100 dark:border-zinc-800">
             <GlobalSearch />
           </div>

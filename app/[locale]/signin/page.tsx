@@ -45,14 +45,14 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
-      <nav className="flex items-center justify-between px-8 py-5">
-        <Link href="/" className="flex items-center gap-2">
+      <nav className="flex items-center justify-between gap-3 px-4 sm:px-8 py-4 sm:py-5">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <img src="/logo.svg" alt="DentiCare" className="w-7 h-7" />
           <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
         </Link>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
-          <span className="text-sm text-zinc-500">
+          <span className="hidden sm:inline text-sm text-zinc-500">
             {t("noAccount")}{" "}
             <Link href="/signup" className="text-teal-600 font-medium hover:underline">{t("signUpFree")}</Link>
           </span>
