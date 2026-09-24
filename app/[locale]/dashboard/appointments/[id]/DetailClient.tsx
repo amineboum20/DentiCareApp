@@ -379,7 +379,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">{t("detail.contactBadge")}</span>
               </div>
             )}
-            <ErrorBanner message={patientPhone} className="mt-0.5" />
+            {patientPhone && <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{patientPhone}</p>}
             {patientPhone && (
               <div className="grid grid-cols-2 gap-2 mt-4">
                 <a href={`tel:${patientPhone.replace(/\D/g, "")}`} className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">

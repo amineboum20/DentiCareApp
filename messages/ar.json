@@ -991,7 +991,8 @@
     "newCategory": "فئة جديدة…",
     "newOptionCat": "خيار جديد…",
     "pageTitle": "الإعدادات",
-    "logoUploadError": "تعذّر رفع الشعار: {message}"
+    "logoUploadError": "تعذّر رفع الشعار: {message}",
+    "inviteError": "تعذّرت دعوة العضو."
   },
   "factureStatus": {
     "en_attente": "قيد الانتظار",
@@ -1004,7 +1005,7 @@
     "deactivatedBody": "تم تعطيل وصولك إلى <b>{name}</b>. تواصل مع مالك العيادة لإعادة تفعيله.",
     "pendingTitle": "الحساب في انتظار الموافقة",
     "pendingMember": "جارٍ مراجعة وصولك إلى <b>{name}</b>. ستتمكن من تسجيل الدخول بمجرد الموافقة عليه.",
-    "pendingPractice": "جارٍ التحقق من عيادتك <b>{name}</b>. ستحصل على الوصول بمجرد الموافقة عليها.",
+    "pendingPractice": "جارٍ التحقق من عيادتك <b>{name}</b>. ستتمكن من تسجيل الدخول بمجرد الموافقة عليها.",
     "questionsContact": "أسئلة؟ تواصل مع"
   },
   "visites": {

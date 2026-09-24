@@ -51,6 +51,7 @@ export default function SettingsClient({
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const isOwner = memberRole === "owner";
+  const isAssistant = memberRole === "assistant";
 
   // — Which praticien this account is (drives "my agenda") —
   const [myPrat, setMyPrat] = useState(myPraticienId ?? "");
@@ -105,7 +106,7 @@ export default function SettingsClient({
     supabase.from("treatment_attributes").select("*")
       .order("sort_order").order("name")
       .then(async ({ data }) => {
-        if (!data || data.length === 0) {
+        if ((!data || data.length === 0) && !isAssistant) {
           const defaults = [
             { attr_type: "category", name: "Nettoyage & détartrage", sort_order: 0 },
             { attr_type: "category", name: "Obturation (carie)", sort_order: 1 },
@@ -130,7 +131,7 @@ export default function SettingsClient({
             .select();
           setTreatAttributes((seeded ?? []) as typeof treatAttributes);
         } else {
-          setTreatAttributes(data as typeof treatAttributes);
+          setTreatAttributes((data ?? []) as typeof treatAttributes);
         }
         setTreatAttrLoading(false);
       });
@@ -244,7 +245,7 @@ export default function SettingsClient({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMemberError(json.error ?? "Erreur lors de l'invitation du membre");
+        setMemberError(json.error ?? t("inviteError"));
         return;
       }
       setShowAddMember(false);
@@ -415,7 +416,8 @@ export default function SettingsClient({
         </form>
       </div>
 
-      {/* Members */}
+      {/* Members — not for assistants */}
+      {!isAssistant && (
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{t("practiceMembers")}</h2>
@@ -506,9 +508,12 @@ export default function SettingsClient({
           </div>
         )}
       </div>
+      )}
         </div>
       </div>
 
+      {/* Praticiens + care catalog — not for assistants (clinical/catalog data) */}
+      {!isAssistant && (<>
       {/* Praticiens */}
       <div className="mt-8">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">{t("praticiens")}</h2>
@@ -562,6 +567,7 @@ export default function SettingsClient({
           </div>
         </div>
       </div>
+      </>)}
     </div>
   );
 }

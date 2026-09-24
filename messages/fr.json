@@ -991,7 +991,8 @@
     "newCategory": "Nouvelle catégorie…",
     "newOptionCat": "Nouvelle option…",
     "pageTitle": "Paramètres",
-    "logoUploadError": "Erreur lors de l'envoi du logo : {message}"
+    "logoUploadError": "Erreur lors de l'envoi du logo : {message}",
+    "inviteError": "Erreur lors de l'invitation du membre."
   },
   "factureStatus": {
     "en_attente": "En attente",
@@ -1004,7 +1005,7 @@
     "deactivatedBody": "Votre accès au cabinet <b>{name}</b> a été désactivé. Contactez le propriétaire du cabinet pour le réactiver.",
     "pendingTitle": "Compte en attente d'approbation",
     "pendingMember": "Votre accès au cabinet <b>{name}</b> est en cours de validation. Vous pourrez vous connecter dès qu'il sera approuvé.",
-    "pendingPractice": "Votre cabinet <b>{name}</b> est en cours de vérification. Vous recevrez un accès dès qu'il sera approuvé.",
+    "pendingPractice": "Votre cabinet <b>{name}</b> est en cours de vérification. Vous pourrez vous connecter dès qu'il sera approuvé.",
     "questionsContact": "Des questions ? Contactez"
   },
   "visites": {

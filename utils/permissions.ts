@@ -6,7 +6,9 @@ import type { MemberRole } from "@/types/database";
  * - owner / dentist → full access to every dashboard section.
  * - assistant       → front-desk only: patients, dossiers (cases) and
  *                     rendez-vous. No billing, clinical visites, prescriptions,
- *                     catalog, reports, suppliers or settings.
+ *                     catalog, reports or suppliers. Settings is open, but only
+ *                     for their own password + language (practice/catalog
+ *                     sections are hidden there).
  *
  * This gates the UI (sidebar, routes, in-page buttons). Database-level RLS
  * enforcement by role is a planned follow-up — until then this is presentation
@@ -33,6 +35,7 @@ export function canAccessPath(role: MemberRole, path: string): boolean {
   if (role !== "assistant") return true;
   if (path === "/dashboard") return true; // shared home — its content is role-aware
   if (path === "/dashboard/support") return true; // support is available to everyone
+  if (path === "/dashboard/settings") return true; // own password + language (page is role-aware)
   return ASSISTANT_SECTIONS.some((s) => path === s || path.startsWith(`${s}/`));
 }
 

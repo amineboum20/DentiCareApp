@@ -23,12 +23,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (member.deactivated_at) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center px-6">
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-10 text-center max-w-md w-full">
+        <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-8 text-center">
           <span className="text-5xl">🔒</span>
           <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">{t("deactivatedTitle")}</h1>
           <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
             {t.rich("deactivatedBody", { name: practice?.name ?? "", b: (c) => <strong>{c}</strong> })}
           </p>
+          <p className="mt-6 text-xs text-zinc-400">{t("questionsContact")} <a href="mailto:amine@denticareapp.com" className="text-teal-600 hover:underline">amine@denticareapp.com</a></p>
         </div>
       </div>
     );

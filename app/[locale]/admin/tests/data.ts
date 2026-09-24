@@ -33,6 +33,7 @@ export const MODULES: TestModule[] = [
       { id: "TC-012", title: "Désactivation d'un membre", steps: ["Paramètres → désactiver un membre", "Le membre tente de se connecter"], expected: "Écran « Accès désactivé » ; ses données créées sont conservées ; Réactiver rétablit l'accès" },
       { id: "TC-013", title: "Isolation entre cabinets (RLS)", steps: ["Créer un patient dans le cabinet A", "Se connecter à un cabinet B"], expected: "Le patient du cabinet A est invisible pour B" },
       { id: "TC-014", title: "Créé par / Modifié par", steps: ["Créer puis modifier un patient avec deux membres différents", "Ouvrir la fiche"], expected: "Pied de carte « Créé par X · date » et « Modifié par Y · date »" },
+      { id: "TC-077", title: "Paramètres pour un assistant", steps: ["Se connecter avec un compte assistant", "Ouvrir Paramètres"], expected: "Onglet visible ; seulement « Changer le mot de passe » et « Langue » (pas d'infos de la boutique/du cabinet, logo, membres ni catalogue) ; changement de mot de passe OK avec « ✓ Mot de passe mis à jour » en vert" },
     ],
   },
   {

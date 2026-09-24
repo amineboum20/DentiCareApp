@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import LocalInstant from "@/components/LocalInstant";
-import ErrorBanner from "@/components/ErrorBanner";
 
 const STATUS_LABELS: Record<string, string> = {
   planifie: "Planifié",
@@ -123,7 +122,7 @@ export default async function TrackAppointmentPage({
                 Cabinet dentaire
               </p>
               <p className="font-medium text-zinc-900">{shopName}</p>
-              <ErrorBanner message={shopAddress} />
+              {shopAddress && <p className="text-sm text-zinc-500">{shopAddress}</p>}
               {shopPhone && (
                 <a
                   href={`tel:${shopPhone.replace(/\s/g, "")}`}
