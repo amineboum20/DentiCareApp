@@ -24,7 +24,7 @@ export default function SignUp() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (password.length < 6) { setError(t("passwordTooShort")); return; }
+    if (password.length < 8) { setError(t("passwordTooShort")); return; }
     setLoading(true);
     const supabase = createClient();
     const { data, error: signUpError } = await supabase.auth.signUp({
