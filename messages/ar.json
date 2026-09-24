@@ -992,7 +992,8 @@
     "newOptionCat": "خيار جديد…",
     "pageTitle": "الإعدادات",
     "logoUploadError": "تعذّر رفع الشعار: {message}",
-    "inviteError": "تعذّرت دعوة العضو."
+    "inviteError": "تعذّرت دعوة العضو.",
+    "memberActionError": "فشلت العملية على هذا العضو."
   },
   "factureStatus": {
     "en_attente": "قيد الانتظار",

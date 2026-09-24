@@ -75,31 +75,42 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   }
 
+  // Checks run with the caller's session (RLS): the target must be visible to
+  // them, not the owner, and the caller must own that same practice.
+  const { data: targetMember } = await supabase
+    .from("practice_members")
+    .select("practice_id, role")
+    .eq("id", memberId)
+    .single();
+
+  if (!targetMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+  if (targetMember.role === "owner") return NextResponse.json({ error: "Cannot deactivate the owner" }, { status: 403 });
+
   const { data: caller } = await supabase
     .from("practice_members")
     .select("role")
     .eq("user_id", user.id)
+    .eq("practice_id", targetMember.practice_id)
     .single();
 
   if (caller?.role !== "owner") {
-    return NextResponse.json({ error: "Only owners can manage members" }, { status: 403 });
+    return NextResponse.json({ error: "Only the owner can manage members" }, { status: 403 });
   }
 
-  const { data: target } = await supabase
-    .from("practice_members")
-    .select("role")
-    .eq("id", memberId)
-    .single();
-
-  if (!target) return NextResponse.json({ error: "Member not found" }, { status: 404 });
-  if (target.role === "owner") return NextResponse.json({ error: "Cannot deactivate the owner" }, { status: 400 });
-
+  // practice_members has no UPDATE RLS policy, so a session-client update
+  // silently changes 0 rows. Write with the service role, scoped to this
+  // member of this practice, and confirm a row was actually updated.
   const deactivated_at = action === "deactivate" ? new Date().toISOString() : null;
-  const { error } = await supabase
+  const admin = createAdminClient();
+  const { data: updated, error } = await admin
     .from("practice_members")
     .update({ deactivated_at })
-    .eq("id", memberId);
+    .eq("id", memberId)
+    .eq("practice_id", targetMember.practice_id)
+    .neq("role", "owner")
+    .select("id");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!updated || updated.length === 0) return NextResponse.json({ error: "Member not updated" }, { status: 409 });
   return NextResponse.json({ success: true });
 }

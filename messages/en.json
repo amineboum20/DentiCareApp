@@ -992,7 +992,8 @@
     "newOptionCat": "New option…",
     "pageTitle": "Settings",
     "logoUploadError": "Logo upload failed: {message}",
-    "inviteError": "Could not invite the member."
+    "inviteError": "Could not invite the member.",
+    "memberActionError": "The action on this member failed."
   },
   "factureStatus": {
     "en_attente": "Pending",

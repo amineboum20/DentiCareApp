@@ -261,16 +261,16 @@ export default function SettingsClient({
     }
   }
 
-  async function setMemberActive(id: string, action: "deactivate" | "reactivate") {
+  async function setMemberActive(memberId: string, action: "deactivate" | "reactivate") {
     if (action === "deactivate" && !confirm(t("deactivateConfirm"))) return;
+    setMemberError("");
     const res = await fetch("/api/members", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ memberId: id, action }),
-    });
-    if (res.ok) {
-      setMembers(prev => prev.map(m => m.id === id ? { ...m, deactivated_at: action === "deactivate" ? new Date().toISOString() : null } : m));
-    }
+      body: JSON.stringify({ memberId, action }),
+    }).catch(() => null);
+    if (!res || !res.ok) { setMemberError(t("memberActionError")); return; }
+    setMembers(prev => prev.map(m => m.id === memberId ? { ...m, deactivated_at: action === "deactivate" ? new Date().toISOString() : null } : m));
   }
 
   async function handlePasswordChange(e: React.FormEvent) {
@@ -434,6 +434,8 @@ export default function SettingsClient({
             ✅ {inviteSent}
           </p>
         )}
+
+        {!showAddMember && <ErrorBanner message={memberError} className="mb-4" />}
 
         {showAddMember && isOwner && (
           <form onSubmit={handleAddMember} className="mb-6 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 space-y-3">

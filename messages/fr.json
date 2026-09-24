@@ -992,7 +992,8 @@
     "newOptionCat": "Nouvelle option…",
     "pageTitle": "Paramètres",
     "logoUploadError": "Erreur lors de l'envoi du logo : {message}",
-    "inviteError": "Erreur lors de l'invitation du membre."
+    "inviteError": "Erreur lors de l'invitation du membre.",
+    "memberActionError": "L'opération sur ce membre a échoué."
   },
   "factureStatus": {
     "en_attente": "En attente",
