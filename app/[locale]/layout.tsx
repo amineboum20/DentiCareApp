@@ -49,8 +49,10 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Sets cookie + class on first visit (before server has seen a theme cookie) */}
-        <script dangerouslySetInnerHTML={{ __html: `try{var t=document.cookie.match(/(?:^|;\\s*)theme=([^;]*)/)?.[1]||localStorage.getItem("theme");if(!t){t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"}if(t==="dark"){document.documentElement.classList.add("dark")}document.cookie="theme="+t+";path=/;max-age=31536000;SameSite=Lax"}catch(e){}` }} />
+        {/* Light by default. Dark only if the user chose it with the toggle (it writes
+            localStorage + cookie); falls back to the cookie when storage is blocked.
+            Also rewrites the cookie, clearing any "dark" once auto-set from the OS. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t;try{t=localStorage.getItem("theme")}catch(e){t=(document.cookie.match(/(?:^|;\\s*)theme=([^;]*)/)||[])[1]}var d=t==="dark";document.documentElement.classList.toggle("dark",d);document.cookie="theme="+(d?"dark":"light")+";path=/;max-age=31536000;SameSite=Lax"}catch(e){}` }} />
       </head>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>

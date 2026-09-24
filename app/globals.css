@@ -13,13 +13,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Light by default; dark only when the user picked it (html.dark), never from the OS setting. */
 html.dark {
   --background: #0a0a0a;
   --foreground: #ededed;
