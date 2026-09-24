@@ -25,7 +25,7 @@ interface Props {
 }
 
 type Visite = {
-  id: string; motif: string; exam_date: string;
+  id: string; title: string | null; motif: string; exam_date: string;
   teeth: string | null; treated_by: string | null; clinical_notes: string | null;
 };
 type Doc = {
@@ -74,6 +74,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   const tc = useTranslations("common");
   const tst = useTranslations("dossierStatus");
   const tfac = useTranslations("factureStatus");
+  const tv = useTranslations("visites");
 
   const [dossier, setDossier] = useState<DossierWithPatient>(initialDossier);
   const [visites, setVisites] = useState<Visite[]>([]);
@@ -111,7 +112,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
 
   useEffect(() => {
     Promise.all([
-      supabase.from("consultations").select("id, motif, exam_date, teeth, treated_by, clinical_notes").eq("dossier_id", dossier.id).order("exam_date", { ascending: false }),
+      supabase.from("consultations").select("id, title, motif, exam_date, teeth, treated_by, clinical_notes").eq("dossier_id", dossier.id).order("exam_date", { ascending: false }),
       supabase.from("factures").select("id, type, status, total_price, created_at, notes").eq("dossier_id", dossier.id).order("created_at", { ascending: false }),
       supabase.from("acomptes").select("id, montant, date_paiement, moyen, note").eq("dossier_id", dossier.id).order("date_paiement", { ascending: false }),
       supabase.from("actes").select("id, name, price, scope, category, tooth_status").order("name", { ascending: true }),
@@ -330,7 +331,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
   }
 
   // ─── add visite ───
-  const emptyVisite = { motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), treated_by: "", praticien_id: "", clinical_notes: "", bill: true };
+  const emptyVisite = { title: "", motif: "consultation" as ConsultationMotif, exam_date: new Date().toISOString().slice(0, 10), treated_by: "", praticien_id: "", clinical_notes: "", bill: true };
   const [visiteForm, setVisiteForm] = useState(emptyVisite);
   const [visiteBillActes, setVisiteBillActes] = useState<BillActe[]>([]);
   function openVisite() {
@@ -340,16 +341,17 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
     setErr(""); setVisiteOpen(true);
   }
   async function saveVisite() {
+    if (!visiteForm.title.trim()) { setErr(tv("errTitle")); return; }
     if (!visiteForm.exam_date) { setErr(t("errDate")); return; }
     if (visiteForm.exam_date > today) { setErr(t("errVisiteFuture")); return; }
     setBusy(true); setErr("");
     const { data, error } = await supabase.from("consultations").insert({
       practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
       patient_id: dossier.patient_id, dossier_id: dossier.id,
-      motif: visiteForm.motif, exam_date: visiteForm.exam_date,
+      title: visiteForm.title.trim(), motif: visiteForm.motif, exam_date: visiteForm.exam_date,
       treated_by: visiteForm.treated_by.trim() || null, praticien_id: visiteForm.praticien_id || null,
       clinical_notes: visiteForm.clinical_notes.trim() || null,
-    }).select("id, motif, exam_date, teeth, treated_by, clinical_notes").single();
+    }).select("id, title, motif, exam_date, teeth, treated_by, clinical_notes").single();
     if (error) { setErr(error.message); setBusy(false); return; }
     setVisites((xs) => [data as Visite, ...xs]);
 
@@ -546,7 +548,10 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                 {visites.map((v) => (
                   <div key={v.id} onClick={() => router.push(`/${locale}/dashboard/consultations/${v.id}`)} className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-3 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 transition-all">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-zinc-900 dark:text-white">{t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif}</span>
+                      <span className="text-sm font-medium text-zinc-900 dark:text-white">
+                        {v.title || (t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif)}
+                        {v.title && <span className="ms-2 text-[11px] font-normal text-zinc-400">{t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif}</span>}
+                      </span>
                       <span className="text-xs text-zinc-400">{fmtDate(v.exam_date)}</span>
                     </div>
                     {v.teeth && <p className="text-[11px] text-zinc-400 mt-1">{t("teethLine", { teeth: v.teeth })}</p>}
@@ -730,6 +735,10 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
       {visiteOpen && (
         <Modal title={t("addVisiteTitle")} onClose={() => setVisiteOpen(false)}>
           <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{tv("form.title")} <span className="text-red-500">*</span></label>
+              <input value={visiteForm.title} onChange={(e) => setVisiteForm((f) => ({ ...f, title: e.target.value }))} placeholder={tv("form.titlePlaceholder")} className={inputCls} autoFocus />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("motifLabel")}</label>

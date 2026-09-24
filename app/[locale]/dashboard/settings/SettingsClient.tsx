@@ -173,7 +173,7 @@ export default function SettingsClient({
         .from("shop-assets")
         .upload(path, logoFile, { upsert: true });
       if (uploadError) {
-        setError(`Erreur upload logo : ${uploadError.message}`);
+        setError(t("logoUploadError", { message: uploadError.message }));
         setSaving(false);
         return;
       }

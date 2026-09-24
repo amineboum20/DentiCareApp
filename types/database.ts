@@ -351,6 +351,7 @@ export interface Consultation {
   patient_id: string
   user_id: string
   dossier_id: string | null
+  title: string
   motif: ConsultationMotif
   exam_date: string
   next_exam_date: string | null

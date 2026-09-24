@@ -56,7 +56,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string; dossier_id: string | null }[]>([]);
+  const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string; title: string | null; dossier_id: string | null }[]>([]);
 
   useEffect(() => {
     const id = searchParams.get("detail");
@@ -76,10 +76,10 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
   useEffect(() => {
     if (!form.patient_id || !modalOpen) { setPatientVisites([]); return; }
     supabase.from("consultations")
-      .select("id, exam_date, motif, dossier_id")
+      .select("id, exam_date, motif, title, dossier_id")
       .eq("patient_id", form.patient_id)
       .order("exam_date", { ascending: false })
-      .then(({ data }) => setPatientVisites((data ?? []) as { id: string; exam_date: string; motif: string; dossier_id: string | null }[]));
+      .then(({ data }) => setPatientVisites((data ?? []) as { id: string; exam_date: string; motif: string; title: string | null; dossier_id: string | null }[]));
   }, [form.patient_id, modalOpen, supabase]);
 
   const filtered = useMemo(() =>
@@ -323,7 +323,7 @@ export default function FacturesClient({ initialFactures, patients }: Props) {
                   <option value="">{t("form.none")}</option>
                   {patientVisites.map((v) => (
                     <option key={v.id} value={v.id}>
-                      {new Date(v.exam_date).toLocaleDateString("fr-FR")} — {t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif}
+                      {new Date(v.exam_date).toLocaleDateString("fr-FR")} — {v.title || (t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif)}
                     </option>
                   ))}
                 </select>

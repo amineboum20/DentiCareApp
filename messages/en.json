@@ -966,7 +966,8 @@
     "deleteShort": "Del.",
     "newCategory": "New category…",
     "newOptionCat": "New option…",
-    "pageTitle": "Settings"
+    "pageTitle": "Settings",
+    "logoUploadError": "Logo upload failed: {message}"
   },
   "factureStatus": {
     "en_attente": "Pending",
@@ -1003,7 +1004,8 @@
       "motif": "Reason",
       "date": "Date",
       "treatedBy": "Treated by",
-      "teeth": "Teeth"
+      "teeth": "Teeth",
+      "title": "Title"
     },
     "addTitle": "New visit",
     "editTitle": "Edit visit",
@@ -1034,7 +1036,9 @@
       "saving": "Saving…",
       "save": "Save",
       "cancel": "Cancel",
-      "delete": "Delete"
+      "delete": "Delete",
+      "title": "Visit title",
+      "titlePlaceholder": "e.g. Molar pain, scaling, post-extraction check…"
     },
     "deleteDialog": {
       "title": "Delete this visit?",
@@ -1072,7 +1076,8 @@
       "ordonnanceLabel": "Prescription",
       "edit": "Edit",
       "deleting": "Deleting…"
-    }
+    },
+    "errTitle": "The visit title is required."
   },
   "praticiens": {
     "errNameRequired": "Name is required.",

@@ -14,7 +14,7 @@ import AuditInfo from "@/components/AuditInfo";
 interface Props {
   ordonnance: OrdonnanceWithPatient & {
     dossiers?: { id: string; title: string } | { id: string; title: string }[] | null;
-    consultations?: { id: string; exam_date: string; motif: string } | { id: string; exam_date: string; motif: string }[] | null;
+    consultations?: { id: string; exam_date: string; motif: string; title: string | null } | { id: string; exam_date: string; motif: string; title: string | null }[] | null;
   };
   lignes: OrdonnanceLigne[];
   locale: string;
@@ -150,7 +150,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
             {visite && (
               <div className="flex gap-3 py-0.5">
                 <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{t("detail.linkedVisit")}</span>
-                <button onClick={() => router.push(`/${locale}/dashboard/consultations/${visite.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{fmtDate(visite.exam_date)} — {t.has(`motif.${visite.motif}`) ? t(`motif.${visite.motif}`) : visite.motif} →</button>
+                <button onClick={() => router.push(`/${locale}/dashboard/consultations/${visite.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{fmtDate(visite.exam_date)} — {visite.title || (t.has(`motif.${visite.motif}`) ? t(`motif.${visite.motif}`) : visite.motif)} →</button>
               </div>
             )}
             {dossier && (

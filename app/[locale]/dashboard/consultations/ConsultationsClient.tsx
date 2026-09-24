@@ -17,6 +17,7 @@ interface Props {
 }
 
 const emptyForm = {
+  title: "",
   patient_id: "",
   motif: "consultation" as ConsultationMotif,
   exam_date: "",
@@ -104,8 +105,8 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
 
   const filtered = useMemo(() =>
     consultations.filter((c) => {
-      const name = `${c.patients.first_name} ${c.patients.last_name}`.toLowerCase();
-      return name.includes(search.toLowerCase());
+      const hay = `${c.patients.first_name} ${c.patients.last_name} ${c.title ?? ""}`.toLowerCase();
+      return hay.includes(search.toLowerCase());
     }),
     [consultations, search]
   );
@@ -144,6 +145,10 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
       setError(t("errRequired"));
       return;
     }
+    if (!form.title.trim()) {
+      setError(t("errTitle"));
+      return;
+    }
     if (form.exam_date > today) {
       setError(t("errFuture"));
       return;
@@ -152,6 +157,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
     setError("");
 
     const payload = {
+      title: form.title.trim(),
       patient_id: form.patient_id,
       motif: form.motif,
       exam_date: form.exam_date,
@@ -260,6 +266,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-100 dark:border-zinc-800">
+                  <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.title")}</th>
                   <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.patient")}</th>
                   <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.motif")}</th>
                   <th className="px-5 py-3 text-start font-medium text-zinc-500 dark:text-zinc-400">{t("col.date")}</th>
@@ -274,7 +281,8 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                     onClick={() => router.push(`/${locale}/dashboard/consultations/${c.id}`)}
                     className="border-b border-zinc-50 dark:border-zinc-800/60 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
                   >
-                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">
+                    <td className="px-5 py-3.5 font-medium text-zinc-900 dark:text-white">{c.title}</td>
+                    <td className="px-5 py-3.5 text-zinc-700 dark:text-zinc-300">
                       {c.patients.first_name} {c.patients.last_name}
                     </td>
                     <td className="px-5 py-3.5">
@@ -310,6 +318,13 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
             </div>
 
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
+                  {t("form.title")} <span className="text-red-500">*</span>
+                </label>
+                <input {...field("title")} placeholder={t("form.titlePlaceholder")} className={inputCls} autoFocus />
+              </div>
+
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">
                   {t("form.patient")} <span className="text-red-500">*</span>

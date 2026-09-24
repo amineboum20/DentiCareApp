@@ -966,7 +966,8 @@
     "deleteShort": "حذف",
     "newCategory": "فئة جديدة…",
     "newOptionCat": "خيار جديد…",
-    "pageTitle": "الإعدادات"
+    "pageTitle": "الإعدادات",
+    "logoUploadError": "تعذّر رفع الشعار: {message}"
   },
   "factureStatus": {
     "en_attente": "قيد الانتظار",
@@ -1003,7 +1004,8 @@
       "motif": "السبب",
       "date": "التاريخ",
       "treatedBy": "عالجه",
-      "teeth": "الأسنان"
+      "teeth": "الأسنان",
+      "title": "العنوان"
     },
     "addTitle": "زيارة جديدة",
     "editTitle": "تعديل الزيارة",
@@ -1034,7 +1036,9 @@
       "saving": "جارٍ الحفظ…",
       "save": "حفظ",
       "cancel": "إلغاء",
-      "delete": "حذف"
+      "delete": "حذف",
+      "title": "عنوان الزيارة",
+      "titlePlaceholder": "مثال: ألم في الضرس، تنظيف الجير، مراقبة بعد القلع…"
     },
     "deleteDialog": {
       "title": "حذف هذه الزيارة؟",
@@ -1072,7 +1076,8 @@
       "ordonnanceLabel": "وصفة",
       "edit": "تعديل",
       "deleting": "جارٍ الحذف…"
-    }
+    },
+    "errTitle": "عنوان الزيارة إلزامي."
   },
   "praticiens": {
     "errNameRequired": "الاسم مطلوب.",

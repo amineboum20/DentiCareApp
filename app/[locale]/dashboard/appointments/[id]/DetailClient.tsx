@@ -16,6 +16,8 @@ import LocalInstant from "@/components/LocalInstant";
 import SearchableSelect from "@/components/SearchableSelect";
 import AuditInfo from "@/components/AuditInfo";
 
+type VisiteRef = { id: string; exam_date: string; motif: string; title: string | null };
+
 // Map an appointment type onto a visite motif (covers both type vocabularies).
 const TYPE_TO_MOTIF: Record<string, ConsultationMotif> = {
   consultation: "consultation", controle: "controle", soin: "soin",
@@ -82,12 +84,15 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   useEscapeKey(deleteOpen, () => setDeleteOpen(false));
   useModalKeys(terminerOpen, { onClose: () => setTerminerOpen(false), onSubmit: doTerminer });
   const [linkMode, setLinkMode] = useState<"new" | "existing">("new");
+  const [visiteTitle, setVisiteTitle] = useState("");
+  const [terminerError, setTerminerError] = useState("");
+  const visiteLabel = (v: VisiteRef) => v.title || (tv.has(`motif.${v.motif}`) ? tv(`motif.${v.motif}`) : v.motif);
   const [existingVisiteId, setExistingVisiteId] = useState("");
-  const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string }[]>([]);
+  const [patientVisites, setPatientVisites] = useState<VisiteRef[]>([]);
   const [billOn, setBillOn] = useState(true);
   const [billActes, setBillActes] = useState<{ id: string; name: string; price: number; scope?: ActeScope; teeth?: string[]; category?: string; tooth_status?: string | null }[]>([]);
   const [actes, setActes] = useState<{ id: string; name: string; price: number; scope: ActeScope; category: string; tooth_status: string | null }[]>([]);
-  const [linkedVisite, setLinkedVisite] = useState<{ id: string; exam_date: string; motif: string } | null>(null);
+  const [linkedVisite, setLinkedVisite] = useState<VisiteRef | null>(null);
   const today = new Date().toLocaleDateString("en-CA");
   const isPastOrNow = appointment.scheduled_at.slice(0, 10) <= today;
   // Status options are time-based; a future RDV can only be Planifié/Annulé.
@@ -117,8 +122,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
   // Load the linked visite (if any) for display on the RDV.
   useEffect(() => {
     if (!appointment.consultation_id) { setLinkedVisite(null); return; }
-    supabase.from("consultations").select("id, exam_date, motif").eq("id", appointment.consultation_id).single()
-      .then(({ data }) => setLinkedVisite((data as { id: string; exam_date: string; motif: string } | null) ?? null));
+    supabase.from("consultations").select("id, exam_date, motif, title").eq("id", appointment.consultation_id).single()
+      .then(({ data }) => setLinkedVisite((data as VisiteRef | null) ?? null));
   }, [appointment.consultation_id, supabase]);
 
   // When the terminer dialog opens: load the acte catalogue and the patient's visites.
@@ -131,8 +136,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       setBillActes(cons ? [cons] : []);
     });
     if (appointment.patient_id) {
-      supabase.from("consultations").select("id, exam_date, motif").eq("patient_id", appointment.patient_id).order("exam_date", { ascending: false })
-        .then(({ data }) => setPatientVisites((data ?? []) as { id: string; exam_date: string; motif: string }[]));
+      supabase.from("consultations").select("id, exam_date, motif, title").eq("patient_id", appointment.patient_id).order("exam_date", { ascending: false })
+        .then(({ data }) => setPatientVisites((data ?? []) as VisiteRef[]));
     }
   }, [terminerOpen, appointment.patient_id, supabase]);
 
@@ -143,7 +148,9 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
     // dentist to create the fiche patient first — don't change the status.
     if (newStatus === "termine" && !isAssistant && isPastOrNow && !appointment.consultation_id) {
       if (!appointment.patient_id) { setStatusHint(t("detail.createPatientFirst")); return; }
-      setLinkMode("new"); setExistingVisiteId(""); setBillOn(true); setTerminerOpen(true);
+      setLinkMode("new"); setExistingVisiteId(""); setBillOn(true);
+      setVisiteTitle(appointment.title ?? ""); setTerminerError("");
+      setTerminerOpen(true);
       return;
     }
     await supabase.from("appointments").update({ status: newStatus }).eq("id", appointment.id);
@@ -152,6 +159,8 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
 
   async function doTerminer() {
     if (!appointment.patient_id) return;
+    if (linkMode === "new" && !visiteTitle.trim()) { setTerminerError(tv("errTitle")); return; }
+    setTerminerError("");
     setTerminering(true);
     let visiteId = existingVisiteId;
 
@@ -173,7 +182,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
       const { data: cons, error } = await supabase.from("consultations").insert({
         practice_id: practiceId, created_by: currentUserId, user_id: currentUserId,
         patient_id: appointment.patient_id, dossier_id: linkDossierId,
-        motif, exam_date: appointment.scheduled_at.slice(0, 10),
+        title: visiteTitle.trim(), motif, exam_date: appointment.scheduled_at.slice(0, 10),
         clinical_notes: appointment.notes?.trim() || null,
       }).select("id").single();
       if (error || !cons) { setTerminering(false); return; }
@@ -326,7 +335,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
             {linkedVisite && !isAssistant && (
               <div className="flex gap-3 py-0.5">
                 <span className="text-xs text-zinc-400 w-32 shrink-0 pt-0.5">{t("detail.linkedVisit")}</span>
-                <button onClick={() => router.push(`/${locale}/dashboard/consultations/${linkedVisite.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{new Date(linkedVisite.exam_date).toLocaleDateString("fr-FR")} — {tv.has(`motif.${linkedVisite.motif}`) ? tv(`motif.${linkedVisite.motif}`) : linkedVisite.motif} →</button>
+                <button onClick={() => router.push(`/${locale}/dashboard/consultations/${linkedVisite.id}`)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:underline text-left">{new Date(linkedVisite.exam_date).toLocaleDateString("fr-FR")} — {visiteLabel(linkedVisite)} →</button>
               </div>
             )}
             <DR label={t("detail.type")} value={t.has(`types.${appointment.type}`) ? t(`types.${appointment.type}`) : appointment.type} />
@@ -503,12 +512,16 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("detail.visiteToLink")}</label>
                 <select value={existingVisiteId} onChange={(e) => setExistingVisiteId(e.target.value)} className={inputCls}>
                   <option value="">{t("detail.chooseVisite")}</option>
-                  {patientVisites.map((v) => <option key={v.id} value={v.id}>{new Date(v.exam_date).toLocaleDateString("fr-FR")} — {tv.has(`motif.${v.motif}`) ? tv(`motif.${v.motif}`) : v.motif}</option>)}
+                  {patientVisites.map((v) => <option key={v.id} value={v.id}>{new Date(v.exam_date).toLocaleDateString("fr-FR")} — {visiteLabel(v)}</option>)}
                 </select>
                 {patientVisites.length === 0 && <p className="text-[11px] text-zinc-400 mt-1">{t("detail.noVisiteForPatient")}</p>}
               </div>
             ) : (
               <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 space-y-3 bg-zinc-50/60 dark:bg-zinc-800/30 mb-4">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{tv("form.title")} <span className="text-red-500">*</span></label>
+                  <input value={visiteTitle} onChange={(e) => setVisiteTitle(e.target.value)} placeholder={tv("form.titlePlaceholder")} className={inputCls} />
+                </div>
                 <p className="text-[11px] text-zinc-400">{t("detail.visiteDated", { date: new Date(appointment.scheduled_at).toLocaleDateString("fr-FR") })}{dossierTitle ? <> {t("detail.inDossier")} <span className="font-medium text-zinc-600 dark:text-zinc-300">{dossierTitle}</span></> : ""}.</p>
                 <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
                   <input type="checkbox" checked={billOn} onChange={(e) => setBillOn(e.target.checked)} className="w-4 h-4 accent-teal-600" />
@@ -552,6 +565,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 )}
               </div>
             )}
+            {terminerError && <p className="text-xs text-red-500 mb-3">{terminerError}</p>}
             <div className="flex gap-3 justify-end">
               <button onClick={() => setTerminerOpen(false)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">{tc("cancel")}</button>
               <button onClick={doTerminer} disabled={terminering || (linkMode === "existing" && !existingVisiteId)} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{terminering ? "…" : t("detail.terminer")}</button>

@@ -40,7 +40,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
   useModalKeys(modalOpen, { onClose: () => setModalOpen(false), onSubmit: handleSave });
   const [dossierId, setDossierId] = useState("");
   const [lines, setLines] = useState<Line[]>([{ ...emptyLine }]);
-  const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string }[]>([]);
+  const [patientVisites, setPatientVisites] = useState<{ id: string; exam_date: string; motif: string; title: string | null }[]>([]);
   const [medications, setMedications] = useState<MedLite[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -61,8 +61,8 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
 
   useEffect(() => {
     if (!modalOpen || !form.patient_id) { setPatientVisites([]); return; }
-    supabase.from("consultations").select("id, exam_date, motif").eq("patient_id", form.patient_id).order("exam_date", { ascending: false })
-      .then(({ data }) => setPatientVisites((data ?? []) as { id: string; exam_date: string; motif: string }[]));
+    supabase.from("consultations").select("id, exam_date, motif, title").eq("patient_id", form.patient_id).order("exam_date", { ascending: false })
+      .then(({ data }) => setPatientVisites((data ?? []) as { id: string; exam_date: string; motif: string; title: string | null }[]));
   }, [modalOpen, form.patient_id, supabase]);
 
   useEffect(() => {
@@ -215,7 +215,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">🦷 {t("form.linkedVisit")}</label>
                   <select value={form.consultation_id} onChange={(e) => setForm((f) => ({ ...f, consultation_id: e.target.value }))} className={inputCls} disabled={!form.patient_id}>
                     <option value="">{t("form.none")}</option>
-                    {patientVisites.map((v) => <option key={v.id} value={v.id}>{fmtDate(v.exam_date)} — {t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif}</option>)}
+                    {patientVisites.map((v) => <option key={v.id} value={v.id}>{fmtDate(v.exam_date)} — {v.title || (t.has(`motif.${v.motif}`) ? t(`motif.${v.motif}`) : v.motif)}</option>)}
                   </select>
                 </div>
               </div>

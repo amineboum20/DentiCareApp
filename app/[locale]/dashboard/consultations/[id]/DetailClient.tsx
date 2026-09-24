@@ -47,6 +47,7 @@ const MOTIF_STYLE: Record<string, string> = {
 const MOTIFS: ConsultationMotif[] = ["consultation", "controle", "soin", "urgence", "autre"];
 
 const emptyForm = {
+  title: "",
   motif: "consultation" as ConsultationMotif,
   exam_date: "", next_exam_date: "", treated_by: "", praticien_id: "", teeth: "", clinical_notes: "", exams: "",
 };
@@ -101,6 +102,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
 
   function openEdit() {
     setForm({
+      title: consultation.title ?? "",
       motif: consultation.motif,
       exam_date: consultation.exam_date ?? "",
       next_exam_date: consultation.next_exam_date ?? "",
@@ -123,9 +125,11 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
   }
 
   async function handleSave() {
+    if (!form.title.trim()) { setFormError(t("errTitle")); return; }
     if (!form.exam_date) { setFormError(t("detail.errDate")); return; }
     setSaving(true); setFormError("");
     const payload = {
+      title: form.title.trim(),
       motif: form.motif,
       exam_date: form.exam_date,
       next_exam_date: form.next_exam_date || null,
@@ -182,7 +186,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-2xl shrink-0">🏥</div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("detail.title")} — {t.has(`motif.${consultation.motif}`) ? t(`motif.${consultation.motif}`) : consultation.motif}</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("detail.title")} — {consultation.title}</h1>
             {patientName && (
               <button
                 onClick={() => router.push(`/${locale}/dashboard/patients/${consultation.patient_id}`)}
@@ -327,6 +331,10 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
               <button onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xl leading-none">×</button>
             </div>
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.title")} <span className="text-red-500">*</span></label>
+                <input {...field("title")} placeholder={t("form.titlePlaceholder")} className={inputCls} autoFocus />
+              </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.motif")}</label>
                 <select {...field("motif")} className={inputCls}>

@@ -16,7 +16,7 @@ interface Portal {
   practice: { name: string | null; address: string | null; phone: string | null; logo_url: string | null } | null;
   teeth: { tooth: string; status: string; note: string | null }[];
   dossiers: { id: string; title: string; statut: string; created_at: string }[];
-  visites: { id: string; motif: string; exam_date: string; teeth: string | null; treated_by: string | null; clinical_notes: string | null }[];
+  visites: { id: string; title: string | null; motif: string; exam_date: string; teeth: string | null; treated_by: string | null; clinical_notes: string | null }[];
   factures: { id: string; status: string; total_price: number; deposit_paid: number; created_at: string; notes: string | null; facture_items: { description: string; quantity: number; unit_price: number }[] }[];
   ordonnances: { id: string; created_at: string; status: string; notes: string | null; praticiens: { name: string } | { name: string }[] | null; ordonnance_lignes: { name: string; posologie: string | null; duree: string | null; quantite: string | null; instructions: string | null }[] }[];
 }
@@ -211,7 +211,7 @@ export default function PortalClient({ token }: { token: string }) {
                   {data.visites.map((v) => (
                     <li key={v.id} className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{v.motif}</span>
+                        <span className="text-sm font-medium">{v.title || v.motif}</span>
                         <span className="text-xs text-zinc-400">{fmt(v.exam_date)}</span>
                       </div>
                       {v.teeth && <p className="text-xs text-zinc-400 mt-1">{t("teeth")}: {v.teeth}</p>}

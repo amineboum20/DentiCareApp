@@ -966,7 +966,8 @@
     "deleteShort": "Suppr.",
     "newCategory": "Nouvelle catégorie…",
     "newOptionCat": "Nouvelle option…",
-    "pageTitle": "Paramètres"
+    "pageTitle": "Paramètres",
+    "logoUploadError": "Erreur lors de l'envoi du logo : {message}"
   },
   "factureStatus": {
     "en_attente": "En attente",
@@ -1003,7 +1004,8 @@
       "motif": "Motif",
       "date": "Date",
       "treatedBy": "Traité par",
-      "teeth": "Dents"
+      "teeth": "Dents",
+      "title": "Titre"
     },
     "addTitle": "Nouvelle visite",
     "editTitle": "Modifier la visite",
@@ -1034,7 +1036,9 @@
       "saving": "Enregistrement…",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "title": "Titre de la visite",
+      "titlePlaceholder": "Ex. Douleur molaire, détartrage, contrôle post-extraction…"
     },
     "deleteDialog": {
       "title": "Supprimer cette visite ?",
@@ -1072,7 +1076,8 @@
       "ordonnanceLabel": "Ordonnance",
       "edit": "Modifier",
       "deleting": "Suppression…"
-    }
+    },
+    "errTitle": "Le titre de la visite est obligatoire."
   },
   "praticiens": {
     "errNameRequired": "Le nom est requis.",

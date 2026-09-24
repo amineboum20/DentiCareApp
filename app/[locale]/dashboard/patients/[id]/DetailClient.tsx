@@ -21,7 +21,7 @@ interface Props {
 }
 
 type HistoryConsultation = {
-  id: string; motif: string; exam_date: string;
+  id: string; title: string | null; motif: string; exam_date: string;
   next_exam_date: string | null; treated_by: string | null; clinical_notes: string | null;
   teeth: string | null;
 };
@@ -32,7 +32,7 @@ type HistoryFacture = {
 };
 
 type DetailSnapshot = {
-  lastConsultation: { id: string; exam_date: string; motif: string } | null;
+  lastConsultation: { id: string; exam_date: string; motif: string; title: string | null } | null;
   nextAppointment: { id: string; title: string; scheduled_at: string } | null;
   activeFactures: { id: string; status: string; total_price: number; deposit_paid: number }[];
 };
@@ -102,7 +102,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
   useEffect(() => {
     const now = new Date().toISOString();
     Promise.all([
-      supabase.from("consultations").select("id, exam_date, motif").eq("patient_id", patient.id).order("exam_date", { ascending: false }).limit(1),
+      supabase.from("consultations").select("id, exam_date, motif, title").eq("patient_id", patient.id).order("exam_date", { ascending: false }).limit(1),
       supabase.from("appointments").select("id, title, scheduled_at").eq("patient_id", patient.id).eq("status", "planifie").gte("scheduled_at", now).order("scheduled_at", { ascending: true }).limit(1),
       supabase.from("factures").select("id, status, total_price, deposit_paid").eq("patient_id", patient.id).in("status", ["en_attente", "en_cours"]),
     ]).then(([{ data: consultation }, { data: appt }, { data: factures }]) => {
@@ -117,7 +117,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
 
   useEffect(() => {
     Promise.all([
-      supabase.from("consultations").select("id, motif, exam_date, next_exam_date, treated_by, clinical_notes, teeth").eq("patient_id", patient.id).order("exam_date", { ascending: false }),
+      supabase.from("consultations").select("id, title, motif, exam_date, next_exam_date, treated_by, clinical_notes, teeth").eq("patient_id", patient.id).order("exam_date", { ascending: false }),
       supabase.from("factures").select("id, status, total_price, deposit_paid, created_at, notes").eq("patient_id", patient.id).order("created_at", { ascending: false }),
       supabase.from("dossiers").select("id, title, statut, created_at").eq("patient_id", patient.id).is("archived_at", null).order("created_at", { ascending: false }),
       supabase.from("tooth_chart").select("tooth, status, note").eq("patient_id", patient.id),
@@ -320,7 +320,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                     <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{t("detail.lastVisit")}</p>
                     <p className="text-[11px] text-zinc-400">
                       {snapshot?.lastConsultation
-                        ? `${fmtDate(snapshot.lastConsultation.exam_date)} · ${snapshot.lastConsultation.motif}`
+                        ? `${fmtDate(snapshot.lastConsultation.exam_date)} · ${snapshot.lastConsultation.title || (tv.has(`motif.${snapshot.lastConsultation.motif}`) ? tv(`motif.${snapshot.lastConsultation.motif}`) : snapshot.lastConsultation.motif)}`
                         : t("detail.none")}
                     </p>
                   </div>
@@ -442,7 +442,10 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
                       <div key={c.id} onClick={() => router.push(`/${locale}/dashboard/consultations/${c.id}`)}
                         className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 p-4 cursor-pointer hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-sm transition-all">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-zinc-900 dark:text-white">{tv.has(`motif.${c.motif}`) ? tv(`motif.${c.motif}`) : c.motif}</span>
+                          <span className="text-sm font-medium text-zinc-900 dark:text-white">
+                            {c.title || (tv.has(`motif.${c.motif}`) ? tv(`motif.${c.motif}`) : c.motif)}
+                            {c.title && <span className="ms-2 text-[11px] font-normal text-zinc-400">{tv.has(`motif.${c.motif}`) ? tv(`motif.${c.motif}`) : c.motif}</span>}
+                          </span>
                           <span className="text-xs text-zinc-400">{fmtDate(c.exam_date)}</span>
                         </div>
                         {c.teeth && <p className="text-xs text-zinc-400 mb-1">{t("detail.teethLine", { teeth: c.teeth })}</p>}

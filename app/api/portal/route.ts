@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     db.from("practices").select("name, address, phone, logo_url").eq("id", patient.practice_id).maybeSingle(),
     db.from("tooth_chart").select("tooth, status, note").eq("patient_id", pid),
     db.from("dossiers").select("id, title, statut, created_at").eq("patient_id", pid).is("archived_at", null).order("created_at", { ascending: false }),
-    db.from("consultations").select("id, motif, exam_date, teeth, treated_by, clinical_notes").eq("patient_id", pid).order("exam_date", { ascending: false }),
+    db.from("consultations").select("id, title, motif, exam_date, teeth, treated_by, clinical_notes").eq("patient_id", pid).order("exam_date", { ascending: false }),
     db.from("factures").select("id, status, type, total_price, deposit_paid, created_at, notes, facture_items(description, quantity, unit_price)").eq("patient_id", pid).order("created_at", { ascending: false }),
     db.from("ordonnances").select("id, created_at, status, notes, praticiens(name), ordonnance_lignes(name, posologie, duree, quantite, instructions)").eq("patient_id", pid).order("created_at", { ascending: false }),
   ]);

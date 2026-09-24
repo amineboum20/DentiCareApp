@@ -14,7 +14,7 @@ export default async function OrdonnanceDetailPage({ params }: Props) {
   const [{ data: ordonnance }, { data: lignes }] = await Promise.all([
     supabase
       .from("ordonnances")
-      .select("*, patients(first_name, last_name, phone), dossiers(id, title), consultations(id, exam_date, motif)")
+      .select("*, patients(first_name, last_name, phone), dossiers(id, title), consultations(id, exam_date, motif, title)")
       .eq("id", id)
       .single(),
     supabase.from("ordonnance_lignes").select("*").eq("ordonnance_id", id).order("sort_order"),
@@ -27,7 +27,7 @@ export default async function OrdonnanceDetailPage({ params }: Props) {
       <OrdonnanceDetailClient
         ordonnance={ordonnance as OrdonnanceWithPatient & {
           dossiers?: { id: string; title: string } | { id: string; title: string }[] | null;
-          consultations?: { id: string; exam_date: string; motif: string } | { id: string; exam_date: string; motif: string }[] | null;
+          consultations?: { id: string; exam_date: string; motif: string; title: string | null } | { id: string; exam_date: string; motif: string; title: string | null }[] | null;
         }}
         lignes={(lignes ?? []) as OrdonnanceLigne[]}
         locale={locale}
