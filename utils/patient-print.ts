@@ -21,6 +21,7 @@ export interface PatientPrintOpts {
   mutuelleLien: string | null;
   chart: Record<string, { status: string }>;
   isChild: boolean;
+  plannedTeeth?: string[]; // teeth with planned care — dashed outline
   shopName: string;
   shopAddress?: string;
   shopPhone?: string;
@@ -106,7 +107,7 @@ export async function exportPatientInfoPdf(o: PatientPrintOpts): Promise<void> {
   doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(20, 20, 20);
   doc.text("Schéma dentaire", ml, y); y += 3;
 
-  const png = await svgToPng(buildOdontogramSvg(o.chart, o.isChild), 409 * 3, 694 * 3);
+  const png = await svgToPng(buildOdontogramSvg(o.chart, o.isChild, new Set(o.plannedTeeth ?? [])), 409 * 3, 694 * 3);
   const imgW = 78, imgH = (imgW * 694) / 409;
   doc.addImage(png, "PNG", (W - imgW) / 2, y, imgW, imgH);
   y += imgH + 7;

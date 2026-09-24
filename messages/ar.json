@@ -16,6 +16,28 @@
       "bridge": "جسر",
       "implant": "زرعة",
       "absente": "مفقودة"
+    },
+    "plan": {
+      "title": "العلاجات المبرمجة",
+      "empty": "لا يوجد علاج مبرمج لهذه السن.",
+      "plannedOn": "مبرمج بتاريخ {date}",
+      "doneOn": "أُنجز بتاريخ {date}",
+      "cancelled": "ملغى",
+      "markDone": "أُنجز",
+      "cancel": "إلغاء هذا العلاج",
+      "done": "مُنجز",
+      "chooseActe": "العلاج المراد برمجته…",
+      "notePlaceholder": "ملاحظة (اختياري)",
+      "add": "برمجة",
+      "summary": "خطة العلاج ({count} علاج مبرمج)",
+      "legend": "علاج مبرمج"
+    },
+    "history": {
+      "title": "السجل",
+      "empty": "لا يوجد سجل لهذه السن.",
+      "cleared": "تم مسح الحالة",
+      "by": "بواسطة {name}",
+      "viaActe": "عبر {acte}"
     }
   },
   "portal": {

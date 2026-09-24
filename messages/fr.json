@@ -16,6 +16,28 @@
       "bridge": "Bridge",
       "implant": "Implant",
       "absente": "Absente"
+    },
+    "plan": {
+      "title": "Soins prévus",
+      "empty": "Aucun soin prévu sur cette dent.",
+      "plannedOn": "Prévu le {date}",
+      "doneOn": "Réalisé le {date}",
+      "cancelled": "Annulé",
+      "markDone": "Réalisé",
+      "cancel": "Annuler ce soin",
+      "done": "Réalisé",
+      "chooseActe": "Soin à prévoir…",
+      "notePlaceholder": "Note (facultatif)",
+      "add": "Prévoir",
+      "summary": "Plan de traitement ({count} soin(s) prévu(s))",
+      "legend": "Soin prévu"
+    },
+    "history": {
+      "title": "Historique",
+      "empty": "Aucun historique pour cette dent.",
+      "cleared": "Statut effacé",
+      "by": "par {name}",
+      "viaActe": "via {acte}"
     }
   },
   "portal": {

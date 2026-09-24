@@ -134,6 +134,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
     setPrinting(true);
     try {
       const chart = Object.fromEntries(toothRows.map((r) => [r.tooth, { status: r.status }]));
+      const { data: planned } = await supabase.from("tooth_plan").select("tooth").eq("patient_id", patient.id).eq("status", "planned");
       await exportPatientInfoPdf({
         patientName: `${patient.first_name} ${patient.last_name}`.trim(),
         dob: patient.date_of_birth,
@@ -146,6 +147,7 @@ export default function PatientDetailClient({ patient: initialPatient, locale }:
         mutuelleLien: patient.mutuelle_lien,
         chart,
         isChild: isChildAge(patient.date_of_birth),
+        plannedTeeth: ((planned ?? []) as { tooth: string }[]).map((p) => p.tooth),
         shopName,
         shopAddress,
         shopPhone,

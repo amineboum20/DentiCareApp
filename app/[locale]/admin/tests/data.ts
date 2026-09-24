@@ -50,7 +50,11 @@ export const MODULES: TestModule[] = [
       { id: "TC-022", title: "Schéma enfant", steps: ["Ouvrir un patient de moins de 13 ans"], expected: "Dents temporaires 51–85" },
       { id: "TC-023", title: "Statut d'une dent", steps: ["Cliquer une dent, choisir un statut (carie, obturée…) + note", "Recharger la page"], expected: "Statut et note conservés, couleur appliquée" },
       { id: "TC-024", title: "Mise à jour par facturation", steps: ["Facturer un acte « par dent » (ex. obturation) sur la dent 16"], expected: "La dent 16 passe au statut de l'acte (obturée) sur le schéma" },
-      { id: "TC-025", title: "Schéma en lecture seule (assistant)", steps: ["Ouvrir une fiche patient en assistant"], expected: "Le schéma s'affiche mais n'est pas modifiable" },
+      { id: "TC-025", title: "Schéma en lecture seule (assistant)", steps: ["Ouvrir une fiche patient en assistant"], expected: "Le schéma, les soins prévus et l'historique s'affichent mais rien n'est modifiable" },
+      { id: "TC-071", title: "Prévoir un soin sur une dent", steps: ["Cliquer une dent → Soins prévus → choisir un acte + note → Prévoir"], expected: "La dent apparaît en pointillés orange ; le soin figure dans « Plan de traitement »" },
+      { id: "TC-072", title: "Soin prévu réalisé par la facturation", steps: ["Prévoir « Obturation » sur la dent 26", "Facturer l'acte Obturation sur la dent 26 (visite ou dossier)"], expected: "Le soin passe à « Réalisé le … », les pointillés disparaissent, la dent devient Obturée" },
+      { id: "TC-073", title: "Historique d'une dent", steps: ["Changer le statut d'une dent à la main, puis via un acte facturé", "Rouvrir la dent"], expected: "Historique daté : ancien → nouveau statut, « via <acte> » pour la facturation, auteur de chaque changement" },
+      { id: "TC-074", title: "Soin prévu sur la fiche imprimée et l'espace patient", steps: ["Imprimer la fiche patient", "Ouvrir l'espace patient (QR)"], expected: "Les dents avec un soin prévu sont en pointillés sur les deux" },
     ],
   },
   {

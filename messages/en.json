@@ -16,6 +16,28 @@
       "bridge": "Bridge",
       "implant": "Implant",
       "absente": "Missing"
+    },
+    "plan": {
+      "title": "Planned care",
+      "empty": "No care planned for this tooth.",
+      "plannedOn": "Planned on {date}",
+      "doneOn": "Done on {date}",
+      "cancelled": "Cancelled",
+      "markDone": "Done",
+      "cancel": "Cancel this care",
+      "done": "Done",
+      "chooseActe": "Care to plan…",
+      "notePlaceholder": "Note (optional)",
+      "add": "Plan",
+      "summary": "Treatment plan ({count} planned)",
+      "legend": "Planned care"
+    },
+    "history": {
+      "title": "History",
+      "empty": "No history for this tooth.",
+      "cleared": "Status cleared",
+      "by": "by {name}",
+      "viaActe": "via {acte}"
     }
   },
   "portal": {

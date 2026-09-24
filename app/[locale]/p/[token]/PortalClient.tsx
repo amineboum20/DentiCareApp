@@ -15,6 +15,7 @@ interface Portal {
   };
   practice: { name: string | null; address: string | null; phone: string | null; logo_url: string | null } | null;
   teeth: { tooth: string; status: string; note: string | null }[];
+  plannedTeeth?: string[];
   dossiers: { id: string; title: string; statut: string; created_at: string }[];
   visites: { id: string; title: string | null; motif: string; exam_date: string; teeth: string | null; treated_by: string | null; clinical_notes: string | null }[];
   factures: { id: string; status: string; total_price: number; deposit_paid: number; created_at: string; notes: string | null; facture_items: { description: string; quantity: number; unit_price: number }[] }[];
@@ -94,7 +95,7 @@ export default function PortalClient({ token }: { token: string }) {
       patientName, dob: data!.patient.dob, sexe: data!.patient.sexe, cin: data!.patient.cin,
       phone: data!.patient.phone, address: data!.patient.address,
       mutuelleOrganisme: data!.patient.mutuelleOrganisme, mutuelleNumero: data!.patient.mutuelleNumero, mutuelleLien: data!.patient.mutuelleLien,
-      chart, isChild: isChildAge(data!.patient.dob),
+      chart, isChild: isChildAge(data!.patient.dob), plannedTeeth: data!.plannedTeeth ?? [],
       shopName: cabinet.shopName, shopAddress: cabinet.shopAddress, shopPhone: cabinet.shopPhone, logoUrl: cabinet.logoUrl,
       patientToken: token,
     });
@@ -161,7 +162,8 @@ export default function PortalClient({ token }: { token: string }) {
                 dangerouslySetInnerHTML={{
                   __html: buildOdontogramSvg(
                     Object.fromEntries(data.teeth.map((r) => [r.tooth, { status: r.status }])),
-                    isChildAge(data.patient.dob)
+                    isChildAge(data.patient.dob),
+                    new Set(data.plannedTeeth ?? [])
                   ),
                 }}
               />

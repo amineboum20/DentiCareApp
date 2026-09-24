@@ -55,7 +55,9 @@ export const DOCS_HTML = `
   <tr><td><span class="schema-field">phone, email, address, date_of_birth</span></td><td><span class="schema-type">text / date</span></td><td>Contact ; la date de naissance protège l'espace patient</td></tr>
   <tr><td><span class="schema-field">mutuelle_organisme / numero / lien</span></td><td><span class="schema-type">text</span></td><td>Alimente la feuille de soins</td></tr>
   <tr><td><span class="schema-field">public_token</span></td><td><span class="schema-type">uuid</span></td><td>Lien QR de l'espace patient <code>/p/&lt;token&gt;</code></td></tr>
-  <tr><td><span class="schema-field">tooth_chart</span></td><td><span class="schema-type">—</span></td><td>1 ligne par patient + dent FDI : status (carie, obturee, couronne, a_traiter, prothese, bridge, implant, absente) + note</td></tr>
+  <tr><td><span class="schema-field">tooth_chart</span></td><td><span class="schema-type">—</span></td><td>État actuel : 1 ligne par patient + dent FDI : status (carie, obturee, couronne, a_traiter, prothese, bridge, implant, absente) + note + source_acte_id</td></tr>
+  <tr><td><span class="schema-field">tooth_history</span></td><td><span class="schema-type">—</span></td><td>Journal de chaque changement (ancien → nouveau statut, acte d'origine, auteur, date), écrit par le trigger <code>trg_tooth_history</code> ; lecture seule côté app</td></tr>
+  <tr><td><span class="schema-field">tooth_plan</span></td><td><span class="schema-type">—</span></td><td>Soins prévus par dent (planned / done / cancelled) ; passés à done automatiquement quand l'acte est facturé sur la dent</td></tr>
 </tbody></table></div>
 
 <h3>dossiers / acomptes</h3>
@@ -134,7 +136,7 @@ export const DOCS_HTML = `
 <h2>Fonctionnalités clés</h2>
 <ul>
   <li><strong>Patients</strong> — CRUD + archivage cascade ; fiche avec vue rapide, historique, schéma dentaire et fiche imprimable.</li>
-  <li><strong>Schéma dentaire</strong> — odontogramme anatomique adulte/enfant (auto selon l'âge), mis à jour par la facturation des actes par dent.</li>
+  <li><strong>Schéma dentaire</strong> — odontogramme anatomique adulte/enfant (auto selon l'âge), mis à jour par la facturation des actes par dent ; soins prévus (pointillés, plan de traitement) et historique daté par dent.</li>
   <li><strong>Dossiers</strong> — hub du cas de soin : documents, acomptes, visites, RDV, ordonnances, feuilles de soins.</li>
   <li><strong>Visites</strong> — titre obligatoire, facturation d'actes (dossier créé automatiquement si besoin), actes réalisés.</li>
   <li><strong>Actes & traitements</strong> — catalogue à 2 niveaux (actes atomiques + packages).</li>

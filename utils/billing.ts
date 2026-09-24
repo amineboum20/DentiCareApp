@@ -12,6 +12,11 @@ const CATEGORY_TO_TOOTH_STATUS: Record<string, string> = {
   prothese: "prothese",
 };
 
+/** The tooth_chart status an acte leaves on a tooth, or undefined if it doesn't change it. */
+export function toothStatusForActe(a: { tooth_status?: string | null; category?: string | null }): string | undefined {
+  return a.tooth_status || (a.category ? CATEGORY_TO_TOOTH_STATUS[a.category] : undefined);
+}
+
 /**
  * Bill one or more actes into a dossier: append them as lines to the dossier's
  * open (non-annulée, non-payée) facture — creating a facture if there is none —
@@ -60,18 +65,42 @@ export async function billActesToDossier(
   const added = rows.reduce((s, r) => s + r.quantity * r.unit_price, 0);
   await supabase.from("factures").update({ total_price: Number(target.total_price) + added }).eq("id", target.id);
 
-  // Reflect tooth-scoped structural actes on the patient's odontogram.
+  // Reflect tooth-scoped structural actes on the patient's odontogram. The
+  // source acte is stamped so the tooth history says which acte changed it.
+  // One row per tooth (last acte wins) — an upsert can't touch a row twice.
   const now = new Date().toISOString();
-  const toothRows = lines.flatMap((a) => {
-    const status = a.tooth_status || (a.category ? CATEGORY_TO_TOOTH_STATUS[a.category] : undefined);
+  const byTooth = new Map<string, Record<string, unknown>>();
+  for (const a of lines) {
+    const status = toothStatusForActe(a);
     const teeth = a.teeth && a.teeth.length ? a.teeth : null;
-    if (!status || !teeth) return [];
-    return teeth.map((tooth) => ({
-      practice_id: practiceId, patient_id: patientId, tooth, status,
-      user_id: userId, created_by: userId, updated_by: userId, updated_at: now,
-    }));
-  });
-  if (toothRows.length > 0) {
-    await supabase.from("tooth_chart").upsert(toothRows, { onConflict: "patient_id,tooth" });
+    if (!status || !teeth) continue;
+    for (const tooth of teeth) {
+      byTooth.set(tooth, {
+        practice_id: practiceId, patient_id: patientId, tooth, status, source_acte_id: a.id,
+        user_id: userId, created_by: userId, updated_by: userId, updated_at: now,
+      });
+    }
+  }
+  if (byTooth.size > 0) {
+    await supabase.from("tooth_chart").upsert([...byTooth.values()], { onConflict: "patient_id,tooth" });
+  }
+
+  // Billing a planned acte on a tooth completes that "soin prévu".
+  await completePlannedCare(supabase, patientId, lines);
+}
+
+/** Mark the patient's planned care (tooth_plan) done for each billed acte × tooth. */
+export async function completePlannedCare(
+  supabase: SupabaseClient,
+  patientId: string,
+  actes: { id: string; teeth?: string[] | null }[],
+): Promise<void> {
+  const now = new Date().toISOString();
+  for (const a of actes) {
+    if (!a.teeth || a.teeth.length === 0) continue;
+    await supabase.from("tooth_plan")
+      .update({ status: "done", done_at: now })
+      .eq("patient_id", patientId).eq("acte_id", a.id).eq("status", "planned")
+      .in("tooth", a.teeth);
   }
 }

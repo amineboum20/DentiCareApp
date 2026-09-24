@@ -149,6 +149,10 @@ export const STATUS_COLORS: Record<string, string> = {
   prothese: "#0d9488", bridge: "#db2777", implant: "#7c3aed", absente: "#71717a",
 };
 
+// A tooth with planned care (tooth_plan, status 'planned') gets a dashed outline.
+export const PLAN_COLOR = "#f59e0b";
+export const PLAN_DASH = "7 5";
+
 export function anchorAt(qi: number, a: { x: number; y: number }) {
   const x = qi === 1 || qi === 3 ? VIEWBOX.w - a.x : a.x;
   const y = qi >= 2 ? VIEWBOX.h - a.y : a.y;
@@ -156,7 +160,7 @@ export function anchorAt(qi: number, a: { x: number; y: number }) {
 }
 
 // Standalone SVG string of the odontogram (inline colors, no interactivity) — for print/PDF.
-export function buildOdontogramSvg(chart: Record<string, { status: string }>, isChild: boolean): string {
+export function buildOdontogramSvg(chart: Record<string, { status: string }>, isChild: boolean, planned?: Set<string>): string {
   const teeth = isChild ? teethPaths.slice(0, 5) : teethPaths;
   const prefixes = isChild ? CHILD_PREFIX : ADULT_PREFIX;
   let g = "";
@@ -167,6 +171,8 @@ export function buildOdontogramSvg(chart: Record<string, { status: string }>, is
       const col = chart[fdi]?.status ? STATUS_COLORS[chart[fdi].status] : null;
       g += `<path d="${tp.shadowPath}" fill="${col ? `${col}33` : "none"}"/>`;
       g += `<path d="${tp.outlinePath}" fill="none" stroke="${col || "#9ca3af"}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      if (planned?.has(fdi))
+        g += `<path d="${tp.shadowPath}" fill="none" stroke="${PLAN_COLOR}" stroke-width="3" stroke-dasharray="${PLAN_DASH}" stroke-linejoin="round"/>`;
       for (const d of Array.isArray(tp.lineHighlightPath) ? tp.lineHighlightPath : [tp.lineHighlightPath])
         g += `<path d="${d}" fill="none" stroke="${col || "#cbd0d8"}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
     }
