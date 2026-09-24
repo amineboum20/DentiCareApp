@@ -70,15 +70,19 @@ export default async function AdminPage() {
       ...p,
       ownerName: owner ? `${owner.first_name ?? ""} ${owner.last_name ?? ""}`.trim() : "—",
       ownerEmail: owner ? emailByUser.get(owner.user_id) ?? "—" : "—",
+      ownerConfirmed: owner ? emailConfirmedByUser.get(owner.user_id) ?? false : false,
     };
   });
 
-  const pending = rows.filter((r) => !r.is_approved);
+  // A signup only becomes approvable once the owner confirmed their email — the
+  // same moment the "Nouvelle inscription" email reaches the admins.
+  const pending = rows.filter((r) => !r.is_approved && r.ownerConfirmed);
+  const awaitingEmail = rows.filter((r) => !r.is_approved && !r.ownerConfirmed);
   const approved = rows.filter((r) => r.is_approved);
 
   // Owner-invited members awaiting individual approval (owners are gated at the
   // practice level, so they never appear here).
-  const pendingMembers = allMembers
+  const unapprovedMembers = allMembers
     .filter((m) => m.role !== "owner" && m.is_approved === false)
     .map((m) => ({
       ...m,
@@ -88,6 +92,8 @@ export default async function AdminPage() {
       emailConfirmed: emailConfirmedByUser.get(m.user_id) ?? false,
     }))
     .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  const pendingMembers = unapprovedMembers.filter((m) => m.emailConfirmed);
+  const awaitingMembers = unapprovedMembers.filter((m) => !m.emailConfirmed);
 
   return (
     <div className="px-6 py-8 sm:py-10">
@@ -152,10 +158,6 @@ export default async function AdminPage() {
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{m.email}</p>
                     <p className="text-xs text-zinc-400 mt-0.5">
                       Cabinet : {m.practiceName}
-                      {" · "}
-                      {m.emailConfirmed
-                        ? <span className="text-teal-600 dark:text-teal-400">email confirmé</span>
-                        : <span className="text-amber-600 dark:text-amber-400">email non confirmé</span>}
                       {!m.practiceApproved && <span className="text-amber-600 dark:text-amber-400"> · cabinet non approuvé</span>}
                     </p>
                   </div>
@@ -173,6 +175,40 @@ export default async function AdminPage() {
             </div>
           )}
         </section>
+
+        {/* Signed up but email not confirmed yet — informational, not approvable */}
+        {(awaitingEmail.length > 0 || awaitingMembers.length > 0) && (
+          <details className="mb-10 group">
+            <summary className="cursor-pointer list-none text-sm font-semibold uppercase tracking-wide text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
+              <span className="inline-block transition-transform group-open:rotate-90 me-1">›</span>
+              En attente de confirmation de l&apos;email ({awaitingEmail.length + awaitingMembers.length})
+            </summary>
+            <p className="text-xs text-zinc-400 mt-2 mb-3">Ces comptes n&apos;ont pas encore cliqué le lien de confirmation. Ils passeront dans « En attente » dès la confirmation (vous recevrez alors l&apos;email).</p>
+            <div className="flex flex-col gap-2">
+              {awaitingEmail.map((r) => (
+                <div key={r.id} className="bg-white dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-3 flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-medium text-zinc-700 dark:text-zinc-300 truncate">{r.name || "(sans nom)"}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{r.ownerName} · {r.ownerEmail} · inscrit le <LocalInstant iso={r.created_at} /></p>
+                  </div>
+                  <RejectButton practiceId={r.id} shopName={r.name || ""} />
+                </div>
+              ))}
+              {awaitingMembers.map((m) => (
+                <div key={m.id} className="bg-white dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-3 flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                      {`${m.first_name ?? ""} ${m.last_name ?? ""}`.trim() || "(sans nom)"}
+                      <span className="ml-2 text-xs font-medium text-zinc-400">{ROLE_LABEL[m.role] ?? m.role} invité(e)</span>
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{m.email} · Cabinet : {m.practiceName}</p>
+                  </div>
+                  <MemberRejectButton memberId={m.id} memberName={`${m.first_name ?? ""} ${m.last_name ?? ""}`.trim()} />
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
 
         {/* Approved */}
         <section>

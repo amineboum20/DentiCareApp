@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { isEmailConfirmed } from "@/utils/admin-approvals";
 
 export async function approvePractice(formData: FormData) {
   const admin = await getAdminUser();
@@ -12,6 +13,19 @@ export async function approvePractice(formData: FormData) {
   if (!practiceId) throw new Error("practice_id manquant");
 
   const supabase = createAdminClient();
+
+  // Only approvable once the owner has confirmed their email.
+  const { data: owner } = await supabase
+    .from("practice_members")
+    .select("user_id")
+    .eq("practice_id", practiceId)
+    .eq("role", "owner")
+    .limit(1)
+    .maybeSingle();
+  if (!owner?.user_id || !(await isEmailConfirmed(supabase, owner.user_id as string))) {
+    throw new Error("Email du propriétaire non confirmé");
+  }
+
   const { error } = await supabase
     .from("practices")
     .update({ is_approved: true })
@@ -59,6 +73,13 @@ export async function approveMember(formData: FormData) {
   if (!memberId) throw new Error("member_id manquant");
 
   const supabase = createAdminClient();
+
+  // Only approvable once the invited member has confirmed their email.
+  const { data: member } = await supabase.from("practice_members").select("user_id").eq("id", memberId).maybeSingle();
+  if (!member?.user_id || !(await isEmailConfirmed(supabase, member.user_id as string))) {
+    throw new Error("Email du membre non confirmé");
+  }
+
   const { error } = await supabase
     .from("practice_members")
     .update({ is_approved: true })

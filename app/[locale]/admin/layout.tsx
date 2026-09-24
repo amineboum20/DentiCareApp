@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { pendingApprovalCount } from "@/utils/admin-approvals";
 import AdminSidebar from "./AdminSidebar";
 
 export const dynamic = "force-dynamic";
@@ -9,15 +10,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const admin = await getAdminUser();
   if (!admin) redirect("/signin");
 
-  // Pending-approval count for the sidebar badge: pending practices + pending
-  // owner-invited members.
+  // Badge = approvable items only (email confirmed), same as the Approbations list.
   const supabase = createAdminClient();
-  const [{ count: pendingPractices }, { count: pendingMembers }, { count: openTickets }] = await Promise.all([
-    supabase.from("practices").select("id", { count: "exact", head: true }).eq("is_approved", false),
-    supabase.from("practice_members").select("id", { count: "exact", head: true }).eq("is_approved", false).neq("role", "owner"),
+  const [pendingCount, { count: openTickets }] = await Promise.all([
+    pendingApprovalCount(supabase),
     supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("status", "open"),
   ]);
-  const pendingCount = (pendingPractices ?? 0) + (pendingMembers ?? 0);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
