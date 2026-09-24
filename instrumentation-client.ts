@@ -9,6 +9,14 @@ Sentry.init({
   enabled: process.env.NODE_ENV === "production",
   tracesSampleRate: 0.1,
   sendDefaultPii: false,
+  // Drop errors thrown by browser extensions / injected scripts (password
+  // managers, translators, ad blockers…) — not our code, pure alert noise.
+  denyUrls: [
+    /^chrome-extension:\/\//i,
+    /^moz-extension:\/\//i,
+    /^safari-(web-)?extension:\/\//i,
+    /^app:\/\/\/executors\//i,
+  ],
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
