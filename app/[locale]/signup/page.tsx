@@ -5,9 +5,12 @@ import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import PasswordInput from "@/components/PasswordInput";
+import { authErrorKey } from "@/utils/auth-errors";
 
 export default function SignUp() {
   const t = useTranslations("signUp");
+  const ta = useTranslations("authErrors");
   const locale = useLocale();
   const [cabinetName, setCabinetName] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -32,7 +35,7 @@ export default function SignUp() {
         emailRedirectTo: `${window.location.origin}/${locale}/auth/callback`,
       },
     });
-    if (signUpError) { setError(signUpError.message); setLoading(false); return; }
+    if (signUpError) { setError(ta(authErrorKey(signUpError))); setLoading(false); return; }
 
     // Supabase does not error on a duplicate email (anti-enumeration); it returns
     // a user with an empty identities array. Detect that and surface it instead
@@ -113,7 +116,7 @@ export default function SignUp() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("password")}</label>
-                    <input type="password" placeholder="••••••••" value={password}
+                    <PasswordInput placeholder="••••••••" value={password}
                       onChange={e => setPassword(e.target.value)} required
                       className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
                   </div>

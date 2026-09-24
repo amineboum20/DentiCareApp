@@ -934,7 +934,9 @@
     "lastName": "Nom",
     "email": "Email",
     "back": "Retour",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "settings": {
     "logoTooLarge": "Le logo ne doit pas dépasser 2 Mo.",
@@ -1428,5 +1430,18 @@
     "deleting": "Suppression…",
     "saving": "Enregistrement…",
     "save": "Enregistrer"
+  },
+  "authErrors": {
+    "invalidCredentials": "Email ou mot de passe incorrect.",
+    "emailNotConfirmed": "Votre adresse email n'est pas encore confirmée. Cliquez sur le lien reçu par email.",
+    "emailExists": "Un compte existe déjà avec cette adresse email.",
+    "weakPassword": "Mot de passe trop faible. Choisissez-en un plus long et plus complexe.",
+    "samePassword": "Le nouveau mot de passe doit être différent de l'ancien.",
+    "emailRateLimit": "Trop d'emails envoyés. Réessayez dans quelques minutes.",
+    "rateLimit": "Trop de tentatives. Patientez un instant avant de réessayer.",
+    "invalidEmail": "Adresse email invalide.",
+    "userBanned": "Ce compte est suspendu. Contactez le support.",
+    "sessionExpired": "Le lien a expiré ou la session est terminée. Recommencez la démarche.",
+    "generic": "Une erreur est survenue. Réessayez."
   }
 }

@@ -3,10 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import PasswordInput from "@/components/PasswordInput";
+import { authErrorKey } from "@/utils/auth-errors";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { MemberRole } from "@/types/database";
 import { setMyPraticien } from "./actions";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Member {
   id: string;
@@ -43,6 +46,7 @@ export default function SettingsClient({
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("settings");
+  const ta = useTranslations("authErrors");
   const tc = useTranslations("common");
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -275,7 +279,7 @@ export default function SettingsClient({
     if (newPassword !== confirmPassword) { setPwError(t("pwMismatch")); return; }
     setPwSaving(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) { setPwError(error.message); setPwSaving(false); return; }
+    if (error) { setPwError(ta(authErrorKey(error))); setPwSaving(false); return; }
     setPwSaving(false);
     setPwSaved(true);
     setNewPassword("");
@@ -392,15 +396,15 @@ export default function SettingsClient({
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
             <label className={labelCls}>{t("newPasswordLabel")}</label>
-            <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+            <PasswordInput value={newPassword} onChange={e => setNewPassword(e.target.value)}
               placeholder={t("pwMinPlaceholder")} className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>{t("confirmPasswordLabel")}</label>
-            <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+            <PasswordInput value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
               placeholder="••••••••" className={inputCls} />
           </div>
-          {pwError && <p className="text-sm text-red-500">{pwError}</p>}
+          <ErrorBanner message={pwError} />
           <div className="flex items-center gap-3">
             <button type="submit" disabled={pwSaving}
               className="px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
@@ -459,7 +463,7 @@ export default function SettingsClient({
                 <option value="assistant">{t("roles.assistant")}</option>
               </select>
             </div>
-            {memberError && <p className="text-sm text-red-500">{memberError}</p>}
+            <ErrorBanner message={memberError} />
             <button type="submit" disabled={addingMember}
               className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
               {addingMember ? t("sending") : t("sendInvite")}

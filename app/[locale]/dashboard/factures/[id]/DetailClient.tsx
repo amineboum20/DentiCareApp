@@ -9,6 +9,7 @@ import type { FactureWithPatient, FactureItem, Patient } from "@/types/database"
 import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 import AuditInfo from "@/components/AuditInfo";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   facture: FactureWithPatient;
@@ -305,7 +306,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
                 <span className="text-sm text-zinc-500">{t("detail.totalLabel")}</span>
                 <span className="text-base font-bold text-zinc-900 dark:text-white">{lineDraft.reduce((s, l) => s + (parseFloat(l.quantity) || 0) * (parseFloat(l.unit_price) || 0), 0).toFixed(2)} MAD</span>
               </div>
-              {formError && <p className="text-xs text-red-500">{formError}</p>}
+              <ErrorBanner message={formError} />
               <div className="flex items-center gap-3 justify-end pt-1">
                 <button onClick={() => { setEditLines(false); setFormError(""); }} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">{tc("cancel")}</button>
                 <button onClick={saveLines} disabled={savingLines} className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{savingLines ? t("detail.savingLines") : t("detail.saveLines")}</button>
@@ -408,7 +409,7 @@ export default function FactureDetailClient({ facture: initialFacture, patients,
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
               </div>
-              {formError && <p className="text-xs text-red-500">{formError}</p>}
+              <ErrorBanner message={formError} />
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <div className="ms-auto flex items-center gap-3">

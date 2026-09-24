@@ -10,6 +10,7 @@ import { DR } from "@/components/DetailRow";
 import { useAppContext } from "@/components/AppContext";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import AuditInfo from "@/components/AuditInfo";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   ordonnance: OrdonnanceWithPatient & {
@@ -264,7 +265,7 @@ export default function OrdonnanceDetailClient({ ordonnance: initial, lignes: in
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea value={editForm.notes} onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <div className="ms-auto flex items-center gap-3">

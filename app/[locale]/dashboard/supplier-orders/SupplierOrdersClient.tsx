@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { useAppContext } from "@/components/AppContext";
 import type { Supplier, SupplierOrder, SupplierOrderStatus } from "@/types/database";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   initialOrders: SupplierOrder[];
@@ -232,7 +233,7 @@ export default function SupplierOrdersClient({ initialOrders, suppliers }: Props
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">

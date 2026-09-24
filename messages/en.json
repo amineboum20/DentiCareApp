@@ -934,7 +934,9 @@
     "lastName": "Last name",
     "email": "Email",
     "back": "Back",
-    "delete": "Delete"
+    "delete": "Delete",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "settings": {
     "logoTooLarge": "The logo must not exceed 2 MB.",
@@ -1428,5 +1430,18 @@
     "deleting": "Deleting…",
     "saving": "Saving…",
     "save": "Save"
+  },
+  "authErrors": {
+    "invalidCredentials": "Incorrect email or password.",
+    "emailNotConfirmed": "Your email address is not confirmed yet. Click the link we emailed you.",
+    "emailExists": "An account already exists with this email address.",
+    "weakPassword": "Password is too weak. Choose a longer, more complex one.",
+    "samePassword": "The new password must be different from the old one.",
+    "emailRateLimit": "Too many emails sent. Please try again in a few minutes.",
+    "rateLimit": "Too many attempts. Please wait a moment and try again.",
+    "invalidEmail": "Invalid email address.",
+    "userBanned": "This account is suspended. Please contact support.",
+    "sessionExpired": "The link has expired or the session ended. Please start again.",
+    "generic": "Something went wrong. Please try again."
   }
 }

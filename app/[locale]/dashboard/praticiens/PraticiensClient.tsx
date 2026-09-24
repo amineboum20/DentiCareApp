@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { Praticien } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   initial: Praticien[];
@@ -131,7 +132,7 @@ export default function PraticiensClient({ initial }: Props) {
                   <input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className={inputCls} />
                 </div>
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               {editing && (

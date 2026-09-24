@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { SupplierOrder, Supplier } from "@/types/database";
 import { DR } from "@/components/DetailRow";
 import AuditInfo from "@/components/AuditInfo";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   order: SupplierOrder;
@@ -218,7 +219,7 @@ export default function SupplierOrderDetailClient({ order: initialOrder, supplie
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.notes")}</label>
                 <textarea {...field("notes")} rows={3} className={`${inputCls} resize-none`} />
               </div>
-              {formError && <p className="text-xs text-red-500">{formError}</p>}
+              <ErrorBanner message={formError} />
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <div className="ms-auto flex items-center gap-3">

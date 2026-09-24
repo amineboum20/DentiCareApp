@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { OrdonnanceWithPatient, Patient } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   initialOrdonnances: OrdonnanceWithPatient[];
@@ -255,7 +256,7 @@ export default function OrdonnancesClient({ initialOrdonnances, patients }: Prop
                 <textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
               </div>
 
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <div className="ms-auto flex items-center gap-3">

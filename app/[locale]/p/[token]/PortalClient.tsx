@@ -6,6 +6,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { buildOdontogramSvg, isChildAge } from "@/components/odontogram-data";
 import { exportFacturePdf, exportOrdonnancePdf } from "@/utils/pdf-export";
 import { exportPatientInfoPdf } from "@/utils/patient-print";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Portal {
   patient: {
@@ -124,7 +125,7 @@ export default function PortalClient({ token }: { token: string }) {
                   className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
               <button type="submit" disabled={loading}
                 className="w-full px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors disabled:opacity-60">
                 {loading ? "…" : t("unlock")}

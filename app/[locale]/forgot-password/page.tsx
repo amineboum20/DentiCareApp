@@ -5,9 +5,11 @@ import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { authErrorKey } from "@/utils/auth-errors";
 
 export default function ForgotPassword() {
   const t = useTranslations("forgotPassword");
+  const ta = useTranslations("authErrors");
   const locale = useLocale();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -22,7 +24,7 @@ export default function ForgotPassword() {
     const redirectTo = `${window.location.origin}/${locale}/reset-password/callback`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) {
-      setError(error.message);
+      setError(ta(authErrorKey(error)));
       setLoading(false);
     } else {
       setSent(true);

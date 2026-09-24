@@ -15,6 +15,7 @@ import WeekSlotPicker, { type SlotAppointment } from "@/components/WeekSlotPicke
 import LocalInstant from "@/components/LocalInstant";
 import SearchableSelect from "@/components/SearchableSelect";
 import AuditInfo from "@/components/AuditInfo";
+import ErrorBanner from "@/components/ErrorBanner";
 
 type VisiteRef = { id: string; exam_date: string; motif: string; title: string | null };
 
@@ -378,7 +379,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">{t("detail.contactBadge")}</span>
               </div>
             )}
-            {patientPhone && <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{patientPhone}</p>}
+            <ErrorBanner message={patientPhone} className="mt-0.5" />
             {patientPhone && (
               <div className="grid grid-cols-2 gap-2 mt-4">
                 <a href={`tel:${patientPhone.replace(/\D/g, "")}`} className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-600 dark:text-zinc-300">
@@ -565,7 +566,7 @@ export default function AppointmentDetailClient({ appointment: initialAppointmen
                 )}
               </div>
             )}
-            {terminerError && <p className="text-xs text-red-500 mb-3">{terminerError}</p>}
+            <ErrorBanner message={terminerError} className="mb-3" />
             <div className="flex gap-3 justify-end">
               <button onClick={() => setTerminerOpen(false)} className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">{tc("cancel")}</button>
               <button onClick={doTerminer} disabled={terminering || (linkMode === "existing" && !existingVisiteId)} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">{terminering ? "…" : t("detail.terminer")}</button>

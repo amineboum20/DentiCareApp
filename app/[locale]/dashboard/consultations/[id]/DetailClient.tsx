@@ -13,6 +13,7 @@ import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
 import ToothPicker from "@/components/ToothPicker";
 import AuditInfo from "@/components/AuditInfo";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   consultation: ConsultationWithPatient & { dossiers?: { id: string; title: string; statut: string } | { id: string; title: string; statut: string }[] | null };
@@ -369,7 +370,7 @@ export default function ConsultationDetailClient({ consultation: initialConsulta
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.exams")}</label>
                 <textarea {...field("exams")} rows={2} placeholder={t("form.examsPlaceholder")} className={`${inputCls} resize-none`} />
               </div>
-              {formError && <p className="text-xs text-red-500">{formError}</p>}
+              <ErrorBanner message={formError} />
             </div>
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <div className="ms-auto flex items-center gap-3">

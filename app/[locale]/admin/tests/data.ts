@@ -15,12 +15,13 @@ export const MODULES: TestModule[] = [
   {
     id: "auth", icon: "🔐", title: "Authentification", tests: [
       { id: "TC-001", title: "Connexion avec credentials valides", steps: ["Ouvrir /fr/signin", "Saisir un email + mot de passe corrects", 'Cliquer "Se connecter"'], expected: "Redirection vers /fr/dashboard" },
-      { id: "TC-002", title: "Connexion avec mauvais mot de passe", steps: ["Saisir un email valide", "Mot de passe incorrect", 'Cliquer "Se connecter"'], expected: "Message d'erreur, pas de redirection" },
+      { id: "TC-002", title: "Connexion avec mauvais mot de passe", steps: ["Saisir un email valide", "Mot de passe incorrect", 'Cliquer "Se connecter"', "Recommencer en EN puis en AR"], expected: "Cadre rouge en haut : « Email ou mot de passe incorrect. » dans la langue choisie (jamais le message anglais de Supabase) ; pas de redirection" },
       { id: "TC-003", title: "Déconnexion", steps: ["Être connecté", "Cliquer sur Se déconnecter (sidebar)"], expected: "Redirection vers /fr/signin, session détruite" },
       { id: "TC-004", title: "Accès dashboard sans session", steps: ["Sans être connecté, ouvrir /fr/dashboard"], expected: "Redirection automatique vers /fr/signin" },
-      { id: "TC-005", title: "Inscription d'un cabinet", steps: ["Ouvrir /fr/signup", "Saisir nom du cabinet, prénom, nom, email, mot de passe", "Confirmer l'email reçu"], expected: "Cabinet créé en attente ; l'équipe reçoit l'email « Nouvelle inscription » ; écran d'attente tant que non approuvé" },
-      { id: "TC-006", title: "Inscription avec un email déjà utilisé", steps: ["Sur /fr/signup, saisir l'email d'un compte existant"], expected: "Message « email déjà utilisé » (pas l'écran « vérifiez votre email »)" },
-      { id: "TC-007", title: "Mot de passe oublié", steps: ["Sur /fr/signin, cliquer « Mot de passe oublié »", "Saisir l'email, envoyer", "Ouvrir le mail, cliquer le lien"], expected: "Le lien s'ouvre dans un nouvel onglet sur « Nouveau mot de passe » (pas « activer votre compte ») ; nouveau mot de passe accepté" },
+      { id: "TC-005", title: "Mot de passe oublié", steps: ["Sur /fr/signin, cliquer « Mot de passe oublié »", "Saisir l'email, envoyer", "Ouvrir le mail, cliquer le lien"], expected: "Le lien s'ouvre dans un nouvel onglet sur « Nouveau mot de passe » (pas « activer votre compte ») ; nouveau mot de passe accepté" },
+      { id: "TC-006", title: "Inscription d'un cabinet + confirmation email", steps: ["Ouvrir /fr/signup, remplir le formulaire", "Avant de confirmer : ouvrir /fr/admin", "Cliquer le lien de confirmation reçu, rouvrir /fr/admin"], expected: "Avant confirmation : rien dans « En attente » (seulement la section repliée « En attente de confirmation de l'email », sans bouton Approuver). Après : l'équipe reçoit l'email « Nouvelle inscription » et le cabinet apparaît dans « En attente » avec Approuver ; le propriétaire voit l'écran d'attente jusqu'à l'approbation" },
+      { id: "TC-007", title: "Inscription avec un email déjà utilisé", steps: ["Sur /fr/signup, saisir l'email d'un compte existant"], expected: "Cadre rouge en haut « Un compte existe déjà avec cette adresse e-mail… » (pas l'écran « vérifiez votre email »)" },
+      { id: "TC-075", title: "Afficher / masquer le mot de passe", steps: ["Sur la connexion, l'inscription, la réinitialisation et Paramètres → mot de passe", "Cliquer l'œil dans le champ, puis recliquer"], expected: "Le mot de passe s'affiche en clair puis se masque à nouveau, sur chaque champ mot de passe" },
     ],
   },
   {
@@ -136,10 +137,11 @@ export const MODULES: TestModule[] = [
   {
     id: "ui", icon: "🌐", title: "Langues & interface", tests: [
       { id: "TC-066", title: "Anglais et arabe", steps: ["Changer la langue en EN puis AR", "Parcourir les pages principales"], expected: "Tout est traduit (aucune clé brute) ; en arabe la mise en page est RTL" },
-      { id: "TC-067", title: "Mode sombre", steps: ["Basculer le thème, recharger la page"], expected: "Thème conservé après rechargement, contraste lisible" },
+      { id: "TC-067", title: "Mode sombre", steps: ["Basculer le thème, recharger la page"], expected: "Le thème choisi est conservé après rechargement ; contraste lisible dans les deux thèmes" },
       { id: "TC-068", title: "Mobile (375 px)", steps: ["Ouvrir l'app sur téléphone"], expected: "Menu en tiroir, tableaux défilables, pas de scroll horizontal de page" },
       { id: "TC-069", title: "Clavier dans les modales", steps: ["Ouvrir une modale de création", "Entrée pour valider, Échap pour fermer"], expected: "Entrée enregistre, Échap ferme sans rien créer" },
       { id: "TC-070", title: "Recherche globale", steps: ["Rechercher un patient, un acte, une facture"], expected: "Résultats groupés, clic = page détail ; patients archivés marqués" },
+      { id: "TC-076", title: "Mode clair par défaut", steps: ["Mettre l'ordinateur en thème sombre", "Ouvrir le site dans une fenêtre privée", "Basculer en sombre avec le bouton, recharger"], expected: "Le site s'ouvre en clair malgré le réglage de l'ordinateur ; le sombre n'apparaît que s'il a été choisi, et il est conservé au rechargement" },
     ],
   },
 ];

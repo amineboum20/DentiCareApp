@@ -9,6 +9,7 @@ import type { Acte, TreatmentCategory } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { DR } from "@/components/DetailRow";
 import AuditInfo from "@/components/AuditInfo";
+import ErrorBanner from "@/components/ErrorBanner";
 
 type ActeLite = Pick<Acte, "id" | "name" | "price" | "category">;
 type PackageLine = {
@@ -254,7 +255,7 @@ export default function TraitementDetailClient({
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("form.description")}</label>
                 <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">
               <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">{t("form.cancel")}</button>

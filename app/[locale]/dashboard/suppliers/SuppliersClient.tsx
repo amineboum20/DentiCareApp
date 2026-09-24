@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useAppContext } from "@/components/AppContext";
 import type { Supplier } from "@/types/database";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   initialSuppliers: Supplier[];
@@ -198,7 +199,7 @@ export default function SuppliersClient({ initialSuppliers }: Props) {
                 <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} placeholder={t("form.notesPlaceholder")} className={inputCls + " resize-none"} />
               </div>
             </div>
-            {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
+            <ErrorBanner message={error} className="mt-3" />
             <div className="flex gap-3 mt-6">
               <button onClick={() => setModalOpen(false)} className="flex-1 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                 {t("form.cancel")}

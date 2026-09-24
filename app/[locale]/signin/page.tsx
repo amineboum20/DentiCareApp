@@ -6,9 +6,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import PasswordInput from "@/components/PasswordInput";
+import { authErrorKey } from "@/utils/auth-errors";
 
 export default function SignIn() {
   const t = useTranslations("signIn");
+  const ta = useTranslations("authErrors");
   const locale = useLocale();
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -23,7 +26,7 @@ export default function SignIn() {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      setError(error.message);
+      setError(ta(authErrorKey(error)));
       setLoading(false);
     } else {
       const meta = data.user?.user_metadata ?? {};
@@ -83,7 +86,7 @@ export default function SignIn() {
                   <label htmlFor="password" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("password")}</label>
                   <Link href="/forgot-password" className="text-xs text-teal-600 hover:underline">{t("forgotPassword")}</Link>
                 </div>
-                <input id="password" type="password" autoComplete="current-password" placeholder="••••••••"
+                <PasswordInput id="password" autoComplete="current-password" placeholder="••••••••"
                   value={password} onChange={(e) => setPassword(e.target.value)} required
                   className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
               </div>

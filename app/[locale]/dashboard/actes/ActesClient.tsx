@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { Acte, ActeScope, TreatmentCategory, Supplier } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
 import { STATUS_KEYS } from "@/components/odontogram-data";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   initialActes: Acte[];
@@ -372,7 +373,7 @@ export default function ActesClient({ initialActes }: Props) {
                 </div>
               )}
 
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
 
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">

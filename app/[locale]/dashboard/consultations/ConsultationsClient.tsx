@@ -10,6 +10,7 @@ import { useAppContext } from "@/components/AppContext";
 import { billActesToDossier } from "@/utils/billing";
 import ToothPicker from "@/components/ToothPicker";
 import { PraticienSelect } from "@/components/PraticienSelect";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   initialConsultations: ConsultationWithPatient[];
@@ -455,7 +456,7 @@ export default function ConsultationsClient({ initialConsultations, patients }: 
                 </div>
               )}
 
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
 
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">

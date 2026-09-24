@@ -7,6 +7,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import type { TreatmentCategory } from "@/types/database";
 import { useAppContext } from "@/components/AppContext";
+import ErrorBanner from "@/components/ErrorBanner";
 
 type ActeLite = { id: string; name: string; price: number; category?: string };
 
@@ -351,7 +352,7 @@ export default function TraitementsClient({ initialTraitements, actes }: Props) 
                 <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
               </div>
 
-              {error && <p className="text-xs text-red-500">{error}</p>}
+              <ErrorBanner message={error} />
             </div>
 
             <div className="flex items-center gap-3 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800">

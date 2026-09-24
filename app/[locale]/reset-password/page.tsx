@@ -5,9 +5,12 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import PasswordInput from "@/components/PasswordInput";
+import { authErrorKey } from "@/utils/auth-errors";
 
 export default function ResetPassword() {
   const t = useTranslations("resetPassword");
+  const ta = useTranslations("authErrors");
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -65,7 +68,7 @@ export default function ResetPassword() {
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setError(error.message);
+      setError(ta(authErrorKey(error)));
       setLoading(false);
     } else {
       router.push("/dashboard");
@@ -125,13 +128,13 @@ export default function ResetPassword() {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="password" className={labelCls}>{t("password")}</label>
-                <input id="password" type="password" autoComplete="new-password" placeholder="••••••••"
+                <PasswordInput id="password" autoComplete="new-password" placeholder="••••••••"
                   value={password} onChange={(e) => setPassword(e.target.value)} required className={inputCls} />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="confirm" className={labelCls}>{t("confirm")}</label>
-                <input id="confirm" type="password" autoComplete="new-password" placeholder="••••••••"
+                <PasswordInput id="confirm" autoComplete="new-password" placeholder="••••••••"
                   value={confirm} onChange={(e) => setConfirm(e.target.value)} required className={inputCls} />
               </div>
 

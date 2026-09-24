@@ -18,6 +18,7 @@ import { billActesToDossier } from "@/utils/billing";
 import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
 import AuditInfo from "@/components/AuditInfo";
+import ErrorBanner from "@/components/ErrorBanner";
 
 interface Props {
   dossier: DossierWithPatient;
@@ -629,7 +630,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("notes")}</label>
               <textarea value={editForm.notes} onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))} rows={3} className={`${inputCls} resize-none`} />
             </div>
-            {err && <p className="text-xs text-red-500">{err}</p>}
+            <ErrorBanner message={err} />
           </div>
           <ModalFooter onCancel={() => setEditOpen(false)} onSave={saveEdit} busy={busy} />
         </Modal>
@@ -660,7 +661,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               <input value={acompteForm.note} onChange={(e) => setAcompteForm((f) => ({ ...f, note: e.target.value }))} className={inputCls} />
             </div>
             {reste > 0 && <p className="text-[11px] text-amber-600 dark:text-amber-400">{t("currentReste", { amount: money(reste) })}</p>}
-            {err && <p className="text-xs text-red-500">{err}</p>}
+            <ErrorBanner message={err} />
           </div>
           <ModalFooter onCancel={() => setAcompteOpen(false)} onSave={saveAcompte} busy={busy} />
         </Modal>
@@ -725,7 +726,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">{t("notes")}</label>
               <textarea value={docForm.notes} onChange={(e) => setDocForm((f) => ({ ...f, notes: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
             </div>
-            {err && <p className="text-xs text-red-500">{err}</p>}
+            <ErrorBanner message={err} />
           </div>
           <ModalFooter onCancel={() => setDocOpen(false)} onSave={saveDoc} busy={busy} />
         </Modal>
@@ -805,7 +806,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
                 )
               )}
             </div>
-            {err && <p className="text-xs text-red-500">{err}</p>}
+            <ErrorBanner message={err} />
           </div>
           <ModalFooter onCancel={() => setVisiteOpen(false)} onSave={saveVisite} busy={busy} />
         </Modal>
@@ -840,7 +841,7 @@ export default function DossierDetailClient({ dossier: initialDossier, locale }:
               <textarea value={rdvForm.notes} onChange={(e) => setRdvForm((f) => ({ ...f, notes: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
             </div>
             <p className="text-[11px] text-zinc-400">{t("rdvAttachNote", { name: patientName })}</p>
-            {err && <p className="text-xs text-red-500">{err}</p>}
+            <ErrorBanner message={err} />
           </div>
           <ModalFooter onCancel={() => setRdvOpen(false)} onSave={saveRdv} busy={busy} />
         </Modal>
