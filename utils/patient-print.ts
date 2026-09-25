@@ -2,7 +2,7 @@
 
 import { STATUS_COLORS, STATUS_KEYS, buildOdontogramSvg } from "@/components/odontogram-data";
 import { patientPortalUrl } from "@/utils/site";
-import { APP_EMOJI, drawBrandedFooter, emojiPngDataUrl, loadLogoDataUrl } from "@/utils/pdf-export";
+import { appLogoPng, drawBrandedFooter, finishPdf, loadLogoDataUrl, type PdfFile, type PdfOutput } from "@/utils/pdf-export";
 
 const STATUS_FR: Record<string, string> = {
   carie: "Carie", obturee: "Obturée", couronne: "Couronne", a_traiter: "À traiter",
@@ -56,7 +56,7 @@ function svgToPng(svg: string, w: number, h: number): Promise<string> {
   });
 }
 
-export async function exportPatientInfoPdf(o: PatientPrintOpts): Promise<void> {
+export async function exportPatientInfoPdf(o: PatientPrintOpts & { output?: PdfOutput }): Promise<PdfFile | undefined> {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const W = 210, ml = 18, mr = W - 18;
@@ -136,6 +136,6 @@ export async function exportPatientInfoPdf(o: PatientPrintOpts): Promise<void> {
   }
 
   doc.setFontSize(7); doc.setTextColor(160, 160, 160);
-  drawBrandedFooter(doc, emojiPngDataUrl(APP_EMOJI), `Généré par DentiCare · ${fmtDate(new Date().toISOString())}`, W / 2, 291, "center", 3.2);
-  doc.save(`fiche-${o.patientName.replace(/\s+/g, "-")}.pdf`);
+  drawBrandedFooter(doc, await appLogoPng(), `Généré par DentiCare · ${fmtDate(new Date().toISOString())}`, W / 2, 291, "center", 3.2);
+  return finishPdf(doc, `fiche-${o.patientName.replace(/\s+/g, "-")}.pdf`, o.output);
 }

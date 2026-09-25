@@ -313,7 +313,8 @@
       "sectionMain": "Principal",
       "sectionClinical": "Clinique",
       "sectionCatalog": "Catalogue",
-      "sectionBilling": "Facturation"
+      "sectionBilling": "Facturation",
+      "documents": "Documents"
     },
     "signOut": "Se déconnecter",
     "noUpcomingAppts": "Aucun rendez-vous à venir",
@@ -447,7 +448,9 @@
       "deleteQ": "Supprimer ce rendez-vous ?",
       "irreversible": "Cette action est irréversible.",
       "deleting": "Suppression…"
-    }
+    },
+    "viewList": "Liste",
+    "viewAgenda": "Agenda"
   },
   "reports": {
     "title": "Rapports & Statistiques",
@@ -1459,5 +1462,41 @@
     "notFoundBody": "Cette page n'existe pas ou l'élément a été supprimé.",
     "backHome": "Retour à l'accueil",
     "siteNotFoundBody": "L'adresse est peut-être mal saisie, ou la page a été déplacée."
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Tous les documents générés par l'application, prêts à télécharger.",
+    "kinds": {
+      "invoice": "Facture",
+      "quote": "Devis",
+      "ordonnance": "Ordonnance",
+      "patientSheet": "Fiche patient"
+    },
+    "allTypes": "Tous les types",
+    "from": "Du",
+    "to": "Au",
+    "allMembers": "Créé par : tous",
+    "searchClient": "Nom du patient ou référence…",
+    "colType": "Type",
+    "colClient": "Patient",
+    "colRef": "Référence",
+    "colDate": "Date",
+    "colCreatedBy": "Créé par",
+    "download": "Télécharger",
+    "downloadZip": "Télécharger la sélection ({count}) en ZIP",
+    "generating": "Génération {current}/{total}…",
+    "select": "Sélectionner",
+    "selectAll": "Tout sélectionner",
+    "reset": "Réinitialiser",
+    "count": "{count, plural, one {# document} other {# documents}}",
+    "selectedCount": "{count, plural, one {# sélectionné} other {# sélectionnés}}",
+    "empty": "Aucun document",
+    "emptyDesc": "Les factures, devis, ordonnances et fiches patient apparaîtront ici.",
+    "emptyFiltered": "Aucun document ne correspond à ces filtres.",
+    "showMore": "Afficher plus ({count} restants)",
+    "error": "Le document n'a pas pu être généré.",
+    "zipError": "Le ZIP n'a pas pu être créé.",
+    "zipPartial": "{count, plural, one {# document n'a pas pu être généré} other {# documents n'ont pas pu être générés}} et {count, plural, one {manque} other {manquent}} dans le ZIP.",
+    "loadError": "Impossible de charger les documents."
   }
 }

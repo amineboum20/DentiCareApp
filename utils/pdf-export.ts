@@ -22,6 +22,16 @@ async function drawPortalQr(doc: jsPDF, token: string | null | undefined, W: num
   }
 }
 
+// Every exporter downloads the PDF by default; with output: "blob" it returns
+// it instead (the Documents page bundles several into a ZIP).
+export type PdfOutput = "save" | "blob";
+export type PdfFile = { filename: string; blob: Blob };
+export function finishPdf(doc: InstanceType<typeof import("jspdf").jsPDF>, filename: string, output?: PdfOutput): PdfFile | undefined {
+  if (output === "blob") return { filename, blob: doc.output("blob") };
+  doc.save(filename);
+  return undefined;
+}
+
 export async function loadLogoDataUrl(
   url: string
 ): Promise<{ dataUrl: string; aspect: number } | null> {
@@ -47,36 +57,51 @@ export async function loadLogoDataUrl(
   }
 }
 
-// Brand mark shown in the footer of every generated document.
-// No real DentiCare logo yet → use the tooth emoji (same as the favicon).
-// Swap this for an image data URL when a real logo exists.
-export const APP_EMOJI = "🦷";
+// Brand mark shown in the footer of every generated document: the real app
+// logo (public/logo.svg) + the "DentiCare" wordmark with "Care" in the brand colour,
+// as on the site. jsPDF can't embed SVG, so the logo is rasterised to a PNG
+// via canvas once and cached.
+export const APP_NAME_PARTS = ["Denti", "Care", ""] as const;
+const APP_NAME = APP_NAME_PARTS.join("");
+const WORDMARK_RGB: [number, number, number] = [39, 39, 42]; // zinc-800, like the site wordmark
+const BRAND_RGB: [number, number, number] = [13, 148, 136]; // #0d9488 — logo colour
 
-// jsPDF's built-in fonts can't render emoji glyphs, so rasterise the emoji to a
-// transparent PNG via canvas and embed that image instead.
-export function emojiPngDataUrl(emoji: string, px = 96): string | null {
-  if (typeof document === "undefined") return null;
-  try {
-    const canvas = document.createElement("canvas");
-    canvas.width = px;
-    canvas.height = px;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-    ctx.font = `${Math.floor(px * 0.8)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(emoji, px / 2, px / 2 + px * 0.06);
-    return canvas.toDataURL("image/png");
-  } catch {
-    return null;
-  }
+let appLogoPromise: Promise<{ dataUrl: string; aspect: number } | null> | null = null;
+export function appLogoPng(): Promise<{ dataUrl: string; aspect: number } | null> {
+  if (typeof document === "undefined") return Promise.resolve(null);
+  if (appLogoPromise) return appLogoPromise;
+  const p = (async () => {
+    try {
+      // logo.svg only has a viewBox: give it an explicit size (Firefox won't
+      // rasterise an SVG without one) and draw it from a data URL.
+      const svg = await (await fetch("/logo.svg")).text();
+      const vb = svg.match(/viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)\s*"/);
+      const aspect = vb ? Number(vb[1]) / Number(vb[2]) : 1;
+      const h = 128, w = Math.round(h * aspect);
+      const sized = svg.replace(/<svg\b/, `<svg width="${w}" height="${h}"`);
+      const img = new Image();
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(sized); });
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.drawImage(img, 0, 0, w, h);
+      return { dataUrl: canvas.toDataURL("image/png"), aspect };
+    } catch {
+      return null;
+    }
+  })().then((r) => { if (!r) appLogoPromise = null; return r; });
+  appLogoPromise = p;
+  return p;
 }
 
-// Draw "[brand] <text>" as one centered or right-aligned footer group. Assumes
-// the caller has already set the footer font size and colour.
+// Draw "[logo] <text>" as one centered or right-aligned group; the app name
+// inside <text> is drawn bold with "Care" in the brand colour. Assumes the
+// caller has already set the footer font size and colour.
 export function drawBrandedFooter(
-  doc: jsPDF,
-  brandImg: string | null,
+  doc: InstanceType<typeof import("jspdf").jsPDF>,
+  logo: { dataUrl: string; aspect: number } | null,
   text: string,
   anchorX: number,
   y: number,
@@ -84,19 +109,45 @@ export function drawBrandedFooter(
   markSize = 3.2
 ) {
   const gap = 1.2;
-  const textW = doc.getTextWidth(text);
-  const totalW = (brandImg ? markSize + gap : 0) + textW;
-  const startX = align === "center" ? anchorX - totalW / 2 : anchorX - totalW;
-  if (brandImg) {
-    doc.addImage(brandImg, "PNG", startX, y - markSize + 0.7, markSize, markSize);
-    doc.text(text, startX + markSize + gap, y);
-  } else {
-    doc.text(text, startX, y);
+  const baseColor = doc.getTextColor();
+  const { fontName, fontStyle } = doc.getFont();
+  const at = text.indexOf(APP_NAME);
+  // Segments: [text, bold, rgb?]
+  const segs: [string, boolean, [number, number, number] | null][] = at < 0
+    ? [[text, false, null]]
+    : [
+        [text.slice(0, at), false, null],
+        [APP_NAME_PARTS[0], true, WORDMARK_RGB],
+        [APP_NAME_PARTS[1], true, BRAND_RGB],
+        [APP_NAME_PARTS[2], true, WORDMARK_RGB],
+        [text.slice(at + APP_NAME.length), false, null],
+      ];
+  const width = (s: string, bold: boolean) => {
+    doc.setFont(fontName, bold ? "bold" : fontStyle);
+    return doc.getTextWidth(s);
+  };
+  const logoW = logo ? markSize * logo.aspect : 0;
+  const textW = segs.reduce((w, [s, b]) => w + (s ? width(s, b) : 0), 0);
+  const totalW = (logo ? logoW + gap : 0) + textW;
+  let x = align === "center" ? anchorX - totalW / 2 : anchorX - totalW;
+  if (logo) {
+    doc.addImage(logo.dataUrl, "PNG", x, y - markSize + 0.7, logoW, markSize, undefined, "FAST");
+    x += logoW + gap;
   }
+  for (const [s, bold, rgb] of segs) {
+    if (!s) continue;
+    doc.setFont(fontName, bold ? "bold" : fontStyle);
+    if (rgb) doc.setTextColor(...rgb); else doc.setTextColor(baseColor);
+    doc.text(s, x, y);
+    x += doc.getTextWidth(s);
+  }
+  doc.setFont(fontName, fontStyle);
+  doc.setTextColor(baseColor);
 }
 
 // A4 dental invoice PDF
 export async function exportFacturePdf(opts: {
+  output?: PdfOutput;
   factureId: string;
   docType?: "facture" | "devis";
   appointmentId?: string | null;
@@ -291,18 +342,17 @@ export async function exportFacturePdf(opts: {
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
   drawBrandedFooter(
-    doc, emojiPngDataUrl(APP_EMOJI),
+    doc, await appLogoPng(),
     `Généré par DentiCare · ${invoiceNumber} · ${fmtDate(opts.createdAt)}`,
     W / 2, 289, "center", 3.2
   );
 
-  doc.save(
-    `${isDevis ? "devis" : "facture"}-dentaire-${invoiceNumber}-${opts.patientName.replace(/\s+/g, "-")}.pdf`
-  );
+  return finishPdf(doc, `${isDevis ? "devis" : "facture"}-dentaire-${invoiceNumber}-${opts.patientName.replace(/\s+/g, "-")}.pdf`, opts.output);
 }
 
 // Prescription (ordonnance) PDF
 export async function exportOrdonnancePdf(opts: {
+  output?: PdfOutput;
   ordonnanceId: string;
   patientName: string;
   patientPhone: string | null;
@@ -445,13 +495,14 @@ export async function exportOrdonnancePdf(opts: {
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
-  drawBrandedFooter(doc, emojiPngDataUrl(APP_EMOJI), `Généré par DentiCare · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, "center", 3.2);
+  drawBrandedFooter(doc, await appLogoPng(), `Généré par DentiCare · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, "center", 3.2);
 
-  doc.save(`ordonnance-${number}-${opts.patientName.replace(/\s+/g, "-")}.pdf`);
+  return finishPdf(doc, `ordonnance-${number}-${opts.patientName.replace(/\s+/g, "-")}.pdf`, opts.output);
 }
 
 // Care plan / treatment plan PDF
 export async function exportCarePlanPdf(opts: {
+  output?: PdfOutput;
   patientName: string;
   patientPhone: string | null;
   createdAt: string;
@@ -585,12 +636,10 @@ export async function exportCarePlanPdf(opts: {
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
   drawBrandedFooter(
-    doc, emojiPngDataUrl(APP_EMOJI),
+    doc, await appLogoPng(),
     `Généré par DentiCare · ${fmtDate(opts.createdAt)}`,
     W / 2, 289, "center", 3.2
   );
 
-  doc.save(
-    `plan-traitement-${opts.patientName.replace(/\s+/g, "-")}-${opts.createdAt.slice(0, 10)}.pdf`
-  );
+  return finishPdf(doc, `plan-traitement-${opts.patientName.replace(/\s+/g, "-")}-${opts.createdAt.slice(0, 10)}.pdf`, opts.output);
 }

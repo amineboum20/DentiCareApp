@@ -11,6 +11,7 @@ import { PraticienSelect } from "@/components/PraticienSelect";
 import LocalInstant from "@/components/LocalInstant";
 import SearchableSelect from "@/components/SearchableSelect";
 import WeekSlotPicker from "@/components/WeekSlotPicker";
+import AppointmentsViewSwitch from "@/components/AppointmentsViewSwitch";
 
 interface Props {
   initialAppointments: AppointmentWithPatient[];
@@ -293,8 +294,9 @@ export default function AppointmentsClient({ initialAppointments, patients }: Pr
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("title")}</h1>
+        <AppointmentsViewSwitch />
         <button
           onClick={openAdd}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"

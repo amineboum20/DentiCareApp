@@ -313,7 +313,8 @@
       "sectionMain": "Main",
       "sectionClinical": "Clinical",
       "sectionCatalog": "Catalog",
-      "sectionBilling": "Billing"
+      "sectionBilling": "Billing",
+      "documents": "Documents"
     },
     "signOut": "Sign out",
     "noUpcomingAppts": "No upcoming appointments",
@@ -447,7 +448,9 @@
       "deleteQ": "Delete this appointment?",
       "irreversible": "This action is irreversible.",
       "deleting": "Deleting…"
-    }
+    },
+    "viewList": "List",
+    "viewAgenda": "Agenda"
   },
   "reports": {
     "title": "Reports & Statistics",
@@ -1459,5 +1462,41 @@
     "notFoundBody": "This page doesn't exist or the item was removed.",
     "backHome": "Back to home",
     "siteNotFoundBody": "The address may be mistyped, or the page has moved."
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Every document the app generates, ready to download.",
+    "kinds": {
+      "invoice": "Invoice",
+      "quote": "Quote",
+      "ordonnance": "Prescription",
+      "patientSheet": "Patient sheet"
+    },
+    "allTypes": "All types",
+    "from": "From",
+    "to": "To",
+    "allMembers": "Created by: anyone",
+    "searchClient": "Patient name or reference…",
+    "colType": "Type",
+    "colClient": "Patient",
+    "colRef": "Reference",
+    "colDate": "Date",
+    "colCreatedBy": "Created by",
+    "download": "Download",
+    "downloadZip": "Download selection ({count}) as ZIP",
+    "generating": "Generating {current}/{total}…",
+    "select": "Select",
+    "selectAll": "Select all",
+    "reset": "Reset",
+    "count": "{count, plural, one {# document} other {# documents}}",
+    "selectedCount": "{count} selected",
+    "empty": "No documents",
+    "emptyDesc": "Invoices, quotes, prescriptions and patient sheets will appear here.",
+    "emptyFiltered": "No document matches these filters.",
+    "showMore": "Show more ({count} left)",
+    "error": "The document could not be generated.",
+    "zipError": "The ZIP could not be created.",
+    "zipPartial": "{count, plural, one {# document could not be generated and is} other {# documents could not be generated and are}} missing from the ZIP.",
+    "loadError": "Could not load the documents."
   }
 }

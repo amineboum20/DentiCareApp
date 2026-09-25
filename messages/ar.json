@@ -313,7 +313,8 @@
       "sectionMain": "الرئيسية",
       "sectionClinical": "العيادة",
       "sectionCatalog": "الكتالوج",
-      "sectionBilling": "الفوترة"
+      "sectionBilling": "الفوترة",
+      "documents": "المستندات"
     },
     "signOut": "تسجيل الخروج",
     "noUpcomingAppts": "لا مواعيد قادمة",
@@ -447,7 +448,9 @@
       "deleteQ": "حذف هذا الموعد؟",
       "irreversible": "هذا الإجراء لا رجعة فيه.",
       "deleting": "جارٍ الحذف…"
-    }
+    },
+    "viewList": "قائمة",
+    "viewAgenda": "الأجندة"
   },
   "reports": {
     "title": "التقارير والإحصائيات",
@@ -1459,5 +1462,41 @@
     "notFoundBody": "هذه الصفحة غير موجودة أو تم حذف العنصر.",
     "backHome": "العودة إلى الرئيسية",
     "siteNotFoundBody": "ربما تمت كتابة العنوان بشكل خاطئ، أو تم نقل الصفحة."
+  },
+  "documents": {
+    "title": "المستندات",
+    "subtitle": "جميع المستندات التي ينشئها التطبيق، جاهزة للتنزيل.",
+    "kinds": {
+      "invoice": "فاتورة",
+      "quote": "عرض سعر",
+      "ordonnance": "وصفة طبية",
+      "patientSheet": "بطاقة المريض"
+    },
+    "allTypes": "كل الأنواع",
+    "from": "من",
+    "to": "إلى",
+    "allMembers": "أنشأه: الكل",
+    "searchClient": "اسم المريض أو المرجع…",
+    "colType": "النوع",
+    "colClient": "المريض",
+    "colRef": "المرجع",
+    "colDate": "التاريخ",
+    "colCreatedBy": "أنشأه",
+    "download": "تنزيل",
+    "downloadZip": "تنزيل المحدد ({count}) كملف ZIP",
+    "generating": "جارٍ الإنشاء {current}/{total}…",
+    "select": "تحديد",
+    "selectAll": "تحديد الكل",
+    "reset": "إعادة التعيين",
+    "count": "{count, plural, zero {لا مستندات} one {مستند واحد} two {مستندان} few {# مستندات} many {# مستندًا} other {# مستند}}",
+    "selectedCount": "{count} محدد",
+    "empty": "لا توجد مستندات",
+    "emptyDesc": "ستظهر هنا الفواتير وعروض الأسعار والوصفات وبطاقات المرضى.",
+    "emptyFiltered": "لا يوجد مستند يطابق هذه المرشحات.",
+    "showMore": "عرض المزيد ({count} متبقية)",
+    "error": "تعذّر إنشاء المستند.",
+    "zipError": "تعذّر إنشاء ملف ZIP.",
+    "zipPartial": "تعذّر إنشاء {count} من المستندات وهي غير موجودة في ملف ZIP.",
+    "loadError": "تعذّر تحميل المستندات."
   }
 }

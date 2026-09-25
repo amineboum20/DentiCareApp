@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import AppointmentsViewSwitch from "@/components/AppointmentsViewSwitch";
 
 export type AgendaAppointment = {
   id: string;
@@ -62,6 +63,7 @@ const apptLabel = (a: AgendaAppointment) => {
 
 export default function AgendaClient({ initialAppointments, praticiens, defaultPraticienId }: Props) {
   const t = useTranslations("agenda");
+  const ta = useTranslations("appointments");
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "fr";
@@ -115,15 +117,26 @@ export default function AgendaClient({ initialAppointments, praticiens, defaultP
     return `${days[0].toLocaleDateString(intlLocale, opts)} – ${days[6].toLocaleDateString(intlLocale, opts)}`;
   }, [days, view, intlLocale]);
 
-  if (!anchor) return <div className="h-[60vh] animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800/40" />;
+  const header = (
+    <div className="flex items-center justify-between gap-3 mb-6">
+      <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{ta("title")}</h1>
+      <AppointmentsViewSwitch />
+      <button onClick={() => router.push(`/${locale}/dashboard/appointments?new=1${prat !== "all" ? `&praticien_id=${prat}` : ""}`)}
+        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
+        + {ta("newAppointment")}
+      </button>
+    </div>
+  );
+
+  if (!anchor) return <>{header}<div className="h-[60vh] animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800/40" /></>;
 
   const step = view === "day" ? 1 : 7;
   const btn = "px-3 py-1.5 rounded-lg text-sm border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors";
 
   return (
     <>
+      {header}
       <div className="flex flex-wrap items-center gap-3 mb-5">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white me-2">{t("title")}</h1>
         <div className="flex items-center gap-1">
           <button onClick={() => setAnchor((a) => addDays(a!, -step))} className={btn} aria-label="prev">‹</button>
           <button onClick={() => setAnchor(startOfDay(new Date()))} className={btn}>{t("today")}</button>

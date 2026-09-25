@@ -34,7 +34,7 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
       { icon: "📊", label: t("nav.dashboard"),     href: "/dashboard" },
       { icon: "👤", label: t("nav.patients"),      href: "/dashboard/patients" },
       { icon: "🕐", label: t("nav.appointments"),  href: "/dashboard/appointments" },
-      { icon: "📅", label: t("nav.agenda"),        href: "/dashboard/agenda" },
+      { icon: "🗂️", label: t("nav.documents"),     href: "/dashboard/documents" },
     ] },
     { title: t("nav.sectionClinical"), items: [
       { icon: "🏥", label: t("nav.consultations"), href: "/dashboard/consultations" },
@@ -60,7 +60,10 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
     .filter((s) => s.items.length > 0);
 
   const isActive = (href: string) =>
-    href === "/dashboard" ? pathname === "/dashboard" : pathname === href || pathname.startsWith(href + "/");
+    href === "/dashboard" ? pathname === "/dashboard"
+    // The agenda is a view of the Rendez-vous page (switch in its header).
+    : href === "/dashboard/appointments" && pathname.startsWith("/dashboard/agenda") ? true
+    : pathname === href || pathname.startsWith(href + "/");
 
   const navContent = (
     <>

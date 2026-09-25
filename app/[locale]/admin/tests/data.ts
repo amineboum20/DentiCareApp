@@ -109,9 +109,18 @@ export const MODULES: TestModule[] = [
     ],
   },
   {
+    id: "documents", icon: "🗂️", title: "Documents", tests: [
+      { id: "TC-067", title: "Liste des documents", steps: ["Barre latérale → 🗂️ Documents"], expected: "Tous les PDF générables (factures, devis, ordonnances, fiches patient) avec type, patient, référence, date et « Créé par » ; les éléments annulés n'y sont pas" },
+      { id: "TC-068", title: "Filtres", steps: ["Filtrer par type, par période (Du / Au), par « Créé par », puis taper un nom de patient", "Cliquer « Réinitialiser »"], expected: "La liste et le compteur suivent chaque filtre ; « Réinitialiser » remet tout" },
+      { id: "TC-069", title: "Télécharger un document", steps: ["Cliquer « 📄 Télécharger » sur une ligne"], expected: "Le PDF téléchargé est identique à celui du bouton de la page de détail" },
+      { id: "TC-070", title: "Télécharger une sélection en ZIP", steps: ["Cocher plusieurs lignes (ou « Tout sélectionner » après un filtre)", "Cliquer « Télécharger la sélection (n) en ZIP »"], expected: "Progression « Génération x/n… » puis un fichier documents-AAAA-MM-JJ.zip contenant un PDF par ligne cochée" },
+      { id: "TC-071", title: "Pied de page des PDF", steps: ["Télécharger n'importe quel PDF (facture, ordonnance…)", "Regarder le bas de la page"], expected: "Vrai logo de l'application (pas d'emoji) puis « Généré par DentiCare · référence · date », le nom en gras avec « Care » en turquoise ; lisible aussi imprimé" },
+    ],
+  },
+  {
     id: "home", icon: "🏠", title: "Tableau de bord & rôles", tests: [
       { id: "TC-101", title: "Accueil", steps: ["Ouvrir /fr/dashboard en propriétaire puis en assistant"], expected: "Propriétaire/dentiste : KPIs, factures récentes, raccourcis cliniques ; assistant : pas de chiffres ni raccourcis cliniques" },
-      { id: "TC-102", title: "Navigation d'un assistant", steps: ["Se connecter en assistant"], expected: "Barre latérale : Patients, Dossiers, Rendez-vous, Agenda, Paramètres, Support uniquement" },
+      { id: "TC-102", title: "Navigation d'un assistant", steps: ["Se connecter en assistant"], expected: "Barre latérale : Patients, Dossiers, Rendez-vous, Paramètres, Support uniquement (l'agenda est dans Rendez-vous)" },
       { id: "TC-103", title: "403 pour un assistant", steps: ["En assistant, taper /fr/dashboard/consultations (puis /factures, /actes)"], expected: "Page « 🚫 Accès non autorisé » avec la barre latérale et « ← Retour à l'accueil » (plus de redirection silencieuse vers Patients)" },
       { id: "TC-104", title: "Écritures bloquées en base (assistant)", steps: ["En assistant, tenter une action de facturation ou de visite"], expected: "Refus ; création / édition patients, dossiers et RDV autorisées" },
     ],
@@ -167,7 +176,7 @@ export const MODULES: TestModule[] = [
       { id: "TC-131", title: "Devis", steps: ["Créer un devis"], expected: "PDF « DEVIS DENTAIRE » ; exclu du CA" },
       { id: "TC-132", title: "Facture en attente modifiable", steps: ["Modifier les lignes"], expected: "Lignes et total à jour" },
       { id: "TC-133", title: "Annuler / réactiver", steps: ["Annuler puis réactiver une facture"], expected: "Jamais supprimée ; annulée exclue des totaux" },
-      { id: "TC-134", title: "PDF facture", steps: ["Télécharger"], expected: "Logo, lignes (dents), acomptes, QR espace patient, « Généré par DentiCare »" },
+      { id: "TC-134", title: "PDF facture", steps: ["Télécharger"], expected: "Logo, lignes (dents), acomptes, QR espace patient, pied avec le logo et « Généré par DentiCare » (« Care » en turquoise)" },
       { id: "TC-135", title: "Feuille de soins CNOPS / CNSS", steps: ["Hub dossier → FDS CNOPS puis FDS CNSS"], expected: "Vrai formulaire rempli (assuré, CIN, sexe, naissance, montant, INPE)" },
     ],
   },
@@ -185,7 +194,7 @@ export const MODULES: TestModule[] = [
       { id: "TC-141", title: "Statuts selon la date et le rôle", steps: ["RDV futur puis passé, en dentiste puis en assistant"], expected: "Futur : Planifié/Annulé ; passé : Terminé/Absent (dentiste) ou Annulé/Absent (assistant)" },
       { id: "TC-142", title: "Terminer → visite", steps: ["RDV passé → Terminé → nouvelle visite"], expected: "Titre pré-rempli avec celui du RDV, refus si vide ; visite liée au RDV" },
       { id: "TC-143", title: "Lier une visite existante", steps: ["Terminer → « visite existante »"], expected: "Liste « date — titre »" },
-      { id: "TC-144", title: "Agenda", steps: ["📆 Agenda, filtre praticien, clic sur un créneau vide"], expected: "Couleurs par dentiste ; clic vide → nouveau RDV pré-rempli" },
+      { id: "TC-144", title: "Agenda", steps: ["Rendez-vous → sélecteur « 📅 Agenda » en haut de la page", "Filtre praticien, clic sur un créneau vide", "Revenir avec « 📋 Liste »"], expected: "Pas d'Agenda dans la barre latérale (Rendez-vous reste surligné) ; couleurs par dentiste ; clic vide → nouveau RDV pré-rempli à ce créneau" },
     ],
   },
   {
