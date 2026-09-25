@@ -1517,5 +1517,30 @@
     "emailPartial": "First confirmation received. Now click the link sent to the other address.",
     "emailConfirmed": "Email address updated.",
     "emailLinkExpired": "This confirmation link has expired or has already been used. Start the email change again."
+  },
+  "subscription": {
+    "title": "Subscription",
+    "planStandard": "Standard plan",
+    "perMonth": "{price} / month",
+    "trialUntil": "Free trial until {date}",
+    "active": "Active subscription — billed on the 1st of each month",
+    "cancelled": "Subscription cancelled",
+    "balance": "Balance",
+    "due": "Due: {amount}",
+    "credit": "Credit: {amount}",
+    "upToDate": "Up to date",
+    "totalDue": "Total: {amount}",
+    "invoices": "Invoices",
+    "payments": "Payments received",
+    "download": "Download",
+    "noInvoices": "No invoices yet.",
+    "noInvoicesTrial": "First invoice on the 1st of the month after the trial ends ({date}).",
+    "methods": {
+      "virement": "Bank transfer",
+      "especes": "Cash",
+      "cheque": "Cheque",
+      "carte": "Card",
+      "autre": "Other"
+    }
   }
 }

@@ -120,6 +120,16 @@ export const MODULES: TestModule[] = [
     ],
   },
   {
+    id: "subscriptions", icon: "💳", title: "Abonnements", tests: [
+      { id: "TC-074", title: "Essai de 3 mois à l'inscription", steps: ["Inscrire un cabinet (email confirmé, approuvé)", "Admin → 💳 Abonnements"], expected: "L'abonnement apparaît « Essai » avec une fin d'essai = date d'inscription + 3 mois ; aucune facture" },
+      { id: "TC-075", title: "Onglet Abonnement (propriétaire)", steps: ["Propriétaire → Paramètres", "Se connecter en non-propriétaire, ouvrir Paramètres"], expected: "Propriétaire : « Formule Standard · 199,00 MAD / mois », « Période d'essai gratuite jusqu'au … », solde, factures ; non-propriétaire : pas de section Abonnement" },
+      { id: "TC-076", title: "Génération des factures du mois", steps: ["Admin → Abonnements → « Générer les factures du mois » (après la fin d'un essai)", "Recliquer"], expected: "Une facture FA-DEN-AAAA-NNNN par cabinet approuvé(e) dont l'essai est fini ; un 2e clic ne crée rien (une seule facture par mois) ; automatique aussi le 1er de chaque mois à 01:00 UTC" },
+      { id: "TC-077", title: "Paiement, solde et crédit", steps: ["Détail d'un abonnement → Enregistrer un paiement supérieur au dû", "Générer la facture du mois suivant"], expected: "Solde affiché « Crédit … » ; la facture suivante reprend le solde précédent négatif et affiche « Crédit en votre faveur » si le crédit dépasse la mensualité ; impayé → solde précédent positif ajouté au total" },
+      { id: "TC-078", title: "Facture PDF d'abonnement", steps: ["Télécharger une facture depuis l'admin, puis depuis Paramètres → Abonnement"], expected: "Même PDF : émetteur MediCareApp (mentions « provisoires »), facturé à la cabinet, période, mensualité, solde précédent, total à payer ou crédit, RIB, pied avec logo" },
+      { id: "TC-079", title: "Résilier / réactiver", steps: ["Détail d'un abonnement → Résilier", "Générer les factures du mois", "Réactiver"], expected: "Statut « Résilié », plus aucune facture générée ; réactivé → reprend « Actif » (ou « Essai » si l'essai court encore)" },
+    ],
+  },
+  {
     id: "home", icon: "🏠", title: "Tableau de bord & rôles", tests: [
       { id: "TC-101", title: "Accueil", steps: ["Ouvrir /fr/dashboard en propriétaire puis en assistant"], expected: "Propriétaire/dentiste : KPIs, factures récentes, raccourcis cliniques ; assistant : pas de chiffres ni raccourcis cliniques" },
       { id: "TC-102", title: "Navigation d'un assistant", steps: ["Se connecter en assistant"], expected: "Barre latérale : Patients, Dossiers, Rendez-vous, Support uniquement (l'agenda est dans Rendez-vous, le profil via son nom en bas)" },

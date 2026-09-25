@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import SettingsClient from "./SettingsClient";
+import SubscriptionSection from "./SubscriptionSection";
 import { getTranslations } from "next-intl/server";
 
 export default async function SettingsPage() {
@@ -28,6 +29,11 @@ export default async function SettingsPage() {
   return (
     <div className="p-4 sm:p-8 max-w-5xl">
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-8">{t("pageTitle")}</h1>
+      {member.role === "owner" && (
+        <div className="mb-6">
+          <SubscriptionSection practiceName={practice?.name ?? ""} practiceAddress={practice?.address ?? null} practicePhone={practice?.phone ?? null} />
+        </div>
+      )}
       <SettingsClient
         practiceId={member.practice_id}
         memberRole={member.role}

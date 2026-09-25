@@ -1517,5 +1517,30 @@
     "emailPartial": "Première confirmation reçue. Cliquez maintenant sur le lien envoyé à l'autre adresse.",
     "emailConfirmed": "Adresse email mise à jour.",
     "emailLinkExpired": "Ce lien de confirmation a expiré ou a déjà été utilisé. Recommencez le changement d'email."
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "planStandard": "Formule Standard",
+    "perMonth": "{price} / mois",
+    "trialUntil": "Période d'essai gratuite jusqu'au {date}",
+    "active": "Abonnement actif — facturé le 1er de chaque mois",
+    "cancelled": "Abonnement résilié",
+    "balance": "Solde",
+    "due": "À payer : {amount}",
+    "credit": "Crédit : {amount}",
+    "upToDate": "À jour",
+    "totalDue": "Total : {amount}",
+    "invoices": "Factures",
+    "payments": "Paiements reçus",
+    "download": "Télécharger",
+    "noInvoices": "Aucune facture pour l'instant.",
+    "noInvoicesTrial": "Première facture le 1er du mois qui suit la fin de l'essai ({date}).",
+    "methods": {
+      "virement": "Virement",
+      "especes": "Espèces",
+      "cheque": "Chèque",
+      "carte": "Carte",
+      "autre": "Autre"
+    }
   }
 }
