@@ -13,7 +13,8 @@ const STATUS_CLASS = {
   cancelled: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
 } as const;
 
-export default async function AdminSubscriptionsPage() {
+export default async function AdminSubscriptionsPage({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
+  const { deleted } = await searchParams;
   const db = createAdminClient();
   const [{ data: subs }, { data: practices }, { data: invoices }, { data: payments }] = await Promise.all([
     db.from("subscriptions").select("*"),
@@ -47,6 +48,12 @@ export default async function AdminSubscriptionsPage() {
             </button>
           </form>
         </div>
+
+        {deleted && (
+          <p className="mb-5 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/30 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
+            ✓ « {deleted} » a été archivé puis supprimé définitivement (données, fichiers et comptes). L'archive est dans 🗄️ Archives.
+          </p>
+        )}
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[

@@ -30,6 +30,7 @@ export default function AdminSidebar({ email, pendingCount, openTickets }: Props
     { icon: "📥", label: "Approbations",   href: "/admin",         badge: pendingCount },
     { icon: "🛟", label: "Support",        href: "/admin/support", badge: openTickets },
     { icon: "💳", label: "Abonnements",    href: "/admin/subscriptions" },
+    { icon: "🗄️", label: "Archives",       href: "/admin/archives" },
     { icon: "🧪", label: "Tests",          href: "/admin/tests" },
     { icon: "📚", label: "Documentation",  href: "/admin/docs" },
     { icon: "🏗️", label: "Infrastructure", href: "/admin/infra" },

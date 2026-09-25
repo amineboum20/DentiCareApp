@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { Link } from "@/i18n/navigation";
 import { approvePractice, revokePractice, approveMember } from "./actions";
 import RejectButton from "./RejectButton";
 import MemberRejectButton from "./MemberRejectButton";
@@ -185,12 +186,17 @@ export default async function AdminPage() {
                   <p className="font-medium text-zinc-900 dark:text-white truncate">{r.name || "(sans nom)"}</p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{r.ownerEmail}</p>
                 </div>
-                <form action={revokePractice}>
-                  <input type="hidden" name="practice_id" value={r.id} />
-                  <button className="text-xs text-zinc-400 hover:text-red-600 font-medium whitespace-nowrap transition">
-                    Révoquer
-                  </button>
-                </form>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Link href={`/admin/subscriptions/${r.id}#danger`} className="text-xs text-zinc-400 hover:text-red-600 font-medium whitespace-nowrap transition">
+                    Supprimer…
+                  </Link>
+                  <form action={revokePractice}>
+                    <input type="hidden" name="practice_id" value={r.id} />
+                    <button className="text-xs text-zinc-400 hover:text-red-600 font-medium whitespace-nowrap transition">
+                      Révoquer
+                    </button>
+                  </form>
+                </div>
               </div>
             ))}
           </div>

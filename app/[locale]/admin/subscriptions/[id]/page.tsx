@@ -7,6 +7,9 @@ import {
   type SubscriptionInvoiceRow, type SubscriptionPaymentRow, type SubscriptionRow,
 } from "@/utils/subscription";
 import { addPayment, deletePayment, setSubscriptionCancelled } from "../actions";
+import DeletePracticeCard from "./DeletePracticeCard";
+
+const FOOTPRINT_LABEL: Record<string, string> = { members: "membres", patients: "patients", consultations: "visites", dossiers: "dossiers", factures: "factures", ordonnances: "ordonnances", appointments: "RDV", actes: "actes", support_tickets: "tickets support", invoices: "factures d'abonnement", files: "fichiers" };
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +25,20 @@ export default async function AdminSubscriptionDetail({ params }: { params: Prom
     db.from("subscription_invoices").select("*").eq("practice_id", id).order("period_start", { ascending: false }),
     db.from("subscription_payments").select("*").eq("practice_id", id).order("paid_at", { ascending: false }),
   ]);
-  if (!practice || !sub) notFound();
+  if (!practice) notFound();
+  // What "Supprimer définitivement" would remove (dry run, nothing is deleted).
+  const { data: footprint } = await db.rpc("admin_delete_practice", { p_practice_id: id, p_execute: false });
+  const counts = (footprint as { counts?: Record<string, number> } | null)?.counts;
+  const summary = counts ? Object.entries(FOOTPRINT_LABEL).map(([k, label]) => ({ label, count: Number(counts[k] ?? 0) })) : null;
+  if (!sub) {
+    return (
+      <div className="p-4 sm:p-8"><div className="max-w-4xl mx-auto space-y-5">
+        <Link href="/admin/subscriptions" className="text-sm text-zinc-500 hover:text-blue-600">← Abonnements</Link>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{practice.name || "(sans nom)"}</h1>
+        <DeletePracticeCard practiceId={id} practiceName={practice.name ?? ""} summary={summary} />
+      </div></div>
+    );
+  }
   const s = sub as SubscriptionRow;
   const inv = (invoices ?? []) as SubscriptionInvoiceRow[];
   const pay = (payments ?? []) as SubscriptionPaymentRow[];
@@ -128,6 +144,8 @@ export default async function AdminSubscriptionDetail({ params }: { params: Prom
             </div>
           )}
         </div>
+
+        <DeletePracticeCard practiceId={id} practiceName={practice.name ?? ""} summary={summary} />
       </div>
     </div>
   );
