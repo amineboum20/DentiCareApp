@@ -54,13 +54,15 @@ export const MODULES: TestModule[] = [
     ],
   },
   {
-    id: "settings", icon: "⚙️", title: "Paramètres", tests: [
+    id: "settings", icon: "⚙️", title: "Paramètres & Mon profil", tests: [
       { id: "TC-029", title: "Infos du cabinet (propriétaire)", steps: ["Modifier nom, adresse, téléphone ; Enregistrer", "Recharger"], expected: "« ✓ Enregistré » en vert ; valeurs conservées et reprises sur les PDF" },
       { id: "TC-030", title: "Logo", steps: ["Charger un logo < 2 Mo, Enregistrer", "Tenter un logo > 2 Mo", "Supprimer le logo"], expected: "Logo affiché (app + PDF) ; > 2 Mo refusé avec un message traduit ; suppression OK" },
-      { id: "TC-031", title: "Changer le mot de passe", steps: ["Nouveau mot de passe + confirmation différents", "Moins de 8 caractères", "Deux mots de passe identiques valides"], expected: "Erreurs traduites en cadre rouge ; succès « ✓ Mot de passe mis à jour » en vert (jamais en rouge) ; reconnexion OK" },
-      { id: "TC-032", title: "Changer la langue", steps: ["Paramètres → Langue → English, puis العربية"], expected: "Toute l'interface bascule ; en arabe la mise en page est RTL ; le choix est conservé à la reconnexion" },
-      { id: "TC-033", title: "Paramètres pour un assistant", steps: ["Se connecter avec un compte assistant", "Ouvrir Paramètres"], expected: "Seulement « Changer le mot de passe » et « Langue » (pas d'infos du cabinet, logo, membres ni catalogue)" },
-      { id: "TC-034", title: "Paramètres pour un dentiste non propriétaire", steps: ["Se connecter avec un dentiste", "Ouvrir Paramètres"], expected: "Pas d'infos du cabinet / logo / Enregistrer ; mot de passe, langue, membres (lecture) et catalogue visibles" },
+      { id: "TC-031", title: "Changer le mot de passe (Mon profil)", steps: ["Cliquer sur son nom en bas de la barre latérale → Mon profil", "Nouveau mot de passe + confirmation différents", "Moins de 8 caractères", "Deux mots de passe identiques valides"], expected: "Erreurs traduites en cadre rouge ; succès « ✓ Mot de passe mis à jour » en vert (jamais en rouge) ; reconnexion OK ; plus de mot de passe dans Paramètres" },
+      { id: "TC-032", title: "Changer la langue (Mon profil)", steps: ["Mon profil → Langue → English, puis العربية"], expected: "Toute l'interface bascule ; en arabe la mise en page est RTL ; le choix est conservé à la reconnexion" },
+      { id: "TC-033", title: "Assistant : pas de Paramètres", steps: ["Se connecter avec un compte assistant", "Regarder la barre latérale, puis taper /fr/dashboard/settings", "Cliquer sur son nom en bas de la barre latérale"], expected: "Pas de Paramètres dans la barre latérale ; l'adresse directe affiche la page 403 ; Mon profil s'ouvre (nom, email, mot de passe, langue)" },
+      { id: "TC-034", title: "Paramètres pour un dentiste non propriétaire", steps: ["Se connecter avec un dentiste", "Ouvrir Paramètres"], expected: "Pas d'infos du cabinet / logo / Enregistrer ; membres (lecture) et catalogue visibles ; pas de mot de passe ni de langue (ils sont dans Mon profil)" },
+      { id: "TC-072", title: "Mon profil : prénom et nom", steps: ["Cliquer sur son nom en bas de la barre latérale", "Modifier prénom et nom, Enregistrer", "Vider le prénom, Enregistrer"], expected: "« ✓ Enregistré » en vert ; le nouveau prénom apparaît dans la barre latérale et dans « Créé par » ; prénom vide → cadre rouge « Le prénom est obligatoire »" },
+      { id: "TC-073", title: "Mon profil : changer l'email", steps: ["Mon profil → Nouvel email → « Changer l'email »", "Cliquer le lien reçu sur l'ancienne adresse, puis celui reçu sur la nouvelle", "Recliquer un des liens"], expected: "Message « cliquez sur le lien envoyé à … » ; après le 1er lien : « Première confirmation reçue » ; après le 2e : « ✓ Adresse email mise à jour » et nouvel email en bas de la barre latérale ; lien réutilisé → cadre rouge « lien expiré »" },
     ],
   },
   {
@@ -120,7 +122,7 @@ export const MODULES: TestModule[] = [
   {
     id: "home", icon: "🏠", title: "Tableau de bord & rôles", tests: [
       { id: "TC-101", title: "Accueil", steps: ["Ouvrir /fr/dashboard en propriétaire puis en assistant"], expected: "Propriétaire/dentiste : KPIs, factures récentes, raccourcis cliniques ; assistant : pas de chiffres ni raccourcis cliniques" },
-      { id: "TC-102", title: "Navigation d'un assistant", steps: ["Se connecter en assistant"], expected: "Barre latérale : Patients, Dossiers, Rendez-vous, Paramètres, Support uniquement (l'agenda est dans Rendez-vous)" },
+      { id: "TC-102", title: "Navigation d'un assistant", steps: ["Se connecter en assistant"], expected: "Barre latérale : Patients, Dossiers, Rendez-vous, Support uniquement (l'agenda est dans Rendez-vous, le profil via son nom en bas)" },
       { id: "TC-103", title: "403 pour un assistant", steps: ["En assistant, taper /fr/dashboard/consultations (puis /factures, /actes)"], expected: "Page « 🚫 Accès non autorisé » avec la barre latérale et « ← Retour à l'accueil » (plus de redirection silencieuse vers Patients)" },
       { id: "TC-104", title: "Écritures bloquées en base (assistant)", steps: ["En assistant, tenter une action de facturation ou de visite"], expected: "Refus ; création / édition patients, dossiers et RDV autorisées" },
     ],
@@ -199,7 +201,7 @@ export const MODULES: TestModule[] = [
   },
   {
     id: "praticiens", icon: "🩺", title: "Praticiens & fournisseurs", tests: [
-      { id: "TC-145", title: "Praticiens + INPE", steps: ["Paramètres → Gérer les praticiens ; lier son compte (« Votre profil praticien »)"], expected: "Praticien proposé partout ; l'agenda s'ouvre sur son praticien" },
+      { id: "TC-145", title: "Praticiens + INPE", steps: ["Paramètres → Gérer les praticiens ; puis Mon profil → « Votre profil praticien » pour lier son compte"], expected: "Praticien proposé partout ; l'agenda s'ouvre sur son praticien" },
       { id: "TC-146", title: "Fournisseurs", steps: ["Créer un fournisseur et une commande fournisseur"], expected: "Créés ; détail avec Créé par / Modifié par" },
     ],
   },

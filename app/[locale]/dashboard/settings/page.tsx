@@ -36,7 +36,6 @@ export default async function SettingsPage() {
         initialPhone={practice?.phone ?? ""}
         initialLogoUrl={practice?.logo_url ?? null}
         praticiens={(praticiens ?? []) as { id: string; name: string }[]}
-        myPraticienId={(member as { praticien_id?: string | null }).praticien_id ?? null}
       />
     </div>
   );

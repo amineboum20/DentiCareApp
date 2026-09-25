@@ -3,12 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import PasswordInput from "@/components/PasswordInput";
-import { authErrorKey } from "@/utils/auth-errors";
 import { createClient } from "@/utils/supabase/client";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { MemberRole } from "@/types/database";
-import { setMyPraticien } from "./actions";
 import ErrorBanner from "@/components/ErrorBanner";
 import { useAppContext } from "@/components/AppContext";
 
@@ -31,7 +27,6 @@ interface Props {
   initialPhone: string;
   initialLogoUrl: string | null;
   praticiens: { id: string; name: string }[];
-  myPraticienId: string | null;
 }
 
 export default function SettingsClient({
@@ -42,28 +37,16 @@ export default function SettingsClient({
   initialPhone,
   initialLogoUrl,
   praticiens,
-  myPraticienId,
 }: Props) {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("settings");
-  const ta = useTranslations("authErrors");
   const tc = useTranslations("common");
   const { currentUserId } = useAppContext();
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const isOwner = memberRole === "owner";
   const isAssistant = memberRole === "assistant";
-
-  // — Which praticien this account is (drives "my agenda") —
-  const [myPrat, setMyPrat] = useState(myPraticienId ?? "");
-  const [myPratSaved, setMyPratSaved] = useState(false);
-  async function handleMyPratChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const v = e.target.value;
-    setMyPrat(v);
-    setMyPratSaved(false);
-    try { await setMyPraticien(v || null); setMyPratSaved(true); setTimeout(() => setMyPratSaved(false), 2500); } catch { /* keep silent; select reflects attempt */ }
-  }
 
   // — Practice info —
   const [shopName, setShopName] = useState(initialShopName);
@@ -93,11 +76,6 @@ export default function SettingsClient({
   const [inviteSent, setInviteSent] = useState("");
 
   // — Password —
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [pwSaving, setPwSaving] = useState(false);
-  const [pwSaved, setPwSaved] = useState(false);
-  const [pwError, setPwError] = useState("");
 
   const inputCls = "w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500";
   const labelCls = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5";
@@ -290,21 +268,6 @@ export default function SettingsClient({
     setMembers(prev => prev.map(m => m.id === memberId ? { ...m, role } : m));
   }
 
-  async function handlePasswordChange(e: React.FormEvent) {
-    e.preventDefault();
-    setPwError("");
-    if (newPassword.length < 8) { setPwError(t("pwMin")); return; }
-    if (newPassword !== confirmPassword) { setPwError(t("pwMismatch")); return; }
-    setPwSaving(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) { setPwError(ta(authErrorKey(error))); setPwSaving(false); return; }
-    setPwSaving(false);
-    setPwSaved(true);
-    setNewPassword("");
-    setConfirmPassword("");
-    setTimeout(() => setPwSaved(false), 3000);
-  }
-
   const displayLogo = logoPreview ?? logoUrl;
   const ROLE_LABEL: Record<MemberRole, string> = { owner: t("roles.owner"), dentist: t("roles.dentist"), assistant: t("roles.assistant") };
 
@@ -313,19 +276,6 @@ export default function SettingsClient({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Left column */}
         <div className="space-y-6">
-      {/* Your praticien identity — links this account to a dentist for "my agenda" */}
-      {memberRole !== "assistant" && praticiens.length > 0 && (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">{t("myPractitioner")}</h2>
-          <p className="text-xs text-zinc-400 mb-4">{t("myPractitionerHint")}</p>
-          <select value={myPrat} onChange={handleMyPratChange} className={inputCls}>
-            <option value="">{t("myPractitionerNone")}</option>
-            {praticiens.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-          {myPratSaved && <p className="text-xs text-teal-600 mt-2">{t("myPractitionerSaved")}</p>}
-        </div>
-      )}
-
       {/* Practice info — owner only */}
       {isOwner && (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
@@ -399,40 +349,10 @@ export default function SettingsClient({
         </>
       )}
 
-      {/* Language */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-        <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4">{t("language")}</h2>
-        <LanguageSwitcher saveToAccount />
-      </div>
         </div>
 
         {/* Right column */}
         <div className="space-y-6">
-      {/* Password change */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
-        <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">{t("changePassword")}</h2>
-        <form onSubmit={handlePasswordChange} className="space-y-4">
-          <div>
-            <label className={labelCls}>{t("newPasswordLabel")}</label>
-            <PasswordInput value={newPassword} onChange={e => setNewPassword(e.target.value)}
-              placeholder={t("pwMinPlaceholder")} className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>{t("confirmPasswordLabel")}</label>
-            <PasswordInput value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="••••••••" className={inputCls} />
-          </div>
-          <ErrorBanner message={pwError} />
-          <div className="flex items-center gap-3">
-            <button type="submit" disabled={pwSaving}
-              className="px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-              {pwSaving ? tc("saving") : t("changePassword")}
-            </button>
-            {pwSaved && <span className="text-sm text-emerald-600 dark:text-emerald-400">✓ {t("pwUpdated")}</span>}
-          </div>
-        </form>
-      </div>
-
       {/* Members — not for assistants */}
       {!isAssistant && (
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">

@@ -92,7 +92,9 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
       </nav>
 
       <div className="p-3 border-t border-zinc-100 dark:border-zinc-800">
-        <div className="flex items-center gap-2 px-3 py-2 mb-1">
+        {/* Click the user block → Mon profil (name, email, password, language) */}
+        <Link href="/dashboard/profile" title={t("nav.profile")}
+          className={`flex items-center gap-2 px-3 py-2 mb-1 rounded-lg transition-colors ${isActive("/dashboard/profile") ? "bg-teal-50 dark:bg-teal-900/20" : "hover:bg-zinc-50 dark:hover:bg-zinc-800"}`}>
           <div className="w-7 h-7 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 text-xs font-bold flex-shrink-0">
             {firstName?.[0]?.toUpperCase() ?? email?.[0]?.toUpperCase()}
           </div>
@@ -100,7 +102,8 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
             <p className="text-xs font-medium text-zinc-900 dark:text-white truncate">{firstName || email.split("@")[0]}</p>
             <p className="text-xs text-zinc-400 truncate">{email}</p>
           </div>
-        </div>
+          <span className="text-zinc-300 dark:text-zinc-600 text-xs rtl:rotate-180" aria-hidden="true">›</span>
+        </Link>
         <ThemeToggle />
         <SignOutButton />
       </div>

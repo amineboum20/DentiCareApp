@@ -314,7 +314,8 @@
       "sectionClinical": "Clinical",
       "sectionCatalog": "Catalog",
       "sectionBilling": "Billing",
-      "documents": "Documents"
+      "documents": "Documents",
+      "profile": "My profile"
     },
     "signOut": "Sign out",
     "noUpcomingAppts": "No upcoming appointments",
@@ -1498,5 +1499,23 @@
     "zipError": "The ZIP could not be created.",
     "zipPartial": "{count, plural, one {# document could not be generated and is} other {# documents could not be generated and are}} missing from the ZIP.",
     "loadError": "Could not load the documents."
+  },
+  "profile": {
+    "title": "My profile",
+    "personalInfo": "Personal information",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "firstNameRequired": "First name is required.",
+    "saveError": "Saving failed.",
+    "emailTitle": "Email address",
+    "currentEmail": "Current email",
+    "newEmail": "New email",
+    "changeEmail": "Change email",
+    "emailSame": "This is already your email address.",
+    "emailSent": "To confirm, click the link sent to {old}, then the one sent to {new}.",
+    "emailPending": "Change pending to {email}: confirm from both mailboxes.",
+    "emailPartial": "First confirmation received. Now click the link sent to the other address.",
+    "emailConfirmed": "Email address updated.",
+    "emailLinkExpired": "This confirmation link has expired or has already been used. Start the email change again."
   }
 }

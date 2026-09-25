@@ -314,7 +314,8 @@
       "sectionClinical": "Clinique",
       "sectionCatalog": "Catalogue",
       "sectionBilling": "Facturation",
-      "documents": "Documents"
+      "documents": "Documents",
+      "profile": "Mon profil"
     },
     "signOut": "Se déconnecter",
     "noUpcomingAppts": "Aucun rendez-vous à venir",
@@ -1498,5 +1499,23 @@
     "zipError": "Le ZIP n'a pas pu être créé.",
     "zipPartial": "{count, plural, one {# document n'a pas pu être généré} other {# documents n'ont pas pu être générés}} et {count, plural, one {manque} other {manquent}} dans le ZIP.",
     "loadError": "Impossible de charger les documents."
+  },
+  "profile": {
+    "title": "Mon profil",
+    "personalInfo": "Informations personnelles",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "firstNameRequired": "Le prénom est obligatoire.",
+    "saveError": "L'enregistrement a échoué.",
+    "emailTitle": "Adresse email",
+    "currentEmail": "Email actuel",
+    "newEmail": "Nouvel email",
+    "changeEmail": "Changer l'email",
+    "emailSame": "C'est déjà votre adresse email.",
+    "emailSent": "Pour confirmer, cliquez sur le lien envoyé à {old} puis sur celui envoyé à {new}.",
+    "emailPending": "Changement en attente vers {email} : confirmez depuis les deux boîtes mail.",
+    "emailPartial": "Première confirmation reçue. Cliquez maintenant sur le lien envoyé à l'autre adresse.",
+    "emailConfirmed": "Adresse email mise à jour.",
+    "emailLinkExpired": "Ce lien de confirmation a expiré ou a déjà été utilisé. Recommencez le changement d'email."
   }
 }
