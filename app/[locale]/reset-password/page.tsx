@@ -39,6 +39,8 @@ export default function ResetPassword() {
         if (access_token && refresh_token) {
           await supabase.auth.setSession({ access_token, refresh_token });
           window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          // Email now confirmed → tell the admins there is a member to approve (sent once).
+          fetch("/api/members/activated", { method: "POST" }).catch(() => {});
         }
       }
       const { data } = await supabase.auth.getUser();

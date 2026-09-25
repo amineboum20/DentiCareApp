@@ -34,10 +34,40 @@ function page(opts: { emoji: string; title: string; body: string; accent?: strin
   );
 }
 
+// One-click approval of an invited member (link from the "Nouveau membre à
+// approuver" email, sent by /api/members/activated). HMAC over "member:<id>" so
+// a practice link can never be replayed as a member link or vice versa.
+async function approveMemberLink(memberId: string, token: string) {
+  const expected = createHmac("sha256", process.env.APPROVAL_SECRET!).update(`member:${memberId}`).digest("hex");
+  if (token !== expected) {
+    return page({ emoji: "⚠️", title: "Lien invalide ou expiré", body: "Ce lien d'approbation n'est pas valide.", accent: "#dc2626" }, 403);
+  }
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+  const { data: updated, error } = await supabase
+    .from("practice_members")
+    .update({ is_approved: true })
+    .eq("id", memberId)
+    .neq("role", "owner")
+    .select("id");
+  if (error) {
+    return page({ emoji: "❌", title: "Une erreur est survenue", body: "L'approbation n'a pas pu être enregistrée. Réessayez dans un instant.", accent: "#dc2626" }, 500);
+  }
+  if (!updated || updated.length === 0) {
+    return page({ emoji: "⚠️", title: "Membre introuvable", body: "Ce membre n'existe plus (il a peut-être été refusé).", accent: "#dc2626" }, 404);
+  }
+  return page({
+    emoji: "✅",
+    title: "Membre approuvé",
+    body: "Le membre peut maintenant accéder au tableau de bord. Vous pouvez fermer cette page.",
+  });
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const practiceId = searchParams.get("practice_id");
   const token = searchParams.get("token");
+  const memberId = searchParams.get("member_id");
+  if (memberId && token) return approveMemberLink(memberId, token);
 
   if (!practiceId || !token) {
     return page({ emoji: "⚠️", title: "Lien invalide", body: "Ce lien d'approbation est incomplet.", accent: "#dc2626" }, 400);
