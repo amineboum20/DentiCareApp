@@ -1,8 +1,8 @@
-// Branded Resend email for the support ticketing flow (DentiCare).
-const FROM = "DentiCare <noreply@denticareapp.com>";
+// Branded Resend email for the support ticketing flow (DentiCareApp).
+const FROM = "DentiCareApp <noreply@denticareapp.com>";
 const ADMINS = ["amine@denticareapp.com", "yasmine@denticareapp.com"];
 const ACCENT = "#0d9488";
-const BRAND = "DentiCare";
+const BRAND = "DentiCareApp";
 const EMOJI = "🦷";
 
 export const SUPPORT_ADMINS = ADMINS;

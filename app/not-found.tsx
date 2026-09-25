@@ -5,7 +5,7 @@ export default function RootNotFound() {
     <html lang="fr">
       <body style={{ margin: 0, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fafafa", fontFamily: "Arial, Helvetica, sans-serif" }}>
         <div style={{ width: "100%", maxWidth: 420, margin: 24, background: "#fff", border: "1px solid #e4e4e7", borderRadius: 16, padding: 32, textAlign: "center" }}>
-          <img src="/logo.svg" alt="DentiCare" width={40} height={40} />
+          <img src="/logo.svg" alt="DentiCareApp" width={40} height={40} />
           <p style={{ margin: "16px 0 4px", fontSize: 12, letterSpacing: 2, color: "#a1a1aa", fontWeight: 600 }}>ERREUR 404 · ERROR 404</p>
           <h1 style={{ margin: 0, fontSize: 22, color: "#18181b" }}>Page introuvable</h1>
           <p style={{ margin: "4px 0 0", fontSize: 14, color: "#71717a" }}>Page not found</p>

@@ -58,10 +58,10 @@ export async function loadLogoDataUrl(
 }
 
 // Brand mark shown in the footer of every generated document: the real app
-// logo (public/logo.svg) + the "DentiCare" wordmark with "Care" in the brand colour,
+// logo (public/logo.svg) + the "DentiCareApp" wordmark with "Care" in the brand colour,
 // as on the site. jsPDF can't embed SVG, so the logo is rasterised to a PNG
 // via canvas once and cached.
-export const APP_NAME_PARTS = ["Denti", "Care", ""] as const;
+export const APP_NAME_PARTS = ["Denti", "Care", "App"] as const;
 const APP_NAME = APP_NAME_PARTS.join("");
 const WORDMARK_RGB: [number, number, number] = [39, 39, 42]; // zinc-800, like the site wordmark
 const BRAND_RGB: [number, number, number] = [13, 148, 136]; // #0d9488 — logo colour
@@ -343,7 +343,7 @@ export async function exportFacturePdf(opts: {
   doc.line(ml, 284, mr, 284);
   drawBrandedFooter(
     doc, await appLogoPng(),
-    `Généré par DentiCare · ${invoiceNumber} · ${fmtDate(opts.createdAt)}`,
+    `Généré par DentiCareApp · ${invoiceNumber} · ${fmtDate(opts.createdAt)}`,
     W / 2, 289, "center", 3.2
   );
 
@@ -495,7 +495,7 @@ export async function exportOrdonnancePdf(opts: {
   doc.setFontSize(7);
   doc.setTextColor(160, 160, 160);
   doc.line(ml, 284, mr, 284);
-  drawBrandedFooter(doc, await appLogoPng(), `Généré par DentiCare · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, "center", 3.2);
+  drawBrandedFooter(doc, await appLogoPng(), `Généré par DentiCareApp · ${number} · ${fmtDate(opts.date)}`, W / 2, 289, "center", 3.2);
 
   return finishPdf(doc, `ordonnance-${number}-${opts.patientName.replace(/\s+/g, "-")}.pdf`, opts.output);
 }
@@ -637,7 +637,7 @@ export async function exportCarePlanPdf(opts: {
   doc.line(ml, 284, mr, 284);
   drawBrandedFooter(
     doc, await appLogoPng(),
-    `Généré par DentiCare · ${fmtDate(opts.createdAt)}`,
+    `Généré par DentiCareApp · ${fmtDate(opts.createdAt)}`,
     W / 2, 289, "center", 3.2
   );
 

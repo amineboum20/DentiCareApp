@@ -125,7 +125,7 @@
     "badge": "For dental practices",
     "title": "Everything your dental practice needs,",
     "titleHighlight": "in one place.",
-    "subtitle": "Manage patients, dental records, treatments and invoices effortlessly. Say goodbye to paper and spreadsheets — DentiCare keeps your practice organized.",
+    "subtitle": "Manage patients, dental records, treatments and invoices effortlessly. Say goodbye to paper and spreadsheets — DentiCareApp keeps your practice organized.",
     "cta": "Get started free",
     "ctaSecondary": "See all features →"
   },
@@ -194,21 +194,21 @@
     "step3Desc": "Create your first invoice, book an appointment — you're ready."
   },
   "testimonial": {
-    "quote": "Since using DentiCare, we spend half the time on admin and twice as much time with our patients.",
+    "quote": "Since using DentiCareApp, we spend half the time on admin and twice as much time with our patients.",
     "author": "Dr. Karim B.",
     "role": "Dentist, Casablanca"
   },
   "cta": {
     "title": "Ready to modernize your practice?",
-    "subtitle": "Join dentists who manage their practice smarter with DentiCare.",
+    "subtitle": "Join dentists who manage their practice smarter with DentiCareApp.",
     "button": "Get started free"
   },
   "footer": {
-    "rights": "© 2025 DentiCare. All rights reserved."
+    "rights": "© 2025 DentiCareApp. All rights reserved."
   },
   "signIn": {
     "title": "Welcome back",
-    "subtitle": "Sign in to your DentiCare account",
+    "subtitle": "Sign in to your DentiCareApp account",
     "noAccount": "No account?",
     "signUpFree": "Sign up free",
     "email": "Email address",

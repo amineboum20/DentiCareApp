@@ -38,8 +38,8 @@ export default function Contact() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
       <nav className="flex items-center justify-between gap-3 px-4 sm:px-8 py-4 sm:py-5">
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <img src="/logo.svg" alt="DentiCare" className="w-7 h-7" />
-          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
+          <img src="/logo.svg" alt="DentiCareApp" className="w-7 h-7" />
+          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span>App</span>
         </Link>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />

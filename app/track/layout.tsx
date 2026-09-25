@@ -5,8 +5,8 @@ import "../globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
-  title: "Suivi de commande · OptiApp",
-  description: "Suivez l'état de votre commande en temps réel.",
+  title: "Suivi de rendez-vous · DentiCareApp",
+  description: "Suivez votre rendez-vous en temps réel.",
 };
 
 export default function TrackLayout({ children }: { children: React.ReactNode }) {

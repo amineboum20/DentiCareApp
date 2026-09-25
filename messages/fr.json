@@ -125,7 +125,7 @@
     "badge": "Pour les cabinets dentaires",
     "title": "Tout ce dont votre cabinet dentaire a besoin,",
     "titleHighlight": "en un seul endroit.",
-    "subtitle": "Gérez vos patients, dossiers dentaires, traitements et factures facilement. Fini les papiers et les tableaux — DentiCare garde votre cabinet organisé et vos patients souriant.",
+    "subtitle": "Gérez vos patients, dossiers dentaires, traitements et factures facilement. Fini les papiers et les tableaux — DentiCareApp garde votre cabinet organisé et vos patients souriant.",
     "cta": "Commencer gratuitement",
     "ctaSecondary": "Voir toutes les fonctionnalités →"
   },
@@ -194,21 +194,21 @@
     "step3Desc": "Créez votre première facture, réservez un rendez-vous — vous êtes prêt."
   },
   "testimonial": {
-    "quote": "Depuis qu'on utilise DentiCare, on passe deux fois moins de temps sur l'administratif et deux fois plus avec nos patients.",
+    "quote": "Depuis qu'on utilise DentiCareApp, on passe deux fois moins de temps sur l'administratif et deux fois plus avec nos patients.",
     "author": "Dr. Karim B.",
     "role": "Chirurgien-dentiste, Casablanca"
   },
   "cta": {
     "title": "Prêt à moderniser votre cabinet ?",
-    "subtitle": "Rejoignez les dentistes qui gèrent leur cabinet plus intelligemment avec DentiCare.",
+    "subtitle": "Rejoignez les dentistes qui gèrent leur cabinet plus intelligemment avec DentiCareApp.",
     "button": "Commencer gratuitement"
   },
   "footer": {
-    "rights": "© 2025 DentiCare. Tous droits réservés."
+    "rights": "© 2025 DentiCareApp. Tous droits réservés."
   },
   "signIn": {
     "title": "Bon retour",
-    "subtitle": "Connectez-vous à votre compte DentiCare",
+    "subtitle": "Connectez-vous à votre compte DentiCareApp",
     "noAccount": "Pas de compte ?",
     "signUpFree": "S'inscrire gratuitement",
     "email": "Adresse e-mail",

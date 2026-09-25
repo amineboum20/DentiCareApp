@@ -1,6 +1,6 @@
 export const INFRA_HTML = `
-<h1 class="infra-title">Infrastructure DentiCare</h1>
-<p class="infra-lead">Architecture, services et coûts. DentiCare et OptiCareApp font partie de la même maison — <strong>MediCareApp</strong>.</p>
+<h1 class="infra-title">Infrastructure DentiCareApp</h1>
+<p class="infra-lead">Architecture, services et coûts. DentiCareApp et OptiCareApp font partie de la même maison — <strong>MediCareApp</strong>.</p>
 
 <h2 class="infra-h2">Stack de production</h2>
 <div class="infra-grid">
@@ -63,7 +63,7 @@ export const INFRA_HTML = `
 
 <h2 class="infra-h2">Domaines de production</h2>
 <div class="infra-grid">
-  <div class="infra-card"><div class="infra-card-icon">🦷</div><div class="infra-card-name">denticareapp.com</div><div class="infra-card-role">DentiCare — cabinets dentaires</div><span class="infra-card-cost">Live ✓</span></div>
+  <div class="infra-card"><div class="infra-card-icon">🦷</div><div class="infra-card-name">denticareapp.com</div><div class="infra-card-role">DentiCareApp — cabinets dentaires</div><span class="infra-card-cost">Live ✓</span></div>
   <div class="infra-card"><div class="infra-card-icon">👓</div><div class="infra-card-name">opticareapp.com</div><div class="infra-card-role">OptiCareApp — opticiens, même stack (projets Supabase et Vercel séparés)</div><span class="infra-card-cost">Live ✓</span></div>
 </div>
 

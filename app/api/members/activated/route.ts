@@ -51,7 +51,7 @@ export async function POST() {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: "DentiCare <noreply@denticareapp.com>",
+      from: "DentiCareApp <noreply@denticareapp.com>",
       to: ["amine@denticareapp.com", "yasmine@denticareapp.com"],
       subject: `Nouveau membre à approuver — ${memberName} (${practiceName})`,
       html: `<!doctype html>
@@ -63,7 +63,7 @@ export async function POST() {
 <tr><td style="height:4px;background:#0d9488;font-size:0;line-height:0;">&nbsp;</td></tr>
 <tr><td style="padding:28px 32px 0;">
 <span style="font-size:20px;vertical-align:middle;">🦷</span>
-<span style="font-size:17px;font-weight:700;color:#18181b;vertical-align:middle;margin-left:6px;">DentiCare</span>
+<span style="font-size:17px;font-weight:700;color:#18181b;vertical-align:middle;margin-left:6px;">DentiCareApp</span>
 </td></tr>
 <tr><td style="padding:22px 32px 0;"><h1 style="margin:0;font-size:20px;font-weight:700;color:#18181b;">Nouveau membre à approuver</h1></td></tr>
 <tr><td style="padding:10px 32px 0;"><p style="margin:0;font-size:14px;line-height:1.65;color:#52525b;">Un membre invité vient d'activer son compte et attend votre validation.</p></td></tr>
@@ -79,7 +79,7 @@ ${row("Cabinet", practiceName)}
 <a href="${approveUrl}" style="display:inline-block;background:#0d9488;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 30px;border-radius:10px;">Approuver ce membre</a>
 </td></tr>
 <tr><td style="padding:16px 32px 26px;"><p style="margin:0;font-size:12px;line-height:1.6;color:#a1a1aa;">Ce lien approuve immédiatement l'accès du membre au tableau de bord.</p></td></tr>
-<tr><td style="padding:16px 32px;border-top:1px solid #f1f1f3;background:#fafafa;"><p style="margin:0;font-size:11px;color:#a1a1aa;">DentiCare · Logiciel de gestion pour cabinet dentaire</p></td></tr>
+<tr><td style="padding:16px 32px;border-top:1px solid #f1f1f3;background:#fafafa;"><p style="margin:0;font-size:11px;color:#a1a1aa;">DentiCareApp · Logiciel de gestion pour cabinet dentaire</p></td></tr>
 </table></td></tr></table></body></html>`,
     }),
   });

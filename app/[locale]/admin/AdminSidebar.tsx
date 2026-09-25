@@ -80,9 +80,9 @@ export default function AdminSidebar({ email, pendingCount, openTickets }: Props
 
   const Brand = () => (
     <div className="flex items-center gap-2">
-      <img src="/logo.svg" alt="DentiCare" className="w-7 h-7" />
+      <img src="/logo.svg" alt="DentiCareApp" className="w-7 h-7" />
       <div className="leading-tight">
-        <span className="block font-bold text-zinc-900 dark:text-white text-sm">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
+        <span className="block font-bold text-zinc-900 dark:text-white text-sm">Denti<span className="text-teal-500 dark:text-teal-400">Care</span>App</span>
         <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">Administration</span>
       </div>
     </div>
@@ -99,8 +99,8 @@ export default function AdminSidebar({ email, pendingCount, openTickets }: Props
           </svg>
         </button>
         <div className="flex-1 flex items-center justify-center gap-2">
-          <img src="/logo.svg" alt="DentiCare" className="w-6 h-6" />
-          <span className="font-bold text-zinc-900 dark:text-white">DentiCare Admin</span>
+          <img src="/logo.svg" alt="DentiCareApp" className="w-6 h-6" />
+          <span className="font-bold text-zinc-900 dark:text-white">DentiCareApp Admin</span>
         </div>
         <div className="w-9" />
       </div>

@@ -1,5 +1,5 @@
 // MediCareApp — the company that bills the subscription (OptiCareApp and
-// DentiCare are its two products). Printed on the subscription invoices.
+// DentiCareApp are its two products). Printed on the subscription invoices.
 //
 // ⚠️ PLACEHOLDER DATA — replace with the real legal details once the company
 // is registered (raison sociale, adresse, ICE, IF, RC, patente, RIB, TVA).

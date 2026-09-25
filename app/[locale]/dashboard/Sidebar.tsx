@@ -122,7 +122,7 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
           </svg>
         </button>
         <div className="flex-1 flex items-center justify-center gap-2">
-          <img src="/logo.svg" alt="DentiCare" className="w-6 h-6" />
+          <img src="/logo.svg" alt="DentiCareApp" className="w-6 h-6" />
           <span className="font-bold text-zinc-900 dark:text-white">{shopName}</span>
         </div>
         <div className="w-9" />
@@ -140,14 +140,14 @@ export default function Sidebar({ firstName, shopName, email, role }: Props) {
         ${open ? "translate-x-0" : "max-sm:ltr:-translate-x-full max-sm:rtl:translate-x-full"}`}>
 
         <div className="hidden sm:flex items-center gap-2 px-5 py-5 border-b border-zinc-100 dark:border-zinc-800">
-          <img src="/logo.svg" alt="DentiCare" className="w-6 h-6" />
-          <span className="font-bold text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
+          <img src="/logo.svg" alt="DentiCareApp" className="w-6 h-6" />
+          <span className="font-bold text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span>App</span>
         </div>
 
         <div className="sm:hidden flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="DentiCare" className="w-6 h-6" />
-            <span className="font-bold text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span></span>
+            <img src="/logo.svg" alt="DentiCareApp" className="w-6 h-6" />
+            <span className="font-bold text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span>App</span>
           </div>
           <button
             onClick={() => setOpen(false)}

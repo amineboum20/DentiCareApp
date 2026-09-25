@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const RECIPIENTS = ["amine@denticareapp.com", "yasmine@denticareapp.com"];
-const FROM = "DentiCare <noreply@denticareapp.com>";
+const FROM = "DentiCareApp <noreply@denticareapp.com>";
 
 function esc(s: string) {
   return s
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 <tr><td style="height:4px;background:#0d9488;font-size:0;line-height:0;">&nbsp;</td></tr>
 <tr><td style="padding:28px 32px 0;">
 <span style="font-size:20px;vertical-align:middle;">🦷</span>
-<span style="font-size:17px;font-weight:700;color:#18181b;vertical-align:middle;margin-left:6px;">DentiCare</span>
+<span style="font-size:17px;font-weight:700;color:#18181b;vertical-align:middle;margin-left:6px;">DentiCareApp</span>
 </td></tr>
 <tr><td style="padding:22px 32px 0;"><h1 style="margin:0;font-size:20px;font-weight:700;color:#18181b;">${esc(heading)}</h1></td></tr>
 <tr><td style="padding:16px 32px 0;">

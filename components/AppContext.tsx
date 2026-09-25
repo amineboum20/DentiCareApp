@@ -27,7 +27,7 @@ const AppContext = createContext<AppContextValue>({
   memberRole: "owner",
   memberName: "",
   members: [],
-  shopName: "DentiCare",
+  shopName: "DentiCareApp",
   shopAddress: "",
   shopPhone: "",
   logoUrl: null,

@@ -64,7 +64,7 @@ export default function PortalClient({ token }: { token: string }) {
   }
 
   const cabinet = {
-    shopName: data?.practice?.name ?? "DentiCare",
+    shopName: data?.practice?.name ?? "DentiCareApp",
     shopAddress: data?.practice?.address ?? "",
     shopPhone: data?.practice?.phone ?? "",
     logoUrl: data?.practice?.logo_url ?? null,
@@ -107,7 +107,7 @@ export default function PortalClient({ token }: { token: string }) {
       <header className="flex items-center justify-between gap-3 px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <div className="flex items-center gap-2 font-bold">
           <span className="text-xl">🦷</span>
-          <span>{data?.practice?.name ?? "DentiCare"}</span>
+          <span>{data?.practice?.name ?? "DentiCareApp"}</span>
         </div>
         <LanguageSwitcher />
       </header>

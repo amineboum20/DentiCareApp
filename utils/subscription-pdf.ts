@@ -6,7 +6,7 @@ import { COMPANY, PLAN_LABEL } from "@/utils/company";
 import { appLogoPng, drawBrandedFooter, finishPdf, type PdfOutput } from "@/utils/pdf-export";
 import type { SubscriptionInvoiceRow } from "@/utils/subscription";
 
-const APP_NAME = "DentiCare";
+const APP_NAME = "DentiCareApp";
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
 // jsPDF's standard fonts have no U+2212 / narrow no-break space: plain ASCII.

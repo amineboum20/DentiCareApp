@@ -51,7 +51,7 @@ export default async function TrackAppointmentPage({
 
   // Fetch practice info from user metadata
   const { data: userdata } = await supabase.auth.admin.getUserById(appt.user_id);
-  const shopName: string = userdata?.user?.user_metadata?.shop_name ?? "DentiCare";
+  const shopName: string = userdata?.user?.user_metadata?.shop_name ?? "DentiCareApp";
   const shopPhone: string = userdata?.user?.user_metadata?.shop_phone ?? "";
   const shopAddress: string = userdata?.user?.user_metadata?.shop_address ?? "";
 
@@ -135,7 +135,7 @@ export default async function TrackAppointmentPage({
           )}
         </div>
         <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-100 text-center">
-          <p className="text-xs text-zinc-400">Généré par DentiCare</p>
+          <p className="text-xs text-zinc-400">Généré par DentiCareApp</p>
         </div>
       </div>
     </div>

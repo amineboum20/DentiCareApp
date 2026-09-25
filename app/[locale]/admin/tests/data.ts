@@ -116,7 +116,7 @@ export const MODULES: TestModule[] = [
       { id: "TC-068", title: "Filtres", steps: ["Filtrer par type, par période (Du / Au), par « Créé par », puis taper un nom de patient", "Cliquer « Réinitialiser »"], expected: "La liste et le compteur suivent chaque filtre ; « Réinitialiser » remet tout" },
       { id: "TC-069", title: "Télécharger un document", steps: ["Cliquer « 📄 Télécharger » sur une ligne"], expected: "Le PDF téléchargé est identique à celui du bouton de la page de détail" },
       { id: "TC-070", title: "Télécharger une sélection en ZIP", steps: ["Cocher plusieurs lignes (ou « Tout sélectionner » après un filtre)", "Cliquer « Télécharger la sélection (n) en ZIP »"], expected: "Progression « Génération x/n… » puis un fichier documents-AAAA-MM-JJ.zip contenant un PDF par ligne cochée" },
-      { id: "TC-071", title: "Pied de page des PDF", steps: ["Télécharger n'importe quel PDF (facture, ordonnance…)", "Regarder le bas de la page"], expected: "Vrai logo de l'application (pas d'emoji) puis « Généré par DentiCare · référence · date », le nom en gras avec « Care » en turquoise ; lisible aussi imprimé" },
+      { id: "TC-071", title: "Pied de page des PDF", steps: ["Télécharger n'importe quel PDF (facture, ordonnance…)", "Regarder le bas de la page"], expected: "Vrai logo de l'application (pas d'emoji) puis « Généré par DentiCareApp · référence · date », le nom en gras avec « Care » en turquoise ; lisible aussi imprimé" },
     ],
   },
   {
@@ -188,7 +188,7 @@ export const MODULES: TestModule[] = [
       { id: "TC-131", title: "Devis", steps: ["Créer un devis"], expected: "PDF « DEVIS DENTAIRE » ; exclu du CA" },
       { id: "TC-132", title: "Facture en attente modifiable", steps: ["Modifier les lignes"], expected: "Lignes et total à jour" },
       { id: "TC-133", title: "Annuler / réactiver", steps: ["Annuler puis réactiver une facture"], expected: "Jamais supprimée ; annulée exclue des totaux" },
-      { id: "TC-134", title: "PDF facture", steps: ["Télécharger"], expected: "Logo, lignes (dents), acomptes, QR espace patient, pied avec le logo et « Généré par DentiCare » (« Care » en turquoise)" },
+      { id: "TC-134", title: "PDF facture", steps: ["Télécharger"], expected: "Logo, lignes (dents), acomptes, QR espace patient, pied avec le logo et « Généré par DentiCareApp » (« Care » en turquoise)" },
       { id: "TC-135", title: "Feuille de soins CNOPS / CNSS", steps: ["Hub dossier → FDS CNOPS puis FDS CNSS"], expected: "Vrai formulaire rempli (assuré, CIN, sexe, naissance, montant, INPE)" },
     ],
   },

@@ -136,6 +136,6 @@ export async function exportPatientInfoPdf(o: PatientPrintOpts & { output?: PdfO
   }
 
   doc.setFontSize(7); doc.setTextColor(160, 160, 160);
-  drawBrandedFooter(doc, await appLogoPng(), `Généré par DentiCare · ${fmtDate(new Date().toISOString())}`, W / 2, 291, "center", 3.2);
+  drawBrandedFooter(doc, await appLogoPng(), `Généré par DentiCareApp · ${fmtDate(new Date().toISOString())}`, W / 2, 291, "center", 3.2);
   return finishPdf(doc, `fiche-${o.patientName.replace(/\s+/g, "-")}.pdf`, o.output);
 }

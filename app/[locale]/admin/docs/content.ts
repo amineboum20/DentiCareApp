@@ -1,5 +1,5 @@
 export const DOCS_HTML = `
-<h1>Documentation DentiCare</h1>
+<h1>Documentation DentiCareApp</h1>
 <p class="lead">Guide technique de l'application. Architecture, modèle multi-cabinet, schéma de base de données, authentification et fonctionnalités.</p>
 <div class="chips">
   <span class="chip brand">Next.js 16</span>
@@ -11,7 +11,7 @@ export const DOCS_HTML = `
 </div>
 
 <h2>Introduction</h2>
-<p>DentiCare est une application de gestion pour cabinets dentaires : patients, schéma dentaire, dossiers de soins, visites, actes & traitements, devis/factures & acomptes, feuilles de soins CNOPS/CNSS, ordonnances, rendez-vous & agenda, espace patient, fournisseurs et rapports. L'application est <strong>multi-cabinet</strong> : chaque cabinet (<code>practice</code>) a ses membres et ne voit que ses propres données, isolées par Row Level Security côté Supabase.</p>
+<p>DentiCareApp est une application de gestion pour cabinets dentaires : patients, schéma dentaire, dossiers de soins, visites, actes & traitements, devis/factures & acomptes, feuilles de soins CNOPS/CNSS, ordonnances, rendez-vous & agenda, espace patient, fournisseurs et rapports. L'application est <strong>multi-cabinet</strong> : chaque cabinet (<code>practice</code>) a ses membres et ne voit que ses propres données, isolées par Row Level Security côté Supabase.</p>
 
 <h2>Stack technique</h2>
 <div class="table-wrap">
