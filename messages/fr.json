@@ -204,7 +204,10 @@
     "button": "Commencer gratuitement"
   },
   "footer": {
-    "rights": "© 2026 MediCareApp. Tous droits réservés."
+    "rights": "© 2026 MediCareApp. Tous droits réservés.",
+    "followUs": "Suivez-nous",
+    "instagramLabel": "Suivez-nous sur Instagram",
+    "facebookLabel": "Suivez-nous sur Facebook"
   },
   "signIn": {
     "title": "Bon retour",
