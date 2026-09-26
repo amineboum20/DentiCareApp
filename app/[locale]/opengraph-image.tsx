@@ -35,7 +35,7 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`data:image/svg+xml;base64,${logo}`} width={230} height={240} alt="" />
+        <img src={`data:image/svg+xml;base64,${logo}`} width={240} height={240} alt="" />
         <div style={{ display: "flex", fontSize: 84, fontWeight: 700, marginTop: 36, color: "#18181b" }}>
           <span>Denti</span><span style={{ color: "#0d9488", marginLeft: -6 }}>Care</span><span style={{ marginLeft: -6 }}>App</span>
         </div>
