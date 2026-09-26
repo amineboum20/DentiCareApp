@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { Link } from "@/i18n/navigation";
 import { approvePractice, revokePractice, approveMember } from "./actions";
@@ -15,27 +13,14 @@ const ROLE_LABEL: Record<string, string> = {
   assistant: "Assistant(e)",
 };
 
-type PracticeRow = {
-  id: string;
-  name: string | null;
-  is_approved: boolean;
-  created_at: string;
-};
+type PracticeRow = { id: string; name: string | null; is_approved: boolean; created_at: string };
 type MemberRow = {
-  id: string;
-  practice_id: string;
-  user_id: string;
-  first_name: string | null;
-  last_name: string | null;
-  role: string;
-  is_approved: boolean;
-  created_at: string;
+  id: string; practice_id: string; user_id: string;
+  first_name: string | null; last_name: string | null; role: string;
+  is_approved: boolean; created_at: string;
 };
 
 export default async function AdminPage() {
-  const admin = await getAdminUser();
-  if (!admin) redirect("/signin");
-
   const supabase = createAdminClient();
 
   const [{ data: practices }, { data: members }, usersRes] = await Promise.all([
@@ -95,22 +80,31 @@ export default async function AdminPage() {
     .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
   const pendingMembers = unapprovedMembers.filter((m) => m.emailConfirmed);
 
+  const stats = [
+    { label: "En attente", value: pending.length + pendingMembers.length, accent: "text-amber-600 dark:text-amber-400" },
+    { label: "Cabinets actifs", value: approved.length, accent: "text-teal-600 dark:text-teal-400" },
+    { label: "Membres", value: allMembers.length, accent: "text-zinc-900 dark:text-white" },
+  ];
+
   return (
-    <div className="px-6 py-8 sm:py-10">
-      <div className="mx-auto max-w-4xl">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Approbations</h1>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Connecté en tant que {admin.email}</p>
-          </div>
-          <span className="rounded-full bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 text-xs font-semibold px-3 py-1">
-            {pending.length + pendingMembers.length} en attente
-          </span>
+    <div className="p-4 sm:p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Approbations</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Validez les nouveaux cabinets et les membres invités.</p>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+              <div className={`text-2xl font-bold ${s.accent}`}>{s.value}</div>
+              <div className="text-xs text-zinc-400 mt-0.5">{s.label}</div>
+            </div>
+          ))}
         </div>
 
-        {/* Pending */}
+        {/* Pending practices */}
         <section className="mb-10">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 mb-3">En attente d&apos;approbation</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 mb-3">Cabinets en attente ({pending.length})</h2>
           {pending.length === 0 ? (
             <p className="text-sm text-zinc-400 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 text-center">
               Aucune inscription en attente 🎉
@@ -179,14 +173,19 @@ export default async function AdminPage() {
         {/* Approved */}
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 mb-3">Cabinets approuvés ({approved.length})</h2>
-          <div className="flex flex-col gap-2">
-            {approved.map((r) => (
-              <div key={r.id} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-3 flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="font-medium text-zinc-900 dark:text-white truncate">{r.name || "(sans nom)"}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{r.ownerEmail}</p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
+          {approved.length === 0 ? (
+            <p className="text-sm text-zinc-400 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 text-center">
+              Aucun cabinet approuvé pour l&apos;instant
+            </p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {approved.map((r) => (
+                <div key={r.id} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-3 flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-medium text-zinc-900 dark:text-white truncate">{r.name || "(sans nom)"}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{r.ownerEmail}</p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
                   <Link href={`/admin/subscriptions/${r.id}#danger`} className="text-xs text-zinc-400 hover:text-red-600 font-medium whitespace-nowrap transition">
                     Supprimer…
                   </Link>
@@ -196,10 +195,11 @@ export default async function AdminPage() {
                       Révoquer
                     </button>
                   </form>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

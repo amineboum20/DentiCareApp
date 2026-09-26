@@ -15,8 +15,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const admin = await getAdminUser();
   if (!admin) redirect("/signin");
 
-  // Badge = approvable items only (email confirmed), same as the Approbations list.
   const supabase = createAdminClient();
+  // Badge = approvable items only (email confirmed), same as the Approbations list.
   const [pendingCount, { count: openTickets }] = await Promise.all([
     pendingApprovalCount(supabase),
     supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("status", "open"),
@@ -25,9 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <AdminSidebar email={admin.email ?? ""} pendingCount={pendingCount} openTickets={openTickets ?? 0} />
-      <div className="sm:ms-56 min-h-screen">
-        <div className="pt-14 sm:pt-0 min-h-screen">{children}</div>
-      </div>
+      <div className="sm:ms-56 min-h-screen pt-14 sm:pt-0">{children}</div>
     </div>
   );
 }
