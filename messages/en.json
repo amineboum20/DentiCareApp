@@ -1525,6 +1525,9 @@
     "title": "Subscription",
     "planStandard": "Standard plan",
     "perMonth": "{price} / month",
+    "extraUser": "+{price} / month per additional user",
+    "usersNow": "{count, plural, one {# active user} other {# active users}} · next monthly charge: {amount}",
+    "usersCount": "{count, plural, one {# user} other {# users}}",
     "trialUntil": "Free trial until {date}",
     "active": "Active subscription — billed on the 1st of each month",
     "cancelled": "Subscription cancelled",
@@ -1834,16 +1837,16 @@
     "ctaContact": "Contact us",
     "pricingBlock": {
       "eyebrow": "Pricing",
-      "title": "One price, everything included",
+      "title": "Simple pricing, everything included",
       "plan": "Standard",
       "amount": "199",
       "unit": "MAD / month",
       "trial": "3-month free trial, no commitment",
       "features": [
         "Every feature included",
-        "Team members included",
+        "+99 MAD / month per additional user",
         "Continuous updates",
-        "Support by email and WhatsApp"
+        "Built-in in-app support"
       ],
       "cta": "Start the free trial"
     },

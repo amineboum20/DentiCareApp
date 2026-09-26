@@ -9,7 +9,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import SubscriptionInvoiceButton from "@/components/SubscriptionInvoiceButton";
 import {
-  currentBalance, effectiveStatus, fmtDay, fmtMoney, monthLabel,
+  currentBalance, effectiveStatus, fmtDay, fmtMoney, monthLabel, monthlyCharge,
   type SubscriptionInvoiceRow, type SubscriptionPaymentRow, type SubscriptionRow,
 } from "@/utils/subscription";
 
@@ -20,25 +20,34 @@ export default function SubscriptionSection({ practiceName, practiceAddress, pra
   const locale = useLocale();
   const intl = locale === "ar" ? "ar" : locale === "en" ? "en" : "fr";
   const supabase = useMemo(() => createClient(), []);
-  const [data, setData] = useState<{ sub: SubscriptionRow | null; invoices: SubscriptionInvoiceRow[]; payments: SubscriptionPaymentRow[] } | null>(null);
+  const [data, setData] = useState<{ sub: SubscriptionRow | null; invoices: SubscriptionInvoiceRow[]; payments: SubscriptionPaymentRow[]; users: number } | null>(null);
 
   useEffect(() => {
     Promise.all([
       supabase.from("subscriptions").select("*").maybeSingle(),
       supabase.from("subscription_invoices").select("*").order("period_start", { ascending: false }),
       supabase.from("subscription_payments").select("*").order("paid_at", { ascending: false }),
-    ]).then(([s, i, p]) => setData({
-      sub: (s.data ?? null) as SubscriptionRow | null,
-      invoices: (i.data ?? []) as SubscriptionInvoiceRow[],
-      payments: (p.data ?? []) as SubscriptionPaymentRow[],
-    }));
+    ]).then(async ([s, i, p]) => {
+      const sub = (s.data ?? null) as SubscriptionRow | null;
+      // Active users = approved, not deactivated members (same count as the monthly invoice).
+      const { count } = sub
+        ? await supabase.from("practice_members").select("id", { count: "exact", head: true })
+            .eq("practice_id", sub.practice_id).eq("is_approved", true).is("deactivated_at", null)
+        : { count: 0 };
+      setData({
+        sub,
+        invoices: (i.data ?? []) as SubscriptionInvoiceRow[],
+        payments: (p.data ?? []) as SubscriptionPaymentRow[],
+        users: count ?? 0,
+      });
+    });
   }, [supabase]);
 
   const card = "bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6";
   if (!data) return <div className={`${card} h-40 animate-pulse`} />;
   if (!data.sub) return null;
 
-  const { sub, invoices, payments } = data;
+  const { sub, invoices, payments, users } = data;
   const status = effectiveStatus(sub);
   const balance = currentBalance(invoices, payments);
 
@@ -49,6 +58,12 @@ export default function SubscriptionSection({ practiceName, practiceAddress, pra
           <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{t("title")}</h2>
           <p className="mt-1 text-lg font-semibold text-zinc-900 dark:text-white">
             {t("planStandard")} · {t("perMonth", { price: fmtMoney(sub.monthly_price, sub.currency) })}
+          </p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
+            {t("extraUser", { price: fmtMoney(sub.extra_user_price, sub.currency) })}
+          </p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
+            {t("usersNow", { count: users, amount: fmtMoney(monthlyCharge(sub, users), sub.currency) })}
           </p>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
             {status === "trial" ? `🎁 ${t("trialUntil", { date: fmtDay(sub.trial_ends_at, intl) })}`
@@ -75,7 +90,7 @@ export default function SubscriptionSection({ practiceName, practiceAddress, pra
             <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-zinc-900 dark:text-white capitalize">{monthLabel(inv.period_start, intl)}</p>
-                <p className="text-xs text-zinc-400 font-mono">{inv.number}</p>
+                <p className="text-xs text-zinc-400"><span className="font-mono">{inv.number}</span> · {t("usersCount", { count: inv.users_count })}</p>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-zinc-700 dark:text-zinc-300">

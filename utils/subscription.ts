@@ -8,7 +8,9 @@ export interface SubscriptionRow {
   id: string;
   practice_id: string;
   plan: string;
-  monthly_price: number;
+  monthly_price: number;     // first user
+  included_users: number;    // users covered by monthly_price (1)
+  extra_user_price: number;  // per additional user
   currency: string;
   trial_ends_at: string;   // YYYY-MM-DD
   status: "trial" | "active" | "cancelled";
@@ -24,7 +26,11 @@ export interface SubscriptionInvoiceRow {
   period_end: string;
   issued_at: string;
   plan: string;
-  amount: number;
+  base_amount: number;      // monthly_price at invoicing time
+  users_count: number;      // active users counted on the 1st
+  extra_users: number;      // users beyond included_users
+  extra_user_price: number;
+  amount: number;           // base_amount + extra_users * extra_user_price
   previous_balance: number; // >0 owed, <0 credit (before this invoice)
   total_due: number;        // previous_balance + amount
   currency: string;
@@ -46,6 +52,12 @@ export function currentBalance(invoices: Pick<SubscriptionInvoiceRow, "amount">[
   const billed = invoices.reduce((s, i) => s + Number(i.amount), 0);
   const paid = payments.reduce((s, p) => s + Number(p.amount), 0);
   return Math.round((billed - paid) * 100) / 100;
+}
+
+/** Monthly charge for a given number of active users (same rule as generate_subscription_invoices). */
+export function monthlyCharge(sub: Pick<SubscriptionRow, "monthly_price" | "included_users" | "extra_user_price">, users: number): number {
+  const extra = Math.max(0, users - Number(sub.included_users));
+  return Number(sub.monthly_price) + extra * Number(sub.extra_user_price);
 }
 
 /** Status shown to people: a "trial" row whose trial is over reads as active. */

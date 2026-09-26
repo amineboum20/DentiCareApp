@@ -1525,6 +1525,9 @@
     "title": "Abonnement",
     "planStandard": "Formule Standard",
     "perMonth": "{price} / mois",
+    "extraUser": "+{price} / mois par utilisateur supplémentaire",
+    "usersNow": "{count, plural, one {# utilisateur actif} other {# utilisateurs actifs}} · prochaine mensualité : {amount}",
+    "usersCount": "{count, plural, one {# utilisateur} other {# utilisateurs}}",
     "trialUntil": "Période d'essai gratuite jusqu'au {date}",
     "active": "Abonnement actif — facturé le 1er de chaque mois",
     "cancelled": "Abonnement résilié",
@@ -1834,16 +1837,16 @@
     "ctaContact": "Nous contacter",
     "pricingBlock": {
       "eyebrow": "Tarifs",
-      "title": "Un prix unique, tout compris",
+      "title": "Un tarif simple, tout compris",
       "plan": "Standard",
       "amount": "199",
       "unit": "MAD / mois",
       "trial": "3 mois d'essai gratuit, sans engagement",
       "features": [
         "Toutes les fonctionnalités incluses",
-        "Membres d'équipe inclus",
+        "+99 MAD / mois par utilisateur supplémentaire",
         "Mises à jour continues",
-        "Support par e-mail et WhatsApp"
+        "Support intégré à l'application"
       ],
       "cta": "Commencer l'essai gratuit"
     },

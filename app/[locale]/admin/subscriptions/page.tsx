@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { currentBalance, effectiveStatus, fmtDay, fmtMoney, monthLabel, type SubscriptionRow } from "@/utils/subscription";
+import { currentBalance, effectiveStatus, fmtDay, fmtMoney, monthLabel, monthlyCharge, type SubscriptionRow } from "@/utils/subscription";
 import { generateInvoicesNow } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -16,12 +16,15 @@ const STATUS_CLASS = {
 export default async function AdminSubscriptionsPage({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
   const { deleted } = await searchParams;
   const db = createAdminClient();
-  const [{ data: subs }, { data: practices }, { data: invoices }, { data: payments }] = await Promise.all([
+  const [{ data: subs }, { data: practices }, { data: invoices }, { data: payments }, { data: members }] = await Promise.all([
     db.from("subscriptions").select("*"),
     db.from("practices").select("id, name, is_approved"),
     db.from("subscription_invoices").select("practice_id, amount, number, period_start").order("period_start", { ascending: false }),
     db.from("subscription_payments").select("practice_id, amount"),
+    db.from("practice_members").select("practice_id").eq("is_approved", true).is("deactivated_at", null),
   ]);
+  const usersOf = new Map<string, number>();
+  for (const m of members ?? []) usersOf.set(m.practice_id as string, (usersOf.get(m.practice_id as string) ?? 0) + 1);
   const nameOf = new Map((practices ?? []).map((p) => [p.id as string, p]));
   const rows = ((subs ?? []) as SubscriptionRow[]).map((s) => {
     const inv = (invoices ?? []).filter((i) => i.practice_id === s.practice_id);
@@ -31,7 +34,7 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
   }).sort((a, b) => b.balance - a.balance || a.name.localeCompare(b.name));
 
   const owed = rows.reduce((sum, r) => sum + Math.max(0, r.balance), 0);
-  const mrr = rows.filter((r) => r.status === "active" && r.approved).reduce((sum, r) => sum + Number(r.s.monthly_price), 0);
+  const mrr = rows.filter((r) => r.status === "active" && r.approved).reduce((sum, r) => sum + monthlyCharge(r.s, usersOf.get(r.s.practice_id) ?? 0), 0);
   const counts = { trial: rows.filter((r) => r.status === "trial").length, active: rows.filter((r) => r.status === "active").length };
 
   return (
@@ -40,7 +43,7 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
         <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Abonnements</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Formule Standard · 199 MAD / mois · 3 mois d&apos;essai. Factures générées automatiquement le 1er de chaque mois.</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">Formule Standard · 199 MAD / mois + 99 MAD par utilisateur supplémentaire · 3 mois d&apos;essai. Factures générées automatiquement le 1er de chaque mois.</p>
           </div>
           <form action={generateInvoicesNow}>
             <button className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">

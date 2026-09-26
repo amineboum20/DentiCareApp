@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { createAdminClient } from "@/utils/supabase/admin";
 import SubscriptionInvoiceButton from "@/components/SubscriptionInvoiceButton";
 import {
-  currentBalance, effectiveStatus, fmtDay, fmtMoney, monthLabel, PAYMENT_METHODS,
+  currentBalance, effectiveStatus, fmtDay, fmtMoney, monthLabel, monthlyCharge, PAYMENT_METHODS,
   type SubscriptionInvoiceRow, type SubscriptionPaymentRow, type SubscriptionRow,
 } from "@/utils/subscription";
 import { addPayment, deletePayment, setSubscriptionCancelled } from "../actions";
@@ -19,11 +19,12 @@ const STATUS_LABEL = { trial: "Essai", active: "Actif", cancelled: "Résilié" }
 export default async function AdminSubscriptionDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const db = createAdminClient();
-  const [{ data: practice }, { data: sub }, { data: invoices }, { data: payments }] = await Promise.all([
+  const [{ data: practice }, { data: sub }, { data: invoices }, { data: payments }, { count: activeUsers }] = await Promise.all([
     db.from("practices").select("id, name, address, phone, created_at, is_approved").eq("id", id).maybeSingle(),
     db.from("subscriptions").select("*").eq("practice_id", id).maybeSingle(),
     db.from("subscription_invoices").select("*").eq("practice_id", id).order("period_start", { ascending: false }),
     db.from("subscription_payments").select("*").eq("practice_id", id).order("paid_at", { ascending: false }),
+    db.from("practice_members").select("id", { count: "exact", head: true }).eq("practice_id", id).eq("is_approved", true).is("deactivated_at", null),
   ]);
   if (!practice) notFound();
   // What "Supprimer définitivement" would remove (dry run, nothing is deleted).
@@ -44,6 +45,8 @@ export default async function AdminSubscriptionDetail({ params }: { params: Prom
   const pay = (payments ?? []) as SubscriptionPaymentRow[];
   const balance = currentBalance(inv, pay);
   const status = effectiveStatus(s);
+  const users = activeUsers ?? 0;
+  const extra = Math.max(0, users - s.included_users);
 
   // Timeline: invoices and payments together, newest first.
   const history = [
@@ -62,7 +65,9 @@ export default async function AdminSubscriptionDetail({ params }: { params: Prom
           <div>
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{practice.name || "(sans nom)"}</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Standard · {fmtMoney(s.monthly_price, s.currency)} / mois · {STATUS_LABEL[status]}
+              Standard · {fmtMoney(monthlyCharge(s, users), s.currency)} / mois
+              {` (${users} utilisateur${users > 1 ? "s" : ""} actif${users > 1 ? "s" : ""} : ${fmtMoney(s.monthly_price)}${extra > 0 ? ` + ${extra} × ${fmtMoney(s.extra_user_price)}` : ""})`}
+              {" · "}{STATUS_LABEL[status]}
               {status === "trial" ? ` jusqu'au ${fmtDay(s.trial_ends_at)}` : ` · essai terminé le ${fmtDay(s.trial_ends_at)}`}
             </p>
           </div>
@@ -123,7 +128,7 @@ export default async function AdminSubscriptionDetail({ params }: { params: Prom
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-zinc-900 dark:text-white">🧾 {h.i.number} · {monthLabel(h.i.period_start)}</p>
                     <p className="text-xs text-zinc-400">
-                      {fmtDay(h.i.issued_at)} · mensualité {fmtMoney(h.i.amount)} · solde précédent {fmtMoney(h.i.previous_balance)} · {Number(h.i.total_due) < 0 ? `crédit ${fmtMoney(-h.i.total_due)}` : `total ${fmtMoney(h.i.total_due)}`}
+                      {fmtDay(h.i.issued_at)} · mensualité {fmtMoney(h.i.amount)} ({h.i.users_count} utilisateur{h.i.users_count > 1 ? "s" : ""}) · solde précédent {fmtMoney(h.i.previous_balance)} · {Number(h.i.total_due) < 0 ? `crédit ${fmtMoney(-h.i.total_due)}` : `total ${fmtMoney(h.i.total_due)}`}
                     </p>
                   </div>
                   <SubscriptionInvoiceButton invoice={h.i} practiceName={practice.name ?? ""} practiceAddress={practice.address} practicePhone={practice.phone} label="PDF" />

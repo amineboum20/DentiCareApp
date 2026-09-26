@@ -72,7 +72,14 @@ export async function exportSubscriptionInvoicePdf(opts: {
   doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(20, 20, 20);
   doc.text(`Abonnement ${APP_NAME} — formule ${PLAN_LABEL[inv.plan] ?? inv.plan}`, ml + 3, ty);
   doc.text(month(inv.period_start), 120, ty);
-  doc.text(money(inv.amount, cur), mr - 3, ty, { align: "right" });
+  doc.text(money(inv.base_amount, cur), mr - 3, ty, { align: "right" });
+  if (inv.extra_users > 0) {
+    ty += 7;
+    const plural = inv.extra_users > 1 ? "s" : "";
+    doc.text(`Utilisateur${plural} supplémentaire${plural} : ${inv.extra_users} x ${money(inv.extra_user_price, cur)}`, ml + 3, ty);
+    doc.text(month(inv.period_start), 120, ty);
+    doc.text(money(inv.extra_users * Number(inv.extra_user_price), cur), mr - 3, ty, { align: "right" });
+  }
   ty += 5;
   doc.setDrawColor(230, 230, 230);
   doc.line(ml, ty, mr, ty);
