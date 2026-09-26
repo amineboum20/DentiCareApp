@@ -1,8 +1,8 @@
 "use client";
 
 // Paramètres → Abonnement (owner only): the plan, the trial / status, the
-// current balance and the monthly MediCareApp invoices to download. Read-only —
-// billing is managed by the MediCareApp admins (RLS: owners can only read).
+// current balance and the monthly CareApp Group invoices to download. Read-only —
+// billing is managed by the CareApp Group admins (RLS: owners can only read).
 
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";

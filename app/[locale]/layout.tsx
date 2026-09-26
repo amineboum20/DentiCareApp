@@ -9,7 +9,7 @@ import { APP_NAME, SEO_BASE_URL, localeAlternates, openGraphFor } from "@/utils/
 import "../globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
-// Public site fonts (MediCareApp look), used through the .v2-font class.
+// Public site fonts (CareApp Group look), used through the .v2-font class.
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const notoArabic = Noto_Sans_Arabic({ subsets: ["arabic"], weight: ["400", "600", "700"], variable: "--font-noto-ar" });
 
@@ -58,10 +58,10 @@ export default async function LocaleLayout({
       {
         "@type": "Organization",
         "@id": `${SEO_BASE_URL}/#org`,
-        name: "MediCareApp",
+        name: "CareApp Group",
         url: SEO_BASE_URL,
         logo: `${SEO_BASE_URL}/logo.svg`,
-        sameAs: ["https://www.instagram.com/denticareapp", "https://www.facebook.com/denticareapp"],
+        sameAs: ["https://www.careappgroup.com", "https://www.instagram.com/denticareapp", "https://www.facebook.com/denticareapp"],
       },
       {
         "@type": "SoftwareApplication",

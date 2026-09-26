@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-// Building blocks of the public site (MediCareApp look). Server- and client-safe.
+// Building blocks of the public site (CareApp Group look). Server- and client-safe.
 export const CONTAINER = "max-w-[1160px] mx-auto px-5";
 export const BTN = "inline-flex items-center justify-center px-[22px] py-[13px] rounded-xl font-semibold transition hover:-translate-y-px";
 export const BTN_PRIMARY = `${BTN} v2-grad text-white shadow-[0_8px_20px_-8px_rgba(15,23,42,0.45)]`;

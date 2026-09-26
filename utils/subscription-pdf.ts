@@ -1,4 +1,4 @@
-// PDF of a subscription invoice issued by MediCareApp to a shop / cabinet.
+// PDF of a subscription invoice issued by CareApp Group to a shop / cabinet.
 // French only (legal document). Company details come from utils/company.ts
 // (placeholders until the company is registered).
 

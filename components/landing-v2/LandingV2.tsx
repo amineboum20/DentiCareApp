@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { FEATURE_PAGES } from "@/utils/marketing-pages";
 import { BTN_GHOST, BTN_PRIMARY, BTN, CARD, CONTAINER, Check, Eyebrow, ICON_TILE, SectionHead, Wordmark } from "@/components/marketing/ui";
 
-// Home page sections (MediCareApp look).
+// Home page sections (CareApp Group look).
 const FEATURES: { key: string; icon: string }[] = [
   { key: "patients", icon: "👤" },
   { key: "dossiers", icon: "🗂️" },

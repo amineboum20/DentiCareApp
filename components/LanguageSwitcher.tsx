@@ -6,7 +6,7 @@ import { useTransition, type CSSProperties } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 // Short codes, no flags: a language is not a country (same style as the
-// MediCareApp site). The full name shows as a tooltip / accessible label.
+// CareApp Group site). The full name shows as a tooltip / accessible label.
 const LANGS = [
   { code: "fr", short: "FR", label: "Français" },
   { code: "en", short: "EN", label: "English" },

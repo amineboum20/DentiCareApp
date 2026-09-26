@@ -88,7 +88,7 @@ body {
 .admin-prose .tier-features li { padding: .2rem 0; }
 .admin-prose .flow-steps { margin: .5rem 0; padding-left: 1.25rem; }
 
-/* ── Public site style (MediCareApp look) ─────────────────────────────────
+/* ── Public site style (CareApp Group look) ─────────────────────────────────
    Used by the marketing shell (home, SEO pages) and the auth/contact pages.
    Brand colours per app; fonts come from next/font in app/[locale]/layout. */
 :root {

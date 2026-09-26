@@ -1,6 +1,6 @@
 export const INFRA_HTML = `
 <h1 class="infra-title">Infrastructure DentiCareApp</h1>
-<p class="infra-lead">Architecture, services et coûts. DentiCareApp et OptiCareApp font partie de la même maison — <strong>MediCareApp</strong>.</p>
+<p class="infra-lead">Architecture, services et coûts. DentiCareApp et OptiCareApp font partie de la même maison — <strong>CareApp Group</strong>.</p>
 
 <h2 class="infra-h2">Stack de production</h2>
 <div class="infra-grid">
