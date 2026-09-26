@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAdminUser } from "@/utils/admin-auth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { pendingApprovalCount } from "@/utils/admin-approvals";
 import AdminSidebar from "./AdminSidebar";
+import { NO_INDEX } from "@/utils/seo";
+
+// Private area: never indexed.
+export const metadata: Metadata = { robots: NO_INDEX, alternates: { canonical: null } };
 
 export const dynamic = "force-dynamic";
 

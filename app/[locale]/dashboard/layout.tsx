@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getMemberWithPractice, getPracticeMembers } from "@/utils/supabase/queries";
@@ -6,6 +7,10 @@ import { AppProvider } from "@/components/AppContext";
 import RoleGuard from "@/components/RoleGuard";
 import Sidebar from "./Sidebar";
 import GlobalSearch from "@/components/GlobalSearch";
+import { NO_INDEX } from "@/utils/seo";
+
+// Private area: never indexed.
+export const metadata: Metadata = { robots: NO_INDEX, alternates: { canonical: null } };
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const t = await getTranslations("dashboardLayout");

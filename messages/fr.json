@@ -1545,5 +1545,33 @@
       "carte": "Carte",
       "autre": "Autre"
     }
+  },
+  "seo": {
+    "home": {
+      "title": "Logiciel cabinet dentaire : patients, rendez-vous, factures | DentiCareApp",
+      "description": "Logiciel en ligne pour cabinet dentaire : dossiers patients, schéma dentaire, rendez-vous, ordonnances, factures et feuilles de soins CNOPS/CNSS. Essai gratuit de 3 mois."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Une question sur DentiCareApp ? Contactez notre équipe : démonstration, tarifs, aide à la prise en main de votre cabinet dentaire."
+    },
+    "signup": {
+      "title": "Créer un compte cabinet dentaire",
+      "description": "Créez le compte de votre cabinet dentaire sur DentiCareApp et profitez de 3 mois d'essai gratuit, sans engagement."
+    },
+    "signin": {
+      "title": "Connexion"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié"
+    },
+    "resetPassword": {
+      "title": "Nouveau mot de passe"
+    },
+    "portal": {
+      "title": "Mon espace patient"
+    },
+    "ogAlt": "DentiCareApp — logiciel de gestion pour cabinets dentaires",
+    "appDescription": "Logiciel de gestion en ligne pour cabinets dentaires : patients, schéma dentaire, rendez-vous, ordonnances et factures."
   }
 }

@@ -1545,5 +1545,33 @@
       "carte": "Card",
       "autre": "Other"
     }
+  },
+  "seo": {
+    "home": {
+      "title": "Dental practice management software: patients, appointments, invoices | DentiCareApp",
+      "description": "Online software for dental practices: patient records, dental chart, appointments, prescriptions, invoices and CNOPS/CNSS claim forms. 3-month free trial."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "A question about DentiCareApp? Contact our team for a demo, pricing, or help getting your dental practice set up."
+    },
+    "signup": {
+      "title": "Create a dental practice account",
+      "description": "Create your dental practice's account on DentiCareApp and enjoy a 3-month free trial, no commitment."
+    },
+    "signin": {
+      "title": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Forgot password"
+    },
+    "resetPassword": {
+      "title": "New password"
+    },
+    "portal": {
+      "title": "My patient space"
+    },
+    "ogAlt": "DentiCareApp — practice management software for dentists",
+    "appDescription": "Online practice management software for dental practices: patients, dental chart, appointments, prescriptions and invoices."
   }
 }

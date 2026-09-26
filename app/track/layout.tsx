@@ -7,6 +7,7 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 export const metadata: Metadata = {
   title: "Suivi de rendez-vous · DentiCareApp",
   description: "Suivez votre rendez-vous en temps réel.",
+  robots: { index: false, follow: false },
 };
 
 export default function TrackLayout({ children }: { children: React.ReactNode }) {
