@@ -283,7 +283,7 @@ export default function Home() {
             <img src="/logo.svg" alt="DentiCareApp" className="w-12 h-12" />
             <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span>App</span>
           </div>
-          <div className="hidden sm:flex items-center gap-4">
+          <div className="hidden xl:flex items-center gap-4">
             <a href="#features" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.features")}</a>
             <a href="#how" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.howItWorks")}</a>
             <Link href="/contact" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.contact")}</Link>
@@ -291,7 +291,7 @@ export default function Home() {
             <Link href="/signup" className="text-sm font-medium bg-teal-600 text-white px-4 py-2 rounded-full hover:bg-teal-700 transition-colors">{t("nav.getStarted")}</Link>
             <Link href="/signin" className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">{t("nav.signIn")}</Link>
           </div>
-          <div className="flex sm:hidden items-center gap-2">
+          <div className="flex xl:hidden items-center gap-2">
             <button onClick={() => setMobileNavOpen(!mobileNavOpen)} aria-label="Toggle menu"
               className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -303,7 +303,7 @@ export default function Home() {
           </div>
         </div>
         {mobileNavOpen && (
-          <div className="sm:hidden border-t border-zinc-100 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 px-5 py-4 flex flex-col gap-3">
+          <div className="xl:hidden border-t border-zinc-100 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 px-5 py-4 flex flex-col gap-3">
             <div className="flex pb-3 mb-1 border-b border-zinc-100 dark:border-zinc-800"><LanguageSwitcher /></div>
             <a href="#features" onClick={() => setMobileNavOpen(false)} className="text-sm text-zinc-700 dark:text-zinc-300 py-1">{t("nav.features")}</a>
             <a href="#how" onClick={() => setMobileNavOpen(false)} className="text-sm text-zinc-700 dark:text-zinc-300 py-1">{t("nav.howItWorks")}</a>
@@ -316,12 +316,11 @@ export default function Home() {
 
       {/* Hero */}
       <section
-        className="relative flex flex-col items-center justify-center text-center px-6 bg-scroll lg:bg-fixed"
+        className="relative flex flex-col items-center justify-center text-center px-6 bg-scroll lg:bg-fixed [background-position:48%_35%] md:[background-position:55%_35%]"
         style={{
           minHeight: "calc(100vh - 76px)",
-          backgroundImage: "url('/pexels-shvets-production-8413334.jpg')",
+          backgroundImage: "url('/landing-hero-soin-enfant.jpg')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/70" />
@@ -500,7 +499,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section id="how" className="relative py-24 px-6 bg-scroll lg:bg-fixed" style={{ backgroundImage: "url(/pexels-cottonbro-6502017.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}>
+      <section id="how" className="relative py-24 px-6 bg-scroll lg:bg-fixed [background-position:78%_30%] md:[background-position:55%_30%]" style={{ backgroundImage: "url(/landing-radio-dentiste.jpg)", backgroundSize: "cover" }}>
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10">
           <div className="max-w-4xl mx-auto text-center mb-14">
