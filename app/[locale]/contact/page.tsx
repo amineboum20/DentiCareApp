@@ -35,11 +35,11 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
+    <div className="v2-font v2-hero-bg min-h-screen bg-white flex flex-col text-slate-900">
       <nav className="flex items-center justify-between gap-3 px-4 sm:px-8 py-4 sm:py-5">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <img src="/logo.svg" alt="DentiCareApp" className="w-7 h-7" />
-          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="text-teal-500 dark:text-teal-400">Care</span>App</span>
+          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Denti<span className="v2-grad-text">Care</span>App</span>
         </Link>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
@@ -49,7 +49,7 @@ export default function Contact() {
 
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-8">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200 dark:border-zinc-800 v2-shadow p-8">
             {sent ? (
               <div className="text-center">
                 <span className="text-5xl">✅</span>
@@ -96,7 +96,7 @@ export default function Contact() {
                       className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition resize-y" />
                   </div>
                   <button type="submit" disabled={loading}
-                    className="w-full py-2.5 rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors mt-1 disabled:opacity-60 disabled:cursor-not-allowed">
+                    className="w-full py-2.5 rounded-xl v2-grad text-white font-semibold text-sm hover:opacity-95 transition mt-1 disabled:opacity-60 disabled:cursor-not-allowed">
                     {loading ? t("sending") : t("button")}
                   </button>
                 </form>

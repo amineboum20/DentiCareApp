@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Inter, Noto_Sans_Arabic } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,6 +9,9 @@ import { APP_NAME, SEO_BASE_URL, localeAlternates, openGraphFor } from "@/utils/
 import "../globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+// Public site fonts (MediCareApp look), used through the .v2-font class.
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const notoArabic = Noto_Sans_Arabic({ subsets: ["arabic"], weight: ["400", "600", "700"], variable: "--font-noto-ar" });
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -78,7 +81,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={isRtl ? "rtl" : "ltr"}
-      className={`${geist.variable} h-full antialiased`}
+      className={`${geist.variable} ${inter.variable} ${notoArabic.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

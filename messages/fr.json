@@ -1573,5 +1573,315 @@
     },
     "ogAlt": "DentiCareApp — logiciel de gestion pour cabinets dentaires",
     "appDescription": "Logiciel de gestion en ligne pour cabinets dentaires : patients, schéma dentaire, rendez-vous, ordonnances et factures."
+  },
+  "marketing": {
+    "common": {
+      "home": "Accueil",
+      "benefitsTitle": "Ce que votre cabinet y gagne",
+      "relatedTitle": "Découvrir les autres fonctionnalités",
+      "exploreTitle": "Découvrir DentiCareApp en détail",
+      "contact": "Nous contacter",
+      "faq": "FAQ",
+      "learnMore": "En savoir plus →",
+      "features": "Fonctionnalités",
+      "faqContactTitle": "Vous ne trouvez pas votre réponse ?",
+      "faqContactText": "Écrivez-nous, notre équipe vous répond."
+    },
+    "pages": {
+      "software": {
+        "navLabel": "Logiciel cabinet dentaire",
+        "metaTitle": "Logiciel de gestion pour cabinet dentaire",
+        "metaDescription": "DentiCareApp réunit dossiers patients, schéma dentaire, rendez-vous, ordonnances et facturation dans un seul logiciel en ligne pour cabinet dentaire. Essai gratuit de 3 mois.",
+        "teaser": "Tout votre cabinet dans un seul outil en ligne.",
+        "badge": "Logiciel pour cabinets dentaires",
+        "h1": "Le logiciel de gestion pensé pour les cabinets dentaires",
+        "intro": "DentiCareApp rassemble tout ce qui fait tourner votre cabinet : patients, dossiers de soins, schéma dentaire, rendez-vous, ordonnances et factures. Tout est en ligne, accessible depuis un ordinateur, une tablette ou un téléphone, sans rien installer.",
+        "blocks": [
+          {
+            "icon": "🗂️",
+            "title": "Patients et dossiers de soins",
+            "text": "Chaque patient a sa fiche complète : coordonnées, date de naissance, mutuelle et historique des visites. Les soins d'un même traitement sont regroupés dans un dossier, avec ses actes, ses paiements et son reste à payer."
+          },
+          {
+            "icon": "🦷",
+            "title": "Schéma dentaire interactif",
+            "text": "Un odontogramme anatomique, adulte ou enfant selon l'âge du patient, que vous annotez dent par dent. Il se met à jour tout seul quand vous facturez un acte sur une dent."
+          },
+          {
+            "icon": "📅",
+            "title": "Agenda et rendez-vous",
+            "text": "Planifiez les rendez-vous en liste ou en vue agenda, envoyez un rappel WhatsApp en un clic et transformez un rendez-vous terminé en visite."
+          },
+          {
+            "icon": "🧾",
+            "title": "Facturation, devis et ordonnances",
+            "text": "Devis, factures, acomptes et ordonnances imprimables en PDF au nom de votre cabinet. Les feuilles de soins CNOPS et CNSS sont pré-remplies à partir du dossier."
+          }
+        ],
+        "benefits": [
+          "Moins de papier et d'administratif, plus de temps pour vos patients",
+          "Toutes les informations d'un patient réunies au même endroit",
+          "Un accès adapté à chaque membre de l'équipe : gérant, dentiste ou assistante",
+          "Une interface disponible en français, en anglais et en arabe"
+        ]
+      },
+      "appointments": {
+        "navLabel": "Rendez-vous et agenda",
+        "metaTitle": "Agenda et prise de rendez-vous pour cabinet dentaire",
+        "metaDescription": "Gérez l'agenda de votre cabinet dentaire avec DentiCareApp : rendez-vous en liste ou en agenda, rappels WhatsApp en un clic et lien direct entre le rendez-vous et la visite.",
+        "teaser": "Un agenda clair et des rappels en un clic.",
+        "badge": "Rendez-vous",
+        "h1": "L'agenda de votre cabinet dentaire, simple et toujours à jour",
+        "intro": "Avec DentiCareApp, vous planifiez et suivez les rendez-vous de tout le cabinet au même endroit. Chaque rendez-vous est relié au patient et, une fois terminé, à la visite qu'il a produite.",
+        "blocks": [
+          {
+            "icon": "📋",
+            "title": "Liste ou agenda",
+            "text": "Passez d'un clic de la liste des rendez-vous à la vue agenda pour voir la journée ou la semaine du cabinet."
+          },
+          {
+            "icon": "💬",
+            "title": "Rappel WhatsApp en un clic",
+            "text": "Envoyez au patient un message WhatsApp de rappel déjà rédigé, directement depuis la fiche du rendez-vous."
+          },
+          {
+            "icon": "🔗",
+            "title": "Du rendez-vous à la visite",
+            "text": "Quand un rendez-vous est terminé, reliez-le à une visite existante ou créez-la aussitôt, avec les actes réalisés et leur facturation."
+          },
+          {
+            "icon": "👩‍💼",
+            "title": "Pensé pour l'assistante",
+            "text": "L'assistante crée les patients, ouvre les dossiers et gère les rendez-vous, sans accéder aux données cliniques ni à la facturation."
+          }
+        ],
+        "benefits": [
+          "Moins d'oublis et de rendez-vous manqués",
+          "Une vue claire de la charge de travail du cabinet",
+          "Aucune double saisie entre l'agenda et le dossier du patient",
+          "Un statut précis pour chaque rendez-vous : planifié, terminé, absent ou annulé"
+        ]
+      },
+      "chart": {
+        "navLabel": "Schéma dentaire",
+        "metaTitle": "Schéma dentaire en ligne (odontogramme)",
+        "metaDescription": "Le schéma dentaire de DentiCareApp : odontogramme anatomique adulte et enfant, statut de chaque dent, mise à jour automatique à partir des actes facturés et fiche patient imprimable.",
+        "teaser": "L'odontogramme de chaque patient, toujours à jour.",
+        "badge": "Schéma dentaire",
+        "h1": "Un schéma dentaire interactif pour chaque patient",
+        "intro": "DentiCareApp affiche la bouche de chaque patient sous la forme d'un odontogramme anatomique. Vous voyez en un coup d'œil les caries, obturations, couronnes, implants ou dents absentes, et vous le mettez à jour en quelques clics.",
+        "blocks": [
+          {
+            "icon": "👶",
+            "title": "Adulte ou enfant, automatiquement",
+            "text": "Le schéma s'adapte à l'âge du patient : dentition permanente pour l'adulte, dents de lait pour l'enfant, avec la numérotation FDI."
+          },
+          {
+            "icon": "🎨",
+            "title": "Le statut de chaque dent",
+            "text": "Marquez chaque dent comme cariée, obturée, couronnée, à traiter, prothèse, bridge, implant ou absente, et ajoutez une note si besoin."
+          },
+          {
+            "icon": "⚙️",
+            "title": "Relié à la facturation",
+            "text": "Quand vous facturez un acte sur une dent, vous la sélectionnez directement sur le schéma et son statut se met à jour automatiquement."
+          },
+          {
+            "icon": "🖨️",
+            "title": "Imprimable et partageable",
+            "text": "Imprimez la fiche du patient avec son schéma dentaire. Le patient peut aussi le consulter dans son espace personnel."
+          }
+        ],
+        "benefits": [
+          "Une vision complète de la bouche du patient à chaque consultation",
+          "Moins d'erreurs de dent entre le soin et la facture",
+          "Des explications plus claires pour le patient",
+          "Un schéma toujours à jour, sans double saisie"
+        ]
+      },
+      "claims": {
+        "navLabel": "Feuilles de soins CNOPS et CNSS",
+        "metaTitle": "Feuilles de soins dentaires CNOPS et CNSS pré-remplies",
+        "metaDescription": "DentiCareApp remplit pour vous les feuilles de soins dentaires CNOPS et CNSS sur les formulaires officiels, à partir de la fiche et du dossier du patient.",
+        "teaser": "Les formulaires officiels, remplis pour vous.",
+        "badge": "Feuilles de soins",
+        "h1": "Vos feuilles de soins CNOPS et CNSS, pré-remplies en un clic",
+        "intro": "Fini la recopie à la main des informations du patient. Depuis le dossier de soins, DentiCareApp génère la feuille de soins CNOPS ou CNSS sur le formulaire officiel, prête à imprimer.",
+        "blocks": [
+          {
+            "icon": "📄",
+            "title": "Sur le formulaire officiel",
+            "text": "Les informations sont placées directement sur le modèle officiel de la CNOPS ou de la CNSS, et non sur une imitation approximative."
+          },
+          {
+            "icon": "👤",
+            "title": "Les données du patient reprises automatiquement",
+            "text": "Nom, CIN, date de naissance, organisme et numéro d'affiliation sont repris de la fiche du patient."
+          },
+          {
+            "icon": "🩺",
+            "title": "Un INPE par praticien",
+            "text": "Chaque dentiste du cabinet est enregistré avec son propre INPE, pour des documents au nom du bon praticien."
+          },
+          {
+            "icon": "🗂️",
+            "title": "Une feuille par dossier de soins",
+            "text": "La feuille de soins se génère depuis le dossier du traitement, là où sont regroupés les soins du patient."
+          }
+        ],
+        "benefits": [
+          "Moins de temps passé à remplir des formulaires",
+          "Moins d'erreurs de recopie",
+          "Des patients mieux accompagnés dans leurs démarches de remboursement",
+          "Des feuilles propres et lisibles"
+        ]
+      },
+      "billing": {
+        "navLabel": "Facturation et devis",
+        "metaTitle": "Facturation, devis et ordonnances pour cabinet dentaire",
+        "metaDescription": "Avec DentiCareApp, créez devis, factures et ordonnances en PDF, suivez les acomptes et le reste à payer de chaque dossier, et donnez à vos patients un accès sécurisé à leurs documents.",
+        "teaser": "Devis, factures, acomptes et ordonnances sans effort.",
+        "badge": "Facturation",
+        "h1": "Une facturation claire pour votre cabinet dentaire",
+        "intro": "DentiCareApp relie la facturation aux soins : les actes réalisés pendant une visite s'ajoutent à la facture du dossier, les acomptes sont suivis et le reste à payer est toujours à jour.",
+        "blocks": [
+          {
+            "icon": "🧾",
+            "title": "Devis et factures en PDF",
+            "text": "Préparez des devis et des factures, et imprimez des documents professionnels au nom et au logo de votre cabinet."
+          },
+          {
+            "icon": "💳",
+            "title": "Acomptes et reste à payer",
+            "text": "Enregistrez chaque paiement du patient et suivez le reste à payer de chaque dossier de traitement."
+          },
+          {
+            "icon": "💊",
+            "title": "Ordonnances",
+            "text": "Rédigez vos ordonnances à partir de votre catalogue de médicaments, avec des posologies par défaut, et imprimez-les en un clic."
+          },
+          {
+            "icon": "📱",
+            "title": "Espace patient avec QR code",
+            "text": "Chaque document porte un QR code qui ouvre l'espace personnel du patient, protégé par sa date de naissance, où il retrouve ses factures et ordonnances."
+          }
+        ],
+        "benefits": [
+          "Des factures justes, reliées aux actes réellement réalisés",
+          "Une facture n'est jamais supprimée : elle est annulée et reste traçable",
+          "Le chiffre d'affaires du cabinet visible en un coup d'œil",
+          "Moins de questions des patients sur leurs paiements"
+        ]
+      },
+      "faq": {
+        "navLabel": "Questions fréquentes",
+        "metaTitle": "Questions fréquentes",
+        "metaDescription": "Toutes les réponses sur DentiCareApp, le logiciel de gestion pour cabinet dentaire : essai gratuit, installation, sécurité des données, équipe, langues et feuilles de soins.",
+        "teaser": "Les réponses à vos questions sur DentiCareApp.",
+        "badge": "FAQ",
+        "h1": "Questions fréquentes sur DentiCareApp",
+        "intro": "Tout ce qu'il faut savoir avant de commencer avec DentiCareApp.",
+        "items": [
+          {
+            "q": "Qu'est-ce que DentiCareApp ?",
+            "a": "DentiCareApp est un logiciel de gestion en ligne pour cabinet dentaire. Il réunit les fiches patients, les dossiers de soins, le schéma dentaire, les rendez-vous, les ordonnances et la facturation."
+          },
+          {
+            "q": "Combien coûte DentiCareApp ?",
+            "a": "Vous profitez d'abord de 3 mois d'essai gratuit. Ensuite, un abonnement mensuel unique, sans engagement, donne accès à toutes les fonctionnalités. Contactez-nous pour connaître le tarif applicable à votre cabinet."
+          },
+          {
+            "q": "Faut-il installer un logiciel ?",
+            "a": "Non. DentiCareApp fonctionne dans le navigateur, sur ordinateur, tablette ou téléphone. Il suffit d'une connexion internet."
+          },
+          {
+            "q": "Les données de mes patients sont-elles protégées ?",
+            "a": "Oui. Les échanges sont chiffrés, l'accès est protégé par un mot de passe personnel et les données de chaque cabinet sont strictement séparées de celles des autres cabinets."
+          },
+          {
+            "q": "Puis-je travailler avec mon équipe ?",
+            "a": "Oui. Invitez vos dentistes et vos assistantes. Chaque membre a un rôle : l'assistante gère les patients, les dossiers et les rendez-vous, sans accès aux données cliniques ni à la facturation."
+          },
+          {
+            "q": "Dans quelles langues DentiCareApp est-il disponible ?",
+            "a": "L'interface est disponible en français, en anglais et en arabe. Chaque membre de l'équipe choisit sa langue."
+          },
+          {
+            "q": "Mes patients ont-ils accès à leurs documents ?",
+            "a": "Oui. Les factures et ordonnances portent un QR code qui ouvre l'espace personnel du patient, protégé par sa date de naissance, où il retrouve ses documents et son schéma dentaire."
+          },
+          {
+            "q": "Comment commencer ?",
+            "a": "Créez votre compte en quelques minutes, sans carte bancaire. Votre essai gratuit de 3 mois commence dès l'ouverture de votre compte."
+          }
+        ]
+      }
+    }
+  },
+  "landingV2": {
+    "pricing": "Tarifs",
+    "heroPoints": [
+      "3 mois d'essai gratuit",
+      "Sans installation",
+      "Données sécurisées"
+    ],
+    "featuresEyebrow": "Fonctionnalités",
+    "exploreEyebrow": "En détail",
+    "howEyebrow": "Comment ça marche",
+    "whyEyebrow": "Pourquoi DentiCareApp",
+    "testimonialEyebrow": "Ils nous font confiance",
+    "testimonialTitle": "La parole à nos utilisateurs",
+    "ctaContact": "Nous contacter",
+    "pricingBlock": {
+      "eyebrow": "Tarifs",
+      "title": "Un prix unique, tout compris",
+      "plan": "Standard",
+      "amount": "199",
+      "unit": "MAD / mois",
+      "trial": "3 mois d'essai gratuit, sans engagement",
+      "features": [
+        "Toutes les fonctionnalités incluses",
+        "Membres d'équipe inclus",
+        "Mises à jour continues",
+        "Support par e-mail et WhatsApp"
+      ],
+      "cta": "Commencer l'essai gratuit"
+    },
+    "chipStatus": "✓ Schéma dentaire à jour",
+    "exploreTitle": "Chaque besoin du cabinet a sa réponse",
+    "exploreLead": "Découvrez en détail comment DentiCareApp vous accompagne au quotidien.",
+    "whyTitle": "Pensé pour le quotidien des cabinets dentaires",
+    "why": [
+      {
+        "icon": "🌍",
+        "title": "Trois langues",
+        "text": "Français, anglais et arabe (de droite à gauche), pour vous et votre équipe."
+      },
+      {
+        "icon": "☁️",
+        "title": "100 % en ligne",
+        "text": "Aucune installation : ordinateur, tablette ou téléphone, vos données vous suivent."
+      },
+      {
+        "icon": "🔒",
+        "title": "Sécurité des données",
+        "text": "Chaque cabinet est isolé, avec des accès adaptés au rôle de chacun."
+      },
+      {
+        "icon": "💬",
+        "title": "WhatsApp intégré",
+        "text": "Envoyez un rappel de rendez-vous à vos patients en un clic."
+      },
+      {
+        "icon": "🧾",
+        "title": "Documents prêts à imprimer",
+        "text": "Factures, devis, ordonnances et feuilles de soins en PDF, à votre en-tête."
+      },
+      {
+        "icon": "🤝",
+        "title": "Support réactif",
+        "text": "Une équipe proche de vous, qui fait évoluer DentiCareApp selon vos retours."
+      }
+    ]
   }
 }

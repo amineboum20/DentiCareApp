@@ -1573,5 +1573,315 @@
     },
     "ogAlt": "DentiCareApp — practice management software for dentists",
     "appDescription": "Online practice management software for dental practices: patients, dental chart, appointments, prescriptions and invoices."
+  },
+  "marketing": {
+    "common": {
+      "home": "Home",
+      "benefitsTitle": "What your practice gains",
+      "relatedTitle": "Explore the other features",
+      "exploreTitle": "Explore DentiCareApp in detail",
+      "contact": "Contact us",
+      "faq": "FAQ",
+      "learnMore": "Learn more →",
+      "features": "Features",
+      "faqContactTitle": "Can't find your answer?",
+      "faqContactText": "Write to us and our team will get back to you."
+    },
+    "pages": {
+      "software": {
+        "navLabel": "Dental practice software",
+        "metaTitle": "Dental practice management software",
+        "metaDescription": "DentiCareApp brings patient records, dental charting, appointments, prescriptions and invoicing together in one online software for dental practices. 3-month free trial.",
+        "teaser": "Your whole practice in one online tool.",
+        "badge": "Software for dental practices",
+        "h1": "Practice management software built for dental practices",
+        "intro": "DentiCareApp brings together everything that keeps your practice running: patients, treatment records, dental chart, appointments, prescriptions and invoices. It all runs online, from a computer, tablet or phone, with nothing to install.",
+        "blocks": [
+          {
+            "icon": "🗂️",
+            "title": "Patients and treatment records",
+            "text": "Every patient has a complete profile: contact details, date of birth, insurance and visit history. Care for the same treatment is grouped in one record, with its procedures, payments and balance due."
+          },
+          {
+            "icon": "🦷",
+            "title": "Interactive dental chart",
+            "text": "An anatomical odontogram, adult or child depending on the patient's age, that you annotate tooth by tooth. It updates itself when you bill a procedure on a tooth."
+          },
+          {
+            "icon": "📅",
+            "title": "Calendar and appointments",
+            "text": "Schedule appointments as a list or in calendar view, send a WhatsApp reminder in one click and turn a completed appointment into a visit."
+          },
+          {
+            "icon": "🧾",
+            "title": "Invoices, quotes and prescriptions",
+            "text": "Quotes, invoices, deposits and prescriptions printed as PDFs in your practice's name. CNOPS and CNSS claim forms are pre-filled from the patient record."
+          }
+        ],
+        "benefits": [
+          "Less paperwork, more time for your patients",
+          "All of a patient's information in one place",
+          "The right access for each team member: manager, dentist or assistant",
+          "An interface available in French, English and Arabic"
+        ]
+      },
+      "appointments": {
+        "navLabel": "Appointments and calendar",
+        "metaTitle": "Appointment scheduling for dental practices",
+        "metaDescription": "Manage your dental practice's calendar with DentiCareApp: appointments as a list or calendar, one-click WhatsApp reminders and a direct link between each appointment and its visit.",
+        "teaser": "A clear calendar and one-click reminders.",
+        "badge": "Appointments",
+        "h1": "Your dental practice's calendar, simple and always up to date",
+        "intro": "With DentiCareApp, you schedule and track the whole practice's appointments in one place. Each appointment is linked to the patient and, once completed, to the visit it led to.",
+        "blocks": [
+          {
+            "icon": "📋",
+            "title": "List or calendar",
+            "text": "Switch in one click from the appointment list to the calendar view to see the practice's day or week."
+          },
+          {
+            "icon": "💬",
+            "title": "One-click WhatsApp reminder",
+            "text": "Send the patient a ready-written WhatsApp reminder, straight from the appointment page."
+          },
+          {
+            "icon": "🔗",
+            "title": "From appointment to visit",
+            "text": "When an appointment is completed, link it to an existing visit or create one right away, with the procedures performed and their billing."
+          },
+          {
+            "icon": "👩‍💼",
+            "title": "Built for the assistant",
+            "text": "The assistant creates patients, opens records and manages appointments, without access to clinical data or billing."
+          }
+        ],
+        "benefits": [
+          "Fewer forgotten and missed appointments",
+          "A clear view of the practice's workload",
+          "No double entry between the calendar and the patient record",
+          "A precise status for every appointment: scheduled, completed, no-show or cancelled"
+        ]
+      },
+      "chart": {
+        "navLabel": "Dental chart",
+        "metaTitle": "Online dental chart (odontogram)",
+        "metaDescription": "The DentiCareApp dental chart: anatomical adult and child odontogram, status of every tooth, automatic updates from billed procedures and a printable patient sheet.",
+        "teaser": "Each patient's odontogram, always up to date.",
+        "badge": "Dental chart",
+        "h1": "An interactive dental chart for every patient",
+        "intro": "DentiCareApp shows each patient's mouth as an anatomical odontogram. You see caries, fillings, crowns, implants or missing teeth at a glance, and update it in a few clicks.",
+        "blocks": [
+          {
+            "icon": "👶",
+            "title": "Adult or child, automatically",
+            "text": "The chart adapts to the patient's age: permanent teeth for adults, primary teeth for children, with FDI numbering."
+          },
+          {
+            "icon": "🎨",
+            "title": "The status of every tooth",
+            "text": "Mark each tooth as decayed, filled, crowned, to treat, prosthesis, bridge, implant or missing, and add a note if needed."
+          },
+          {
+            "icon": "⚙️",
+            "title": "Linked to billing",
+            "text": "When you bill a procedure on a tooth, you pick it directly on the chart and its status updates automatically."
+          },
+          {
+            "icon": "🖨️",
+            "title": "Printable and shareable",
+            "text": "Print the patient sheet with its dental chart. Patients can also view it in their personal space."
+          }
+        ],
+        "benefits": [
+          "A complete view of the patient's mouth at every visit",
+          "Fewer tooth mix-ups between treatment and invoice",
+          "Clearer explanations for the patient",
+          "A chart that is always up to date, with no double entry"
+        ]
+      },
+      "claims": {
+        "navLabel": "CNOPS and CNSS claim forms",
+        "metaTitle": "Pre-filled CNOPS and CNSS dental claim forms",
+        "metaDescription": "DentiCareApp fills in CNOPS and CNSS dental claim forms for you, on the official forms, from the patient's profile and treatment record.",
+        "teaser": "The official forms, filled in for you.",
+        "badge": "Claim forms",
+        "h1": "Your CNOPS and CNSS claim forms, pre-filled in one click",
+        "intro": "No more copying patient details by hand. From the treatment record, DentiCareApp generates the CNOPS or CNSS claim form on the official form, ready to print.",
+        "blocks": [
+          {
+            "icon": "📄",
+            "title": "On the official form",
+            "text": "The details are placed directly on the official CNOPS or CNSS template, not on a rough imitation."
+          },
+          {
+            "icon": "👤",
+            "title": "Patient details filled in automatically",
+            "text": "Name, ID number, date of birth, insurer and membership number are taken from the patient's profile."
+          },
+          {
+            "icon": "🩺",
+            "title": "One INPE per practitioner",
+            "text": "Each dentist in the practice is registered with their own INPE, so documents carry the right practitioner's name."
+          },
+          {
+            "icon": "🗂️",
+            "title": "One form per treatment record",
+            "text": "The claim form is generated from the treatment record, where the patient's care is grouped."
+          }
+        ],
+        "benefits": [
+          "Less time spent filling in forms",
+          "Fewer copying mistakes",
+          "Patients better supported in their reimbursement claims",
+          "Clean, legible forms"
+        ]
+      },
+      "billing": {
+        "navLabel": "Invoices and quotes",
+        "metaTitle": "Invoicing, quotes and prescriptions for dental practices",
+        "metaDescription": "With DentiCareApp, create quotes, invoices and prescriptions as PDFs, track deposits and the balance due on each record, and give patients secure access to their documents.",
+        "teaser": "Quotes, invoices, deposits and prescriptions, effortlessly.",
+        "badge": "Invoicing",
+        "h1": "Clear invoicing for your dental practice",
+        "intro": "DentiCareApp links invoicing to care: procedures performed during a visit are added to the record's invoice, deposits are tracked and the balance due is always up to date.",
+        "blocks": [
+          {
+            "icon": "🧾",
+            "title": "Quotes and invoices as PDFs",
+            "text": "Prepare quotes and invoices, and print professional documents with your practice's name and logo."
+          },
+          {
+            "icon": "💳",
+            "title": "Deposits and balance due",
+            "text": "Record each patient payment and track the balance due on every treatment record."
+          },
+          {
+            "icon": "💊",
+            "title": "Prescriptions",
+            "text": "Write prescriptions from your medication catalogue, with default dosages, and print them in one click."
+          },
+          {
+            "icon": "📱",
+            "title": "Patient space with QR code",
+            "text": "Every document carries a QR code that opens the patient's personal space, protected by their date of birth, where they find their invoices and prescriptions."
+          }
+        ],
+        "benefits": [
+          "Accurate invoices, linked to the procedures actually performed",
+          "An invoice is never deleted: it is cancelled and stays traceable",
+          "The practice's revenue at a glance",
+          "Fewer patient questions about payments"
+        ]
+      },
+      "faq": {
+        "navLabel": "Frequently asked questions",
+        "metaTitle": "Frequently asked questions",
+        "metaDescription": "All the answers about DentiCareApp, the dental practice management software: free trial, installation, data security, team, languages and claim forms.",
+        "teaser": "Answers to your questions about DentiCareApp.",
+        "badge": "FAQ",
+        "h1": "Frequently asked questions about DentiCareApp",
+        "intro": "Everything you need to know before getting started with DentiCareApp.",
+        "items": [
+          {
+            "q": "What is DentiCareApp?",
+            "a": "DentiCareApp is online management software for dental practices. It brings together patient profiles, treatment records, the dental chart, appointments, prescriptions and invoicing."
+          },
+          {
+            "q": "How much does DentiCareApp cost?",
+            "a": "You start with a 3-month free trial. After that, a single monthly subscription with no commitment gives access to every feature. Contact us to find out the price for your practice."
+          },
+          {
+            "q": "Do I need to install anything?",
+            "a": "No. DentiCareApp runs in the browser, on a computer, tablet or phone. All you need is an internet connection."
+          },
+          {
+            "q": "Is my patients' data protected?",
+            "a": "Yes. Connections are encrypted, access is protected by a personal password and each practice's data is kept strictly separate from other practices."
+          },
+          {
+            "q": "Can I work with my team?",
+            "a": "Yes. Invite your dentists and assistants. Each member has a role: assistants manage patients, records and appointments, without access to clinical data or billing."
+          },
+          {
+            "q": "Which languages is DentiCareApp available in?",
+            "a": "The interface is available in French, English and Arabic. Each team member chooses their own language."
+          },
+          {
+            "q": "Can my patients access their documents?",
+            "a": "Yes. Invoices and prescriptions carry a QR code that opens the patient's personal space, protected by their date of birth, where they find their documents and dental chart."
+          },
+          {
+            "q": "How do I get started?",
+            "a": "Create your account in a few minutes, with no credit card. Your 3-month free trial starts as soon as your account is open."
+          }
+        ]
+      }
+    }
+  },
+  "landingV2": {
+    "pricing": "Pricing",
+    "heroPoints": [
+      "3-month free trial",
+      "Nothing to install",
+      "Secure data"
+    ],
+    "featuresEyebrow": "Features",
+    "exploreEyebrow": "In detail",
+    "howEyebrow": "How it works",
+    "whyEyebrow": "Why DentiCareApp",
+    "testimonialEyebrow": "They trust us",
+    "testimonialTitle": "Hear from our users",
+    "ctaContact": "Contact us",
+    "pricingBlock": {
+      "eyebrow": "Pricing",
+      "title": "One price, everything included",
+      "plan": "Standard",
+      "amount": "199",
+      "unit": "MAD / month",
+      "trial": "3-month free trial, no commitment",
+      "features": [
+        "Every feature included",
+        "Team members included",
+        "Continuous updates",
+        "Support by email and WhatsApp"
+      ],
+      "cta": "Start the free trial"
+    },
+    "chipStatus": "✓ Dental chart up to date",
+    "exploreTitle": "An answer for every need of your practice",
+    "exploreLead": "See in detail how DentiCareApp supports you every day.",
+    "whyTitle": "Built for the day-to-day of dental practices",
+    "why": [
+      {
+        "icon": "🌍",
+        "title": "Three languages",
+        "text": "French, English and Arabic (right-to-left), for you and your team."
+      },
+      {
+        "icon": "☁️",
+        "title": "100% online",
+        "text": "Nothing to install: computer, tablet or phone, your data follows you."
+      },
+      {
+        "icon": "🔒",
+        "title": "Data security",
+        "text": "Each practice is isolated, with access matched to each person's role."
+      },
+      {
+        "icon": "💬",
+        "title": "Built-in WhatsApp",
+        "text": "Send your patients an appointment reminder in one click."
+      },
+      {
+        "icon": "🧾",
+        "title": "Print-ready documents",
+        "text": "Invoices, quotes, prescriptions and claim forms as PDFs, with your letterhead."
+      },
+      {
+        "icon": "🤝",
+        "title": "Responsive support",
+        "text": "A team close to you, improving DentiCareApp based on your feedback."
+      }
+    ]
   }
 }

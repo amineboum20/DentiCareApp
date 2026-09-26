@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { SEO_BASE_URL } from "@/utils/seo";
+import { MARKETING_PAGES } from "@/utils/marketing-pages";
 
 // Public, indexable pages only (locale-less paths).
 const PAGES: { path: string; priority: number }[] = [
   { path: "", priority: 1 },
   { path: "/signup", priority: 0.8 },
   { path: "/contact", priority: 0.6 },
+  ...MARKETING_PAGES.map((p, i) => ({ path: `/${p.slug}`, priority: i === 0 ? 0.9 : 0.7 })),
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
